@@ -81,3 +81,8 @@
 # with the python modules ``pickle``, ``dbm.*``,
 # ``shelve``, ``marshal``, ``anydbm``, & ``bsddb``
 # (among others).
+
+# Jupyter Notebooks
+# =================
+*.ipynb filter=nbstripout
+*.ipynb diff=ipynb
