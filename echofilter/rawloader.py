@@ -133,7 +133,7 @@ def transect_loader(fname, skip_lines=1):
         i_entry = i_line - skip_lines
         data[i_entry, :] = row
         timestamps[i_entry] = datetime.datetime.strptime(
-            '{}T{}.{:6d}'.format(
+            '{}T{}.{:06d}'.format(
                 meta['Ping_date'],
                 meta['Ping_time'],
                 int(1000 * float(meta['Ping_milliseconds'])),
