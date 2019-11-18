@@ -6,7 +6,7 @@ import os
 import numpy as np
 
 
-SURVEY_FIELD_TYPES = {
+TRANSECT_FIELD_TYPES = {
     'Ping_index': int,
     'Distance_gps': float,
     'Distance_vl': float,
@@ -23,7 +23,7 @@ SURVEY_FIELD_TYPES = {
 }
 
 
-def survey_reader(fname):
+def transect_reader(fname):
     '''
     Creates a generator which iterates through a survey csv file.
 
@@ -49,8 +49,8 @@ def survey_reader(fname):
             metadata = row[:len(metadata_header)]
             metadata_d = OrderedDict()
             for k, v in zip(metadata_header, metadata):
-                if k in SURVEY_FIELD_TYPES:
-                    metadata_d[k] = SURVEY_FIELD_TYPES[k](v)
+                if k in TRANSECT_FIELD_TYPES:
+                    metadata_d[k] = TRANSECT_FIELD_TYPES[k](v)
                 else:
                     metadata_d[k] = v
             data = np.array([float(x) for x in row[len(metadata_header):]])
@@ -85,7 +85,7 @@ def count_lines(filename):
     return lines
 
 
-def survey_loader(fname, skip_lines=1):
+def transect_loader(fname, skip_lines=1):
     '''
     Loads an entire survey CSV.
 
@@ -115,7 +115,7 @@ def survey_loader(fname, skip_lines=1):
     depth_stop = None
 
     # Initialise output array
-    for i_line, (meta, row) in enumerate(survey_reader(fname)):
+    for i_line, (meta, row) in enumerate(transect_reader(fname)):
         if i_line < skip_lines:
             continue
         n_depths = len(row)
@@ -127,7 +127,7 @@ def survey_loader(fname, skip_lines=1):
     timestamps = np.empty((n_lines - skip_lines))
     depths = np.linspace(depth_start, depth_stop, n_depths)
 
-    for i_line, (meta, row) in enumerate(survey_reader(fname)):
+    for i_line, (meta, row) in enumerate(transect_reader(fname)):
         if i_line < skip_lines:
             continue
         i_entry = i_line - skip_lines
