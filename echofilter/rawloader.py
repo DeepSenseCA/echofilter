@@ -87,7 +87,7 @@ def count_lines(filename):
     return lines
 
 
-def transect_loader(fname, skip_lines=1):
+def transect_loader(fname, skip_lines=1, warn_row_overflow=True):
     '''
     Loads an entire survey CSV.
 
@@ -97,6 +97,10 @@ def transect_loader(fname, skip_lines=1):
         Path to survey CSV file.
     skip_lines : int, optional
         Number of initial entries to skip. Default is 1.
+    warn_row_overflow : bool, optional
+        Whether to print a warning message if the number of elements in a
+        row exceeds the expected number. Default is `True`. Overflowing
+        datapoints are dropped.
 
     Returns
     -------
@@ -133,7 +137,12 @@ def transect_loader(fname, skip_lines=1):
         if i_line < skip_lines:
             continue
         i_entry = i_line - skip_lines
-        data[i_entry, :] = row
+        if warn_row_overflow and len(row) > n_depths:
+            print(
+                'Row {} of {} exceeds expected n_depths of {} with {}'
+                .format(i_line, fname, n_depths, len(row))
+            )
+        data[i_entry, :] = row[:n_depths]
         timestamps[i_entry] = datetime.datetime.strptime(
             '{}T{}.{:06d}'.format(
                 meta['Ping_date'],
