@@ -18,6 +18,7 @@ def main(
         max_depth=100.,
         shard_len=64,
         root_data_dir=ROOT_DATA_DIR,
+        progress_bar=False,
     ):
     transect_pths = rawloader.get_partition_list(
         partition,
@@ -26,7 +27,7 @@ def main(
         partitioning_version=partitioning_version,
         root_data_dir=root_data_dir,
     )
-    for transect_pth in tqdm.tqdm(transect_pths):
+    for transect_pth in (tqdm.tqdm(transect_pths) if progress_bar else transect_pths):
         try:
             shardloader.shard_transect(
                 transect_pth,
