@@ -36,6 +36,7 @@ def main(
                 root_data_dir=root_data_dir,
             )
         except Exception as ex:
+            print('Error sharding {}'.format(transect_pth))
             print(ex)
 
 
