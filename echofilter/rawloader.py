@@ -6,7 +6,7 @@ import os
 import numpy as np
 
 
-ROOT_DATA_DIR = '/media/scott/scratch/Datasets/dsforce'
+ROOT_DATA_DIR = '/data/dsforce'
 
 TRANSECT_FIELD_TYPES = {
     'Ping_index': int,
