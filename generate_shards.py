@@ -28,7 +28,6 @@ def main(
     )
     for transect_pth in tqdm.tqdm(transect_pths):
         try:
-            print('Processing ' + transect_pth)
             shardloader.shard_transect(
                 transect_pth,
                 dataset=dataset,
