@@ -132,6 +132,21 @@ def load_transect_from_shards(
         shard_len = int(shard_len)
     # Set the default value for i2
     if i2 is None: i2 = n_timestamps
+
+    # Sanity check
+    if i1 > n_timestamps:
+        raise ValueError(
+            'All requested datapoints out of range: {}, {} > {}'
+            .format(i1, i2, n_timestamps)
+        )
+    if i2 < 0:
+        raise ValueError(
+            'All requested datapoints out of range: {}, {} < {}'
+            .format(i1, i2, 0)
+        )
+    # Make indices safe
+    i1_ = max(0, i1)
+    i2_ = min(i2, n_timestamps)
     # Work out which shards we'll need to load to get this data
     j1 = max(0, int(i1 / shard_len))
     j2 = int(min(i2, n_timestamps - 1) / shard_len)
@@ -142,10 +157,17 @@ def load_transect_from_shards(
     # Load the rest, knitting the shards back together and cutting down to just
     # the necessary timestamps.
     def load_shard(fname):
-        return np.concatenate([
+        # Load necessary shards
+        broad_data = np.concatenate([
             np.load(os.path.join(dirname, str(j), fname + '.npy'), allow_pickle=True)
             for j in range(j1, j2+1)
-        ])[(i1 - j1 * shard_len) : (i2 - j1 * shard_len)]
+        ])
+        # Have to trim data down, and pad if requested indices out of range
+        return np.concatenate([
+            broad_data[[0] * (i1_ - i1)],
+            broad_data[(i1_ - j1 * shard_len) : (i2_ - j1 * shard_len)],
+            broad_data[[-1] * (i2 - i2_)],
+        ])
 
     timestamps = load_shard('timestamps')
     signals = load_shard('Sv')
