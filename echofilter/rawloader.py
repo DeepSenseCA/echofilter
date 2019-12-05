@@ -143,7 +143,16 @@ def transect_loader(fname, skip_lines=1, warn_row_overflow=True):
                 'Row {} of {} exceeds expected n_depths of {} with {}'
                 .format(i_line, fname, n_depths, len(row))
             )
-        data[i_entry, :] = row[:n_depths]
+        if len(row) < n_depths:
+            if warn_row_overflow:
+                print(
+                    'Row {} of {} shorter than expected n_depths of {} with {}'
+                    .format(i_line, fname, n_depths, len(row))
+                )
+            data[i_entry, :] = np.nan
+            data[i_entry, :len(row)] = row
+        else:
+            data[i_entry, :] = row[:n_depths]
         timestamps[i_entry] = datetime.datetime.strptime(
             '{}T{}.{:06d}'.format(
                 meta['Ping_date'],
