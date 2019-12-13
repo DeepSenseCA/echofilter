@@ -58,7 +58,7 @@ def shard_transect(
     )
     # Prep
     depth_mask = depths <= 100
-    indices = range(128, signals.shape[0], 128)
+    indices = range(shard_len, signals.shape[0], shard_len)
     dirname = os.path.join(root_shard_dir, transect_pth)
     os.makedirs(dirname, exist_ok=True)
     # Save sharding metadata (total number of datapoints, shard size) to
