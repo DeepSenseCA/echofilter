@@ -1,0 +1,125 @@
+import os
+import random
+
+import numpy as np
+import torch.utils.data
+
+import echofilter.shardloader
+
+
+class TransectDataset(torch.utils.data.Dataset):
+
+    def __init__(
+            self,
+            transect_paths,
+            window_len=128,
+            crop_depth=70,
+            num_windows_per_transect=0,
+            use_dynamic_offsets=True,
+            transform_pre=None,
+            transform_post=None,
+            ):
+        '''
+        TransectDataset
+
+        Parameters
+        ----------
+        transect_paths : list
+            Absolute paths to transects.
+        window_len : int
+            Width (number of timestamps) to load. Default is `128`.
+        crop_depth : float
+            Maximum depth to include, in metres. Deeper data will be cropped
+            away. Default is `70`.
+        num_windows_per_transect : int
+            Number of windows to extract for each transect. Start indices for
+            the windows will be equally spaced across the total width of the
+            transect. If this is `0`, the number of windows will be inferred
+            automatically based on `window_len` and the total width of the
+            transect, resulting in a different number of windows for each
+            transect. Default is `0`.
+        use_dynamic_offsets : bool
+            Whether starting indices for each window should be randomly offset.
+            Set to `True` for training and `False` for testing. Default is
+            `True`.
+        transform_pre : callable
+            Operations to perform to the dictionary containing a single sample.
+            These are performed before generating the masks. Default is `None`.
+        transform_post : callable
+            Operations to perform to the dictionary containing a single sample.
+            These are performed after generating the masks. Default is `None`.
+        '''
+        super(TransectDataset, self).__init__()
+        self.window_len = window_len
+        self.crop_depth = crop_depth
+        self.num_windows = num_windows_per_transect
+        self.use_dynamic_offsets = use_dynamic_offsets
+        self.transform_pre = transform_pre
+        self.transform_post = transform_post
+
+        self.datapoints = []
+
+        for transect_path in transect_paths:
+            # Lookup the number of rows in the transect
+            # Load the sharding metadata
+            with open(os.path.join(transect_path, 'shard_size.txt'), 'r') as f:
+                n_timestamps, shard_len = f.readline().strip().split(',')
+                n_timestamps = int(n_timestamps)
+            # Generate an array for window centers within the transect
+            # - if this is for training, we want to randomise the offsets
+            # - if this is for validation, we want stable windows
+            num_windows = self.num_windows
+            if self.num_windows is None or self.num_windows == 0:
+                # Load enough windows to include all datapoints
+                num_windows = int(np.ceil(n_timestamps / self.window_len))
+            centers = np.linspace(0, n_timestamps, num_windows + 1)[:num_windows]
+            if len(centers) > 1:
+                max_dy_offset = centers[1] - centers[0]
+            else:
+                max_dy_offset = n_timestamps
+            if self.use_dynamic_offsets:
+                centers += random.random() * max_dy_offset
+            else:
+                centers += max_dy_offset / 2
+            centers = np.round(centers)
+            # Add each (transect, center) to the list for this epoch
+            for center_idx in centers:
+                self.datapoints.append((transect_path, int(center_idx)))
+
+    def __getitem__(self, index):
+        transect_pth, center_idx = self.datapoints[index]
+        # Load data from shards
+        timestamps, depths, signals, d_top, d_bot = \
+            echofilter.shardloader.load_transect_from_shards_abs(
+                transect_pth,
+                center_idx - int(self.window_len / 2),
+                center_idx - int(self.window_len / 2) + self.window_len,
+            )
+        sample = {
+            'timestamps': timestamps,
+            'depths': depths,
+            'signals': signals,
+            'd_top': d_top,
+            'd_bot': d_bot,
+        }
+        if self.transform_pre is not None:
+            sample = self.transform_pre(sample)
+        # Apply depth crop
+        depth_crop_mask = sample['depths'] <= self.crop_depth
+        sample['depths'] = sample['depths'][depth_crop_mask]
+        sample['signals'] = sample['signals'][:, depth_crop_mask]
+        # Convert lines to masks
+        ddepths = np.broadcast_to(sample['depths'], sample['signals'].shape)
+        mask_top = np.single(ddepths < np.expand_dims(sample['d_top'], -1))
+        mask_bot = np.single(ddepths > np.expand_dims(sample['d_bot'], -1))
+        sample['mask_top'] = mask_top
+        sample['mask_bot'] = mask_bot
+        depth_range = abs(sample['depths'][-1] - sample['depths'][0])
+        sample['r_top'] = sample['d_top'] / depth_range
+        sample['r_bot'] = sample['d_bot'] / depth_range
+        if self.transform_post is not None:
+            sample = self.transform_post(sample)
+        return sample
+
+    def __len__(self):
+        return len(self.datapoints)
