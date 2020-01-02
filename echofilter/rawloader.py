@@ -341,14 +341,13 @@ def get_partition_list(
         Default is `False`.
     partitioning_version : str, optional
         Name of partitioning method.
-    root_data_dir : str
+    root_data_dir : str, optional
         Path to root directory where data is located.
 
     Returns
     -------
-    pandas.DataFrame
-        Metadata for all transects in the partition. Each row is a single
-        sample.
+    list
+        Path for each sample in the partition.
     '''
     df = get_partition_data(
         partition,
