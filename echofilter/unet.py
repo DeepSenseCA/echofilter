@@ -85,22 +85,22 @@ class OutConv(nn.Module):
 
 
 class UNet(nn.Module):
-    def __init__(self, n_channels, n_classes, bilinear=True):
+    def __init__(self, n_channels, n_classes, bilinear=True, latent_channels=64):
         super(UNet, self).__init__()
         self.n_channels = n_channels
         self.n_classes = n_classes
         self.bilinear = bilinear
 
-        self.inc = DoubleConv(n_channels, 64)
-        self.down1 = Down(64, 128)
-        self.down2 = Down(128, 256)
-        self.down3 = Down(256, 512)
-        self.down4 = Down(512, 512)
-        self.up1 = Up(1024, 256, bilinear)
-        self.up2 = Up(512, 128, bilinear)
-        self.up3 = Up(256, 64, bilinear)
-        self.up4 = Up(128, 64, bilinear)
-        self.outc = OutConv(64, n_classes)
+        self.inc = DoubleConv(n_channels, latent_channels)
+        self.down1 = Down(latent_channels * 1, latent_channels * 2)
+        self.down2 = Down(latent_channels * 2, latent_channels * 4)
+        self.down3 = Down(latent_channels * 4, latent_channels * 8)
+        self.down4 = Down(latent_channels * 8, latent_channels * 8)
+        self.up1 = Up(latent_channels * 16, latent_channels * 4, bilinear)
+        self.up2 = Up(latent_channels * 8, latent_channels * 2, bilinear)
+        self.up3 = Up(latent_channels * 4, latent_channels * 1, bilinear)
+        self.up4 = Up(latent_channels * 2, latent_channels * 1, bilinear)
+        self.outc = OutConv(latent_channels, n_classes)
 
     def forward(self, x):
         x1 = self.inc(x)
