@@ -325,6 +325,7 @@ def get_partition_list(
         full_path=False,
         partitioning_version='firstpass',
         root_data_dir=ROOT_DATA_DIR,
+        sharded=False,
     ):
     '''
     Get a list of transects in a single partition.
@@ -343,6 +344,8 @@ def get_partition_list(
         Name of partitioning method.
     root_data_dir : str, optional
         Path to root directory where data is located.
+    sharded : bool, optional
+        Whether to return path to sharded version of data. Default is `False`.
 
     Returns
     -------
@@ -357,6 +360,10 @@ def get_partition_list(
     )
     fnames = df['Filename']
     fnames = [os.path.join(f.split('_')[0], f.strip().replace('_Sv_raw.csv', '')) for f in fnames]
-    if full_path:
+    if full_path and sharded:
+        fnames = [os.path.join(root_data_dir, dataset + '_sharded', f) for f in fnames]
+    elif full_path:
         fnames = [os.path.join(root_data_dir, dataset, f) for f in fnames]
+    elif sharded:
+        fnames = [os.path.join(dataset + '_sharded', f) for f in fnames]
     return fnames
