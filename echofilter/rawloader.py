@@ -361,9 +361,7 @@ def get_partition_list(
     fnames = df['Filename']
     fnames = [os.path.join(f.split('_')[0], f.strip().replace('_Sv_raw.csv', '')) for f in fnames]
     if full_path and sharded:
-        fnames = [os.path.join(root_data_dir, dataset + '_sharded', f) for f in fnames]
+        fnames = [os.path.join(root_data_dir + '_sharded', dataset, f) for f in fnames]
     elif full_path:
         fnames = [os.path.join(root_data_dir, dataset, f) for f in fnames]
-    elif sharded:
-        fnames = [os.path.join(dataset + '_sharded', f) for f in fnames]
     return fnames
