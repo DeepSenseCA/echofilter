@@ -47,13 +47,15 @@ def main(
         echofilter.transforms.RandomReflection(),
     ])
     train_transform_post = torchvision.transforms.Compose([
-        echofilter.transforms.Rescale(sample_shape),
         echofilter.transforms.Normalize(DATA_MEAN, DATA_STDEV),
         echofilter.transforms.ColorJitter(0.5, 0.3),
+        echofilter.transforms.ReplaceNan(-3),
+        echofilter.transforms.Rescale(sample_shape),
     ])
     val_transform = torchvision.transforms.Compose([
-        echofilter.transforms.Rescale(sample_shape),
         echofilter.transforms.Normalize(DATA_MEAN, DATA_STDEV),
+        echofilter.transforms.ReplaceNan(-3),
+        echofilter.transforms.Rescale(sample_shape),
     ])
 
     train_paths = get_partition_list(
