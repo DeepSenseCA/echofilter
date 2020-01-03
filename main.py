@@ -9,6 +9,7 @@ import torch.optim
 import torch.utils.data
 import torchvision.transforms
 from torchutils.random import seed_all
+from torchutils.utils import count_parameters
 
 import echofilter.dataset
 import echofilter.transforms
@@ -74,6 +75,8 @@ def main(
         full_path=True,
         sharded=True,
     )
+    print('Found {:3d} train sample paths'.format(len(train_paths)))
+    print('Found {:3d} val sample paths'.format(len(val_paths)))
 
     dataset_train = echofilter.dataset.TransectDataset(
         train_paths,
@@ -92,6 +95,8 @@ def main(
         use_dynamic_offsets=False,
         transform_post=val_transform,
     )
+    print('Train dataset has {:4d} samples'.format(len(dataset_train)))
+    print('Val   dataset has {:4d} samples'.format(len(dataset_val)))
 
     loader_train = torch.utils.data.DataLoader(
         dataset_train,
@@ -109,9 +114,17 @@ def main(
         pin_memory=True,
         drop_last=False,
     )
+    print('Train loader has {:3d} batches'.format(len(loader_train)))
+    print('Val   loader has {:3d} batches'.format(len(loader_val)))
 
+    print()
+    print('Constructing U-Net model with {} initial latent channels'.format(latent_channels))
     model = UNet(1, 2, latent_channels=latent_channels)
     model.to(device)
+    print(
+        'Built model with {} trainable parameters'
+        .format(count_parameters(model, only_trainable=True))
+    )
 
     # define loss function (criterion) and optimizer
     criterion = torch.nn.BCEWithLogitsLoss()
@@ -123,23 +136,25 @@ def main(
         weight_decay=weight_decay,
     )
 
-    best_loss = float('inf')
+    print('Started training')
+    best_val_loss = float('inf')
     for epoch in range(n_epoch):
 
         # train for one epoch
         train(loader_train, model, criterion, optimizer, device, epoch, print_freq=print_freq)
 
         # evaluate on validation set
-        loss = validate(loader_val, model, criterion, device, print_freq=print_freq)
+        val_loss = validate(loader_val, model, criterion, device, print_freq=print_freq, prefix='Validation')
+        print('{} epoch completed. Validation loss: {}'.format(epoch + 1, val_loss))
 
         # remember best loss and save checkpoint
-        is_best = loss < best_loss
-        best_loss = max(loss, best_loss)
+        is_best = val_loss < best_val_loss
+        best_val_loss = max(val_loss, best_val_loss)
 
         save_checkpoint({
             'epoch': epoch + 1,
             'state_dict': model.state_dict(),
-            'best_loss': best_loss,
+            'best_loss': best_val_loss,
             'optimizer' : optimizer.state_dict(),
         }, is_best)
 
@@ -188,13 +203,13 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
             progress.display(i)
 
 
-def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10):
+def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10, prefix='Test'):
     batch_time = AverageMeter('Time', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
     progress = ProgressMeter(
         len(loader),
         [batch_time, losses],
-        prefix='Test: ',
+        prefix=prefix + ': ',
     )
 
     # switch to evaluate mode
