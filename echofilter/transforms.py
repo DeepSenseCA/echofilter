@@ -24,6 +24,7 @@ class Rescale(object):
 
     def __call__(self, sample):
 
+        # 2D arrays (image-like)
         for key in ('signals', 'mask_top', 'mask_bot'):
             if key in sample:
                 sample[key] = skimage.transform.resize(
@@ -31,6 +32,24 @@ class Rescale(object):
                     self.output_size,
                     clip=False,
                     preserve_range=False,
+                )
+
+        # 1D arrays (column-like)
+        for key in ('timestamps', 'd_top', 'd_bot', 'r_top', 'r_bot'):
+            if key in sample:
+                sample[key] = np.interp(
+                    np.linspace(0, len(sample[key]) - 1, self.output_size[0]),
+                    np.linspace(0, len(sample[key]) - 1, len(sample[key])),
+                    sample[key],
+                )
+
+        # 1D arrays (row-like)
+        for key in ('depths', ):
+            if key in sample:
+                sample[key] = np.interp(
+                    np.linspace(0, len(sample[key]) - 1, self.output_size[1]),
+                    np.linspace(0, len(sample[key]) - 1, len(sample[key])),
+                    sample[key],
                 )
 
         return sample
