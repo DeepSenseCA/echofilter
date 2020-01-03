@@ -140,6 +140,9 @@ def main(
     best_val_loss = float('inf')
     for epoch in range(n_epoch):
 
+        # Resample offsets for each window
+        loader_train.dataset.initialise_datapoints()
+
         # train for one epoch
         train(loader_train, model, criterion, optimizer, device, epoch, print_freq=print_freq)
 
