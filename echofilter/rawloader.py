@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 
-ROOT_DATA_DIR = '/data/dsforce'
+ROOT_DATA_DIR = '/data/dsforce/surveyExports'
 
 TRANSECT_FIELD_TYPES = {
     'Ping_index': int,
@@ -232,7 +232,7 @@ def evl_loader(fname):
 
 def load_transect_data(
         transect_pth,
-        dataset='surveyExports',
+        dataset='mobile',
         root_data_dir=ROOT_DATA_DIR
         ):
     '''
@@ -243,7 +243,7 @@ def load_transect_data(
     transect_pth : str
         Relative path to transect, excluding '_Sv_raw.csv'.
     dataset : str, optional
-        Name of dataset. Default is `'surveyExports'`.
+        Name of dataset. Default is `'mobile'`.
     root_data_dir : str
         Path to root directory where data is located.
 
@@ -282,7 +282,7 @@ def load_transect_data(
 
 def get_partition_data(
         partition,
-        dataset='surveyExports',
+        dataset='mobile',
         partitioning_version='firstpass',
         root_data_dir=ROOT_DATA_DIR,
         ):
@@ -294,7 +294,7 @@ def get_partition_data(
     transect_pth : str
         Relative path to transect, excluding '_Sv_raw.csv'.
     dataset : str, optional
-        Name of dataset. Default is `'surveyExports'`.
+        Name of dataset. Default is `'mobile'`.
     partitioning_version : str, optional
         Name of partitioning method.
     root_data_dir : str
@@ -321,7 +321,7 @@ def get_partition_data(
 
 def get_partition_list(
         partition,
-        dataset='surveyExports',
+        dataset='mobile',
         full_path=False,
         partitioning_version='firstpass',
         root_data_dir=ROOT_DATA_DIR,
@@ -335,7 +335,7 @@ def get_partition_list(
     transect_pth : str
         Relative path to transect, excluding '_Sv_raw.csv'.
     dataset : str, optional
-        Name of dataset. Default is `'surveyExports'`.
+        Name of dataset. Default is `'mobile'`.
     full_path : bool, optional
         Whether to return the full path to the sample. If `False`, only the
         relative path (from the dataset directory) is returned.

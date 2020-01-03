@@ -22,8 +22,8 @@ DATA_STDEV = 21.9
 
 
 def main(
-        data_dir='/data/dsforce',
-        dataset_name='surveyExports',
+        data_dir='/data/dsforce/surveyExports',
+        dataset_name='mobile',
         sample_shape=(128, 512),
         crop_depth=70,
         latent_channels=64,
@@ -240,7 +240,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--data-dir',
         type=str,
-        default='/data/dsforce',
+        default='/data/dsforce/surveyExports',
         metavar='DIR',
         help='path to root data directory',
     )
@@ -248,7 +248,7 @@ if __name__ == '__main__':
         '--dataset',
         dest='dataset_name',
         type=str,
-        default='surveyExports',
+        default='mobile',
         help='which dataset to use',
     )
     parser.add_argument(

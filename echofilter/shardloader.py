@@ -9,7 +9,7 @@ ROOT_DATA_DIR = rawloader.ROOT_DATA_DIR
 
 def shard_transect(
         transect_pth,
-        dataset='surveyExports',
+        dataset='mobile',
         max_depth=100.,
         shard_len=128,
         root_data_dir=ROOT_DATA_DIR
@@ -23,7 +23,7 @@ def shard_transect(
     transect_pth : str
         Relative path to transect, excluding '_Sv_raw.csv'.
     dataset : str, optional
-        Name of dataset. Default is `'surveyExports'`.
+        Name of dataset. Default is `'mobile'`.
     max_depth : float, optional
         The maximum depth to include in the saved shard. Data corresponding
         to deeper locations is omitted to save on load time and memory when
@@ -172,7 +172,7 @@ def load_transect_from_shards_rel(
         transect_rel_pth,
         i1=0,
         i2=None,
-        dataset='surveyExports',
+        dataset='mobile',
         root_data_dir=ROOT_DATA_DIR,
         ):
     '''
@@ -190,7 +190,7 @@ def load_transect_from_shards_rel(
         datapoint `i2 - 1` is the right-most datapoint loaded. Default is
         `None`, which loads everything up to and including to the last sample.
     dataset : str, optional
-        Name of dataset. Default is `'surveyExports'`.
+        Name of dataset. Default is `'mobile'`.
     root_data_dir : str
         Path to root directory where data is located.
 
