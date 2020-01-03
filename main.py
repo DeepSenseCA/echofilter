@@ -28,6 +28,7 @@ def main(
         sample_shape=(128, 512),
         crop_depth=70,
         latent_channels=64,
+        expansion_factor=2,
         device='cuda',
         n_worker=4,
         batch_size=64,
@@ -118,8 +119,13 @@ def main(
     print('Val   loader has {:3d} batches'.format(len(loader_val)))
 
     print()
-    print('Constructing U-Net model with {} initial latent channels'.format(latent_channels))
-    model = UNet(1, 2, latent_channels=latent_channels)
+    print(
+        'Constructing U-Net model with '
+        'initial latent channels {}, '
+        'expansion_factor {}'
+        .format(latent_channels, expansion_factor)
+    )
+    model = UNet(1, 2, latent_channels=latent_channels, expansion_factor=expansion_factor)
     model.to(device)
     print(
         'Built model with {} trainable parameters'
@@ -283,7 +289,13 @@ if __name__ == '__main__':
         '--latent-channels',
         type=int,
         default=64,
-        help='number of latent channels to use in the model',
+        help='number of initial/final latent channels to use in the model (default: 64)',
+    )
+    parser.add_argument(
+        '--expansion-factor',
+        type=float,
+        default=2.0,
+        help='expansion for number of channels as model becomes deeper (default: 2.0)',
     )
 
     # Training methodology parameters
