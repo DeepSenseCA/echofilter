@@ -85,12 +85,12 @@ class RandomReflection(object):
             return sample
 
         # Reflect x co-ordinates
-        sample['timestamps'] = sample['timestamps'][::-1]
+        sample['timestamps'] = sample['timestamps'][::-1].copy()
 
         # Reflect data
         for key in ('signals', 'd_top', 'd_bot', 'mask_top', 'mask_bot'):
             if key in sample:
-                sample[key] = np.flip(sample[key], self.axis)
+                sample[key] = np.flip(sample[key], self.axis).copy()
 
         return sample
 
