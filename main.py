@@ -142,7 +142,7 @@ def main(
         }, is_best)
 
 
-def train(loader, model, criterion, optimizer, device, epoch, print_freq=10):
+def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float, print_freq=10):
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
@@ -163,8 +163,8 @@ def train(loader, model, criterion, optimizer, device, epoch, print_freq=10):
         data = batch['signals'].unsqueeze(1)
         target = torch.stack((batch['mask_top'], batch['mask_bot']), dim=1)
 
-        data = data.to(device, non_blocking=True)
-        target = target.to(device, non_blocking=True)
+        data = data.to(device, dtype, non_blocking=True)
+        target = target.to(device, dtype, non_blocking=True)
 
         # compute output
         output = model(data)
@@ -186,7 +186,7 @@ def train(loader, model, criterion, optimizer, device, epoch, print_freq=10):
             progress.display(i)
 
 
-def validate(loader, model, criterion, device, print_freq=10):
+def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10):
     batch_time = AverageMeter('Time', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
     progress = ProgressMeter(
@@ -205,8 +205,8 @@ def validate(loader, model, criterion, device, print_freq=10):
             data = batch['signals'].unsqueeze(1)
             target = torch.stack((batch['mask_top'], batch['mask_bot']), dim=1)
 
-            data = data.to(device, non_blocking=True)
-            target = target.to(device, non_blocking=True)
+            data = data.to(device, dtype, non_blocking=True)
+            target = target.to(device, dtype, non_blocking=True)
 
             # compute output
             output = model(data)
