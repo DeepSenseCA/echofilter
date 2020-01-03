@@ -84,23 +84,33 @@ class OutConv(nn.Module):
         return self.conv(x)
 
 
+def rint(x):
+    '''
+    Returns rounded value, cast as an int.
+    '''
+    return int(round(x))
+
+
 class UNet(nn.Module):
-    def __init__(self, in_channels, n_classes, bilinear=True, latent_channels=64):
+    def __init__(self, in_channels, n_classes, bilinear=True, latent_channels=64, expansion_factor=2):
         super(UNet, self).__init__()
         self.in_channels = in_channels
         self.n_classes = n_classes
         self.bilinear = bilinear
 
-        self.inc = DoubleConv(in_channels, latent_channels)
-        self.down1 = Down(latent_channels * 1, latent_channels * 2)
-        self.down2 = Down(latent_channels * 2, latent_channels * 4)
-        self.down3 = Down(latent_channels * 4, latent_channels * 8)
-        self.down4 = Down(latent_channels * 8, latent_channels * 8)
-        self.up1 = Up(latent_channels * 16, latent_channels * 4, bilinear)
-        self.up2 = Up(latent_channels * 8, latent_channels * 2, bilinear)
-        self.up3 = Up(latent_channels * 4, latent_channels * 1, bilinear)
-        self.up4 = Up(latent_channels * 2, latent_channels * 1, bilinear)
-        self.outc = OutConv(latent_channels, n_classes)
+        lc = latent_channels
+        xf = expansion_factor
+
+        self.inc = DoubleConv(in_channels, rint(lc))
+        self.down1 = Down(rint(lc            ), rint(lc * xf       ))
+        self.down2 = Down(rint(lc * xf       ), rint(lc * (xf ** 2)))
+        self.down3 = Down(rint(lc * (xf ** 2)), rint(lc * (xf ** 3)))
+        self.down4 = Down(rint(lc * (xf ** 3)), rint(lc * (xf ** 3)))
+        self.up1 = Up(rint(lc * (xf ** 3)) * 2, rint(lc * (xf ** 2)), bilinear)
+        self.up2 = Up(rint(lc * (xf ** 2)) * 2, rint(lc * xf       ), bilinear)
+        self.up3 = Up(rint(lc * xf       ) * 2, rint(lc            ), bilinear)
+        self.up4 = Up(rint(lc            ) * 2, rint(lc            ), bilinear)
+        self.outc = OutConv(rint(lc), n_classes)
 
     def forward(self, x):
         x1 = self.inc(x)
