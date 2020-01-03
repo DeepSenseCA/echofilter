@@ -81,6 +81,30 @@ class Normalize(object):
         return sample
 
 
+class ReplaceNan(object):
+    '''
+    Replace NaNs with a finite float value.
+
+    Parameters
+    ----------
+    nan_val : float, optional
+        Value to replace NaNs with. Default is `0.0`.
+    '''
+
+    def __init__(self, nan_val=0.0):
+        self.nan_val = nan_val
+
+    def __call__(self, sample):
+
+        sample['signals'] = np.nan_to_num(
+            sample['signals'],
+            copy=False,
+            nan=self.nan_val,
+        )
+
+        return sample
+
+
 class RandomReflection(object):
     '''
     Randomly reflect a sample.
