@@ -2,6 +2,7 @@
 
 from collections import OrderedDict
 import shutil
+import datetime
 import time
 
 import torch
@@ -163,7 +164,10 @@ def main(
 
     print('Started training')
     best_loss_val = float('inf')
+    t_start = time.time()
     for epoch in range(n_epoch):
+
+        t_epoch_start = time.time()
 
         # Resample offsets for each window
         loader_train.dataset.initialise_datapoints()
@@ -181,7 +185,10 @@ def main(
         loss_augval, meters_augval = validate(
             loader_augval, model, criterion, device, print_freq=print_freq, prefix='Aug-Val   '
         )
-        print('Completed {} epochs'.format(epoch + 1))
+        print(
+            'Completed {} epochs in {}'
+            .format(epoch + 1, datetime.timedelta(seconds=time.time() - t_start))
+        )
         name_fmt = '{:.<22s}'
         print(
             (name_fmt + ' Train: {:.4e}  AugVal: {:.4e}  Val: {:.4e}')
