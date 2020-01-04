@@ -50,7 +50,7 @@ def mask_precision(input, target, threshold=0.5, has_batch_dim=True, reduction='
     # Measure true positives and total predicted positives
     true_p = (input & target).sum(-1)
     predicted_p = input.sum(-1)
-    output = true_p.float() / predicted_p
+    output = true_p.float() / predicted_p.float()
     # Handle division by 0: If there were positives predicted, all were wrong.
     output[predicted_p == 0] = 0
 
@@ -86,7 +86,7 @@ def mask_recall(input, target, threshold=0.5, has_batch_dim=True, reduction='mea
     # Measure true positives and actual positives
     true_p = (input & target).sum(-1)
     ground_truth_p = target.sum(-1)
-    output = true_p.float() / ground_truth_p
+    output = true_p.float() / ground_truth_p.float()
     # Handle division by 0: If there were no positives to find, all were found.
     output[ground_truth_p == 0] = 1
 
@@ -135,7 +135,7 @@ def mask_jaccard_index(input, target, threshold=0.5, has_batch_dim=True, reducti
     # Use number of pixels at which intersect and union are activated
     intersect = intersect.sum(-1)
     union = union.sum(-1)
-    output = intersect.float() / union
+    output = intersect.float() / union.float()
     # Handle division by 0: If there is no union, the two masks match completely.
     output[union == 0] = 1
 
