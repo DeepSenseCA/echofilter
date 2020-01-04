@@ -182,20 +182,21 @@ def main(
             loader_augval, model, criterion, device, print_freq=print_freq, prefix='Aug-Val   '
         )
         print('Completed {} epochs'.format(epoch + 1))
+        name_fmt = '{:.<22s}'
         print(
-            '{:.<17s} Train: {:.4e}  AugVal: {:.4e}  Val: {:.4e}'
+            (name_fmt + ' Train: {:.4e}  AugVal: {:.4e}  Val: {:.4e}')
             .format('Loss', loss_tr, loss_augval, loss_val)
         )
         for meter_tr, meter_val, meter_augval in zip(meters_tr, meters_val, meters_augval):
             if meter_tr.name != meter_val.name:
-                fmt_str = '{:.<17s} Train: {' + meter_tr.fmt + '}'
+                fmt_str = name_fmt + ' Train: {' + meter_tr.fmt + '}'
                 print(fmt_str.format(meter_tr.name, meter_tr.avg))
-                fmt_str = '{:.<17s} AugVal: {' + meter_augval.fmt + '}'
+                fmt_str = name_fmt + ' AugVal: {' + meter_augval.fmt + '}'
                 print(fmt_str.format(meter_augval.name, meter_augval.avg))
-                fmt_str = '{:.<17s} Val: {' + meter_val.fmt + '}'
+                fmt_str = name_fmt + ' Val: {' + meter_val.fmt + '}'
                 print(fmt_str.format(meter_val.name, meter_val.avg))
             else:
-                fmt_str = '{:.<17s}'
+                fmt_str = name_fmt
                 fmt_str += ' Train: {' + meter_tr.fmt + '}'
                 fmt_str += '    AugVal: {' + meter_augval.fmt + '}'
                 fmt_str += '    Val: {' + meter_val.fmt + '}'
@@ -218,11 +219,31 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
+
     accuracies = AverageMeter('Accuracy', ':6.2f')
     precisions = AverageMeter('Precision', ':6.2f')
     recalls = AverageMeter('Recall', ':6.2f')
     f1s = AverageMeter('F1', ':6.4f')
     jaccards = AverageMeter('Jaccard', ':6.4f')
+
+    top_accuracies = AverageMeter('Accuracy (top)', ':6.2f')
+    top_precisions = AverageMeter('Precision (top)', ':6.2f')
+    top_recalls = AverageMeter('Recall (top)', ':6.2f')
+    top_f1s = AverageMeter('F1 (top)', ':6.4f')
+    top_jaccards = AverageMeter('Jaccard (top)', ':6.4f')
+
+    bot_accuracies = AverageMeter('Accuracy (bottom)', ':6.2f')
+    bot_precisions = AverageMeter('Precision (bottom)', ':6.2f')
+    bot_recalls = AverageMeter('Recall (bottom)', ':6.2f')
+    bot_f1s = AverageMeter('F1 (bottom)', ':6.4f')
+    bot_jaccards = AverageMeter('Jaccard (bottom)', ':6.4f')
+
+    meters = [
+        accuracies, precisions, recalls, f1s, jaccards,
+        top_accuracies, top_precisions, top_recalls, top_f1s, top_jaccards,
+        bot_accuracies, bot_precisions, bot_recalls, bot_f1s, bot_jaccards,
+    ]
+
     progress = ProgressMeter(
         len(loader),
         [batch_time, data_time, losses, accuracies, f1s, jaccards],
@@ -257,6 +278,21 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         f1s.update(criterions.mask_f1_score_with_logits(output, target).item(), ns)
         jaccards.update(criterions.mask_jaccard_index_with_logits(output, target).item(), ns)
 
+        top_output, bot_output = output.unbind(1)
+        top_target, bot_target = target.unbind(1)
+
+        top_accuracies.update(100.0 * criterions.mask_accuracy_with_logits(top_output, top_target).item(), ns)
+        top_precisions.update(100.0 * criterions.mask_precision_with_logits(top_output, top_target).item(), ns)
+        top_recalls.update(100.0 * criterions.mask_recall_with_logits(top_output, top_target).item(), ns)
+        top_f1s.update(criterions.mask_f1_score_with_logits(top_output, top_target).item(), ns)
+        top_jaccards.update(criterions.mask_jaccard_index_with_logits(top_output, top_target).item(), ns)
+
+        bot_accuracies.update(100.0 * criterions.mask_accuracy_with_logits(bot_output, bot_target).item(), ns)
+        bot_precisions.update(100.0 * criterions.mask_precision_with_logits(bot_output, bot_target).item(), ns)
+        bot_recalls.update(100.0 * criterions.mask_recall_with_logits(bot_output, bot_target).item(), ns)
+        bot_f1s.update(criterions.mask_f1_score_with_logits(bot_output, bot_target).item(), ns)
+        bot_jaccards.update(criterions.mask_jaccard_index_with_logits(bot_output, bot_target).item(), ns)
+
         # compute gradient and do optimizer update step
         optimizer.zero_grad()
         loss.backward()
@@ -269,18 +305,38 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         if i % print_freq == 0 or i + 1 == len(loader):
             progress.display(i + 1)
 
-    return losses.avg, [accuracies, precisions, recalls, f1s, jaccards]
+    return losses.avg, meters
 
 
 def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10, prefix='Test'):
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
+
     accuracies = AverageMeter('Accuracy', ':6.2f')
     precisions = AverageMeter('Precision', ':6.2f')
     recalls = AverageMeter('Recall', ':6.2f')
     f1s = AverageMeter('F1', ':6.4f')
     jaccards = AverageMeter('Jaccard', ':6.4f')
+
+    top_accuracies = AverageMeter('Accuracy (top)', ':6.2f')
+    top_precisions = AverageMeter('Precision (top)', ':6.2f')
+    top_recalls = AverageMeter('Recall (top)', ':6.2f')
+    top_f1s = AverageMeter('F1 (top)', ':6.4f')
+    top_jaccards = AverageMeter('Jaccard (top)', ':6.4f')
+
+    bot_accuracies = AverageMeter('Accuracy (bottom)', ':6.2f')
+    bot_precisions = AverageMeter('Precision (bottom)', ':6.2f')
+    bot_recalls = AverageMeter('Recall (bottom)', ':6.2f')
+    bot_f1s = AverageMeter('F1 (bottom)', ':6.4f')
+    bot_jaccards = AverageMeter('Jaccard (bottom)', ':6.4f')
+
+    meters = [
+        accuracies, precisions, recalls, f1s, jaccards,
+        top_accuracies, top_precisions, top_recalls, top_f1s, top_jaccards,
+        bot_accuracies, bot_precisions, bot_recalls, bot_f1s, bot_jaccards,
+    ]
+
     progress = ProgressMeter(
         len(loader),
         [batch_time, data_time, losses, accuracies, f1s, jaccards],
@@ -316,6 +372,21 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
             f1s.update(criterions.mask_f1_score_with_logits(output, target).item(), ns)
             jaccards.update(criterions.mask_jaccard_index_with_logits(output, target).item(), ns)
 
+            top_output, bot_output = output.unbind(1)
+            top_target, bot_target = target.unbind(1)
+
+            top_accuracies.update(100.0 * criterions.mask_accuracy_with_logits(top_output, top_target).item(), ns)
+            top_precisions.update(100.0 * criterions.mask_precision_with_logits(top_output, top_target).item(), ns)
+            top_recalls.update(100.0 * criterions.mask_recall_with_logits(top_output, top_target).item(), ns)
+            top_f1s.update(criterions.mask_f1_score_with_logits(top_output, top_target).item(), ns)
+            top_jaccards.update(criterions.mask_jaccard_index_with_logits(top_output, top_target).item(), ns)
+
+            bot_accuracies.update(100.0 * criterions.mask_accuracy_with_logits(bot_output, bot_target).item(), ns)
+            bot_precisions.update(100.0 * criterions.mask_precision_with_logits(bot_output, bot_target).item(), ns)
+            bot_recalls.update(100.0 * criterions.mask_recall_with_logits(bot_output, bot_target).item(), ns)
+            bot_f1s.update(criterions.mask_f1_score_with_logits(bot_output, bot_target).item(), ns)
+            bot_jaccards.update(criterions.mask_jaccard_index_with_logits(bot_output, bot_target).item(), ns)
+
             # measure elapsed time
             batch_time.update(time.time() - end)
             end = time.time()
@@ -323,7 +394,7 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
             if i % print_freq == 0 or i + 1 == len(loader):
                 progress.display(i + 1)
 
-    return losses.avg, [accuracies, precisions, recalls, f1s, jaccards]
+    return losses.avg, meters
 
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
