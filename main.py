@@ -189,7 +189,7 @@ def main(
             'Completed {} epochs in {}'
             .format(epoch + 1, datetime.timedelta(seconds=time.time() - t_start))
         )
-        name_fmt = '{:.<22s}'
+        name_fmt = '{:.<23s}'
         print(
             (name_fmt + ' Train: {:.4e}  AugVal: {:.4e}  Val: {:.4e}')
             .format('Loss', loss_tr, loss_augval, loss_val)
@@ -238,17 +238,21 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
     top_recalls = AverageMeter('Recall (top)', ':6.2f')
     top_f1s = AverageMeter('F1 (top)', ':6.4f')
     top_jaccards = AverageMeter('Jaccard (top)', ':6.4f')
+    top_active_output = AverageMeter('Active output (top)', ':6.2f')
+    top_active_target = AverageMeter('Active target (top)', ':6.2f')
 
     bot_accuracies = AverageMeter('Accuracy (bottom)', ':6.2f')
     bot_precisions = AverageMeter('Precision (bottom)', ':6.2f')
     bot_recalls = AverageMeter('Recall (bottom)', ':6.2f')
     bot_f1s = AverageMeter('F1 (bottom)', ':6.4f')
     bot_jaccards = AverageMeter('Jaccard (bottom)', ':6.4f')
+    bot_active_output = AverageMeter('Active output (bottom)', ':6.2f')
+    bot_active_target = AverageMeter('Active target (bottom)', ':6.2f')
 
     meters = [
         accuracies, precisions, recalls, f1s, jaccards,
-        top_accuracies, top_precisions, top_recalls, top_f1s, top_jaccards,
-        bot_accuracies, bot_precisions, bot_recalls, bot_f1s, bot_jaccards,
+        top_accuracies, top_precisions, top_recalls, top_f1s, top_jaccards, top_active_output, top_active_target,
+        bot_accuracies, bot_precisions, bot_recalls, bot_f1s, bot_jaccards, bot_active_output, bot_active_target,
     ]
 
     progress = ProgressMeter(
@@ -293,12 +297,16 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         top_recalls.update(100.0 * criterions.mask_recall_with_logits(top_output, top_target).item(), ns)
         top_f1s.update(criterions.mask_f1_score_with_logits(top_output, top_target).item(), ns)
         top_jaccards.update(criterions.mask_jaccard_index_with_logits(top_output, top_target).item(), ns)
+        top_active_output.update(100.0 * criterions.mask_active_fraction(top_output).item(), ns)
+        top_active_target.update(100.0 * criterions.mask_active_fraction(top_target).item(), ns)
 
         bot_accuracies.update(100.0 * criterions.mask_accuracy_with_logits(bot_output, bot_target).item(), ns)
         bot_precisions.update(100.0 * criterions.mask_precision_with_logits(bot_output, bot_target).item(), ns)
         bot_recalls.update(100.0 * criterions.mask_recall_with_logits(bot_output, bot_target).item(), ns)
         bot_f1s.update(criterions.mask_f1_score_with_logits(bot_output, bot_target).item(), ns)
         bot_jaccards.update(criterions.mask_jaccard_index_with_logits(bot_output, bot_target).item(), ns)
+        bot_active_output.update(100.0 * criterions.mask_active_fraction(bot_output).item(), ns)
+        bot_active_target.update(100.0 * criterions.mask_active_fraction(bot_target).item(), ns)
 
         # compute gradient and do optimizer update step
         optimizer.zero_grad()
@@ -331,17 +339,21 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
     top_recalls = AverageMeter('Recall (top)', ':6.2f')
     top_f1s = AverageMeter('F1 (top)', ':6.4f')
     top_jaccards = AverageMeter('Jaccard (top)', ':6.4f')
+    top_active_output = AverageMeter('Active output (top)', ':6.2f')
+    top_active_target = AverageMeter('Active target (top)', ':6.2f')
 
     bot_accuracies = AverageMeter('Accuracy (bottom)', ':6.2f')
     bot_precisions = AverageMeter('Precision (bottom)', ':6.2f')
     bot_recalls = AverageMeter('Recall (bottom)', ':6.2f')
     bot_f1s = AverageMeter('F1 (bottom)', ':6.4f')
     bot_jaccards = AverageMeter('Jaccard (bottom)', ':6.4f')
+    bot_active_output = AverageMeter('Active output (bottom)', ':6.2f')
+    bot_active_target = AverageMeter('Active target (bottom)', ':6.2f')
 
     meters = [
         accuracies, precisions, recalls, f1s, jaccards,
-        top_accuracies, top_precisions, top_recalls, top_f1s, top_jaccards,
-        bot_accuracies, bot_precisions, bot_recalls, bot_f1s, bot_jaccards,
+        top_accuracies, top_precisions, top_recalls, top_f1s, top_jaccards, top_active_output, top_active_target,
+        bot_accuracies, bot_precisions, bot_recalls, bot_f1s, bot_jaccards, bot_active_output, bot_active_target,
     ]
 
     progress = ProgressMeter(
@@ -387,12 +399,16 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
             top_recalls.update(100.0 * criterions.mask_recall_with_logits(top_output, top_target).item(), ns)
             top_f1s.update(criterions.mask_f1_score_with_logits(top_output, top_target).item(), ns)
             top_jaccards.update(criterions.mask_jaccard_index_with_logits(top_output, top_target).item(), ns)
+            top_active_output.update(100.0 * criterions.mask_active_fraction(top_output).item(), ns)
+            top_active_target.update(100.0 * criterions.mask_active_fraction(top_target).item(), ns)
 
             bot_accuracies.update(100.0 * criterions.mask_accuracy_with_logits(bot_output, bot_target).item(), ns)
             bot_precisions.update(100.0 * criterions.mask_precision_with_logits(bot_output, bot_target).item(), ns)
             bot_recalls.update(100.0 * criterions.mask_recall_with_logits(bot_output, bot_target).item(), ns)
             bot_f1s.update(criterions.mask_f1_score_with_logits(bot_output, bot_target).item(), ns)
             bot_jaccards.update(criterions.mask_jaccard_index_with_logits(bot_output, bot_target).item(), ns)
+            bot_active_output.update(100.0 * criterions.mask_active_fraction(bot_output).item(), ns)
+            bot_active_target.update(100.0 * criterions.mask_active_fraction(bot_target).item(), ns)
 
             # measure elapsed time
             batch_time.update(time.time() - end)
