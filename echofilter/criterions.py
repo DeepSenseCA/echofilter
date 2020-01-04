@@ -11,6 +11,28 @@ def _binarise_and_reshape(arg, threshold=0.5, ndim=2):
     return arg
 
 
+def mask_active_fraction(input, threshold=0.5, ndim=2, reduction='mean'):
+    # Binarise and reshape mask
+    input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
+
+    # Measure hit rate and number of samples
+    output = input.sum(-1).float() / input.size(-1)
+
+    # Apply reduction
+    if reduction == 'none':
+        return output
+    elif reduction == 'mean':
+        return output.mean()
+    elif reduction == 'sum':
+        return output.sum()
+    else:
+        raise ValueError('Unsupported reduction value: {}'.format(reduction))
+
+
+def mask_active_fraction_with_logits(input, *args, **kwargs):
+    return mask_active_fraction(torch.sigmoid(input), *args, **kwargs)
+
+
 def mask_accuracy(input, target, threshold=0.5, ndim=2, reduction='mean'):
     # Binarise and reshape masks
     input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
