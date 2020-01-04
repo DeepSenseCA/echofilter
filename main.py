@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from collections import OrderedDict
 import shutil
 import time
 
@@ -13,6 +14,7 @@ from torchutils.utils import count_parameters
 
 import echofilter.dataset
 import echofilter.transforms
+from echofilter import criterions
 from echofilter.meters import AverageMeter, ProgressMeter
 from echofilter.rawloader import get_partition_list
 from echofilter.unet import UNet
@@ -143,28 +145,45 @@ def main(
     )
 
     print('Started training')
-    best_val_loss = float('inf')
+    best_loss_val = float('inf')
     for epoch in range(n_epoch):
 
         # Resample offsets for each window
         loader_train.dataset.initialise_datapoints()
 
         # train for one epoch
-        train(loader_train, model, criterion, optimizer, device, epoch, print_freq=print_freq)
+        loss_tr, meters_tr = train(
+            loader_train, model, criterion, optimizer, device, epoch, print_freq=print_freq
+        )
 
         # evaluate on validation set
-        val_loss = validate(loader_val, model, criterion, device, print_freq=print_freq, prefix='Validation')
-        print('{} epoch completed. Validation loss: {}'.format(epoch + 1, val_loss))
+        loss_val, meters_val = validate(
+            loader_val, model, criterion, device, print_freq=print_freq, prefix='Validation'
+        )
+        print('Completed {} epochs'.format(epoch + 1))
+        print('{:.<17s} Train: {:.4e}  Val: {:.4e}'.format('Loss', loss_tr, loss_val))
+        for meter_tr, meter_val in zip(meters_tr, meters_val):
+            if meter_tr.name != meter_val.name:
+                fmt_str = '{:.<17s} Train: {' + meter_tr.fmt + '}'
+                print(fmt_str.format(meter_tr.name, meter_tr.avg))
+                fmt_str = '{:.<17s} Val: {' + meter_val.fmt + '}'
+                print(fmt_str.format(meter_val.name, meter_val.avg))
+            else:
+                fmt_str = '{:.<17s}'
+                fmt_str += ' Train: {' + meter_tr.fmt + '}'
+                fmt_str += '  Val: {' + meter_val.fmt + '}'
+                print(fmt_str.format(meter_tr.name, meter_tr.avg, meter_val.avg))
 
         # remember best loss and save checkpoint
-        is_best = val_loss < best_val_loss
-        best_val_loss = max(val_loss, best_val_loss)
+        is_best = loss_val < best_loss_val
+        best_loss_val = max(loss_val, best_loss_val)
 
         save_checkpoint({
             'epoch': epoch + 1,
             'state_dict': model.state_dict(),
-            'best_loss': best_val_loss,
-            'optimizer' : optimizer.state_dict(),
+            'best_loss': best_loss_val,
+            'optimizer': optimizer.state_dict(),
+            'meters': meters_val,
         }, is_best)
 
 
@@ -172,10 +191,15 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
+    accuracies = AverageMeter('Accuracy', ':6.2f')
+    precisions = AverageMeter('Precision', ':6.2f')
+    recalls = AverageMeter('Recall', ':6.2f')
+    f1s = AverageMeter('F1', ':6.4f')
+    jaccards = AverageMeter('Jaccard', ':6.4f')
     progress = ProgressMeter(
         len(loader),
-        [batch_time, data_time, losses],
-        prefix="Epoch: [{}]".format(epoch),
+        [batch_time, data_time, losses, accuracies, f1s, jaccards],
+        prefix="Epoch: [{}]".format(epoch + 1),
     )
 
     # switch to train mode
@@ -192,12 +216,19 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         data = data.to(device, dtype, non_blocking=True)
         target = target.to(device, dtype, non_blocking=True)
 
-        # compute output
+        # Compute output
         output = model(data)
         loss = criterion(output, target)
+        # Record loss
+        ns = data.size(0)
+        losses.update(loss.item(), ns)
 
-        # measure accuracy and record loss
-        losses.update(loss.item(), data.size(0))
+        # Measure and record performance with various metrics
+        accuracies.update(100.0 * criterions.mask_accuracy_with_logits(output, target).item(), ns)
+        precisions.update(100.0 * criterions.mask_precision_with_logits(output, target).item(), ns)
+        recalls.update(100.0 * criterions.mask_recall_with_logits(output, target).item(), ns)
+        f1s.update(criterions.mask_f1_score_with_logits(output, target).item(), ns)
+        jaccards.update(criterions.mask_jaccard_index_with_logits(output, target).item(), ns)
 
         # compute gradient and do optimizer update step
         optimizer.zero_grad()
@@ -211,13 +242,21 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         if i % print_freq == 0:
             progress.display(i)
 
+    return losses.avg, [accuracies, precisions, recalls, f1s, jaccards]
+
 
 def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10, prefix='Test'):
     batch_time = AverageMeter('Time', ':6.3f')
+    data_time = AverageMeter('Data', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
+    accuracies = AverageMeter('Accuracy', ':6.2f')
+    precisions = AverageMeter('Precision', ':6.2f')
+    recalls = AverageMeter('Recall', ':6.2f')
+    f1s = AverageMeter('F1', ':6.4f')
+    jaccards = AverageMeter('Jaccard', ':6.4f')
     progress = ProgressMeter(
         len(loader),
-        [batch_time, losses],
+        [batch_time, data_time, losses, accuracies, f1s, jaccards],
         prefix=prefix + ': ',
     )
 
@@ -227,6 +266,8 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
     with torch.no_grad():
         end = time.time()
         for i, batch in enumerate(loader):
+            # measure data loading time
+            data_time.update(time.time() - end)
 
             data = batch['signals'].unsqueeze(1)
             target = torch.stack((batch['mask_top'], batch['mask_bot']), dim=1)
@@ -234,12 +275,19 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
             data = data.to(device, dtype, non_blocking=True)
             target = target.to(device, dtype, non_blocking=True)
 
-            # compute output
+            # Compute output
             output = model(data)
             loss = criterion(output, target)
+            # Record loss
+            ns = data.size(0)
+            losses.update(loss.item(), ns)
 
-            # measure accuracy and record loss
-            losses.update(loss.item(), data.size(0))
+            # Measure and record performance with various metrics
+            accuracies.update(100.0 * criterions.mask_accuracy_with_logits(output, target).item(), ns)
+            precisions.update(100.0 * criterions.mask_precision_with_logits(output, target).item(), ns)
+            recalls.update(100.0 * criterions.mask_recall_with_logits(output, target).item(), ns)
+            f1s.update(criterions.mask_f1_score_with_logits(output, target).item(), ns)
+            jaccards.update(criterions.mask_jaccard_index_with_logits(output, target).item(), ns)
 
             # measure elapsed time
             batch_time.update(time.time() - end)
@@ -248,7 +296,7 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
             if i % print_freq == 0:
                 progress.display(i)
 
-    return losses.avg
+    return losses.avg, [accuracies, precisions, recalls, f1s, jaccards]
 
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
