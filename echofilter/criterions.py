@@ -107,10 +107,20 @@ def mask_recall_with_logits(input, *args, **kwargs):
     return mask_recall(torch.sigmoid(input), *args, **kwargs)
 
 
-def mask_f1_score(input, target, **kwargs):
-    precision = mask_precision(input, target, **kwargs)
-    recall = mask_recall(input, target, **kwargs)
-    return 2 * precision * recall / (precision + recall)
+def mask_f1_score(input, target, reduction='mean', **kwargs):
+    precision = mask_precision(input, target, reduction='none', **kwargs)
+    recall = mask_recall(input, target, reduction='none', **kwargs)
+    output = 2 * precision * recall / (precision + recall)
+
+    # Apply reduction
+    if reduction == 'none':
+        return output
+    elif reduction == 'mean':
+        return output.mean()
+    elif reduction == 'sum':
+        return output.sum()
+    else:
+        raise ValueError('Unsupported reduction value: {}'.format(reduction))
 
 
 def mask_f1_score_with_logits(input, *args, **kwargs):
