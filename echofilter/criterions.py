@@ -1,15 +1,20 @@
 import torch
 
 
-def mask_accuracy(input, target, threshold=0.5, ndim=2, reduction='mean'):
-    # Binarise masks
-    input = (input > threshold)
-    target = (target > threshold)
+def _binarise_and_reshape(arg, threshold=0.5, ndim=2):
+    # Binarise mask
+    arg = (arg > threshold)
     # Reshape so pixels are vectorised by batch
-    shape = list(input.shape)
+    shape = list(arg.shape)
     shape = shape[:-ndim] + [-1]
-    input = input.reshape(shape)
-    target = target.reshape(shape)
+    arg = arg.reshape(shape)
+    return arg
+
+
+def mask_accuracy(input, target, threshold=0.5, ndim=2, reduction='mean'):
+    # Binarise and reshape masks
+    input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
+    target = _binarise_and_reshape(target, threshold=threshold, ndim=ndim)
 
     # Measure hit rate and number of samples
     hits = (input == target).sum(-1)
@@ -32,14 +37,9 @@ def mask_accuracy_with_logits(input, *args, **kwargs):
 
 
 def mask_precision(input, target, threshold=0.5, ndim=2, reduction='mean'):
-    # Binarise masks
-    input = (input > threshold)
-    target = (target > threshold)
-    # Reshape so pixels are vectorised by batch
-    shape = list(input.shape)
-    shape = shape[:-ndim] + [-1]
-    input = input.reshape(shape)
-    target = target.reshape(shape)
+    # Binarise and reshape masks
+    input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
+    target = _binarise_and_reshape(target, threshold=threshold, ndim=ndim)
 
     # Measure true positives and total predicted positives
     true_p = (input & target).sum(-1)
@@ -64,14 +64,9 @@ def mask_precision_with_logits(input, *args, **kwargs):
 
 
 def mask_recall(input, target, threshold=0.5, ndim=2, reduction='mean'):
-    # Binarise masks
-    input = (input > threshold)
-    target = (target > threshold)
-    # Reshape so pixels are vectorised by batch
-    shape = list(input.shape)
-    shape = shape[:-ndim] + [-1]
-    input = input.reshape(shape)
-    target = target.reshape(shape)
+    # Binarise and reshape masks
+    input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
+    target = _binarise_and_reshape(target, threshold=threshold, ndim=ndim)
 
     # Measure true positives and actual positives
     true_p = (input & target).sum(-1)
@@ -119,14 +114,9 @@ def mask_f1_score_with_logits(input, *args, **kwargs):
 
 
 def mask_jaccard_index(input, target, threshold=0.5, ndim=2, reduction='mean'):
-    # Binarise masks
-    input = (input > threshold)
-    target = (target > threshold)
-    # Reshape so pixels are vectorised by batch
-    shape = list(input.shape)
-    shape = shape[:-ndim] + [-1]
-    input = input.reshape(shape)
-    target = target.reshape(shape)
+    # Binarise and reshape masks
+    input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
+    target = _binarise_and_reshape(target, threshold=threshold, ndim=ndim)
 
     # Use bitwise operators to determine intersection and union of masks
     intersect = input & target
