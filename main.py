@@ -105,7 +105,7 @@ def main(
         shuffle=True,
         num_workers=n_worker,
         pin_memory=True,
-        drop_last=False,
+        drop_last=True,
     )
     loader_val = torch.utils.data.DataLoader(
         dataset_val,
