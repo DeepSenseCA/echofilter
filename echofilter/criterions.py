@@ -1,15 +1,13 @@
 import torch
 
 
-def mask_accuracy(input, target, threshold=0.5, has_batch_dim=True, reduction='mean'):
+def mask_accuracy(input, target, threshold=0.5, ndim=2, reduction='mean'):
     # Binarise masks
     input = (input > 0.5)
     target = (target > 0.5)
     # Reshape so pixels are vectorised by batch
-    shape = [-1]
-    if has_batch_dim:
-        n_batch = input.shape[0]
-        shape = [n_batch] + shape
+    shape = list(input.shape)
+    shape = shape[:-ndim] + [-1]
     input = input.reshape(shape)
     target = target.reshape(shape)
 
@@ -19,8 +17,6 @@ def mask_accuracy(input, target, threshold=0.5, has_batch_dim=True, reduction='m
     output = hits.float() / count
 
     # Apply reduction
-    if not has_batch_dim:
-        return output
     if reduction == 'none':
         return output
     elif reduction == 'mean':
@@ -35,15 +31,13 @@ def mask_accuracy_with_logits(input, *args, **kwargs):
     return mask_accuracy(torch.sigmoid(input), *args, **kwargs)
 
 
-def mask_precision(input, target, threshold=0.5, has_batch_dim=True, reduction='mean'):
+def mask_precision(input, target, threshold=0.5, ndim=2, reduction='mean'):
     # Binarise masks
     input = (input > 0.5)
     target = (target > 0.5)
     # Reshape so pixels are vectorised by batch
-    shape = [-1]
-    if has_batch_dim:
-        n_batch = input.shape[0]
-        shape = [n_batch] + shape
+    shape = list(input.shape)
+    shape = shape[:-ndim] + [-1]
     input = input.reshape(shape)
     target = target.reshape(shape)
 
@@ -55,8 +49,6 @@ def mask_precision(input, target, threshold=0.5, has_batch_dim=True, reduction='
     output[predicted_p == 0] = 0
 
     # Apply reduction
-    if not has_batch_dim:
-        return output
     if reduction == 'none':
         return output
     elif reduction == 'mean':
@@ -71,15 +63,13 @@ def mask_precision_with_logits(input, *args, **kwargs):
     return mask_precision(torch.sigmoid(input), *args, **kwargs)
 
 
-def mask_recall(input, target, threshold=0.5, has_batch_dim=True, reduction='mean'):
+def mask_recall(input, target, threshold=0.5, ndim=2, reduction='mean'):
     # Binarise masks
     input = (input > 0.5)
     target = (target > 0.5)
     # Reshape so pixels are vectorised by batch
-    shape = [-1]
-    if has_batch_dim:
-        n_batch = input.shape[0]
-        shape = [n_batch] + shape
+    shape = list(input.shape)
+    shape = shape[:-ndim] + [-1]
     input = input.reshape(shape)
     target = target.reshape(shape)
 
@@ -91,8 +81,6 @@ def mask_recall(input, target, threshold=0.5, has_batch_dim=True, reduction='mea
     output[ground_truth_p == 0] = 1
 
     # Apply reduction
-    if not has_batch_dim:
-        return output
     if reduction == 'none':
         return output
     elif reduction == 'mean':
@@ -130,15 +118,13 @@ def mask_f1_score_with_logits(input, *args, **kwargs):
     return mask_f1_score(torch.sigmoid(input), *args, **kwargs)
 
 
-def mask_jaccard_index(input, target, threshold=0.5, has_batch_dim=True, reduction='mean'):
+def mask_jaccard_index(input, target, threshold=0.5, ndim=2, reduction='mean'):
     # Binarise masks
     input = (input > 0.5)
     target = (target > 0.5)
     # Reshape so pixels are vectorised by batch
-    shape = [-1]
-    if has_batch_dim:
-        n_batch = input.shape[0]
-        shape = [n_batch] + shape
+    shape = list(input.shape)
+    shape = shape[:-ndim] + [-1]
     input = input.reshape(shape)
     target = target.reshape(shape)
 
@@ -153,8 +139,6 @@ def mask_jaccard_index(input, target, threshold=0.5, has_batch_dim=True, reducti
     output[union == 0] = 1
 
     # Apply reduction
-    if not has_batch_dim:
-        return output
     if reduction == 'none':
         return output
     elif reduction == 'mean':
