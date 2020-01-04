@@ -110,7 +110,10 @@ def mask_recall_with_logits(input, *args, **kwargs):
 def mask_f1_score(input, target, reduction='mean', **kwargs):
     precision = mask_precision(input, target, reduction='none', **kwargs)
     recall = mask_recall(input, target, reduction='none', **kwargs)
-    output = 2 * precision * recall / (precision + recall)
+    sum_pr = precision + recall
+    output = 2 * precision * recall / sum_pr
+    # Handle division by 0: If both precision and recall are 0, f1 is 0 too.
+    output[sum_pr == 0] = 0
 
     # Apply reduction
     if reduction == 'none':
