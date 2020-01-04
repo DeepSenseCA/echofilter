@@ -98,6 +98,15 @@ def main(
         use_dynamic_offsets=False,
         transform_post=val_transform,
     )
+    dataset_augval = echofilter.dataset.TransectDataset(
+        val_paths,
+        window_len=sample_shape[0],
+        crop_depth=crop_depth,
+        num_windows_per_transect=20,
+        use_dynamic_offsets=False,
+        transform_pre=train_transform_pre,
+        transform_post=train_transform_post,
+    )
     print('Train dataset has {:4d} samples'.format(len(dataset_train)))
     print('Val   dataset has {:4d} samples'.format(len(dataset_val)))
 
@@ -111,6 +120,14 @@ def main(
     )
     loader_val = torch.utils.data.DataLoader(
         dataset_val,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=n_worker,
+        pin_memory=True,
+        drop_last=False,
+    )
+    loader_augval = torch.utils.data.DataLoader(
+        dataset_augval,
         batch_size=batch_size,
         shuffle=False,
         num_workers=n_worker,
@@ -160,19 +177,29 @@ def main(
         loss_val, meters_val = validate(
             loader_val, model, criterion, device, print_freq=print_freq, prefix='Validation'
         )
+        # evaluate on augmented validation set
+        loss_augval, meters_augval = validate(
+            loader_augval, model, criterion, device, print_freq=print_freq, prefix='Aug-Val   '
+        )
         print('Completed {} epochs'.format(epoch + 1))
-        print('{:.<17s} Train: {:.4e}  Val: {:.4e}'.format('Loss', loss_tr, loss_val))
-        for meter_tr, meter_val in zip(meters_tr, meters_val):
+        print(
+            '{:.<17s} Train: {:.4e}  AugVal: {:.4e}  Val: {:.4e}'
+            .format('Loss', loss_tr, loss_augval, loss_val)
+        )
+        for meter_tr, meter_val, meter_augval in zip(meters_tr, meters_val, meters_augval):
             if meter_tr.name != meter_val.name:
                 fmt_str = '{:.<17s} Train: {' + meter_tr.fmt + '}'
                 print(fmt_str.format(meter_tr.name, meter_tr.avg))
+                fmt_str = '{:.<17s} AugVal: {' + meter_augval.fmt + '}'
+                print(fmt_str.format(meter_augval.name, meter_augval.avg))
                 fmt_str = '{:.<17s} Val: {' + meter_val.fmt + '}'
                 print(fmt_str.format(meter_val.name, meter_val.avg))
             else:
                 fmt_str = '{:.<17s}'
                 fmt_str += ' Train: {' + meter_tr.fmt + '}'
-                fmt_str += '  Val: {' + meter_val.fmt + '}'
-                print(fmt_str.format(meter_tr.name, meter_tr.avg, meter_val.avg))
+                fmt_str += '    AugVal: {' + meter_augval.fmt + '}'
+                fmt_str += '    Val: {' + meter_val.fmt + '}'
+                print(fmt_str.format(meter_tr.name, meter_tr.avg, meter_augval.avg, meter_val.avg))
 
         # remember best loss and save checkpoint
         is_best = loss_val < best_loss_val
