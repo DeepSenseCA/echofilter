@@ -3,8 +3,8 @@ import torch
 
 def mask_accuracy(input, target, threshold=0.5, ndim=2, reduction='mean'):
     # Binarise masks
-    input = (input > 0.5)
-    target = (target > 0.5)
+    input = (input > threshold)
+    target = (target > threshold)
     # Reshape so pixels are vectorised by batch
     shape = list(input.shape)
     shape = shape[:-ndim] + [-1]
@@ -33,8 +33,8 @@ def mask_accuracy_with_logits(input, *args, **kwargs):
 
 def mask_precision(input, target, threshold=0.5, ndim=2, reduction='mean'):
     # Binarise masks
-    input = (input > 0.5)
-    target = (target > 0.5)
+    input = (input > threshold)
+    target = (target > threshold)
     # Reshape so pixels are vectorised by batch
     shape = list(input.shape)
     shape = shape[:-ndim] + [-1]
@@ -65,8 +65,8 @@ def mask_precision_with_logits(input, *args, **kwargs):
 
 def mask_recall(input, target, threshold=0.5, ndim=2, reduction='mean'):
     # Binarise masks
-    input = (input > 0.5)
-    target = (target > 0.5)
+    input = (input > threshold)
+    target = (target > threshold)
     # Reshape so pixels are vectorised by batch
     shape = list(input.shape)
     shape = shape[:-ndim] + [-1]
@@ -120,8 +120,8 @@ def mask_f1_score_with_logits(input, *args, **kwargs):
 
 def mask_jaccard_index(input, target, threshold=0.5, ndim=2, reduction='mean'):
     # Binarise masks
-    input = (input > 0.5)
-    target = (target > 0.5)
+    input = (input > threshold)
+    target = (target > threshold)
     # Reshape so pixels are vectorised by batch
     shape = list(input.shape)
     shape = shape[:-ndim] + [-1]
