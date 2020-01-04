@@ -45,8 +45,8 @@ def mask_precision(input, target, threshold=0.5, ndim=2, reduction='mean'):
     true_p = (input & target).sum(-1)
     predicted_p = input.sum(-1)
     output = true_p.float() / predicted_p.float()
-    # Handle division by 0: If there were positives predicted, all were wrong.
-    output[predicted_p == 0] = 0
+    # Handle division by 0: If there were no positives predicted, use 0.5.
+    output[predicted_p == 0] = 0.5
 
     # Apply reduction
     if reduction == 'none':
