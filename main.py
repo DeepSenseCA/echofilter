@@ -267,7 +267,7 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         end = time.time()
 
         if i % print_freq == 0 or i + 1 == len(loader):
-            progress.display(i)
+            progress.display(i + 1)
 
     return losses.avg, [accuracies, precisions, recalls, f1s, jaccards]
 
@@ -321,7 +321,7 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
             end = time.time()
 
             if i % print_freq == 0 or i + 1 == len(loader):
-                progress.display(i)
+                progress.display(i + 1)
 
     return losses.avg, [accuracies, precisions, recalls, f1s, jaccards]
 
