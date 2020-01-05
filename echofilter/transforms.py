@@ -24,6 +24,7 @@ class Rescale(object):
 
     def __call__(self, sample):
 
+        # 2D arrays (image-like)
         for key in ('signals', 'mask_top', 'mask_bot'):
             if key in sample:
                 sample[key] = skimage.transform.resize(
@@ -31,6 +32,24 @@ class Rescale(object):
                     self.output_size,
                     clip=False,
                     preserve_range=False,
+                )
+
+        # 1D arrays (column-like)
+        for key in ('timestamps', 'd_top', 'd_bot', 'r_top', 'r_bot'):
+            if key in sample:
+                sample[key] = np.interp(
+                    np.linspace(0, len(sample[key]) - 1, self.output_size[0]),
+                    np.linspace(0, len(sample[key]) - 1, len(sample[key])),
+                    sample[key],
+                )
+
+        # 1D arrays (row-like)
+        for key in ('depths', ):
+            if key in sample:
+                sample[key] = np.interp(
+                    np.linspace(0, len(sample[key]) - 1, self.output_size[1]),
+                    np.linspace(0, len(sample[key]) - 1, len(sample[key])),
+                    sample[key],
                 )
 
         return sample
@@ -62,6 +81,28 @@ class Normalize(object):
         return sample
 
 
+class ReplaceNan(object):
+    '''
+    Replace NaNs with a finite float value.
+
+    Parameters
+    ----------
+    nan_val : float, optional
+        Value to replace NaNs with. Default is `0.0`.
+    '''
+
+    def __init__(self, nan_val=0.0):
+        self.nan_val = nan_val
+
+    def __call__(self, sample):
+
+        # Can't use np.nan_to_num to assign nan to a specific value if
+        # numpy version <= 1.17.
+        sample['signals'][np.isnan(sample['signals'])] = self.nan_val
+
+        return sample
+
+
 class RandomReflection(object):
     '''
     Randomly reflect a sample.
@@ -85,12 +126,12 @@ class RandomReflection(object):
             return sample
 
         # Reflect x co-ordinates
-        sample['timestamps'] = sample['timestamps'][::-1]
+        sample['timestamps'] = sample['timestamps'][::-1].copy()
 
         # Reflect data
         for key in ('signals', 'd_top', 'd_bot', 'mask_top', 'mask_bot'):
             if key in sample:
-                sample[key] = np.flip(sample[key], self.axis)
+                sample[key] = np.flip(sample[key], self.axis).copy()
 
         return sample
 

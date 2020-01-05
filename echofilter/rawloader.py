@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 
-ROOT_DATA_DIR = '/data/dsforce'
+ROOT_DATA_DIR = '/data/dsforce/surveyExports'
 
 TRANSECT_FIELD_TYPES = {
     'Ping_index': int,
@@ -232,7 +232,7 @@ def evl_loader(fname):
 
 def load_transect_data(
         transect_pth,
-        dataset='surveyExports',
+        dataset='mobile',
         root_data_dir=ROOT_DATA_DIR
         ):
     '''
@@ -243,7 +243,7 @@ def load_transect_data(
     transect_pth : str
         Relative path to transect, excluding '_Sv_raw.csv'.
     dataset : str, optional
-        Name of dataset. Default is `'surveyExports'`.
+        Name of dataset. Default is `'mobile'`.
     root_data_dir : str
         Path to root directory where data is located.
 
@@ -282,7 +282,7 @@ def load_transect_data(
 
 def get_partition_data(
         partition,
-        dataset='surveyExports',
+        dataset='mobile',
         partitioning_version='firstpass',
         root_data_dir=ROOT_DATA_DIR,
         ):
@@ -294,7 +294,7 @@ def get_partition_data(
     transect_pth : str
         Relative path to transect, excluding '_Sv_raw.csv'.
     dataset : str, optional
-        Name of dataset. Default is `'surveyExports'`.
+        Name of dataset. Default is `'mobile'`.
     partitioning_version : str, optional
         Name of partitioning method.
     root_data_dir : str
@@ -321,10 +321,11 @@ def get_partition_data(
 
 def get_partition_list(
         partition,
-        dataset='surveyExports',
+        dataset='mobile',
         full_path=False,
         partitioning_version='firstpass',
         root_data_dir=ROOT_DATA_DIR,
+        sharded=False,
     ):
     '''
     Get a list of transects in a single partition.
@@ -334,21 +335,22 @@ def get_partition_list(
     transect_pth : str
         Relative path to transect, excluding '_Sv_raw.csv'.
     dataset : str, optional
-        Name of dataset. Default is `'surveyExports'`.
+        Name of dataset. Default is `'mobile'`.
     full_path : bool, optional
         Whether to return the full path to the sample. If `False`, only the
         relative path (from the dataset directory) is returned.
         Default is `False`.
     partitioning_version : str, optional
         Name of partitioning method.
-    root_data_dir : str
+    root_data_dir : str, optional
         Path to root directory where data is located.
+    sharded : bool, optional
+        Whether to return path to sharded version of data. Default is `False`.
 
     Returns
     -------
-    pandas.DataFrame
-        Metadata for all transects in the partition. Each row is a single
-        sample.
+    list
+        Path for each sample in the partition.
     '''
     df = get_partition_data(
         partition,
@@ -358,6 +360,8 @@ def get_partition_list(
     )
     fnames = df['Filename']
     fnames = [os.path.join(f.split('_')[0], f.strip().replace('_Sv_raw.csv', '')) for f in fnames]
-    if full_path:
+    if full_path and sharded:
+        fnames = [os.path.join(root_data_dir + '_sharded', dataset, f) for f in fnames]
+    elif full_path:
         fnames = [os.path.join(root_data_dir, dataset, f) for f in fnames]
     return fnames

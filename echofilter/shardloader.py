@@ -9,7 +9,7 @@ ROOT_DATA_DIR = rawloader.ROOT_DATA_DIR
 
 def shard_transect(
         transect_pth,
-        dataset='surveyExports',
+        dataset='mobile',
         max_depth=100.,
         shard_len=128,
         root_data_dir=ROOT_DATA_DIR
@@ -23,7 +23,7 @@ def shard_transect(
     transect_pth : str
         Relative path to transect, excluding '_Sv_raw.csv'.
     dataset : str, optional
-        Name of dataset. Default is `'surveyExports'`.
+        Name of dataset. Default is `'mobile'`.
     max_depth : float, optional
         The maximum depth to include in the saved shard. Data corresponding
         to deeper locations is omitted to save on load time and memory when
@@ -36,7 +36,7 @@ def shard_transect(
     Notes
     -----
     The output will be written to the directory
-    <root_data_dir>/<dataset>_sharded/transect_path
+    <root_data_dir>_sharded/<dataset>/transect_path
     and will contain
     - a file named `'shard_size.txt'`, which contains the sharding metadata:
       total number of samples, and shard size;
@@ -50,7 +50,7 @@ def shard_transect(
     which contain pickled numpy dumps of the matrices for each shard.
     '''
     # Define output destination
-    root_shard_dir = os.path.join(root_data_dir, dataset + '_sharded')
+    root_shard_dir = os.path.join(root_data_dir + '_sharded', dataset)
     # Load the raw data
     timestamps, depths, signals, d_top, d_bot = rawloader.load_transect_data(
         transect_pth, dataset, root_data_dir,
@@ -172,7 +172,7 @@ def load_transect_from_shards_rel(
         transect_rel_pth,
         i1=0,
         i2=None,
-        dataset='surveyExports',
+        dataset='mobile',
         root_data_dir=ROOT_DATA_DIR,
         ):
     '''
@@ -190,7 +190,7 @@ def load_transect_from_shards_rel(
         datapoint `i2 - 1` is the right-most datapoint loaded. Default is
         `None`, which loads everything up to and including to the last sample.
     dataset : str, optional
-        Name of dataset. Default is `'surveyExports'`.
+        Name of dataset. Default is `'mobile'`.
     root_data_dir : str
         Path to root directory where data is located.
 
@@ -210,7 +210,7 @@ def load_transect_from_shards_rel(
     bottom : numpy.ndarray
         Depth of bottom line, shaped `(num_timestamps, )`.
     '''
-    root_shard_dir = os.path.join(root_data_dir, dataset + '_sharded')
+    root_shard_dir = os.path.join(root_data_dir + '_sharded', dataset)
     dirname = os.path.join(root_shard_dir, transect_rel_pth)
     return load_transect_from_shards_abs(
         dirname,

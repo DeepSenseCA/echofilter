@@ -50,16 +50,20 @@ class TransectDataset(torch.utils.data.Dataset):
             These are performed after generating the masks. Default is `None`.
         '''
         super(TransectDataset, self).__init__()
+        self.transect_paths = transect_paths
         self.window_len = window_len
         self.crop_depth = crop_depth
         self.num_windows = num_windows_per_transect
         self.use_dynamic_offsets = use_dynamic_offsets
         self.transform_pre = transform_pre
         self.transform_post = transform_post
+        self.initialise_datapoints()
+
+    def initialise_datapoints(self):
 
         self.datapoints = []
 
-        for transect_path in transect_paths:
+        for transect_path in self.transect_paths:
             # Lookup the number of rows in the transect
             # Load the sharding metadata
             with open(os.path.join(transect_path, 'shard_size.txt'), 'r') as f:
