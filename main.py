@@ -5,6 +5,7 @@ import shutil
 import datetime
 import time
 
+import pandas as pd
 import torch
 import torch.nn
 import torch.optim
@@ -220,6 +221,7 @@ def main(
             'optimizer': optimizer.state_dict(),
             'meters': meters_val,
         }, is_best)
+        meters_to_csv(meters_val)
 
 
 def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float, print_freq=10):
@@ -424,6 +426,13 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     torch.save(state, filename)
     if is_best:
         shutil.copyfile(filename, 'model_best.pth.tar')
+
+
+def meters_to_csv(meters, filename='meters.csv'):
+    df = pd.DataFrame()
+    for meter in meters:
+        df[meter.name] = meter.values
+    df.to_csv(filename, index=False)
 
 
 if __name__ == '__main__':
