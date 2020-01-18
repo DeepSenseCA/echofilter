@@ -221,9 +221,9 @@ def main(
                 print(fmt_str.format(meter_tr.name, meter_tr.avg, meter_augval.avg, meter_val.avg))
 
         # Add metrics to tensorboard
-        for loss_p, partition in ((loss_tr, 'Train'), (loss_val, 'Val'), (loss_augval, 'AugVal')):
+        for loss_p, partition in ((loss_tr, 'Train'), (loss_val, 'Val'), (loss_augval, 'ValAug')):
             writer.add_scalar('{}/{}'.format('Loss', partition), loss_p, epoch)
-        for meters, partition in ((meters_tr, 'Train'), (meters_val, 'Val'), (meters_augval, 'AugVal')):
+        for meters, partition in ((meters_tr, 'Train'), (meters_val, 'Val'), (meters_augval, 'ValAug')):
             for meter in meters:
                 name = meter.name
                 if '(top)' in name:
