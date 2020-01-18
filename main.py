@@ -9,6 +9,7 @@ import torch
 import torch.nn
 import torch.optim
 import torch.utils.data
+from torch.utils.tensorboard import SummaryWriter
 import torchvision.transforms
 from torchutils.random import seed_all
 from torchutils.utils import count_parameters
@@ -44,6 +45,10 @@ def main(
     ):
 
     seed_all(seed)
+
+    # Make a tensorboard writer
+    # Writer will output to ./runs/ directory by default
+    writer = SummaryWriter()
 
     # Augmentations
     train_transform_pre = torchvision.transforms.Compose([
@@ -152,6 +157,9 @@ def main(
         .format(count_parameters(model, only_trainable=True))
     )
 
+    # Add graph to tensorboard
+    writer.add_graph(model)
+
     # define loss function (criterion) and optimizer
     criterion = torch.nn.BCEWithLogitsLoss()
 
@@ -209,6 +217,13 @@ def main(
                 fmt_str += '    Val: {' + meter_val.fmt + '}'
                 print(fmt_str.format(meter_tr.name, meter_tr.avg, meter_augval.avg, meter_val.avg))
 
+        # Add metrics to tensorboard
+        for loss_p, partition in ((loss_tr, 'Train'), (loss_val, 'Val'), (loss_augval, 'AugVal')):
+            writer.add_scalar('{}/{}'.format('Loss', partition), loss_p, epoch)
+        for meters, partition in ((meters_tr, 'Train'), (meters_val, 'Val'), (meters_augval, 'AugVal')):
+            for meter in meters:
+                writer.add_scalar('{}/{}'.format(meter.name, partition), meter.avg, epoch)
+
         # remember best loss and save checkpoint
         is_best = loss_val < best_loss_val
         best_loss_val = max(loss_val, best_loss_val)
@@ -220,6 +235,12 @@ def main(
             'optimizer': optimizer.state_dict(),
             'meters': meters_val,
         }, is_best)
+
+        # Ensure the tensorboard outputs for this epoch are flushed
+        writer.flush()
+
+    # Close tensorboard connection
+    writer.close()
 
 
 def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float, print_freq=10):
