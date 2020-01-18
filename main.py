@@ -176,7 +176,7 @@ def main(
     print('Started training')
     best_loss_val = float('inf')
     t_start = time.time()
-    for epoch in range(n_epoch):
+    for epoch in range(1, n_epoch + 1):
 
         t_epoch_start = time.time()
 
@@ -198,7 +198,7 @@ def main(
         )
         print(
             'Completed {} epochs in {}'
-            .format(epoch + 1, datetime.timedelta(seconds=time.time() - t_start))
+            .format(epoch, datetime.timedelta(seconds=time.time() - t_start))
         )
         name_fmt = '{:.<23s}'
         print(
@@ -232,7 +232,7 @@ def main(
         best_loss_val = max(loss_val, best_loss_val)
 
         save_checkpoint({
-            'epoch': epoch + 1,
+            'epoch': epoch,
             'state_dict': model.state_dict(),
             'best_loss': best_loss_val,
             'optimizer': optimizer.state_dict(),
@@ -282,7 +282,7 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
     progress = ProgressMeter(
         len(loader),
         [batch_time, data_time, losses, accuracies, f1s, jaccards],
-        prefix="Epoch: [{}]".format(epoch + 1),
+        prefix="Epoch: [{}]".format(epoch),
     )
 
     # switch to train mode
