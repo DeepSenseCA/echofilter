@@ -158,7 +158,10 @@ def main(
     )
 
     # Add graph to tensorboard
-    writer.add_graph(model)
+    batch = next(iter(loader_train))
+    data = batch['signals'].unsqueeze(1)
+    data = data.to(device, torch.float, non_blocking=True)
+    writer.add_graph(model, data)
 
     # define loss function (criterion) and optimizer
     criterion = torch.nn.BCEWithLogitsLoss()
