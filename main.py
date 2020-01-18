@@ -225,7 +225,16 @@ def main(
             writer.add_scalar('{}/{}'.format('Loss', partition), loss_p, epoch)
         for meters, partition in ((meters_tr, 'Train'), (meters_val, 'Val'), (meters_augval, 'AugVal')):
             for meter in meters:
-                writer.add_scalar('{}/{}'.format(meter.name, partition), meter.avg, epoch)
+                name = meter.name
+                if '(top)' in name:
+                    name = name.replace('(top)', '').strip()
+                    name += '/Top'
+                elif '(bottom)' in name:
+                    name = name.replace('(bottom)', '').strip()
+                    name += '/Bottom'
+                else:
+                    name += '/Overall'
+                writer.add_scalar('{}/{}'.format(name, partition), meter.avg, epoch)
 
         # remember best loss and save checkpoint
         is_best = loss_val < best_loss_val
