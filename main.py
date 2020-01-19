@@ -184,7 +184,7 @@ def main(
         loader_train.dataset.initialise_datapoints()
 
         # train for one epoch
-        loss_tr, meters_tr = train(
+        loss_tr, meters_tr, (ex_data_tr, ex_target_tr, ex_output_tr) = train(
             loader_train, model, criterion, optimizer, device, epoch, print_freq=print_freq
         )
 
@@ -237,19 +237,68 @@ def main(
                 writer.add_scalar('{}/{}'.format(name, partition), meter.avg, epoch)
 
         # Add example images to tensorboard
-        writer.add_images('Input/Val', ex_data_val, epoch, dataformats='NCWH')
-        writer.add_images('Top/Val/Target', ex_target_val[:, :1], epoch, dataformats='NCWH')
-        writer.add_images('Bottom/Val/Target', ex_target_val[:, 1:], epoch, dataformats='NCWH')
-        writer.add_images('Top/Val/Output/Logits', ex_output_val[:, :1], epoch, dataformats='NCWH')
-        writer.add_images('Bottom/Val/Output/Logits', ex_output_val[:, 1:], epoch, dataformats='NCWH')
-        msk = torch.sigmoid(ex_output_val)
-        writer.add_images('Top/Val/Output/Prob', msk[:, :1], epoch, dataformats='NCWH')
-        writer.add_images('Bottom/Val/Output/Prob', msk[:, 1:], epoch, dataformats='NCWH')
-        msk = torch.sigmoid(ex_output_val)
-        msk[:, :, 0, 0] = 0
-        msk[:, :, 0, 1] = 1
-        writer.add_images('Top/Val/Output/Prob/FixedScale', msk[:, :1], epoch, dataformats='NCWH')
-        writer.add_images('Bottom/Val/Output/Prob/FixedScale', msk[:, 1:], epoch, dataformats='NCWH')
+        for (ex_data, ex_target, ex_output), partition in (
+                ((ex_data_tr, ex_target_tr, ex_output_tr), 'Train'),
+                ((ex_data_val, ex_target_val, ex_output_val), 'Val'),
+                ((ex_data_augval, ex_target_augval, ex_output_augval), 'ValAug'),
+            ):
+            writer.add_images(
+                'Input/' + partition,
+                ex_data,
+                epoch,
+                dataformats='NCWH',
+            )
+            writer.add_images(
+                'Top/' + partition + '/Target',
+                ex_target[:, :1],
+                epoch,
+                dataformats='NCWH',
+            )
+            writer.add_images(
+                'Bottom/' + partition + '/Target',
+                ex_target[:, 1:],
+                epoch,
+                dataformats='NCWH',
+            )
+            writer.add_images(
+                'Top/' + partition + '/Output/Logits',
+                ex_output[:, :1],
+                epoch,
+                dataformats='NCWH',
+            )
+            writer.add_images(
+                'Bottom/' + partition + '/Output/Logits',
+                ex_output[:, 1:],
+                epoch,
+                dataformats='NCWH',
+            )
+            msk = torch.sigmoid(ex_output)
+            writer.add_images(
+                'Top/' + partition + '/Output/Prob',
+                msk[:, :1],
+                epoch,
+                dataformats='NCWH',
+            )
+            writer.add_images(
+                'Bottom/' + partition + '/Output/Prob',
+                msk[:, 1:],
+                epoch,
+                dataformats='NCWH',
+            )
+            msk[:, :, 0, 0] = 0
+            msk[:, :, 0, 1] = 1
+            writer.add_images(
+                'Top/' + partition + '/Output/Prob/FixedScale',
+                msk[:, :1],
+                epoch,
+                dataformats='NCWH',
+            )
+            writer.add_images(
+                'Bottom/' + partition + '/Output/Prob/FixedScale',
+                msk[:, 1:],
+                epoch,
+                dataformats='NCWH',
+            )
 
         # remember best loss and save checkpoint
         is_best = loss_val < best_loss_val
@@ -312,6 +361,8 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
     # switch to train mode
     model.train()
 
+    example_data = example_output = example_target = None
+
     end = time.time()
     for i, batch in enumerate(loader):
         # measure data loading time
@@ -329,6 +380,11 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         # Record loss
         ns = data.size(0)
         losses.update(loss.item(), ns)
+
+        if i == 0:
+            example_data = data.detach()
+            example_target = target.detach()
+            example_output = output.detach()
 
         # Measure and record performance with various metrics
         accuracies.update(100.0 * criterions.mask_accuracy_with_logits(output, target).item(), ns)
@@ -368,7 +424,7 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         if i % print_freq == 0 or i + 1 == len(loader):
             progress.display(i + 1)
 
-    return losses.avg, meters
+    return losses.avg, meters, (example_data, example_target, example_output)
 
 
 def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10, prefix='Test'):
