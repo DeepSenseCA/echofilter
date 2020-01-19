@@ -242,6 +242,8 @@ def main(
         writer.add_images('Bottom/Val/Target', ex_target_val[:, 1:], epoch, dataformats='NCWH')
         writer.add_images('Top/Val/Output', ex_output_val[:, :1], epoch, dataformats='NCWH')
         writer.add_images('Bottom/Val/Output', ex_output_val[:, 1:], epoch, dataformats='NCWH')
+        writer.add_images('Top/Val/OutputProb', torch.sigmoid(ex_output_val[:, :1]), epoch, dataformats='NCWH')
+        writer.add_images('Bottom/Val/OutputProb', torch.sigmoid(ex_output_val[:, 1:]), epoch, dataformats='NCWH')
 
         # remember best loss and save checkpoint
         is_best = loss_val < best_loss_val
