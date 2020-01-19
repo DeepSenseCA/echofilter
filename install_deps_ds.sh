@@ -14,7 +14,7 @@ ENVNAME=echofilter
 conda create -p "$HOME/venvs/$ENVNAME" -q python=3.6 pip
 conda activate "$HOME/venvs/$ENVNAME"
 
-conda install numpy pandas tqdm matplotlib seaborn jupyter pytorch torchvision tensorboard -c https://public.dhe.ibm.com/ibmdl/export/pub/software/server/ibm-ai/conda/ -y
+conda install numpy pandas tqdm matplotlib seaborn jupyter pytorch torchvision tensorboard tensorflow pillow -c https://public.dhe.ibm.com/ibmdl/export/pub/software/server/ibm-ai/conda/ -y
 
 pip install git+https://github.com/scottclowe/pytorch-utils#egg=torchutils
 
