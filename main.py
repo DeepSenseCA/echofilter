@@ -189,11 +189,11 @@ def main(
         )
 
         # evaluate on validation set
-        loss_val, meters_val = validate(
+        loss_val, meters_val, (ex_data_val, ex_target_val, ex_output_val) = validate(
             loader_val, model, criterion, device, print_freq=print_freq, prefix='Validation'
         )
         # evaluate on augmented validation set
-        loss_augval, meters_augval = validate(
+        loss_augval, meters_augval, (ex_data_augval, ex_target_augval, ex_output_augval) = validate(
             loader_augval, model, criterion, device, print_freq=print_freq, prefix='Aug-Val   '
         )
         print(
@@ -235,6 +235,13 @@ def main(
                 else:
                     name += '/Overall'
                 writer.add_scalar('{}/{}'.format(name, partition), meter.avg, epoch)
+
+        # Add example images to tensorboard
+        writer.add_images('Input/Val', ex_data_val, epoch, dataformats='NCWH')
+        writer.add_images('Top/Val/Target', ex_target_val[:, 0], epoch, dataformats='NWH')
+        writer.add_images('Bottom/Val/Target', ex_target_val[:, 1], epoch, dataformats='NWH')
+        writer.add_images('Top/Val/Output', ex_output_val[:, 0], epoch, dataformats='NWH')
+        writer.add_images('Bottom/Val/Output', ex_output_val[:, 1], epoch, dataformats='NWH')
 
         # remember best loss and save checkpoint
         is_best = loss_val < best_loss_val
@@ -398,6 +405,8 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
     # switch to evaluate mode
     model.eval()
 
+    example_data = example_output = example_target = None
+
     with torch.no_grad():
         end = time.time()
         for i, batch in enumerate(loader):
@@ -416,6 +425,11 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
             # Record loss
             ns = data.size(0)
             losses.update(loss.item(), ns)
+
+            if i == 0:
+                example_data = data.detach()
+                example_target = target.detach()
+                example_output = output.detach()
 
             # Measure and record performance with various metrics
             accuracies.update(100.0 * criterions.mask_accuracy_with_logits(output, target).item(), ns)
@@ -450,7 +464,7 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
             if i % print_freq == 0 or i + 1 == len(loader):
                 progress.display(i + 1)
 
-    return losses.avg, meters
+    return losses.avg, meters, (example_data, example_target, example_output)
 
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
