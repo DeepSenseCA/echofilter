@@ -238,10 +238,10 @@ def main(
 
         # Add example images to tensorboard
         writer.add_images('Input/Val', ex_data_val, epoch, dataformats='NCWH')
-        writer.add_images('Top/Val/Target', ex_target_val[:, 0], epoch, dataformats='NWH')
-        writer.add_images('Bottom/Val/Target', ex_target_val[:, 1], epoch, dataformats='NWH')
-        writer.add_images('Top/Val/Output', ex_output_val[:, 0], epoch, dataformats='NWH')
-        writer.add_images('Bottom/Val/Output', ex_output_val[:, 1], epoch, dataformats='NWH')
+        writer.add_images('Top/Val/Target', ex_target_val[:, :1], epoch, dataformats='NCWH')
+        writer.add_images('Bottom/Val/Target', ex_target_val[:, 1:], epoch, dataformats='NCWH')
+        writer.add_images('Top/Val/Output', ex_output_val[:, :1], epoch, dataformats='NCWH')
+        writer.add_images('Bottom/Val/Output', ex_output_val[:, 1:], epoch, dataformats='NCWH')
 
         # remember best loss and save checkpoint
         is_best = loss_val < best_loss_val
