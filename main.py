@@ -240,10 +240,16 @@ def main(
         writer.add_images('Input/Val', ex_data_val, epoch, dataformats='NCWH')
         writer.add_images('Top/Val/Target', ex_target_val[:, :1], epoch, dataformats='NCWH')
         writer.add_images('Bottom/Val/Target', ex_target_val[:, 1:], epoch, dataformats='NCWH')
-        writer.add_images('Top/Val/Output', ex_output_val[:, :1], epoch, dataformats='NCWH')
-        writer.add_images('Bottom/Val/Output', ex_output_val[:, 1:], epoch, dataformats='NCWH')
-        writer.add_images('Top/Val/OutputProb', torch.sigmoid(ex_output_val[:, :1]), epoch, dataformats='NCWH')
-        writer.add_images('Bottom/Val/OutputProb', torch.sigmoid(ex_output_val[:, 1:]), epoch, dataformats='NCWH')
+        writer.add_images('Top/Val/Output/Logits', ex_output_val[:, :1], epoch, dataformats='NCWH')
+        writer.add_images('Bottom/Val/Output/Logits', ex_output_val[:, 1:], epoch, dataformats='NCWH')
+        msk = torch.sigmoid(ex_output_val)
+        writer.add_images('Top/Val/Output/Prob', msk[:, :1], epoch, dataformats='NCWH')
+        writer.add_images('Bottom/Val/Output/Prob', msk[:, 1:], epoch, dataformats='NCWH')
+        msk = torch.sigmoid(ex_output_val)
+        msk[:, :, 0, 0] = 0
+        msk[:, :, 0, 1] = 1
+        writer.add_images('Top/Val/Output/Prob/FixedScale', msk[:, :1], epoch, dataformats='NCWH')
+        writer.add_images('Bottom/Val/Output/Prob/FixedScale', msk[:, 1:], epoch, dataformats='NCWH')
 
         # remember best loss and save checkpoint
         is_best = loss_val < best_loss_val
