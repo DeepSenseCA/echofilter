@@ -415,7 +415,8 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
     return losses.avg, meters, (example_data, example_target, example_output)
 
 
-def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10, prefix='Test'):
+def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
+             prefix='Test', num_examples=32):
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
@@ -457,7 +458,10 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
     # switch to evaluate mode
     model.eval()
 
-    example_data = example_output = example_target = None
+    example_data = []
+    example_output = []
+    example_target = []
+    example_interval = max(1, len(loader) // num_examples)
 
     with torch.no_grad():
         end = time.time()
@@ -478,10 +482,10 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
             ns = data.size(0)
             losses.update(loss.item(), ns)
 
-            if i == 0:
-                example_data = data.detach()
-                example_target = target.detach()
-                example_output = output.detach()
+            if i % example_interval == 0 and len(example_data) < num_examples:
+                example_data.append(data[0].detach())
+                example_target.append(target[0].detach())
+                example_output.append(output[0].detach())
 
             # Measure and record performance with various metrics
             accuracies.update(100.0 * criterions.mask_accuracy_with_logits(output, target).item(), ns)
@@ -515,6 +519,11 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
 
             if i % print_freq == 0 or i + 1 == len(loader):
                 progress.display(i + 1)
+
+    # Restack samples, converting list into higher-dim tensor
+    example_data = torch.stack(example_data, dim=0)
+    example_target = torch.stack(example_target, dim=0)
+    example_output = torch.stack(example_output, dim=0)
 
     return losses.avg, meters, (example_data, example_target, example_output)
 
