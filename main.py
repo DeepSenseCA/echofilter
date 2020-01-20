@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from collections import OrderedDict
+import os
 import shutil
 import datetime
 import time
@@ -32,6 +33,7 @@ def main(
         dataset_name='mobile',
         sample_shape=(128, 512),
         crop_depth=70,
+        resume='',
         latent_channels=64,
         expansion_factor=2,
         device='cuda',
@@ -158,12 +160,6 @@ def main(
         .format(count_parameters(model, only_trainable=True))
     )
 
-    # Add graph to tensorboard
-    batch = next(iter(loader_train))
-    data = batch['signals'].unsqueeze(1)
-    data = data.to(device, torch.float, non_blocking=True)
-    writer.add_graph(model, data)
-
     # define loss function (criterion) and optimizer
     criterion = torch.nn.BCEWithLogitsLoss()
 
@@ -174,10 +170,38 @@ def main(
         weight_decay=weight_decay,
     )
 
-    print('Started training')
+    # Initialise loop tracking
+    start_epoch = 1
     best_loss_val = float('inf')
+
+    # optionally resume from a checkpoint
+    if resume:
+        if not os.path.isfile(resume):
+            raise EnvironmentError("No checkpoint found at '{}'".format(resume))
+        print("Loading checkpoint '{}'".format(resume))
+        if device is None:
+            checkpoint = torch.load(resume)
+        else:
+            # Map model to be loaded to specified single gpu.
+            checkpoint = torch.load(resume, map_location=device)
+        start_epoch = checkpoint['epoch'] + 1
+        best_loss_val = checkpoint['best_loss']
+        model.load_state_dict(checkpoint['state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer'])
+        print(
+            "Loaded checkpoint '{}' (epoch {})"
+            .format(resume, checkpoint['epoch'])
+        )
+
+    # Add graph to tensorboard
+    batch = next(iter(loader_train))
+    data = batch['signals'].unsqueeze(1)
+    data = data.to(device, torch.float, non_blocking=True)
+    writer.add_graph(model, data)
+
+    print('Starting training')
     t_start = time.time()
-    for epoch in range(1, n_epoch + 1):
+    for epoch in range(start_epoch, n_epoch + 1):
 
         t_epoch_start = time.time()
 
@@ -570,6 +594,13 @@ if __name__ == '__main__':
         type=float,
         default=70,
         help='depth, in metres, at which data should be truncated (default: 70)',
+    )
+    parser.add_argument(
+        '--resume',
+        default='',
+        type=str,
+        metavar='PATH',
+        help='path to latest checkpoint (default: none)',
     )
 
     # Model parameters
