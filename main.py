@@ -5,6 +5,7 @@ import shutil
 import datetime
 import time
 
+import pandas as pd
 import torch
 import torch.nn
 import torch.optim
@@ -220,6 +221,7 @@ def main(
             'optimizer': optimizer.state_dict(),
             'meters': meters_val,
         }, is_best)
+        meters_to_csv(meters_val)
 
 
 def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float, print_freq=10):
@@ -385,30 +387,30 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
             losses.update(loss.item(), ns)
 
             # Measure and record performance with various metrics
-            accuracies.update(100.0 * criterions.mask_accuracy_with_logits(output, target).item(), ns)
-            precisions.update(100.0 * criterions.mask_precision_with_logits(output, target).item(), ns)
-            recalls.update(100.0 * criterions.mask_recall_with_logits(output, target).item(), ns)
-            f1s.update(criterions.mask_f1_score_with_logits(output, target).item(), ns)
-            jaccards.update(criterions.mask_jaccard_index_with_logits(output, target).item(), ns)
+            accuracies.update(100.0 * criterions.mask_accuracy_with_logits(output, target, reduction='none'))
+            precisions.update(100.0 * criterions.mask_precision_with_logits(output, target, reduction='none'))
+            recalls.update(100.0 * criterions.mask_recall_with_logits(output, target, reduction='none'))
+            f1s.update(criterions.mask_f1_score_with_logits(output, target, reduction='none'))
+            jaccards.update(criterions.mask_jaccard_index_with_logits(output, target, reduction='none'))
 
             top_output, bot_output = output.unbind(1)
             top_target, bot_target = target.unbind(1)
 
-            top_accuracies.update(100.0 * criterions.mask_accuracy_with_logits(top_output, top_target).item(), ns)
-            top_precisions.update(100.0 * criterions.mask_precision_with_logits(top_output, top_target).item(), ns)
-            top_recalls.update(100.0 * criterions.mask_recall_with_logits(top_output, top_target).item(), ns)
-            top_f1s.update(criterions.mask_f1_score_with_logits(top_output, top_target).item(), ns)
-            top_jaccards.update(criterions.mask_jaccard_index_with_logits(top_output, top_target).item(), ns)
-            top_active_output.update(100.0 * criterions.mask_active_fraction(top_output).item(), ns)
-            top_active_target.update(100.0 * criterions.mask_active_fraction(top_target).item(), ns)
+            top_accuracies.update(100.0 * criterions.mask_accuracy_with_logits(top_output, top_target, reduction='none'))
+            top_precisions.update(100.0 * criterions.mask_precision_with_logits(top_output, top_target, reduction='none'))
+            top_recalls.update(100.0 * criterions.mask_recall_with_logits(top_output, top_target, reduction='none'))
+            top_f1s.update(criterions.mask_f1_score_with_logits(top_output, top_target, reduction='none'))
+            top_jaccards.update(criterions.mask_jaccard_index_with_logits(top_output, top_target, reduction='none'))
+            top_active_output.update(100.0 * criterions.mask_active_fraction(top_output, reduction='none'))
+            top_active_target.update(100.0 * criterions.mask_active_fraction(top_target, reduction='none'))
 
-            bot_accuracies.update(100.0 * criterions.mask_accuracy_with_logits(bot_output, bot_target).item(), ns)
-            bot_precisions.update(100.0 * criterions.mask_precision_with_logits(bot_output, bot_target).item(), ns)
-            bot_recalls.update(100.0 * criterions.mask_recall_with_logits(bot_output, bot_target).item(), ns)
-            bot_f1s.update(criterions.mask_f1_score_with_logits(bot_output, bot_target).item(), ns)
-            bot_jaccards.update(criterions.mask_jaccard_index_with_logits(bot_output, bot_target).item(), ns)
-            bot_active_output.update(100.0 * criterions.mask_active_fraction(bot_output).item(), ns)
-            bot_active_target.update(100.0 * criterions.mask_active_fraction(bot_target).item(), ns)
+            bot_accuracies.update(100.0 * criterions.mask_accuracy_with_logits(bot_output, bot_target, reduction='none'))
+            bot_precisions.update(100.0 * criterions.mask_precision_with_logits(bot_output, bot_target, reduction='none'))
+            bot_recalls.update(100.0 * criterions.mask_recall_with_logits(bot_output, bot_target, reduction='none'))
+            bot_f1s.update(criterions.mask_f1_score_with_logits(bot_output, bot_target, reduction='none'))
+            bot_jaccards.update(criterions.mask_jaccard_index_with_logits(bot_output, bot_target, reduction='none'))
+            bot_active_output.update(100.0 * criterions.mask_active_fraction(bot_output, reduction='none'))
+            bot_active_target.update(100.0 * criterions.mask_active_fraction(bot_target, reduction='none'))
 
             # measure elapsed time
             batch_time.update(time.time() - end)
@@ -424,6 +426,13 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     torch.save(state, filename)
     if is_best:
         shutil.copyfile(filename, 'model_best.pth.tar')
+
+
+def meters_to_csv(meters, filename='meters.csv'):
+    df = pd.DataFrame()
+    for meter in meters:
+        df[meter.name] = meter.values
+    df.to_csv(filename, index=False)
 
 
 if __name__ == '__main__':

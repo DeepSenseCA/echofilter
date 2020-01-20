@@ -2,6 +2,10 @@
 Meters
 '''
 
+import numpy as np
+import torch
+
+
 class AverageMeter(object):
     """Computes and stores the average and current value"""
     def __init__(self, name, fmt=':f'):
@@ -10,12 +14,23 @@ class AverageMeter(object):
         self.reset()
 
     def reset(self):
+        self.values = []
         self.val = 0
         self.avg = 0
         self.sum = 0
         self.count = 0
 
-    def update(self, val, n=1):
+    def update(self, val, n=None):
+        if isinstance(val, torch.Tensor):
+            val = val.cpu().numpy()
+        if isinstance(val, (int, float)):
+            values = [val]
+        else:
+            values = list(val)
+            val = np.mean(val)
+        if n is None:
+            n = len(values)
+        self.values += values
         self.val = val
         self.sum += val * n
         self.count += n
