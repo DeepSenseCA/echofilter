@@ -300,7 +300,7 @@ def main(
             'optimizer': optimizer.state_dict(),
             'meters': meters_val,
         }, is_best)
-        meters_to_csv(meters_val)
+        meters_to_csv(meters_val, is_best)
 
         # Ensure the tensorboard outputs for this epoch are flushed
         writer.flush()
@@ -536,11 +536,13 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
         shutil.copyfile(filename, 'model_best.pth.tar')
 
 
-def meters_to_csv(meters, filename='meters.csv'):
+def meters_to_csv(meters, is_best, filename='meters.csv'):
     df = pd.DataFrame()
     for meter in meters:
         df[meter.name] = meter.values
     df.to_csv(filename, index=False)
+    if is_best:
+        shutil.copyfile(filename, 'model_best.meters.csv')
 
 
 if __name__ == '__main__':
