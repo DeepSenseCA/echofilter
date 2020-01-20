@@ -369,7 +369,7 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         ns = data.size(0)
         losses.update(loss.item(), ns)
 
-        if i == 0:
+        if i == max(0, len(loader) - 2):
             example_data = data.detach()
             example_target = target.detach()
             example_output = output.detach()
