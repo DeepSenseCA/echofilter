@@ -315,7 +315,7 @@ def main(
 
         # remember best loss and save checkpoint
         is_best = loss_val < best_loss_val
-        best_loss_val = max(loss_val, best_loss_val)
+        best_loss_val = min(loss_val, best_loss_val)
 
         save_checkpoint({
             'epoch': epoch,
