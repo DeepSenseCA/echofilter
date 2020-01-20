@@ -10,6 +10,7 @@ import torch
 import torch.nn
 import torch.optim
 import torch.utils.data
+from torch.utils.tensorboard import SummaryWriter
 import torchvision.transforms
 from torchutils.random import seed_all
 from torchutils.utils import count_parameters
@@ -45,6 +46,10 @@ def main(
     ):
 
     seed_all(seed)
+
+    # Make a tensorboard writer
+    # Writer will output to ./runs/ directory by default
+    writer = SummaryWriter()
 
     # Augmentations
     train_transform_pre = torchvision.transforms.Compose([
@@ -153,6 +158,12 @@ def main(
         .format(count_parameters(model, only_trainable=True))
     )
 
+    # Add graph to tensorboard
+    batch = next(iter(loader_train))
+    data = batch['signals'].unsqueeze(1)
+    data = data.to(device, torch.float, non_blocking=True)
+    writer.add_graph(model, data)
+
     # define loss function (criterion) and optimizer
     criterion = torch.nn.BCEWithLogitsLoss()
 
@@ -166,7 +177,7 @@ def main(
     print('Started training')
     best_loss_val = float('inf')
     t_start = time.time()
-    for epoch in range(n_epoch):
+    for epoch in range(1, n_epoch + 1):
 
         t_epoch_start = time.time()
 
@@ -174,21 +185,21 @@ def main(
         loader_train.dataset.initialise_datapoints()
 
         # train for one epoch
-        loss_tr, meters_tr = train(
+        loss_tr, meters_tr, (ex_data_tr, ex_target_tr, ex_output_tr) = train(
             loader_train, model, criterion, optimizer, device, epoch, print_freq=print_freq
         )
 
         # evaluate on validation set
-        loss_val, meters_val = validate(
+        loss_val, meters_val, (ex_data_val, ex_target_val, ex_output_val) = validate(
             loader_val, model, criterion, device, print_freq=print_freq, prefix='Validation'
         )
         # evaluate on augmented validation set
-        loss_augval, meters_augval = validate(
+        loss_augval, meters_augval, (ex_data_augval, ex_target_augval, ex_output_augval) = validate(
             loader_augval, model, criterion, device, print_freq=print_freq, prefix='Aug-Val   '
         )
         print(
             'Completed {} epochs in {}'
-            .format(epoch + 1, datetime.timedelta(seconds=time.time() - t_start))
+            .format(epoch, datetime.timedelta(seconds=time.time() - t_start))
         )
         name_fmt = '{:.<23s}'
         print(
@@ -210,18 +221,92 @@ def main(
                 fmt_str += '    Val: {' + meter_val.fmt + '}'
                 print(fmt_str.format(meter_tr.name, meter_tr.avg, meter_augval.avg, meter_val.avg))
 
+        # Add metrics to tensorboard
+        for loss_p, partition in ((loss_tr, 'Train'), (loss_val, 'Val'), (loss_augval, 'ValAug')):
+            writer.add_scalar('{}/{}'.format('Loss', partition), loss_p, epoch)
+        for meters, partition in ((meters_tr, 'Train'), (meters_val, 'Val'), (meters_augval, 'ValAug')):
+            for meter in meters:
+                name = meter.name
+                if '(top)' in name:
+                    name = name.replace('(top)', '').strip()
+                    name += '/Top'
+                elif '(bottom)' in name:
+                    name = name.replace('(bottom)', '').strip()
+                    name += '/Bottom'
+                else:
+                    name += '/Overall'
+                writer.add_scalar('{}/{}'.format(name, partition), meter.avg, epoch)
+
+        # Add example images to tensorboard
+        for (ex_data, ex_target, ex_output), partition in (
+                ((ex_data_tr, ex_target_tr, ex_output_tr), 'Train'),
+                ((ex_data_val, ex_target_val, ex_output_val), 'Val'),
+                ((ex_data_augval, ex_target_augval, ex_output_augval), 'ValAug'),
+            ):
+            writer.add_images(
+                'Input/' + partition,
+                ex_data,
+                epoch,
+                dataformats='NCWH',
+            )
+            writer.add_images(
+                'Top/' + partition + '/Target',
+                ex_target[:, :1],
+                epoch,
+                dataformats='NCWH',
+            )
+            writer.add_images(
+                'Bottom/' + partition + '/Target',
+                ex_target[:, 1:],
+                epoch,
+                dataformats='NCWH',
+            )
+            writer.add_images(
+                'Top/' + partition + '/Output/Logits',
+                ex_output[:, :1],
+                epoch,
+                dataformats='NCWH',
+            )
+            writer.add_images(
+                'Bottom/' + partition + '/Output/Logits',
+                ex_output[:, 1:],
+                epoch,
+                dataformats='NCWH',
+            )
+            msk = torch.sigmoid(ex_output)
+            msk[0, :, 0, 0] = 0
+            msk[0, :, 0, 1] = 1
+            writer.add_images(
+                'Top/' + partition + '/Output/Probabilities',
+                msk[:, :1],
+                epoch,
+                dataformats='NCWH',
+            )
+            writer.add_images(
+                'Bottom/' + partition + '/Output/Probabilities',
+                msk[:, 1:],
+                epoch,
+                dataformats='NCWH',
+            )
+
         # remember best loss and save checkpoint
         is_best = loss_val < best_loss_val
         best_loss_val = max(loss_val, best_loss_val)
 
         save_checkpoint({
-            'epoch': epoch + 1,
+            'epoch': epoch,
             'state_dict': model.state_dict(),
             'best_loss': best_loss_val,
             'optimizer': optimizer.state_dict(),
             'meters': meters_val,
         }, is_best)
         meters_to_csv(meters_val)
+
+        # Ensure the tensorboard outputs for this epoch are flushed
+        writer.flush()
+
+    # Close tensorboard connection
+    writer.close()
 
 
 def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float, print_freq=10):
@@ -260,11 +345,13 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
     progress = ProgressMeter(
         len(loader),
         [batch_time, data_time, losses, accuracies, f1s, jaccards],
-        prefix="Epoch: [{}]".format(epoch + 1),
+        prefix="Epoch: [{}]".format(epoch),
     )
 
     # switch to train mode
     model.train()
+
+    example_data = example_output = example_target = None
 
     end = time.time()
     for i, batch in enumerate(loader):
@@ -283,6 +370,11 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         # Record loss
         ns = data.size(0)
         losses.update(loss.item(), ns)
+
+        if i == max(0, len(loader) - 2):
+            example_data = data.detach()
+            example_target = target.detach()
+            example_output = output.detach()
 
         # Measure and record performance with various metrics
         accuracies.update(100.0 * criterions.mask_accuracy_with_logits(output, target).item(), ns)
@@ -322,10 +414,11 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         if i % print_freq == 0 or i + 1 == len(loader):
             progress.display(i + 1)
 
-    return losses.avg, meters
+    return losses.avg, meters, (example_data, example_target, example_output)
 
 
-def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10, prefix='Test'):
+def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
+             prefix='Test', num_examples=32):
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
@@ -367,6 +460,11 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
     # switch to evaluate mode
     model.eval()
 
+    example_data = []
+    example_output = []
+    example_target = []
+    example_interval = max(1, len(loader) // num_examples)
+
     with torch.no_grad():
         end = time.time()
         for i, batch in enumerate(loader):
@@ -385,6 +483,11 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
             # Record loss
             ns = data.size(0)
             losses.update(loss.item(), ns)
+
+            if i % example_interval == 0 and len(example_data) < num_examples:
+                example_data.append(data[0].detach())
+                example_target.append(target[0].detach())
+                example_output.append(output[0].detach())
 
             # Measure and record performance with various metrics
             accuracies.update(100.0 * criterions.mask_accuracy_with_logits(output, target, reduction='none'))
@@ -419,7 +522,12 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
             if i % print_freq == 0 or i + 1 == len(loader):
                 progress.display(i + 1)
 
-    return losses.avg, meters
+    # Restack samples, converting list into higher-dim tensor
+    example_data = torch.stack(example_data, dim=0)
+    example_target = torch.stack(example_target, dim=0)
+    example_output = torch.stack(example_output, dim=0)
+
+    return losses.avg, meters, (example_data, example_target, example_output)
 
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
