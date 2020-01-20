@@ -273,28 +273,16 @@ def main(
                 dataformats='NCWH',
             )
             msk = torch.sigmoid(ex_output)
+            msk[0, :, 0, 0] = 0
+            msk[0, :, 0, 1] = 1
             writer.add_images(
-                'Top/' + partition + '/Output/Prob',
+                'Top/' + partition + '/Output/Probabilities',
                 msk[:, :1],
                 epoch,
                 dataformats='NCWH',
             )
             writer.add_images(
-                'Bottom/' + partition + '/Output/Prob',
-                msk[:, 1:],
-                epoch,
-                dataformats='NCWH',
-            )
-            msk[:, :, 0, 0] = 0
-            msk[:, :, 0, 1] = 1
-            writer.add_images(
-                'Top/' + partition + '/Output/Prob/FixedScale',
-                msk[:, :1],
-                epoch,
-                dataformats='NCWH',
-            )
-            writer.add_images(
-                'Bottom/' + partition + '/Output/Prob/FixedScale',
+                'Bottom/' + partition + '/Output/Probabilities',
                 msk[:, 1:],
                 epoch,
                 dataformats='NCWH',
