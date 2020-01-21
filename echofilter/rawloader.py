@@ -230,6 +230,49 @@ def evl_loader(fname):
     return np.array(timestamps), np.array(values)
 
 
+def evl_writer(fname, timestamps, depths, status=1):
+    '''
+    EVL file writer
+
+    Parameters
+    ----------
+    fname : str
+        Destination of output file.
+    timestamps : array_like
+        Timestamps for each node in the line.
+    depths : array_like
+        Depths (in meters) for each node in the line.
+    status : 0, 1, 2, or 3; optional
+        Status for the line.
+            `0` : none
+            `1` : unverified
+            `2` : bad
+            `3` : good
+        Default is `1` (unverified). For more details on line status, see:
+        https://support.echoview.com/WebHelp/Using_Echoview/Echogram/Lines/About_Line_Status.htm
+
+    Notes
+    -----
+    For more details on the format specification, see:
+    https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm#Line_definition_file_format
+    '''
+    with open(fname, 'w+') as hf:
+        # Write header
+        print('﻿EVBD 3 10.0.270.37090', file=hf)
+        n_row = len(depths)
+        print(n_row, file=hf)
+        # Write each row
+        for i_row, (timestamp, depth) in enumerate(zip(timestamps, depths)):
+            print(
+                '{}  {} {} '.format(
+                    datetime.datetime.fromtimestamp(timestamp).strftime('%Y%m%d %H%M%S%f'),
+                    depth,
+                    0 if i_row == n_row - 1 else status,
+                ),
+                file=hf,
+            )
+
+
 def load_transect_data(
         transect_pth,
         dataset='mobile',
