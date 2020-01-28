@@ -1,3 +1,7 @@
+'''
+Input/Output handling for raw echoview files.
+'''
+
 from collections import OrderedDict
 import csv
 import datetime
