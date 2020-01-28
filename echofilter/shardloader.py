@@ -1,10 +1,10 @@
 import os
 import numpy as np
 
-from . import rawloader
+from . import raw.loader
 
 
-ROOT_DATA_DIR = rawloader.ROOT_DATA_DIR
+ROOT_DATA_DIR = raw.loader.ROOT_DATA_DIR
 
 
 def shard_transect(
@@ -52,7 +52,7 @@ def shard_transect(
     # Define output destination
     root_shard_dir = os.path.join(root_data_dir + '_sharded', dataset)
     # Load the raw data
-    timestamps, depths, signals, d_top, d_bot = rawloader.load_transect_data(
+    timestamps, depths, signals, d_top, d_bot = raw.loader.load_transect_data(
         transect_pth, dataset, root_data_dir,
     )
     # Prep

@@ -14,7 +14,7 @@ import torch.utils.data
 import torchvision.transforms
 from torchutils.utils import count_parameters
 
-import echofilter.rawloader
+import echofilter.raw.loader
 import echofilter.transforms
 from echofilter.unet import UNet
 
@@ -90,7 +90,7 @@ def main(
         else:
             raise EnvironmentError('Could not locate file {}'.format(fname))
         # Load the data
-        timestamps, depths, signals = echofilter.rawloader.transect_loader(fname_full)
+        timestamps, depths, signals = echofilter.raw.loader.transect_loader(fname_full)
         data = {
             'timestamps': timestamps,
             'depths': depths,
@@ -116,8 +116,8 @@ def main(
         os.makedirs(os.path.dirname(os.path.join(output_dir, fname)), exist_ok=True)
         print(os.path.join(output_dir, fname + '.top.evl'))
         print(os.path.join(output_dir, fname + '.bottom.evl'))
-        echofilter.rawloader.evl_writer(os.path.join(output_dir, fname + '.top.evl'), timestamps, top_depths)
-        echofilter.rawloader.evl_writer(os.path.join(output_dir, fname + '.bottom.evl'), timestamps, bottom_depths)
+        echofilter.raw.loader.evl_writer(os.path.join(output_dir, fname + '.top.evl'), timestamps, top_depths)
+        echofilter.raw.loader.evl_writer(os.path.join(output_dir, fname + '.bottom.evl'), timestamps, bottom_depths)
 
 
 def first_nonzero(arr, axis, invalid_val=-1):
