@@ -10,6 +10,118 @@ import numpy as np
 from . import loader
 
 
+def find_passive_data(signals, n_depth_use=26, threshold=10, deviation=None):
+    '''
+    Find segments of Sv recording which correspond to passive recording.
+
+    Parameters
+    ----------
+    signals : array_like
+        Two-dimensional array of Sv values, shaped `[timestamps, depths]`.
+    n_depth_use : int, optional
+        How many Sv depths to use, starting with the first depths (closest
+        to the sounder device). If `None` all depths are used. Default is `26`.
+    threshold : float, optional
+        Threshold for start/end of passive regions. Default is `10`.
+    deviation : float, optional
+        Threshold for start/end of passive regions is `deviation` times the
+        interquartile-range of the difference between samples at neigbouring
+        timestamps. Default is `None`. Only one of `threshold` and `deviation`
+        should be set.
+
+    Returns
+    -------
+    passive_start : numpy.ndarray
+        Indices of rows of `signals` at which passive segments start.
+    passive_end : numpy.ndarray
+        Indices of rows of `signals` at which passive segments end.
+
+    Notes
+    -----
+    Works by looking at the difference between consecutive recordings and
+    finding large deviations.
+    '''
+    # Ensure signals is numpy array
+    signals = np.asarray(signals)
+
+    if n_depth_use is None:
+        n_depth_use = signals.shape[1]
+
+    md = np.median(np.diff(signals[:, :n_depth_use], axis=0), axis=1)
+
+    if threshold is not None and deviation is not None:
+        raise ValueError('Only one of `threshold` and `deviation` should be set.')
+    if threshold is None:
+        if deviation is None:
+            raise ValueError('Neither of `threshold` and `deviation` were set.')
+        threshold = (np.percentile(md, 75) - np.percentile(md, 25)) * deviation
+
+    threshold_high = threshold
+    threshold_low = -threshold
+    indices_possible_start = np.nonzero(md < threshold_low)[0]
+    indices_possible_end = np.nonzero(md > threshold_high)[0]
+
+    current_index = 0
+    indices_passive_start = []
+    indices_passive_end = []
+
+    if len(indices_possible_start) == 0 and len(indices_possible_end) == 0:
+        return np.array(indices_passive_start), np.array(indices_passive_end)
+
+    if len(indices_possible_start) > 0:
+        indices_possible_start += 1
+
+    if len(indices_possible_end) > 0:
+        indices_possible_end += 1
+
+    if len(indices_possible_start) == 0 or indices_possible_end[0] < indices_possible_start[0]:
+        indices_passive_start.append(0)
+        current_index = indices_possible_end[0]
+        indices_passive_end.append(current_index)
+        indices_possible_start = indices_possible_start[indices_possible_start > current_index]
+        indices_possible_end = indices_possible_end[indices_possible_end > current_index]
+
+    while len(indices_possible_start) > 0:
+        current_index = indices_possible_start[0]
+        indices_passive_start.append(current_index)
+        baseline = signals[current_index - 1, :n_depth_use]
+
+        # Find first column which returns to the baseline value seen before passive region
+        offsets = np.nonzero(
+            np.median(baseline - signals[current_index:, :n_depth_use], axis=1) < threshold_high
+        )[0]
+        if len(offsets) == 0:
+            current_index = signals.shape[0]
+        else:
+            current_index += offsets[0] + 1
+        indices_passive_end.append(current_index)
+
+        # Remove preceding indices from the list of candidates
+        indices_possible_start = indices_possible_start[indices_possible_start > current_index]
+        indices_possible_end = indices_possible_end[indices_possible_end > current_index]
+
+        # Check the start was sufficiently inclusive
+        if current_index < signals.shape[0]:
+            baseline = signals[current_index, :n_depth_use]
+            nonpassives = np.nonzero(
+                np.median(baseline - signals[:current_index, :n_depth_use], axis=1) < threshold_high
+            )[0]
+            if len(nonpassives) == 0:
+                indices_passive_start[-1] = 0
+            else:
+                indices_passive_start[-1] = min(
+                    indices_passive_start[-1],
+                    nonpassives[-1] + 1,
+                )
+
+        # Combine with preceding passive segments if they overlap
+        while len(indices_passive_start) > 1 and indices_passive_start[-1] <= indices_passive_end[-2]:
+            indices_passive_start = indices_passive_start[:-1]
+            indices_passive_end = indices_passive_end[:-2] + indices_passive_end[-1:]
+
+    return np.array(indices_passive_start), np.array(indices_passive_end)
+
+
 def make_lines_from_mask(mask, depths=None):
     '''
     Determines top and bottom lines for a mask array.
