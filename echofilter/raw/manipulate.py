@@ -10,6 +10,9 @@ import numpy as np
 from . import loader
 
 
+ROOT_DATA_DIR = loader.ROOT_DATA_DIR
+
+
 def find_passive_data(signals, n_depth_use=26, threshold=10, deviation=None):
     '''
     Find segments of Sv recording which correspond to passive recording.
@@ -393,3 +396,88 @@ def fixup_lines(
     if return_passive_boundaries:
         return d_top_new, d_bot_new, passive_starts, passive_ends
     return d_top_new, d_bot_new
+
+
+def load_decomposed_transect_mask(
+        sample,
+        dataset='mobile',
+        root_data_dir=ROOT_DATA_DIR,
+    ):
+    '''
+    Loads a raw and masked transect and decomposes the mask into top and bottom
+    lines, and passive and removed regions.
+
+    Parameters
+    ----------
+    sample : str
+        Name of sample (its relative path within dataset directory).
+    dataset : str, optional
+        Name of dataset (corresponding to name of directory within
+        `root_data_dir` which contains `sample`). Default is `'mobile'`.
+    root_data_dir : str, optional
+        Path to root directory where data is located.
+        Default is as given in `raw.loader.ROOT_DATA_DIR`.
+
+    Returns
+    -------
+    dict
+        A dictionary with keys:
+
+            - 'timestamps'
+            - 'depths'
+            - 'Sv'
+            - 'mask'
+            - 'top'
+            - 'bot'
+            - 'is_passive'
+            - 'is_removed'
+    '''
+
+    root_data_dir = loader.remove_trailing_slash(root_data_dir)
+
+    # Load raw data
+    fname_raw = os.path.join(root_data_dir, dataset, sample + '_Sv_raw.csv')
+    fname_masked = os.path.join(root_data_dir, dataset, sample + '_Sv.csv')
+
+    ts_raw, depths_raw, signals_raw = loader.transect_loader(fname_raw)
+    ts_mskd, depths_mskd, signals_mskd = loader.transect_loader(fname_masked)
+    mask = ~np.isnan(signals_mskd)
+
+    fname_top = os.path.join(root_data_dir, dataset, sample + '_turbulence.evl')
+    fname_bot = os.path.join(root_data_dir, dataset, sample + '_bottom.evl')
+    t_top, d_top = loader.evl_loader(fname_top)
+    t_bot, d_bot = loader.evl_loader(fname_bot)
+
+    # Generate new lines from mask
+    d_top_new, d_bot_new, passive_starts, passive_ends = fixup_lines(
+        ts_raw,
+        depths_raw,
+        signals_raw,
+        mask,
+        t_top=t_top,
+        d_top=d_top,
+        t_bot=t_bot,
+        d_bot=d_bot,
+        return_passive_boundaries=True,
+    )
+    # Determine whether each timestamps is for a period of passive recording
+    is_passive = np.zeros(ts_raw.shape, dtype=bool)
+    for pass_start, pass_end in zip(passive_starts, passive_ends):
+        is_passive[pass_start:pass_end] = True
+
+    # Determine whether each timestamp is for recording which was completely
+    # removed from analysis (but not because it is passive recording)
+    allnan = np.all(np.isnan(signals_mskd), axis=1)
+    is_removed = allnan & ~is_passive
+
+    out = {}
+    out['timestamps'] = ts_raw
+    out['depths'] = depths_raw
+    out['Sv'] = signals_raw
+    out['mask'] = mask
+    out['top'] = d_top_new
+    out['bot'] = d_bot_new
+    out['is_passive'] = is_passive
+    out['is_removed'] = is_removed
+
+    return out
