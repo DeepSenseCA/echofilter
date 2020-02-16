@@ -41,17 +41,20 @@ def shard_transect(
     -----
     The output will be written to the directory
     <root_data_dir>_sharded/<dataset>/transect_path
-    and will contain
-    - a file named `'shard_size.txt'`, which contains the sharding metadata:
-      total number of samples, and shard size;
-    - a directory for each shard, named 0, 1, ...
-    Each shard directory will contain files:
-    - depths.npy
-    - timestamps.npy
-    - Sv.npy
-    - top.npy
-    - bottom.npy
-    which contain pickled numpy dumps of the matrices for each shard.
+    and will contain:
+
+        - a file named `'shard_size.txt'`, which contains the sharding metadata:
+          total number of samples, and shard size;
+        - a directory for each shard, named 0, 1, ...
+          Each shard directory will contain files:
+
+            - depths.npy
+            - timestamps.npy
+            - Sv.npy
+            - top.npy
+            - bottom.npy
+
+          which contain pickled numpy dumps of the matrices for each shard.
     '''
     # Define output destination
     root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
