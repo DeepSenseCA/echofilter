@@ -266,3 +266,129 @@ def write_lines_for_masked_csv(fname_mask, fname_top=None, fname_bot=None):
     # Write the new lines to their output files.
     loader.evl_writer(fname_top, timestamps, d_top)
     loader.evl_writer(fname_bot, timestamps, d_bot)
+
+
+def find_nonzero_region_boundaries(v):
+    '''
+    Find the start and end indices for nonzero regions of a vector.
+
+    Parameters
+    ----------
+    v : array_like
+        A vector.
+
+    Returns
+    -------
+    starts : numpy.ndarray
+        Indices for start of regions of nonzero elements in vector `v`
+    ends : numpy.ndarray
+        Indices for end of regions of nonzero elements in vector `v`
+        (exclusive).
+
+    Notes
+    -----
+    For `i` in `range(len(starts))`, the set of values `v[starts[i]:ends[i]]`
+    are nonzero. Values in the range `v[ends[i]:starts[i+1]]` are zero.
+    '''
+
+    v = np.asarray(v)
+    v = (v != 0)
+    v = v.astype(np.float)
+
+    starts = np.nonzero(np.diff(v) > 0)[0] + 1
+    ends = np.nonzero(np.diff(v) < 0)[0] + 1
+
+    if v[0]:
+        starts = np.concatenate(([0], starts))
+
+    if v[-1]:
+        ends = np.concatenate((ends, [len(vector)]))
+
+    return starts, ends
+
+
+def fixup_lines(
+        timestamps,
+        depths,
+        signals_raw,
+        mask,
+        t_top=None,
+        d_top=None,
+        t_bot=None,
+        d_bot=None,
+        return_passive_boundaries=False,
+    ):
+    '''
+    Extend existing top/bottom lines based on masked target Sv output.
+
+    Parameters
+    ----------
+    timestamps : array_like
+        Shaped `(num_timestamps, )`.
+    depths : array_like
+        Shaped `(num_depths, )`.
+    signals_raw : array_like
+        Shaped `(num_timestamps, num_depths)`.
+    mask : array_like
+        Boolean array, where `True` denotes kept entries. Same shape as
+        `signals_raw`.
+    t_top : array_like, optional
+        Sampling times for existing top line.
+    d_top : array_like, optional
+        Depth of existing top line.
+    t_bot : array_like, optional
+        Sampling times for existing bottom line.
+    d_bot : array_like, optional
+        Depth of existing bottom line.
+    return_passive_boundaries : bool, optional
+        Whether to return `passive_starts` and `passive_ends`. Default is
+        `False`.
+
+    Returns
+    -------
+    d_top_new : numpy.ndarray
+        Depth of new top line.
+    d_bot_new : numpy.ndarray
+        Depth of new bottom line.
+    passive_starts : numpy.ndarray, optional
+        Start indices for passive segments of recording in `signals_raw`.
+        Included in returned tuple if `return_passive_boundaries` is `True`.
+    passive_ends : numpy.ndarray, optional
+        Start indices for passive segments of recording in `signals_raw`.
+        Included in returned tuple if `return_passive_boundaries` is `True`.
+    '''
+    # Handle different sampling grids
+    if d_top is not None:
+        if t_top is None:
+            raise ValueError('t_top must be provided if d_top is provided')
+        d_top = np.interp(timestamps, t_top, d_top)
+
+    if d_bot is not None:
+        if t_bot is None:
+            raise ValueError('t_bot must be provided if d_bot is provided')
+        d_bot = np.interp(timestamps, t_bot, d_bot)
+
+    # Generate fresh lines corresponding to said mask
+    d_top_new, d_bot_new = make_lines_from_mask(mask, depths)
+
+    # This mask can't handle regions where all the data was removed.
+    # Find those and replace them with the original lines, if they were
+    # provided.
+    all_removed = np.all(~mask, axis=1)
+    if d_top is not None:
+        d_top_new[all_removed] = d_top[all_removed]
+    if d_bot is not None:
+        d_bot_new[all_removed] = d_bot[all_removed]
+
+    # Convert this into start and end points for later use(?)
+    # removal_starts, removal_ends = find_nonzero_region_boundaries(all_removed)
+
+    # For passive data, it would be better if the lines excluded everything.
+    passive_starts, passive_ends = find_passive_data(signals_raw)
+    for start, end in zip(passive_starts, passive_ends):
+        d_top_new[start:end] = np.max(depths)
+        d_bot_new[start:end] = np.min(depths)
+
+    if return_passive_boundaries:
+        return d_top_new, d_bot_new, passive_starts, passive_ends
+    return d_top_new, d_bot_new
