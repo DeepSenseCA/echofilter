@@ -423,14 +423,32 @@ def load_decomposed_transect_mask(
     dict
         A dictionary with keys:
 
-            - 'timestamps'
-            - 'depths'
-            - 'Sv'
-            - 'mask'
-            - 'top'
-            - 'bot'
-            - 'is_passive'
-            - 'is_removed'
+            - 'timestamps' : numpy.ndarray
+                Timestamps (in seconds since Unix epoch), for each recording
+                timepoint.
+            - 'depths' : numpy.ndarray
+                Depths from the surface (in metres), with each entry
+                corresponding to each column in the `signals` data.
+            - 'Sv' : numpy.ndarray
+                Echogram Sv data, shaped (num_timestamps, num_depths).
+            - 'mask' : numpy.ndarray
+                Logical array indicating which datapoints were kept (`True`)
+                and which removed (`False`) for the masked Sv output.
+                Shaped (num_timestamps, num_depths).
+            - 'top' : numpy.ndarray
+                For each timepoint, the depth of the shallowest datapoint which
+                should be included for the mask. Shaped (num_timestamps, ).
+            - 'bot' : numpy.ndarray
+                For each timepoint, the depth of the deepest datapoint which
+                should be included for the mask. Shaped (num_timestamps, ).
+            - 'is_passive' : numpy.ndarray
+                Logical array showing whether a timepoint is of passive data.
+                Shaped (num_timestamps, ). All passive recording data should
+                be excluded by the mask.
+            - 'is_removed' : numpy.ndarray
+                Logical array showing whether a timepoint is entirely removed
+                by the mask. Shaped (num_timestamps, ). Does not include
+                periods of passive recording.
     '''
 
     root_data_dir = loader.remove_trailing_slash(root_data_dir)
