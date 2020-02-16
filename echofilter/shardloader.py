@@ -1,3 +1,7 @@
+'''
+Converting raw data into shards, and loading data from shards.
+'''
+
 import os
 import numpy as np
 
