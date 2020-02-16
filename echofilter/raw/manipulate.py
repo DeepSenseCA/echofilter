@@ -383,11 +383,12 @@ def fixup_lines(
     # Convert this into start and end points for later use(?)
     # removal_starts, removal_ends = find_nonzero_region_boundaries(all_removed)
 
-    # For passive data, it would be better if the lines excluded everything.
+    # For passive data, we set the target to be NaN as a placeholder.
+    # A working target can be set downstream.
     passive_starts, passive_ends = find_passive_data(signals_raw)
     for start, end in zip(passive_starts, passive_ends):
-        d_top_new[start:end] = np.max(depths)
-        d_bot_new[start:end] = np.min(depths)
+        d_top_new[start:end] = np.nan
+        d_bot_new[start:end] = np.nan
 
     if return_passive_boundaries:
         return d_top_new, d_bot_new, passive_starts, passive_ends
