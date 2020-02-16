@@ -449,6 +449,11 @@ def load_decomposed_transect_mask(
                 Logical array showing whether a timepoint is entirely removed
                 by the mask. Shaped (num_timestamps, ). Does not include
                 periods of passive recording.
+            - 'is_source_bottom' : bool
+                Indicates whether the recording source is located at the
+                deepest depth (i.e. the seabed), facing upwards. Otherwise, the
+                recording source is at the shallowest depth (i.e. the surface),
+                facing downwards.
     '''
 
     root_data_dir = loader.remove_trailing_slash(root_data_dir)
@@ -497,5 +502,6 @@ def load_decomposed_transect_mask(
     out['bot'] = d_bot_new
     out['is_passive'] = is_passive
     out['is_removed'] = is_removed
+    out['is_source_bottom'] = (dataset == 'stationary')
 
     return out
