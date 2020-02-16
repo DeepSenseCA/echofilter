@@ -80,11 +80,15 @@ def shard_transect(
                 np.split(np.single(d_top), indices),
                 np.split(np.single(d_bot), indices),
             )
-            ):
+        ):
         os.makedirs(os.path.join(dirname, str(i)), exist_ok=True)
         for obj, fname in (
-                (depths[depth_mask], 'depths'), (ts_i, 'timestamps'),
-                (sig_i, 'Sv'), (top_i, 'top'), (bot_i, 'bottom')):
+                (depths[depth_mask], 'depths'),
+                (ts_i, 'timestamps'),
+                (sig_i, 'Sv'),
+                (top_i, 'top'),
+                (bot_i, 'bottom'),
+            ):
             obj.dump(os.path.join(dirname, str(i), fname + '.npy'))
 
 
