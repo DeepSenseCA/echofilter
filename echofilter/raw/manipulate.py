@@ -438,7 +438,7 @@ def load_decomposed_transect_mask(
             - 'top' : numpy.ndarray
                 For each timepoint, the depth of the shallowest datapoint which
                 should be included for the mask. Shaped (num_timestamps, ).
-            - 'bot' : numpy.ndarray
+            - 'bottom' : numpy.ndarray
                 For each timepoint, the depth of the deepest datapoint which
                 should be included for the mask. Shaped (num_timestamps, ).
             - 'is_passive' : numpy.ndarray
@@ -499,7 +499,7 @@ def load_decomposed_transect_mask(
     out['Sv'] = signals_raw
     out['mask'] = mask
     out['top'] = d_top_new
-    out['bot'] = d_bot_new
+    out['bottom'] = d_bot_new
     out['is_passive'] = is_passive
     out['is_removed'] = is_removed
     out['is_source_bottom'] = (dataset == 'stationary')
