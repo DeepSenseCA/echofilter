@@ -54,6 +54,7 @@ def shard_transect(
     which contain pickled numpy dumps of the matrices for each shard.
     '''
     # Define output destination
+    root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
     root_shard_dir = os.path.join(root_data_dir + '_sharded', dataset)
     # Load the raw data
     timestamps, depths, signals, d_top, d_bot = raw.loader.load_transect_data(
@@ -214,6 +215,7 @@ def load_transect_from_shards_rel(
     bottom : numpy.ndarray
         Depth of bottom line, shaped `(num_timestamps, )`.
     '''
+    root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
     root_shard_dir = os.path.join(root_data_dir + '_sharded', dataset)
     dirname = os.path.join(root_shard_dir, transect_rel_pth)
     return load_transect_from_shards_abs(
