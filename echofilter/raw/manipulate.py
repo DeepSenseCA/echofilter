@@ -2,6 +2,7 @@
 Manipulating lines and masks contained in echoview files.
 '''
 
+import copy
 import os
 import warnings
 
@@ -542,3 +543,50 @@ def load_decomposed_transect_mask(
     out['is_source_bottom'] = (depths_raw[-1] < depths_raw[0])
 
     return out
+
+
+def split_transect(timestamps=None, threshold=50, **transect):
+    '''
+    Splits a transect into segments each containing contiguous recordings.
+
+    Parameters
+    ----------
+    timestamps : array_like
+        A 1-d array containing the timestamp at which each recording was
+        measured. The sampling is assumed to high-frequency with
+        occassional gaps.
+    threshold : int, optional
+        Threshold for splitting timestamps into segments. Any timepoints
+        further apart than `threshold` times the median difference between
+        timepoints will be split apart into new segments. Default is `50`.
+    **kwargs
+        Arbitrary additional transect variables, which will be split into
+        segments as appropriate in accordance with `timestamps`.
+
+    Yields
+    ------
+    dict
+        Containing segmented data, key/value pairs as per given in **kwargs
+        in addition to `timestamps`.
+    '''
+
+    if timestamps is None:
+        raise ValueError('The `timestamps` argument is required.')
+
+    dt = np.diff(timestamps)
+    break_indices = np.where(dt > np.median(dt) * threshold)[0]
+    if len(break_indices) > 0:
+        break_indices += 1
+
+    for seg_start, seg_end in zip(
+        np.r_[0, break_indices],
+        np.r_[break_indices, len(timestamps)],
+    ):
+        segment = {}
+        segment['timestamps'] = timestamps[seg_start:seg_end]
+        for key in transect:
+            if key in ('depths', ) or np.asarray(transect[key]).size <= 1:
+                segment[key] = copy.deepcopy(transect[key])
+            else:
+                segment[key] = transect[key][seg_start:seg_end]
+        yield segment
