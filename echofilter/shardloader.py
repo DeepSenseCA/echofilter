@@ -65,7 +65,7 @@ def segment_and_shard_transect(
     n_segment = i_segment + 1
 
     # Save segmentation metadata
-    with open(os.path.join(dirname, 'n_segment.txt'), 'w') as hf:
+    with open(os.path.join(root_shard_dir, transect_pth, 'n_segment.txt'), 'w') as hf:
         print(str(n_segment), file=hf)
 
 
