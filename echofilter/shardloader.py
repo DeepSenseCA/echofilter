@@ -5,7 +5,7 @@ Converting raw data into shards, and loading data from shards.
 import os
 import numpy as np
 
-from . import raw.loader
+from . import raw
 
 
 ROOT_DATA_DIR = raw.loader.ROOT_DATA_DIR
@@ -59,37 +59,56 @@ def shard_transect(
     # Define output destination
     root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
     root_shard_dir = os.path.join(root_data_dir + '_sharded', dataset)
-    # Load the raw data
-    timestamps, depths, signals, d_top, d_bot = raw.loader.load_transect_data(
-        transect_pth, dataset, root_data_dir,
+
+    # Load the data, with mask decomposed into top, bottom, passive,
+    # and removed regions.
+    transect = raw.manipulate.load_decomposed_transect_mask(
+        transect_pth,
+        dataset,
+        root_data_dir,
     )
-    # Prep
-    depth_mask = depths <= max_depth
-    indices = range(shard_len, signals.shape[0], shard_len)
+
+    # Remove depths which are too deep for us to care about
+    depth_mask = transect['depths'] <= max_depth
+    transect['depths'] = transect['depths'][depth_mask]
+    transect['Sv'] = transect['Sv'][:, depth_mask]
+    transect['mask'] = transect['mask'][:, depth_mask]
+
+    # Reduce floating point precision for some variables
+    for key in ('Sv', 'top', 'bottom'):
+        transect[key] = np.single(transect[key])
+
+    # Prep output directory
     dirname = os.path.join(root_shard_dir, transect_pth)
     os.makedirs(dirname, exist_ok=True)
+
     # Save sharding metadata (total number of datapoints, shard size) to
     # make loading from the shards easier
     with open(os.path.join(dirname, 'shard_size.txt'), 'w') as hf:
-        print('{},{}'.format(len(timestamps), shard_len), file=hf)
+        print('{},{}'.format(transect['Sv'].shape[0], shard_len), file=hf)
+
+    # Work out where to split the arrays
+    indices = range(shard_len, transect['Sv'].shape[0], shard_len)
+
+    splits = {}
+    for key in transect:
+        if key in ('depths', 'is_source_bottom'):
+            continue
+        splits[key] = np.split(transect[key], indices)
+
+    for key in splits:
+        if len(splits[key]) != len(splits['Sv']):
+            raise ValueError('Inconsistent split lengths')
+
+    transect['is_source_bottom'] = np.array(transect['is_source_bottom'])
+
     # Save the data for each of the shards
-    for i, (ts_i, sig_i, top_i, bot_i) in enumerate(
-            zip(
-                np.split(timestamps, indices),
-                np.split(np.single(signals[:, depth_mask]), indices),
-                np.split(np.single(d_top), indices),
-                np.split(np.single(d_bot), indices),
-            )
-        ):
+    for i in range(len(splits['Sv'])):
         os.makedirs(os.path.join(dirname, str(i)), exist_ok=True)
-        for obj, fname in (
-                (depths[depth_mask], 'depths'),
-                (ts_i, 'timestamps'),
-                (sig_i, 'Sv'),
-                (top_i, 'top'),
-                (bot_i, 'bottom'),
-            ):
-            obj.dump(os.path.join(dirname, str(i), fname + '.npy'))
+        for key in ('depths', 'is_source_bottom'):
+            transect[key].dump(os.path.join(dirname, str(i), key + '.npy'))
+        for key in splits:
+            splits[key][i].dump(os.path.join(dirname, str(i), key + '.npy'))
 
 
 def load_transect_from_shards_abs(
