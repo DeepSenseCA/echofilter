@@ -531,6 +531,15 @@ def load_decomposed_transect_mask(
     allnan = np.all(np.isnan(signals_mskd), axis=1)
     is_removed = allnan & ~is_passive
 
+    # Determine whether depths are ascending or descending
+    is_source_bottom = (depths_raw[-1] < depths_raw[0])
+    # Ensure depth is always increasing (which corresponds to descending from
+    # the air down the water column)
+    if is_source_bottom:
+        depths_raw = depths_raw[::-1]
+        signals_raw = signals_raw[:, ::-1]
+        mask = mask[:, ::-1]
+
     out = {}
     out['timestamps'] = ts_raw
     out['depths'] = depths_raw
@@ -540,7 +549,7 @@ def load_decomposed_transect_mask(
     out['bottom'] = d_bot_new
     out['is_passive'] = is_passive
     out['is_removed'] = is_removed
-    out['is_source_bottom'] = (depths_raw[-1] < depths_raw[0])
+    out['is_source_bottom'] = is_source_bottom
 
     return out
 
