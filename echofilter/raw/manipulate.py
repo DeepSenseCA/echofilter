@@ -540,18 +540,18 @@ def load_decomposed_transect_mask(
         signals_raw = signals_raw[:, ::-1]
         mask = mask[:, ::-1]
 
-    out = {}
-    out['timestamps'] = ts_raw
-    out['depths'] = depths_raw
-    out['Sv'] = signals_raw
-    out['mask'] = mask
-    out['top'] = d_top_new
-    out['bottom'] = d_bot_new
-    out['is_passive'] = is_passive
-    out['is_removed'] = is_removed
-    out['is_source_bottom'] = is_source_bottom
+    transect = {}
+    transect['timestamps'] = ts_raw
+    transect['depths'] = depths_raw
+    transect['Sv'] = signals_raw
+    transect['mask'] = mask
+    transect['top'] = d_top_new
+    transect['bottom'] = d_bot_new
+    transect['is_passive'] = is_passive
+    transect['is_removed'] = is_removed
+    transect['is_source_bottom'] = is_source_bottom
 
-    return out
+    return transect
 
 
 def split_transect(timestamps=None, threshold=50, **transect):
