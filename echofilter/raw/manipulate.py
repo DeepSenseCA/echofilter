@@ -265,7 +265,7 @@ def write_lines_for_masked_csv(fname_mask, fname_top=None, fname_bot=None):
     if fname_bot is None:
         fname_bot = fname_base + '_mask-bottom.evl'
     # Generate the new lines.
-    timestamps, d_top, d_bot = loader.make_lines_from_masked_csv(fname_mask)
+    timestamps, d_top, d_bot = make_lines_from_masked_csv(fname_mask)
     # Write the new lines to their output files.
     loader.evl_writer(fname_top, timestamps, d_top)
     loader.evl_writer(fname_bot, timestamps, d_bot)
