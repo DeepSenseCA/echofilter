@@ -101,6 +101,10 @@ class TransectDataset(torch.utils.data.Dataset):
         sample['d_top'] = sample.pop('top')
         sample['d_bot'] = sample.pop('bottom')
         sample['signals'] = sample.pop('Sv')
+        # Handle missing top and bottom lines during passive segments
+        min_depth = np.nanmin(sample['d_top'])
+        sample['d_top'] = np.nan_to_num(sample['d_top'], nan=min_depth)
+        sample['d_bot'] = np.nan_to_num(sample['d_top'], nan=np.max(sample['depths']))
 
         if self.transform_pre is not None:
             sample = self.transform_pre(sample)
