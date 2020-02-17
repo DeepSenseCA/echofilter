@@ -5,10 +5,11 @@ import os
 
 import tqdm
 
-from echofilter import raw.loader, shardloader
+import echofilter.raw.loader
+import echofilter.shardloader
 
 
-ROOT_DATA_DIR = raw.loader.ROOT_DATA_DIR
+ROOT_DATA_DIR = echofilter.raw.loader.ROOT_DATA_DIR
 
 
 def main(
@@ -20,7 +21,7 @@ def main(
         root_data_dir=ROOT_DATA_DIR,
         progress_bar=False,
     ):
-    transect_pths = raw.loader.get_partition_list(
+    transect_pths = echofilter.raw.loader.get_partition_list(
         partition,
         dataset=dataset,
         full_path=False,
@@ -29,7 +30,7 @@ def main(
     )
     for transect_pth in (tqdm.tqdm(transect_pths) if progress_bar else transect_pths):
         try:
-            shardloader.shard_transect(
+            echofilter.shardloader.shard_transect(
                 transect_pth,
                 dataset=dataset,
                 max_depth=max_depth,
@@ -61,7 +62,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--root',
         type=str,
-        default=raw.loader.ROOT_DATA_DIR,
+        default=ROOT_DATA_DIR,
         help='root data directory',
     )
     parser.add_argument(
