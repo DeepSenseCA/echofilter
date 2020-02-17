@@ -93,19 +93,15 @@ class TransectDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         transect_pth, center_idx = self.datapoints[index]
         # Load data from shards
-        timestamps, depths, signals, d_top, d_bot = \
-            echofilter.shardloader.load_transect_from_shards_abs(
-                transect_pth,
-                center_idx - int(self.window_len / 2),
-                center_idx - int(self.window_len / 2) + self.window_len,
-            )
-        sample = {
-            'timestamps': timestamps,
-            'depths': depths,
-            'signals': signals,
-            'd_top': d_top,
-            'd_bot': d_bot,
-        }
+        sample = echofilter.shardloader.load_transect_from_shards_abs(
+            transect_pth,
+            center_idx - int(self.window_len / 2),
+            center_idx - int(self.window_len / 2) + self.window_len,
+        )
+        sample['d_top'] = sample.pop('top')
+        sample['d_bot'] = sample.pop('bottom')
+        sample['signals'] = sample.pop('Sv')
+
         if self.transform_pre is not None:
             sample = self.transform_pre(sample)
         # Apply depth crop

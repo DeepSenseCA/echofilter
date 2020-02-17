@@ -133,19 +133,41 @@ def load_transect_from_shards_abs(
 
     Returns
     -------
-    timestamps : numpy.ndarray
-        Timestamps (in seconds since Unix epoch), with each entry
-        corresponding to each row in the `signals` data. The number of entries,
-        `num_timestamps` is equal to `i2 - i1`.
-    depths : numpy.ndarray
-        Depths from the surface (in metres), with each entry corresponding
-        to each column in the `signals` data.
-    signals : numpy.ndarray
-        Echogram Sv data, shaped `(num_timestamps, num_depths)`.
-    top : numpy.ndarray
-        Depth of top line, shaped `(num_timestamps, )`.
-    bottom : numpy.ndarray
-        Depth of bottom line, shaped `(num_timestamps, )`.
+    dict
+        A dictionary with keys:
+
+            - 'timestamps' : numpy.ndarray
+                Timestamps (in seconds since Unix epoch), for each recording
+                timepoint. The number of entries, `num_timestamps`, is equal
+                to `i2 - i1`.
+            - 'depths' : numpy.ndarray
+                Depths from the surface (in metres), with each entry
+                corresponding to each column in the `signals` data.
+            - 'Sv' : numpy.ndarray
+                Echogram Sv data, shaped (num_timestamps, num_depths).
+            - 'mask' : numpy.ndarray
+                Logical array indicating which datapoints were kept (`True`)
+                and which removed (`False`) for the masked Sv output.
+                Shaped (num_timestamps, num_depths).
+            - 'top' : numpy.ndarray
+                For each timepoint, the depth of the shallowest datapoint which
+                should be included for the mask. Shaped (num_timestamps, ).
+            - 'bottom' : numpy.ndarray
+                For each timepoint, the depth of the deepest datapoint which
+                should be included for the mask. Shaped (num_timestamps, ).
+            - 'is_passive' : numpy.ndarray
+                Logical array showing whether a timepoint is of passive data.
+                Shaped (num_timestamps, ). All passive recording data should
+                be excluded by the mask.
+            - 'is_removed' : numpy.ndarray
+                Logical array showing whether a timepoint is entirely removed
+                by the mask. Shaped (num_timestamps, ). Does not include
+                periods of passive recording.
+            - 'is_source_bottom' : bool
+                Indicates whether the recording source is located at the
+                deepest depth (i.e. the seabed), facing upwards. Otherwise, the
+                recording source is at the shallowest depth (i.e. the surface),
+                facing downwards.
     '''
     # Load the sharding metadata
     with open(os.path.join(transect_abs_pth, 'shard_size.txt'), 'r') as f:
@@ -173,8 +195,14 @@ def load_transect_from_shards_abs(
     j1 = max(0, int(i1 / shard_len))
     j2 = int(min(i2, n_timestamps - 1) / shard_len)
 
-    # Depths should all be the same. Only load one of them.
-    depths = np.load(os.path.join(transect_abs_pth, str(j1), 'depths.npy'), allow_pickle=True)
+    transect = {}
+    # Depths and is_source_bottom should all be the same. Only load one of
+    # each of them.
+    for key in ('depths', 'is_source_bottom'):
+        transect[key] = np.load(
+            os.path.join(transect_abs_pth, str(j1), key + '.npy'),
+            allow_pickle=True,
+        )
 
     # Load the rest, knitting the shards back together and cutting down to just
     # the necessary timestamps.
@@ -191,12 +219,11 @@ def load_transect_from_shards_abs(
             broad_data[[-1] * (i2 - i2_)],
         ])
 
-    timestamps = load_shard('timestamps')
-    signals = load_shard('Sv')
-    d_top = load_shard('top')
-    d_bot = load_shard('bottom')
+    for key in ('timestamps', 'Sv', 'mask', 'top', 'bottom', 'is_passive',
+                'is_removed'):
+        transect[key] = load_shard(key)
 
-    return timestamps, depths, signals, d_top, d_bot
+    return transect
 
 
 def load_transect_from_shards_rel(
