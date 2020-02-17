@@ -73,13 +73,13 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--max_depth',
-        type=int,
+        type=float,
         default=100.,
         help='maximum depth to include in sharded data',
     )
     parser.add_argument(
         '--shard_len',
-        type=float,
+        type=int,
         default=64,
         help='number of samples in each shard',
     )
