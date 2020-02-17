@@ -20,7 +20,7 @@ import echofilter.dataset
 import echofilter.transforms
 from echofilter import criterions
 from echofilter.meters import AverageMeter, ProgressMeter
-from echofilter.rawloader import get_partition_list
+from echofilter.raw.loader import get_partition_list
 from echofilter.unet import UNet
 
 

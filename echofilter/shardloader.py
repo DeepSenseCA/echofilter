@@ -1,10 +1,14 @@
+'''
+Converting raw data into shards, and loading data from shards.
+'''
+
 import os
 import numpy as np
 
-from . import rawloader
+from . import raw
 
 
-ROOT_DATA_DIR = rawloader.ROOT_DATA_DIR
+ROOT_DATA_DIR = raw.loader.ROOT_DATA_DIR
 
 
 def shard_transect(
@@ -37,47 +41,74 @@ def shard_transect(
     -----
     The output will be written to the directory
     <root_data_dir>_sharded/<dataset>/transect_path
-    and will contain
-    - a file named `'shard_size.txt'`, which contains the sharding metadata:
-      total number of samples, and shard size;
-    - a directory for each shard, named 0, 1, ...
-    Each shard directory will contain files:
-    - depths.npy
-    - timestamps.npy
-    - Sv.npy
-    - top.npy
-    - bottom.npy
-    which contain pickled numpy dumps of the matrices for each shard.
+    and will contain:
+
+        - a file named `'shard_size.txt'`, which contains the sharding metadata:
+          total number of samples, and shard size;
+        - a directory for each shard, named 0, 1, ...
+          Each shard directory will contain files:
+
+            - depths.npy
+            - timestamps.npy
+            - Sv.npy
+            - top.npy
+            - bottom.npy
+
+          which contain pickled numpy dumps of the matrices for each shard.
     '''
     # Define output destination
+    root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
     root_shard_dir = os.path.join(root_data_dir + '_sharded', dataset)
-    # Load the raw data
-    timestamps, depths, signals, d_top, d_bot = rawloader.load_transect_data(
-        transect_pth, dataset, root_data_dir,
+
+    # Load the data, with mask decomposed into top, bottom, passive,
+    # and removed regions.
+    transect = raw.manipulate.load_decomposed_transect_mask(
+        transect_pth,
+        dataset,
+        root_data_dir,
     )
-    # Prep
-    depth_mask = depths <= 100
-    indices = range(shard_len, signals.shape[0], shard_len)
+
+    # Remove depths which are too deep for us to care about
+    depth_mask = transect['depths'] <= max_depth
+    transect['depths'] = transect['depths'][depth_mask]
+    transect['Sv'] = transect['Sv'][:, depth_mask]
+    transect['mask'] = transect['mask'][:, depth_mask]
+
+    # Reduce floating point precision for some variables
+    for key in ('Sv', 'top', 'bottom'):
+        transect[key] = np.single(transect[key])
+
+    # Prep output directory
     dirname = os.path.join(root_shard_dir, transect_pth)
     os.makedirs(dirname, exist_ok=True)
+
     # Save sharding metadata (total number of datapoints, shard size) to
     # make loading from the shards easier
     with open(os.path.join(dirname, 'shard_size.txt'), 'w') as hf:
-        print('{},{}'.format(len(timestamps), shard_len), file=hf)
+        print('{},{}'.format(transect['Sv'].shape[0], shard_len), file=hf)
+
+    # Work out where to split the arrays
+    indices = range(shard_len, transect['Sv'].shape[0], shard_len)
+
+    splits = {}
+    for key in transect:
+        if key in ('depths', 'is_source_bottom'):
+            continue
+        splits[key] = np.split(transect[key], indices)
+
+    for key in splits:
+        if len(splits[key]) != len(splits['Sv']):
+            raise ValueError('Inconsistent split lengths')
+
+    transect['is_source_bottom'] = np.array(transect['is_source_bottom'])
+
     # Save the data for each of the shards
-    for i, (ts_i, sig_i, top_i, bot_i) in enumerate(
-            zip(
-                np.split(timestamps, indices),
-                np.split(np.single(signals[:, depth_mask]), indices),
-                np.split(np.single(d_top), indices),
-                np.split(np.single(d_bot), indices),
-            )
-            ):
+    for i in range(len(splits['Sv'])):
         os.makedirs(os.path.join(dirname, str(i)), exist_ok=True)
-        for obj, fname in (
-                (depths[depth_mask], 'depths'), (ts_i, 'timestamps'),
-                (sig_i, 'Sv'), (top_i, 'top'), (bot_i, 'bottom')):
-            obj.dump(os.path.join(dirname, str(i), fname + '.npy'))
+        for key in ('depths', 'is_source_bottom'):
+            transect[key].dump(os.path.join(dirname, str(i), key + '.npy'))
+        for key in splits:
+            splits[key][i].dump(os.path.join(dirname, str(i), key + '.npy'))
 
 
 def load_transect_from_shards_abs(
@@ -102,19 +133,41 @@ def load_transect_from_shards_abs(
 
     Returns
     -------
-    timestamps : numpy.ndarray
-        Timestamps (in seconds since Unix epoch), with each entry
-        corresponding to each row in the `signals` data. The number of entries,
-        `num_timestamps` is equal to `i2 - i1`.
-    depths : numpy.ndarray
-        Depths from the surface (in metres), with each entry corresponding
-        to each column in the `signals` data.
-    signals : numpy.ndarray
-        Echogram Sv data, shaped `(num_timestamps, num_depths)`.
-    top : numpy.ndarray
-        Depth of top line, shaped `(num_timestamps, )`.
-    bottom : numpy.ndarray
-        Depth of bottom line, shaped `(num_timestamps, )`.
+    dict
+        A dictionary with keys:
+
+            - 'timestamps' : numpy.ndarray
+                Timestamps (in seconds since Unix epoch), for each recording
+                timepoint. The number of entries, `num_timestamps`, is equal
+                to `i2 - i1`.
+            - 'depths' : numpy.ndarray
+                Depths from the surface (in metres), with each entry
+                corresponding to each column in the `signals` data.
+            - 'Sv' : numpy.ndarray
+                Echogram Sv data, shaped (num_timestamps, num_depths).
+            - 'mask' : numpy.ndarray
+                Logical array indicating which datapoints were kept (`True`)
+                and which removed (`False`) for the masked Sv output.
+                Shaped (num_timestamps, num_depths).
+            - 'top' : numpy.ndarray
+                For each timepoint, the depth of the shallowest datapoint which
+                should be included for the mask. Shaped (num_timestamps, ).
+            - 'bottom' : numpy.ndarray
+                For each timepoint, the depth of the deepest datapoint which
+                should be included for the mask. Shaped (num_timestamps, ).
+            - 'is_passive' : numpy.ndarray
+                Logical array showing whether a timepoint is of passive data.
+                Shaped (num_timestamps, ). All passive recording data should
+                be excluded by the mask.
+            - 'is_removed' : numpy.ndarray
+                Logical array showing whether a timepoint is entirely removed
+                by the mask. Shaped (num_timestamps, ). Does not include
+                periods of passive recording.
+            - 'is_source_bottom' : bool
+                Indicates whether the recording source is located at the
+                deepest depth (i.e. the seabed), facing upwards. Otherwise, the
+                recording source is at the shallowest depth (i.e. the surface),
+                facing downwards.
     '''
     # Load the sharding metadata
     with open(os.path.join(transect_abs_pth, 'shard_size.txt'), 'r') as f:
@@ -142,8 +195,14 @@ def load_transect_from_shards_abs(
     j1 = max(0, int(i1 / shard_len))
     j2 = int(min(i2, n_timestamps - 1) / shard_len)
 
-    # Depths should all be the same. Only load one of them.
-    depths = np.load(os.path.join(transect_abs_pth, str(j1), 'depths.npy'), allow_pickle=True)
+    transect = {}
+    # Depths and is_source_bottom should all be the same. Only load one of
+    # each of them.
+    for key in ('depths', 'is_source_bottom'):
+        transect[key] = np.load(
+            os.path.join(transect_abs_pth, str(j1), key + '.npy'),
+            allow_pickle=True,
+        )
 
     # Load the rest, knitting the shards back together and cutting down to just
     # the necessary timestamps.
@@ -160,12 +219,11 @@ def load_transect_from_shards_abs(
             broad_data[[-1] * (i2 - i2_)],
         ])
 
-    timestamps = load_shard('timestamps')
-    signals = load_shard('Sv')
-    d_top = load_shard('top')
-    d_bot = load_shard('bottom')
+    for key in ('timestamps', 'Sv', 'mask', 'top', 'bottom', 'is_passive',
+                'is_removed'):
+        transect[key] = load_shard(key)
 
-    return timestamps, depths, signals, d_top, d_bot
+    return transect
 
 
 def load_transect_from_shards_rel(
@@ -210,6 +268,7 @@ def load_transect_from_shards_rel(
     bottom : numpy.ndarray
         Depth of bottom line, shaped `(num_timestamps, )`.
     '''
+    root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
     root_shard_dir = os.path.join(root_data_dir + '_sharded', dataset)
     dirname = os.path.join(root_shard_dir, transect_rel_pth)
     return load_transect_from_shards_abs(

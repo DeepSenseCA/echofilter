@@ -1,3 +1,7 @@
+'''
+Input/Output handling for raw echoview files.
+'''
+
 from collections import OrderedDict
 import csv
 import datetime
@@ -362,6 +366,25 @@ def get_partition_data(
     return df
 
 
+def remove_trailing_slash(s):
+    '''
+    Remove trailing forward slashes from a string.
+
+    Parameters
+    ----------
+    s : str
+        String representing a path, possibly with trailing slashes.
+
+    Returns
+    -------
+    str
+        Same as `s`, but without trailing forward slashes.
+    '''
+    while s[-1] == '/':
+        s = s[:-1]
+    return s
+
+
 def get_partition_list(
         partition,
         dataset='mobile',
@@ -404,6 +427,7 @@ def get_partition_list(
     fnames = df['Filename']
     fnames = [os.path.join(f.split('_')[0], f.strip().replace('_Sv_raw.csv', '')) for f in fnames]
     if full_path and sharded:
+        root_data_dir = remove_trailing_slash(root_data_dir)
         fnames = [os.path.join(root_data_dir + '_sharded', dataset, f) for f in fnames]
     elif full_path:
         fnames = [os.path.join(root_data_dir, dataset, f) for f in fnames]
