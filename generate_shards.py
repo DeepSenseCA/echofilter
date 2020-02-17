@@ -30,7 +30,7 @@ def main(
     )
     for transect_pth in (tqdm.tqdm(transect_pths) if progress_bar else transect_pths):
         try:
-            echofilter.shardloader.shard_transect(
+            echofilter.shardloader.segment_and_shard_transect(
                 transect_pth,
                 dataset=dataset,
                 max_depth=max_depth,

@@ -11,7 +11,7 @@ from . import raw
 ROOT_DATA_DIR = raw.loader.ROOT_DATA_DIR
 
 
-def shard_transect(
+def segment_and_shard_transect(
         transect_pth,
         dataset='mobile',
         max_depth=100.,
@@ -19,8 +19,9 @@ def shard_transect(
         root_data_dir=ROOT_DATA_DIR
         ):
     '''
-    Creates a sharded copy of a transect, with the transect cut by timestamp
-    and split across multiple files.
+    Creates a sharded copy of a transect, with the transect cut into segments
+    based on recording starts/stops. Each segment is split across multiple
+    files (shards) for efficient loading.
 
     Parameters
     ----------
@@ -33,28 +34,15 @@ def shard_transect(
         to deeper locations is omitted to save on load time and memory when
         the shard is loaded. Default is `100`.
     shard_len : int, optional
-        Number of timestamp samples to include in each shard. Default is 128.
+        Number of timestamp samples to include in each shard. Default is `128`.
     root_data_dir : str
         Path to root directory where data is located.
 
     Notes
     -----
-    The output will be written to the directory
-    <root_data_dir>_sharded/<dataset>/transect_path
-    and will contain:
-
-        - a file named `'shard_size.txt'`, which contains the sharding metadata:
-          total number of samples, and shard size;
-        - a directory for each shard, named 0, 1, ...
-          Each shard directory will contain files:
-
-            - depths.npy
-            - timestamps.npy
-            - Sv.npy
-            - top.npy
-            - bottom.npy
-
-          which contain pickled numpy dumps of the matrices for each shard.
+    The segments will be written to the directories
+        <root_data_dir>_sharded/<dataset>/transect_path/<segment>/
+    For the contents of each directory, see `write_transect_shards`.
     '''
     # Define output destination
     root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
@@ -68,6 +56,55 @@ def shard_transect(
         root_data_dir,
     )
 
+    segments = raw.manipulate.split_transect(**transect)
+
+    for i_segment, segment in enumerate(segments):
+        dirname = os.path.join(root_shard_dir, transect_pth, str(i_segment))
+        write_transect_shards(dirname, segment, max_depth=max_depth, shard_len=shard_len)
+
+    n_segment = i_segment + 1
+
+    # Save segmentation metadata
+    with open(os.path.join(dirname, 'n_segment.txt'), 'w') as hf:
+        print(str(n_segment), file=hf)
+
+
+def write_transect_shards(dirname, transect, max_depth=100., shard_len=128):
+    '''
+    Creates a sharded copy of a transect, with the transect cut by timestamp
+    and split across multiple files.
+
+    Parameters
+    ----------
+    dirname : str
+        Path to output directory.
+    transect : dict
+        Observed values for the transect. Should already be segmented.
+    max_depth : float, optional
+        The maximum depth to include in the saved shard. Data corresponding
+        to deeper locations is omitted to save on load time and memory when
+        the shard is loaded. Default is `100`.
+    shard_len : int, optional
+        Number of timestamp samples to include in each shard. Default is `128`.
+
+    Notes
+    -----
+    The output will be written to the directory `dirname`, and will contain:
+
+    - a file named `'shard_size.txt'`, which contains the sharding metadata:
+      total number of samples, and shard size;
+    - a directory for each shard, named 0, 1, ...
+      Each shard directory will contain files:
+
+        - depths.npy
+        - timestamps.npy
+        - Sv.npy
+        - top.npy
+        - bottom.npy
+
+      which contain pickled numpy dumps of the matrices for each shard.
+    '''
+
     # Remove depths which are too deep for us to care about
     depth_mask = transect['depths'] <= max_depth
     transect['depths'] = transect['depths'][depth_mask]
@@ -79,7 +116,6 @@ def shard_transect(
         transect[key] = np.single(transect[key])
 
     # Prep output directory
-    dirname = os.path.join(root_shard_dir, transect_pth)
     os.makedirs(dirname, exist_ok=True)
 
     # Save sharding metadata (total number of datapoints, shard size) to
@@ -231,6 +267,7 @@ def load_transect_from_shards_rel(
         i1=0,
         i2=None,
         dataset='mobile',
+        segment=0,
         root_data_dir=ROOT_DATA_DIR,
         ):
     '''
@@ -270,7 +307,7 @@ def load_transect_from_shards_rel(
     '''
     root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
     root_shard_dir = os.path.join(root_data_dir + '_sharded', dataset)
-    dirname = os.path.join(root_shard_dir, transect_rel_pth)
+    dirname = os.path.join(root_shard_dir, transect_rel_pth, str(segment))
     return load_transect_from_shards_abs(
         dirname,
         i1=0,
@@ -279,4 +316,5 @@ def load_transect_from_shards_rel(
 
 
 # Backwards compatibility
+shard_transect = segment_and_shard_transect
 load_transect_from_shards = load_transect_from_shards_rel
