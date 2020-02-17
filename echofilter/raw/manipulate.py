@@ -96,7 +96,7 @@ def find_passive_data(signals, n_depth_use=26, threshold=10, deviation=None):
         if len(offsets) == 0:
             current_index = signals.shape[0]
         else:
-            current_index += offsets[0] + 1
+            current_index += offsets[0]
         indices_passive_end.append(current_index)
 
         # Remove preceding indices from the list of candidates
