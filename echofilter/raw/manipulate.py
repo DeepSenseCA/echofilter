@@ -478,10 +478,35 @@ def load_decomposed_transect_mask(
     ts_mskd, depths_mskd, signals_mskd = loader.transect_loader(fname_masked)
     mask = ~np.isnan(signals_mskd)
 
-    fname_top = os.path.join(root_data_dir, dataset, sample + '_turbulence.evl')
+    fname_top1 = os.path.join(root_data_dir, dataset, sample + '_turbulence.evl')
+    fname_top2 = os.path.join(root_data_dir, dataset, sample + '_air.evl')
     fname_bot = os.path.join(root_data_dir, dataset, sample + '_bottom.evl')
+
+    if os.path.isfile(fname_top1):
+        fname_top = fname_top1
+        if os.path.isfile(fname_top2):
+            raise ValueError(
+                'Only one of {} and {} should exist.'
+                .format(fname_top1, fname_top2)
+            )
+    elif os.path.isfile(fname_top2):
+        fname_top = fname_top2
+    else:
+        raise ValueError(
+            'Neither {} nor {} were found.'
+            .format(fname_top1, fname_top2)
+        )
     t_top, d_top = loader.evl_loader(fname_top)
-    t_bot, d_bot = loader.evl_loader(fname_bot)
+
+    if os.path.isfile(fname_bot):
+        t_bot, d_bot = loader.evl_loader(fname_bot)
+    elif dataset == 'mobile':
+        raise ValueError(
+            'Expected {} to exist when dateset is {}.'
+            .format(fname_bot, dataset)
+        )
+    else:
+        t_bot = d_bot = None
 
     # Generate new lines from mask
     d_top_new, d_bot_new, passive_starts, passive_ends = fixup_lines(
