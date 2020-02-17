@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import os
+import traceback
 
 import tqdm
 
@@ -39,7 +40,7 @@ def main(
             )
         except Exception as ex:
             print('Error sharding {}'.format(transect_pth))
-            print(ex)
+            print("".join(traceback.TracebackException.from_exception(ex).format()))
 
 
 if __name__ == '__main__':
