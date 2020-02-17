@@ -514,6 +514,6 @@ def load_decomposed_transect_mask(
     out['bottom'] = d_bot_new
     out['is_passive'] = is_passive
     out['is_removed'] = is_removed
-    out['is_source_bottom'] = (dataset == 'stationary')
+    out['is_source_bottom'] = (depths_raw[-1] < depths_raw[0])
 
     return out
