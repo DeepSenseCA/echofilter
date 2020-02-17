@@ -377,7 +377,7 @@ def fixup_lines(
     # This mask can't handle regions where all the data was removed.
     # Find those and replace them with the original lines, if they were
     # provided.
-    all_removed = np.all(~mask, axis=1)
+    all_removed = ~np.any(mask, axis=1)
     if d_top is not None:
         d_top_new[all_removed] = d_top[all_removed]
     if d_bot is not None:
