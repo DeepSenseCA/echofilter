@@ -18,7 +18,7 @@ def main(
         dataset,
         partitioning_version='firstpass',
         max_depth=100.,
-        shard_len=64,
+        shard_len=128,
         root_data_dir=ROOT_DATA_DIR,
         progress_bar=False,
         verbose=False,
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--shard_len',
         type=int,
-        default=64,
+        default=128,
         help='number of samples in each shard',
     )
     parser.add_argument(
