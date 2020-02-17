@@ -64,7 +64,7 @@ def shard_transect(
         transect_pth, dataset, root_data_dir,
     )
     # Prep
-    depth_mask = depths <= 100
+    depth_mask = depths <= max_depth
     indices = range(shard_len, signals.shape[0], shard_len)
     dirname = os.path.join(root_shard_dir, transect_pth)
     os.makedirs(dirname, exist_ok=True)
