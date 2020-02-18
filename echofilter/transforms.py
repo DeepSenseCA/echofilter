@@ -167,10 +167,12 @@ class RandomStretchDepth(object):
         if random.random() > 0.5:
             factor = 1. / factor
 
-        sample['d_bot'] += self.expected_bottom_gap
+        if not sample['is_source_bottom']:
+            sample['d_bot'] += self.expected_bottom_gap
         for key in ('depths', 'd_top', 'd_bot'):
             sample[key] *= factor
-        sample['d_bot'] -= self.expected_bottom_gap
+        if not sample['is_source_bottom']:
+            sample['d_bot'] -= self.expected_bottom_gap
 
         return sample
 
