@@ -385,6 +385,27 @@ def remove_trailing_slash(s):
     return s
 
 
+def list_from_file(fname):
+    '''
+    Get a list from a file.
+
+    Parameters
+    ----------
+    fname : str
+        Path to file.
+
+    Returns
+    -------
+    list
+        Contents of the file, one line per entry in the list. Trailing
+        whitespace is removed from each end of each line.
+    '''
+    with open(fname, 'r') as hf:
+        contents = hf.readlines()
+    contents = [x.strip() for x in contents]
+    return contents
+
+
 def get_partition_list(
         partition,
         dataset='mobile',
@@ -418,14 +439,26 @@ def get_partition_list(
     list
         Path for each sample in the partition.
     '''
-    df = get_partition_data(
-        partition,
-        dataset=dataset,
-        partitioning_version=partitioning_version,
-        root_data_dir=root_data_dir,
-    )
-    fnames = df['Filename']
-    fnames = [os.path.join(f.split('_')[0], f.strip().replace('_Sv_raw.csv', '')) for f in fnames]
+    if dataset == 'mobile':
+        df = get_partition_data(
+            partition,
+            dataset=dataset,
+            partitioning_version=partitioning_version,
+            root_data_dir=root_data_dir,
+        )
+        fnames = df['Filename']
+        fnames = [os.path.join(f.split('_')[0], f.strip()) for f in fnames]
+    else:
+        partition_file = os.path.join(
+            root_data_dir,
+            dataset,
+            'sets',
+            partitioning_version,
+            partition + '.txt',
+        )
+        fnames = list_from_file(partition_file)
+
+    fnames = [f.replace('_Sv_raw.csv', '') for f in fnames]
     if full_path and sharded:
         root_data_dir = remove_trailing_slash(root_data_dir)
         fnames = [os.path.join(root_data_dir + '_sharded', dataset, f) for f in fnames]
