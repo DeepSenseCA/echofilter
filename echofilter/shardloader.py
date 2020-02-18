@@ -99,8 +99,12 @@ def write_transect_shards(dirname, transect, max_depth=100., shard_len=128):
         - depths.npy
         - timestamps.npy
         - Sv.npy
+        - mask.npy
         - top.npy
         - bottom.npy
+        - is_passive.npy
+        - is_removed.npy
+        - is_source_bottom.npy
 
       which contain pickled numpy dumps of the matrices for each shard.
     '''
