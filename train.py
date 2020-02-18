@@ -24,8 +24,17 @@ from echofilter.raw.loader import get_partition_list
 from echofilter.unet import UNet
 
 
-DATA_MEAN = -81.5
-DATA_STDEV = 21.9
+## For mobile dataset,
+# DATA_MEAN = -81.5
+# DATA_STDEV = 21.9
+
+## For stationary dataset,
+# DATA_MEAN = -78.7
+# DATA_STDEV = 19.2
+
+# Overall values to use
+DATA_MEAN = -80.
+DATA_STDEV = 20.
 
 
 def main(

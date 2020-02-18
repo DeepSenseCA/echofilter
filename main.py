@@ -19,8 +19,8 @@ import echofilter.transforms
 from echofilter.unet import UNet
 
 
-DATA_MEAN = -81.5
-DATA_STDEV = 21.9
+DATA_MEAN = -80.
+DATA_STDEV = 20.
 
 
 def main(
