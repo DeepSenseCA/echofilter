@@ -395,6 +395,12 @@ def fixup_lines(
             d_bot_new[~li],
         )
 
+    # Ensure that the lines cover at least as much material as they did before
+    if d_top is not None:
+        d_top_new = np.maximum(d_top, d_top_new)
+    if d_bot is not None:
+        d_bot_new = np.minimum(d_bot, d_bot_new)
+
     # This mask can't handle regions where all the data was removed.
     # Find those and replace them with the original lines, if they were
     # provided. If they weren't, interpolate to fill the holes.
