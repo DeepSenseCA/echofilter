@@ -65,7 +65,11 @@ class TransectDataset(torch.utils.data.Dataset):
 
         for transect_path in self.transect_paths:
             # Check how many segments the transect was divided into
-            with open(os.path.join(transect_path, 'n_segment.txt'), 'r') as f:
+            segments_meta_fname = os.path.join(transect_path, 'n_segment.txt')
+            if not os.path.isfile(segments_meta_fname):
+                # Silently skip missing transects
+                continue
+            with open(segments_meta_fname, 'r') as f:
                 n_segment = int(f.readline().strip())
 
             # For each segment, specify some samples over its duration
