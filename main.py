@@ -100,7 +100,16 @@ def main(
         depth_crop_mask = data['depths'] <= crop_depth
         data['depths'] = data['depths'][depth_crop_mask]
         data['signals'] = data['signals'][:, depth_crop_mask]
+
         # Configure data to match what the model expects to see
+        # Determine whether depths are ascending or descending
+        is_source_bottom = (data['depths'][-1] < data['depths'][0])
+        # Ensure depth is always increasing (which corresponds to descending from
+        # the air down the water column)
+        if is_source_bottom:
+            data['depths'] = data['depths'][::-1].copy()
+            data['signals'] = data['signals'][:, ::-1].copy()
+        # Apply transforms
         data = transform(data)
         data = echofilter.transforms.Rescale((signals.shape[0], sample_shape[1]))(data)
         input = torch.tensor(data['signals']).unsqueeze(0).unsqueeze(0)
