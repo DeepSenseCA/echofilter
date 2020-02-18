@@ -96,9 +96,7 @@ class ReplaceNan(object):
 
     def __call__(self, sample):
 
-        # Can't use np.nan_to_num to assign nan to a specific value if
-        # numpy version <= 1.17.
-        sample['signals'][np.isnan(sample['signals'])] = self.nan_val
+        sample['signals'] = np.nan_to_num(sample['signals'], nan=self.nan_val)
 
         return sample
 
