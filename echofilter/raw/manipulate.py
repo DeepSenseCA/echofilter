@@ -375,6 +375,26 @@ def fixup_lines(
     # Generate fresh lines corresponding to said mask
     d_top_new, d_bot_new = make_lines_from_mask(mask, depths)
 
+    # Ensure nans in the lines are replaced with prior values, if possible
+    li = np.isnan(d_top_new)
+    if d_top is not None:
+        d_top_new[li] = d_top[li]
+    elif np.any(~li):
+        d_top_new[li] = np.interp(
+            timestamps[li],
+            timestamps[~li],
+            d_top_new[~li],
+        )
+    li = np.isnan(d_bot_new)
+    if d_bot is not None:
+        d_bot_new[li] = d_bot[li]
+    elif np.any(~li):
+        d_bot_new[li] = np.interp(
+            timestamps[li],
+            timestamps[~li],
+            d_bot_new[~li],
+        )
+
     # This mask can't handle regions where all the data was removed.
     # Find those and replace them with the original lines, if they were
     # provided. If they weren't, interpolate to fill the holes.
