@@ -199,6 +199,12 @@ if __name__ == '__main__':
 
     # Training methodology parameters
     parser.add_argument(
+        '--device',
+        type=str,
+        default='cuda',
+        help='device to use (default: "cuda", using first gpu)',
+    )
+    parser.add_argument(
         '-j', '--workers',
         dest='n_worker',
         type=int,
