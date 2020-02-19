@@ -67,6 +67,7 @@ def main(
         echofilter.transforms.RandomCropWidth(0.5),
         echofilter.transforms.RandomStretchDepth(0.5),
         echofilter.transforms.RandomReflection(),
+        echofilter.transforms.RandomCropTop(0.75),
     ])
     train_transform_post = torchvision.transforms.Compose([
         echofilter.transforms.Normalize(DATA_MEAN, DATA_STDEV),
