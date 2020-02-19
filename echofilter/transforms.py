@@ -212,6 +212,52 @@ class RandomCropWidth(object):
         return sample
 
 
+class RandomCropTop(object):
+    '''
+    Randomly crop the top off a sample.
+
+    Parameters
+    ----------
+    max_crop_fraction : float, optional
+        Maximum amount of material to crop away, as a fraction of the total
+        height. The crop depth will be sampled uniformly from the range
+        of shallowest measure to shallowest point on the top line
+        (assuming this is not deepr than the `max_crop_fraction`).
+        If `None` (default), the crop is unlimited.
+    '''
+
+    def __init__(self, max_crop_fraction=None):
+        self.max_crop_fraction = max_crop_fraction
+
+    def __call__(self, sample):
+
+        shallowest_measure = sample['depths'][0]
+        shallowest_line = np.nanmin(sample['d_top'])
+        if self.max_crop_fraction is None:
+            deepest_crop = shallowest_line
+        else:
+            max_crop_depth = (
+                sample['depths'][0] +
+                (sample['depths'][-1] - sample['depths'][0]) * self.max_crop_fraction
+            )
+            deepest_crop = np.minimum(shallowest_line, max_crop_depth)
+
+        crop_depth = random.uniform(shallowest_measure, deepest_crop)
+
+        # Crop data
+        depth_crop_mask = sample['depths'] >= crop_depth
+
+        for key in _fields_1d_depthlike:
+            if key in sample:
+                sample[key] = sample[key][depth_crop_mask]
+
+        for key in _fields_2d:
+            if key in sample:
+                sample[key] = sample[key][:, depth_crop_mask]
+
+        return sample
+
+
 class ColorJitter(object):
     '''
     Randomly change the brightness and contrast of a normalized image.
