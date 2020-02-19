@@ -123,9 +123,8 @@ class TransectDataset(torch.utils.data.Dataset):
             if np.isnan(passive_top_val):
                 passive_top_val = 0.966
             passive_bot_val = np.max(sample['depths'])
-
-        sample['d_top'] = np.nan_to_num(sample['d_top'], nan=passive_top_val)
-        sample['d_bot'] = np.nan_to_num(sample['d_top'], nan=passive_bot_val)
+        sample['d_top'][np.isnan(sample['d_top'])] = passive_top_val
+        sample['d_bot'][np.isnan(sample['d_bot'])] = passive_bot_val
 
         if self.transform_pre is not None:
             sample = self.transform_pre(sample)
