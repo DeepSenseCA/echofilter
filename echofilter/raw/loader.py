@@ -111,7 +111,11 @@ def transect_loader(
         Whether to print a warning message if the number of elements in a
         row exceeds the expected number. If this is an int, this is the number
         of times to display the warnings before they are supressed. If this
-        is `True`, the number of outputs is unlimited. Default is `1`.
+        is `True`, the number of outputs is unlimited. If `None`, the
+        maximum number of underflow and overflow warnings differ: if
+        `expand_for_overflow`, the overflow always produces a message and the
+        underflow messages stop at 2; otherwise the values are reversed.
+        Default is `1`.
     expand_for_overflow : bool, optional
         Whether to dynamically grow the output size if rows are longer than
         expected. Default is `True`.
@@ -129,6 +133,15 @@ def transect_loader(
 
     if warn_row_overflow is True:
         warn_row_overflow = np.inf
+
+    if warn_row_overflow is not None:
+        warn_row_underflow = warn_row_overflow
+    elif expand_for_overflow:
+        warn_row_underflow = 2
+        warn_row_overflow = np.inf
+    else:
+        warn_row_underflow = np.inf
+        warn_row_overflow = 2
 
     # We remove one from the line count because of the header
     # which is excluded from output
@@ -173,7 +186,7 @@ def transect_loader(
                 depth_start = meta['Depth_start']
                 depth_stop = meta['Depth_stop']
         if len(row) < n_depths:
-            if n_warn_underflow < warn_row_overflow:
+            if n_warn_underflow < warn_row_underflow:
                 print(
                     'Row {} of {} shorter than expected n_depths of {} with {}'
                     .format(i_line, fname, n_depths, len(row))
