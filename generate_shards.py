@@ -70,6 +70,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--root',
+        dest='root_data_dir',
         type=str,
         default=ROOT_DATA_DIR,
         help='root data directory',
@@ -106,12 +107,4 @@ if __name__ == '__main__':
     print("Sharding {} partition of {}".format(args.partition, args.dataset))
 
     # Run command with these arguments
-    main(
-        args.partition,
-        args.dataset,
-        partitioning_version=args.partitioning_version,
-        max_depth=args.max_depth,
-        shard_len=args.shard_len,
-        root_data_dir=args.root,
-        verbose=args.verbose,
-    )
+    main(**vars(args))
