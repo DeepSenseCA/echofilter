@@ -1,12 +1,9 @@
 #!/bin/bash
 
-
 # Take a list of dates, and separate them into test/train/validate sets
 #
 # One way to get that list would be something like:
 # for survey in december2017  march2018  september2018 ; do ls -1 $survey/evExports/*.csv ; done | sed "s:-.*::g" >dates.txt
-
-
 
 infile="dates.txt"
 trainfile="train.txt"
@@ -17,10 +14,6 @@ valfile="validate.txt"
 valdates="date_val.txt"
 tempfile="temp.txt"
 shuffile="shuffle.txt"
-
-
-
-
 
 total=`cat $infile | wc -l`
 testnum=`echo "scale=0;$total / 10" | bc  `
@@ -43,4 +36,3 @@ rm -rf $tempfile
 for line in `cat $traindates` ; do ls -1 ${line}*.csv ; done > $trainfile
 for line in `cat $testdates` ; do ls -1 ${line}*.csv ; done > $testfile
 for line in `cat $valdates` ; do ls -1 ${line}*.csv ; done > $valfile
-
