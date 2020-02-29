@@ -6,6 +6,7 @@ from collections import OrderedDict
 import csv
 import datetime
 import os
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -160,6 +161,7 @@ def transect_loader(
         break
 
     data = np.empty((n_lines - skip_lines, n_depths))
+    data[:] = np.nan
     timestamps = np.empty((n_lines - skip_lines))
 
     n_warn_overflow = 0
@@ -192,7 +194,6 @@ def transect_loader(
                     .format(i_line, fname, n_depths, len(row))
                 )
                 n_warn_underflow += 1
-            data[i_entry, :] = np.nan
             data[i_entry, :len(row)] = row
         else:
             data[i_entry, :] = row[:n_depths]
@@ -206,7 +207,9 @@ def transect_loader(
         ).timestamp()
 
     # Turn NaNs into NaNs (instead of extremely negative number)
-    data[data < -1e6] = np.nan
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', 'invalid value encountered in less')
+        data[data < -1e6] = np.nan
 
     depths = np.linspace(depth_start, depth_stop, n_depths)
 
