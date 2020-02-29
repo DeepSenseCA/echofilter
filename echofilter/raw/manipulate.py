@@ -566,6 +566,14 @@ def load_decomposed_transect_mask(
         signals_raw = signals_raw[:, ::-1]
         mask = mask[:, ::-1]
 
+    if d_top is None:
+        d_top = np.nan * np.ones_like(ts_raw)
+    else:
+        d_top = np.interp(ts_raw, t_top, d_top)
+    if d_bot is None:
+        d_bot = np.nan * np.ones_like(ts_raw)
+    else:
+        d_bot = np.interp(ts_raw, t_bot, d_bot)
     transect = {}
     transect['timestamps'] = ts_raw
     transect['depths'] = depths_raw
@@ -573,6 +581,8 @@ def load_decomposed_transect_mask(
     transect['mask'] = mask
     transect['top'] = d_top_new
     transect['bottom'] = d_bot_new
+    transect['top-original'] = d_top
+    transect['bottom-original'] = d_bot
     transect['is_passive'] = is_passive
     transect['is_removed'] = is_removed
     transect['is_source_bottom'] = is_source_bottom
