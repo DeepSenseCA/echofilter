@@ -96,7 +96,7 @@ def transect_loader(
     fname,
     skip_lines=1,
     warn_row_overflow=1,
-    expand_for_overflow=False,
+    expand_for_overflow=True,
 ):
     '''
     Loads an entire survey CSV.
@@ -114,7 +114,7 @@ def transect_loader(
         is `True`, the number of outputs is unlimited. Default is `1`.
     expand_for_overflow : bool, optional
         Whether to dynamically grow the output size if rows are longer than
-        expected. Default is `False`.
+        expected. Default is `True`.
 
     Returns
     -------
