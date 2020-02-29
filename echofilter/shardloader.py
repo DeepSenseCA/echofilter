@@ -119,6 +119,9 @@ def write_transect_shards(dirname, transect, max_depth=100., shard_len=128):
     for key in ('Sv', 'top', 'bottom'):
         transect[key] = np.half(transect[key])
 
+    # Ensure is_source_bottom is an array
+    transect['is_source_bottom'] = np.array(transect['is_source_bottom'])
+
     # Prep output directory
     os.makedirs(dirname, exist_ok=True)
 
@@ -130,25 +133,25 @@ def write_transect_shards(dirname, transect, max_depth=100., shard_len=128):
     # Work out where to split the arrays
     indices = range(shard_len, transect['Sv'].shape[0], shard_len)
 
-    splits = {}
+    # Split the transect into shards
+    n_shards = len(indices) + 1
+    shards = [{} for _ in range(n_shards)]
     for key in transect:
         if key in ('depths', 'is_source_bottom'):
-            continue
-        splits[key] = np.split(transect[key], indices)
+            for i_shards in range(n_shards):
+                shards[i_shards][key] = transect[key]
+        else:
+            for i_split, split in enumerate(np.split(transect[key], indices)):
+                shards[i_split][key] = split
 
-    for key in splits:
-        if len(splits[key]) != len(splits['Sv']):
+    for shard in shards:
+        if shard.keys() != shards[0].keys():
             raise ValueError('Inconsistent split lengths')
 
-    transect['is_source_bottom'] = np.array(transect['is_source_bottom'])
-
     # Save the data for each of the shards
-    for i in range(len(splits['Sv'])):
-        os.makedirs(os.path.join(dirname, str(i)), exist_ok=True)
-        for key in ('depths', 'is_source_bottom'):
-            transect[key].dump(os.path.join(dirname, str(i), key + '.npy'))
-        for key in splits:
-            splits[key][i].dump(os.path.join(dirname, str(i), key + '.npy'))
+    for i_shard, shard in enumerate(shards):
+        fname = os.path.join(dirname, '{}.npz'.format(i_shard))
+        np.savez_compressed(fname, **shard)
 
 
 def load_transect_from_shards_abs(
@@ -236,32 +239,24 @@ def load_transect_from_shards_abs(
     j2 = int(min(i2, n_timestamps - 1) / shard_len)
 
     transect = {}
+
+    shards = [
+        np.load(os.path.join(transect_abs_pth, str(j) + '.npz'), allow_pickle=True)
+        for j in range(j1, j2 + 1)
+    ]
     # Depths and is_source_bottom should all be the same. Only load one of
     # each of them.
-    for key in ('depths', 'is_source_bottom'):
-        transect[key] = np.load(
-            os.path.join(transect_abs_pth, str(j1), key + '.npy'),
-            allow_pickle=True,
-        )
-
-    # Load the rest, knitting the shards back together and cutting down to just
-    # the necessary timestamps.
-    def load_shard(fname):
-        # Load necessary shards
-        broad_data = np.concatenate([
-            np.load(os.path.join(transect_abs_pth, str(j), fname + '.npy'), allow_pickle=True)
-            for j in range(j1, j2+1)
-        ])
-        # Have to trim data down, and pad if requested indices out of range
-        return np.concatenate([
-            broad_data[[0] * (i1_ - i1)],
-            broad_data[(i1_ - j1 * shard_len) : (i2_ - j1 * shard_len)],
-            broad_data[[-1] * (i2 - i2_)],
-        ])
-
-    for key in ('timestamps', 'Sv', 'mask', 'top', 'bottom', 'is_passive',
-                'is_removed'):
-        transect[key] = load_shard(key)
+    for key in shards[0].keys():
+        if key in ('depths', 'is_source_bottom'):
+            transect[key] = shards[0][key]
+        else:
+            broad_data = np.concatenate([shard[key] for shard in shards])
+            # Have to trim data down, and pad if requested indices out of range
+            transect[key] = np.concatenate([
+                broad_data[[0] * (i1_ - i1)],
+                broad_data[(i1_ - j1 * shard_len) : (i2_ - j1 * shard_len)],
+                broad_data[[-1] * (i2 - i2_)],
+            ])
 
     return transect
 
