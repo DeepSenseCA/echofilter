@@ -126,7 +126,7 @@ def find_passive_data(signals, n_depth_use=38, threshold=25., deviation=None):
     return np.array(indices_passive_start), np.array(indices_passive_end)
 
 
-def make_lines_from_mask(mask, depths=None):
+def make_lines_from_mask(mask, depths=None, max_gap_squash=2.):
     '''
     Determines top and bottom lines for a mask array.
 
@@ -141,6 +141,8 @@ def make_lines_from_mask(mask, depths=None):
         Depth of each sample point along dim 1 of `mask`. Must be either
         monotonically increasing or monotonically decreasing. Default is the
         index of `mask`, `arange(mask.shape[1])`.
+    max_gap_squash : float, optional
+        Maximum gap to merge together, in metres. Default is `2.`.
 
     Returns
     -------
@@ -162,51 +164,30 @@ def make_lines_from_mask(mask, depths=None):
     depths = np.asarray(depths)
     if len(depths) != mask.shape[1]:
         raise ValueError('Length of depths input must match dim 1 of mask.')
+    depth_intv = np.median(np.diff(depths))
 
-    # If depths is decreasing, we need to multiply through by -1 so the min
-    # and max we do later will work (max finding the last, largest, depth, and
-    # min finding the first, smallest, depth).
-    depth_is_reversed = depths[-1] < depths[0]
-    if depth_is_reversed:
-        depths = depths * -1
+    # Merge small gaps between masked out data, so the middle is masked out too
+    # We merge all gaps smaller than 120 pixels apart.
+    max_gap_squash_idx = int(np.round(max_gap_squash / depth_intv))
+    for i in range(max_gap_squash_idx, 2, -1):
+        li = ~np.any([
+            np.pad(mask[:, i//2:], ((0, 0), (0, i//2)), mode='constant'),
+            np.pad(mask[:, :-((i+1)//2)], ((0, 0), ((i+1)//2, 0)), mode='constant'),
+        ], axis=0)
+        mask[li] = 0
 
-    # Find the midway point (median) of non-masked data in each column.
-    # This corresponds to the middle of the water column.
-    indices_v = np.arange(mask.shape[1])
-    indices = np.tile(indices_v, (mask.shape[0], 1)).astype('float')
-    indices[~mask] = np.nan
+    # Check which depths were removed for each timestamp
+    removed_depths = np.tile(depths, (mask.shape[0], 1)).astype('float')
+    removed_depths[~mask] = np.nan
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', 'All-NaN (slice|axis) encountered')
-        midway_indices = np.round(np.nanmedian(indices, axis=1))
-
-    # Find the last nan value in the top half of each column.
-    top_depths = np.tile(
-        np.concatenate([(depths[:-1] + depths[1:]) / 2, depths[-1:]]),
-        (mask.shape[0], 1),
-    )
-    top_depths[mask] = np.nan
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', 'invalid value encountered in (greater|less)')
-        is_lower_half = np.expand_dims(indices_v, 0) > np.expand_dims(midway_indices, -1)
-    top_depths[is_lower_half] = np.nan
-    d_top = np.nanmax(top_depths, axis=1)
-
-    # Find the first nan value in the bottom half of each column.
-    bot_depths = np.tile(
-        np.concatenate([depths[:1], (depths[:-1] + depths[1:]) / 2]),
-        (mask.shape[0], 1),
-    )
-    bot_depths[mask] = np.nan
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', 'invalid value encountered in (greater|less)')
-        is_upper_half = np.expand_dims(indices_v, 0) < np.expand_dims(midway_indices, -1)
-    bot_depths[is_upper_half] = np.nan
-    d_bot = np.nanmin(bot_depths, axis=1)
-
-    if depth_is_reversed:
-        d_top *= -1
-        d_bot *= -1
-        return d_bot, d_top
+        # Top line is the smallest removed depth at each timepoint.
+        # We offset by depth_intv / 2 to get a depth in between the last kept
+        # value at the top and the first removed value.
+        d_top = np.nanmin(removed_depths, axis=1) - depth_intv / 2
+        # Bottom line is the largest removed depth at each timepoint,
+        # offset similarly.
+        d_bot = np.nanmax(removed_depths, axis=1) + depth_intv / 2
 
     return d_top, d_bot
 
