@@ -102,10 +102,11 @@ def transect_loader(fname, skip_lines=1, warn_row_overflow=True):
         Path to survey CSV file.
     skip_lines : int, optional
         Number of initial entries to skip. Default is 1.
-    warn_row_overflow : bool, optional
+    warn_row_overflow : bool or int, optional
         Whether to print a warning message if the number of elements in a
-        row exceeds the expected number. Default is `True`. Overflowing
-        datapoints are dropped.
+        row exceeds the expected number. If this is an int, this is the number
+        of times to display the warnings before they are supressed. If this
+        is `True`, the number of outputs is unlimited. Default is `True`.
 
     Returns
     -------
@@ -117,6 +118,9 @@ def transect_loader(fname, skip_lines=1, warn_row_overflow=True):
     numpy.ndarray
         Survey signal (echo strength, units unknown).
     '''
+
+    if warn_row_overflow is True:
+        warn_row_overflow = np.inf
 
     # We remove one from the line count because of the header
     # which is excluded from output
@@ -138,21 +142,26 @@ def transect_loader(fname, skip_lines=1, warn_row_overflow=True):
     timestamps = np.empty((n_lines - skip_lines))
     depths = np.linspace(depth_start, depth_stop, n_depths)
 
+    n_warn_overflow = 0
+    n_warn_underflow = 0
+
     for i_line, (meta, row) in enumerate(transect_reader(fname)):
         if i_line < skip_lines:
             continue
         i_entry = i_line - skip_lines
-        if warn_row_overflow and len(row) > n_depths:
+        if len(row) > n_depths and n_warn_overflow < warn_row_overflow:
             print(
                 'Row {} of {} exceeds expected n_depths of {} with {}'
                 .format(i_line, fname, n_depths, len(row))
             )
+            n_warn_overflow += 1
         if len(row) < n_depths:
-            if warn_row_overflow:
+            if n_warn_underflow < warn_row_overflow:
                 print(
                     'Row {} of {} shorter than expected n_depths of {} with {}'
                     .format(i_line, fname, n_depths, len(row))
                 )
+                n_warn_underflow += 1
             data[i_entry, :] = np.nan
             data[i_entry, :len(row)] = row
         else:
