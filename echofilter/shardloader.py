@@ -268,6 +268,7 @@ def load_transect_from_shards_rel(
     dataset='mobile',
     segment=0,
     root_data_dir=ROOT_DATA_DIR,
+    **kwargs,
 ):
     '''
     Load transect data from shard files.
@@ -287,6 +288,8 @@ def load_transect_from_shards_rel(
         Name of dataset. Default is `'mobile'`.
     root_data_dir : str
         Path to root directory where data is located.
+    **kwargs
+        As per `load_transect_from_shards_abs`.
 
     Returns
     -------
@@ -311,6 +314,7 @@ def load_transect_from_shards_rel(
         dirname,
         i1=i1,
         i2=i2,
+        **kwargs,
     )
 
 
