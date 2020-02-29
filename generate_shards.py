@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import functools
+import multiprocessing
 import os
 import traceback
 
@@ -13,6 +15,32 @@ import echofilter.shardloader
 ROOT_DATA_DIR = echofilter.raw.loader.ROOT_DATA_DIR
 
 
+def single(
+    transect_pth,
+    verbose=False,
+    fail_gracefully=True,
+    **kwargs,
+):
+    '''
+    Shard a single transect.
+
+    Wrapper around echofilter.shardloader.segment_and_shard_transect which
+    adds verboseness and graceful failure options.
+    '''
+    if verbose:
+        print('Sharding {}'.format(transect_pth))
+    try:
+        echofilter.shardloader.segment_and_shard_transect(
+            transect_pth,
+            **kwargs,
+        )
+    except Exception as ex:
+        if not fail_gracefully:
+            raise ex
+        print('Error sharding {}'.format(transect_pth))
+        print("".join(traceback.TracebackException.from_exception(ex).format()))
+
+
 def main(
         partition,
         dataset,
@@ -21,8 +49,13 @@ def main(
         shard_len=128,
         root_data_dir=ROOT_DATA_DIR,
         progress_bar=False,
+        ncores=None,
         verbose=False,
+        fail_gracefully=True,
     ):
+    '''
+    Shard all transections in one partition of a dataset.
+    '''
     if verbose:
         print('Getting partition list "{}" for "{}"'.format(partition, dataset))
     transect_pths = echofilter.raw.loader.get_partition_list(
@@ -35,20 +68,28 @@ def main(
     if verbose:
         print('Will process {} transects'.format(len(transect_pths)))
         print()
-    for transect_pth in (tqdm.tqdm(transect_pths) if progress_bar else transect_pths):
-        if verbose:
-            print('Sharding {}'.format(transect_pth))
-        try:
-            echofilter.shardloader.segment_and_shard_transect(
-                transect_pth,
-                dataset=dataset,
-                max_depth=max_depth,
-                shard_len=shard_len,
-                root_data_dir=root_data_dir,
-            )
-        except Exception as ex:
-            print('Error sharding {}'.format(transect_pth))
-            print("".join(traceback.TracebackException.from_exception(ex).format()))
+
+    if progress_bar:
+        maybe_tqdm = lambda x: tqdm.tqdm(x, total=len(session_paths))
+    else:
+        maybe_tqdm = lambda x: x
+
+    fn = functools.partial(
+        single,
+        dataset=dataset,
+        max_depth=max_depth,
+        shard_len=shard_len,
+        root_data_dir=root_data_dir,
+        verbose=verbose,
+        fail_gracefully=fail_gracefully,
+    )
+    if ncores == 1:
+        for transect_pth in maybe_tqdm(transect_pths):
+            fn(transect_pth)
+    else:
+        with multiprocessing.Pool(ncores) as pool:
+            for _ in maybe_tqdm(pool.imap_unordered(fn, transect_pths)):
+                pass
 
 
 if __name__ == '__main__':
@@ -92,6 +133,14 @@ if __name__ == '__main__':
         type=int,
         default=128,
         help='number of samples in each shard',
+    )
+    parser.add_argument(
+        '--ncores',
+        type=int,
+        default=None,
+        help=
+            'number of cores to use (default: all). Set to 1 to disable'
+            ' multiprocessing.',
     )
     parser.add_argument(
         '--verbose', '-v',
