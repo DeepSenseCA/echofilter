@@ -6,8 +6,6 @@ import multiprocessing
 import os
 import traceback
 
-import tqdm
-
 import echofilter.raw.loader
 import echofilter.shardloader
 
@@ -111,7 +109,8 @@ def main(
         print()
 
     if progress_bar:
-        maybe_tqdm = lambda x: tqdm.tqdm(x, total=len(session_paths))
+        from tqdm.autonotebook import tqdm
+        maybe_tqdm = lambda x: tqdm(x, total=len(session_paths))
     else:
         maybe_tqdm = lambda x: x
 
