@@ -152,7 +152,7 @@ def transect_loader(
 
     # Initialise output array
     for i_line, (meta, row) in enumerate(transect_reader(fname)):
-        if i_line < skip_lines:
+        if i_line < min(n_lines, max(1, skip_lines)):
             continue
         n_depths = len(row)
         depth_start = meta['Depth_start']
