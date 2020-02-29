@@ -154,10 +154,44 @@ def write_transect_shards(dirname, transect, max_depth=100., shard_len=128):
         np.savez_compressed(fname, **shard)
 
 
+def _pad1d(array, pad_width, axis=0, **kwargs):
+    '''
+    Pad an array along a single axis only.
+
+    Parameters
+    ----------
+    array : numpy.ndarary
+        Array to be padded.
+    pad_width : int or tuple
+        The amount to pad, either a length two tuple of values for each edge,
+        or an int if the padding should be the same for each side.
+    axis : int, optional
+        The axis to pad. Default is `0`.
+    **kwargs
+        As per `numpy.pad`.
+
+    Returns
+    -------
+    numpy.ndarary
+        Padded array.
+
+    See also
+    --------
+    numpy.pad
+    '''
+    pads = [(0, 0) for _ in array.ndim]
+    if hasattr(pad_width, '__len__'):
+        pads[axis] = pad_width
+    else:
+        pads[axis] = (pad_width, pad_width)
+    return np.pad(array, pads, **kwargs)
+
+
 def load_transect_from_shards_abs(
     transect_abs_pth,
     i1=0,
     i2=None,
+    pad_mode='edge',
 ):
     '''
     Load transect data from shard files.
@@ -173,6 +207,10 @@ def load_transect_from_shards_abs(
         `i1` to `i2` is inclusive on the left and exclusive on the right, so
         datapoint `i2 - 1` is the right-most datapoint loaded. Default is
         `None`, which loads everything up to and including to the last sample.
+    pad_mode : str, optional
+        Padding method for out-of-bounds inputs. Must be supported by
+        `numpy.pad`, such as `'contast'`, `'reflect'`, or `'edge'`. If the mode
+        is `'contast'`, the array will be padded with zeros. Default is 'edge'.
 
     Returns
     -------
@@ -252,11 +290,12 @@ def load_transect_from_shards_abs(
         else:
             broad_data = np.concatenate([shard[key] for shard in shards])
             # Have to trim data down, and pad if requested indices out of range
-            transect[key] = np.concatenate([
-                broad_data[[0] * (i1_ - i1)],
+            transect[key] = _pad1d(
                 broad_data[(i1_ - j1 * shard_len) : (i2_ - j1 * shard_len)],
-                broad_data[[-1] * (i2 - i2_)],
-            ])
+                (i1_ - i1, i2 - i2_),
+                axis=0,
+                mode=pad_mode,
+            )
 
     return transect
 
