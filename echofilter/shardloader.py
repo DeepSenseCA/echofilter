@@ -117,7 +117,7 @@ def write_transect_shards(dirname, transect, max_depth=100., shard_len=128):
 
     # Reduce floating point precision for some variables
     for key in ('Sv', 'top', 'bottom'):
-        transect[key] = np.single(transect[key])
+        transect[key] = np.half(transect[key])
 
     # Prep output directory
     os.makedirs(dirname, exist_ok=True)
