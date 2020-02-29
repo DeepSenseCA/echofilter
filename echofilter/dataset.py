@@ -108,6 +108,7 @@ class TransectDataset(torch.utils.data.Dataset):
             transect_pth,
             center_idx - int(self.window_len / 2),
             center_idx - int(self.window_len / 2) + self.window_len,
+            pad_mode='reflect',
         )
         sample['d_top'] = sample.pop('top')
         sample['d_bot'] = sample.pop('bottom')
