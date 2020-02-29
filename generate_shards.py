@@ -42,17 +42,16 @@ def single(
 
 
 def main(
-        partition,
-        dataset,
-        partitioning_version='firstpass',
-        max_depth=100.,
-        shard_len=128,
-        root_data_dir=ROOT_DATA_DIR,
-        progress_bar=False,
-        ncores=None,
-        verbose=False,
-        fail_gracefully=True,
-    ):
+    partition,
+    dataset,
+    partitioning_version='firstpass',
+    progress_bar=False,
+    ncores=None,
+    verbose=False,
+    fail_gracefully=True,
+    root_data_dir=ROOT_DATA_DIR,
+    **kwargs,
+):
     '''
     Shard all transections in one partition of a dataset.
     '''
@@ -77,11 +76,10 @@ def main(
     fn = functools.partial(
         single,
         dataset=dataset,
-        max_depth=max_depth,
-        shard_len=shard_len,
-        root_data_dir=root_data_dir,
         verbose=verbose,
         fail_gracefully=fail_gracefully,
+        root_data_dir=root_data_dir,
+        **kwargs,
     )
     if ncores == 1:
         for transect_pth in maybe_tqdm(transect_pths):
