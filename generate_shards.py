@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import os
+import traceback
 
 import tqdm
 
@@ -17,10 +18,13 @@ def main(
         dataset,
         partitioning_version='firstpass',
         max_depth=100.,
-        shard_len=64,
+        shard_len=128,
         root_data_dir=ROOT_DATA_DIR,
         progress_bar=False,
+        verbose=False,
     ):
+    if verbose:
+        print('Getting partition list "{}" for "{}"'.format(partition, dataset))
     transect_pths = echofilter.raw.loader.get_partition_list(
         partition,
         dataset=dataset,
@@ -28,9 +32,14 @@ def main(
         partitioning_version=partitioning_version,
         root_data_dir=root_data_dir,
     )
+    if verbose:
+        print('Will process {} transects'.format(len(transect_pths)))
+        print()
     for transect_pth in (tqdm.tqdm(transect_pths) if progress_bar else transect_pths):
+        if verbose:
+            print('Sharding {}'.format(transect_pth))
         try:
-            echofilter.shardloader.shard_transect(
+            echofilter.shardloader.segment_and_shard_transect(
                 transect_pth,
                 dataset=dataset,
                 max_depth=max_depth,
@@ -39,7 +48,7 @@ def main(
             )
         except Exception as ex:
             print('Error sharding {}'.format(transect_pth))
-            print(ex)
+            print("".join(traceback.TracebackException.from_exception(ex).format()))
 
 
 if __name__ == '__main__':
@@ -73,15 +82,21 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--max_depth',
-        type=int,
+        type=float,
         default=100.,
         help='maximum depth to include in sharded data',
     )
     parser.add_argument(
         '--shard_len',
-        type=float,
-        default=64,
+        type=int,
+        default=128,
         help='number of samples in each shard',
+    )
+    parser.add_argument(
+        '--verbose', '-v',
+        action='count',
+        default=0,
+        help='increase verbosity',
     )
 
     # Parse command line arguments
@@ -98,4 +113,5 @@ if __name__ == '__main__':
         max_depth=args.max_depth,
         shard_len=args.shard_len,
         root_data_dir=args.root,
+        verbose=args.verbose,
     )

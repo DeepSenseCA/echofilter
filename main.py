@@ -19,8 +19,8 @@ import echofilter.transforms
 from echofilter.unet import UNet
 
 
-DATA_MEAN = -81.5
-DATA_STDEV = 21.9
+DATA_MEAN = -80.
+DATA_STDEV = 20.
 
 
 def main(
@@ -100,7 +100,16 @@ def main(
         depth_crop_mask = data['depths'] <= crop_depth
         data['depths'] = data['depths'][depth_crop_mask]
         data['signals'] = data['signals'][:, depth_crop_mask]
+
         # Configure data to match what the model expects to see
+        # Determine whether depths are ascending or descending
+        is_source_bottom = (data['depths'][-1] < data['depths'][0])
+        # Ensure depth is always increasing (which corresponds to descending from
+        # the air down the water column)
+        if is_source_bottom:
+            data['depths'] = data['depths'][::-1].copy()
+            data['signals'] = data['signals'][:, ::-1].copy()
+        # Apply transforms
         data = transform(data)
         data = echofilter.transforms.Rescale((signals.shape[0], sample_shape[1]))(data)
         input = torch.tensor(data['signals']).unsqueeze(0).unsqueeze(0)
@@ -189,6 +198,12 @@ if __name__ == '__main__':
     )
 
     # Training methodology parameters
+    parser.add_argument(
+        '--device',
+        type=str,
+        default='cuda',
+        help='device to use (default: "cuda", using first gpu)',
+    )
     parser.add_argument(
         '-j', '--workers',
         dest='n_worker',

@@ -2,6 +2,7 @@
 Manipulating lines and masks contained in echoview files.
 '''
 
+import copy
 import os
 import warnings
 
@@ -265,7 +266,7 @@ def write_lines_for_masked_csv(fname_mask, fname_top=None, fname_bot=None):
     if fname_bot is None:
         fname_bot = fname_base + '_mask-bottom.evl'
     # Generate the new lines.
-    timestamps, d_top, d_bot = loader.make_lines_from_masked_csv(fname_mask)
+    timestamps, d_top, d_bot = make_lines_from_masked_csv(fname_mask)
     # Write the new lines to their output files.
     loader.evl_writer(fname_top, timestamps, d_top)
     loader.evl_writer(fname_bot, timestamps, d_bot)
@@ -374,14 +375,52 @@ def fixup_lines(
     # Generate fresh lines corresponding to said mask
     d_top_new, d_bot_new = make_lines_from_mask(mask, depths)
 
+    # Ensure nans in the lines are replaced with prior values, if possible
+    li = np.isnan(d_top_new)
+    if d_top is not None:
+        d_top_new[li] = d_top[li]
+    elif np.any(~li):
+        d_top_new[li] = np.interp(
+            timestamps[li],
+            timestamps[~li],
+            d_top_new[~li],
+        )
+    li = np.isnan(d_bot_new)
+    if d_bot is not None:
+        d_bot_new[li] = d_bot[li]
+    elif np.any(~li):
+        d_bot_new[li] = np.interp(
+            timestamps[li],
+            timestamps[~li],
+            d_bot_new[~li],
+        )
+
+    # Ensure that the lines cover at least as much material as they did before
+    if d_top is not None:
+        d_top_new = np.maximum(d_top, d_top_new)
+    if d_bot is not None:
+        d_bot_new = np.minimum(d_bot, d_bot_new)
+
     # This mask can't handle regions where all the data was removed.
     # Find those and replace them with the original lines, if they were
-    # provided.
-    all_removed = np.all(~mask, axis=1)
+    # provided. If they weren't, interpolate to fill the holes.
+    all_removed = ~np.any(mask, axis=1)
     if d_top is not None:
         d_top_new[all_removed] = d_top[all_removed]
+    else:
+        d_top_new[all_removed] = np.interp(
+            timestamps[all_removed],
+            timestamps[~all_removed],
+            d_top_new[~all_removed],
+        )
     if d_bot is not None:
         d_bot_new[all_removed] = d_bot[all_removed]
+    else:
+        d_bot_new[all_removed] = np.interp(
+            timestamps[all_removed],
+            timestamps[~all_removed],
+            d_bot_new[~all_removed],
+        )
 
     # Convert this into start and end points for later use(?)
     # removal_starts, removal_ends = find_nonzero_region_boundaries(all_removed)
@@ -466,10 +505,35 @@ def load_decomposed_transect_mask(
     ts_mskd, depths_mskd, signals_mskd = loader.transect_loader(fname_masked)
     mask = ~np.isnan(signals_mskd)
 
-    fname_top = os.path.join(root_data_dir, dataset, sample + '_turbulence.evl')
+    fname_top1 = os.path.join(root_data_dir, dataset, sample + '_turbulence.evl')
+    fname_top2 = os.path.join(root_data_dir, dataset, sample + '_air.evl')
     fname_bot = os.path.join(root_data_dir, dataset, sample + '_bottom.evl')
+
+    if os.path.isfile(fname_top1):
+        fname_top = fname_top1
+        if os.path.isfile(fname_top2):
+            raise ValueError(
+                'Only one of {} and {} should exist.'
+                .format(fname_top1, fname_top2)
+            )
+    elif os.path.isfile(fname_top2):
+        fname_top = fname_top2
+    else:
+        raise ValueError(
+            'Neither {} nor {} were found.'
+            .format(fname_top1, fname_top2)
+        )
     t_top, d_top = loader.evl_loader(fname_top)
-    t_bot, d_bot = loader.evl_loader(fname_bot)
+
+    if os.path.isfile(fname_bot):
+        t_bot, d_bot = loader.evl_loader(fname_bot)
+    elif dataset == 'mobile':
+        raise ValueError(
+            'Expected {} to exist when dateset is {}.'
+            .format(fname_bot, dataset)
+        )
+    else:
+        t_bot = d_bot = None
 
     # Generate new lines from mask
     d_top_new, d_bot_new, passive_starts, passive_ends = fixup_lines(
@@ -493,15 +557,71 @@ def load_decomposed_transect_mask(
     allnan = np.all(np.isnan(signals_mskd), axis=1)
     is_removed = allnan & ~is_passive
 
-    out = {}
-    out['timestamps'] = ts_raw
-    out['depths'] = depths_raw
-    out['Sv'] = signals_raw
-    out['mask'] = mask
-    out['top'] = d_top_new
-    out['bottom'] = d_bot_new
-    out['is_passive'] = is_passive
-    out['is_removed'] = is_removed
-    out['is_source_bottom'] = (dataset == 'stationary')
+    # Determine whether depths are ascending or descending
+    is_source_bottom = (depths_raw[-1] < depths_raw[0])
+    # Ensure depth is always increasing (which corresponds to descending from
+    # the air down the water column)
+    if is_source_bottom:
+        depths_raw = depths_raw[::-1]
+        signals_raw = signals_raw[:, ::-1]
+        mask = mask[:, ::-1]
 
-    return out
+    transect = {}
+    transect['timestamps'] = ts_raw
+    transect['depths'] = depths_raw
+    transect['Sv'] = signals_raw
+    transect['mask'] = mask
+    transect['top'] = d_top_new
+    transect['bottom'] = d_bot_new
+    transect['is_passive'] = is_passive
+    transect['is_removed'] = is_removed
+    transect['is_source_bottom'] = is_source_bottom
+
+    return transect
+
+
+def split_transect(timestamps=None, threshold=50, **transect):
+    '''
+    Splits a transect into segments each containing contiguous recordings.
+
+    Parameters
+    ----------
+    timestamps : array_like
+        A 1-d array containing the timestamp at which each recording was
+        measured. The sampling is assumed to high-frequency with
+        occassional gaps.
+    threshold : int, optional
+        Threshold for splitting timestamps into segments. Any timepoints
+        further apart than `threshold` times the median difference between
+        timepoints will be split apart into new segments. Default is `50`.
+    **kwargs
+        Arbitrary additional transect variables, which will be split into
+        segments as appropriate in accordance with `timestamps`.
+
+    Yields
+    ------
+    dict
+        Containing segmented data, key/value pairs as per given in **kwargs
+        in addition to `timestamps`.
+    '''
+
+    if timestamps is None:
+        raise ValueError('The `timestamps` argument is required.')
+
+    dt = np.diff(timestamps)
+    break_indices = np.where(dt > np.median(dt) * threshold)[0]
+    if len(break_indices) > 0:
+        break_indices += 1
+
+    for seg_start, seg_end in zip(
+        np.r_[0, break_indices],
+        np.r_[break_indices, len(timestamps)],
+    ):
+        segment = {}
+        segment['timestamps'] = timestamps[seg_start:seg_end]
+        for key in transect:
+            if key in ('depths', ) or np.asarray(transect[key]).size <= 1:
+                segment[key] = copy.deepcopy(transect[key])
+            else:
+                segment[key] = transect[key][seg_start:seg_end]
+        yield segment

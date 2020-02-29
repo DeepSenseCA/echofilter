@@ -5,6 +5,13 @@ import numpy as np
 import skimage.transform
 
 
+_fields_2d = ('signals', 'mask', 'mask_top', 'mask_bot')
+_fields_1d_timelike = ('timestamps', 'd_top', 'd_bot', 'r_top', 'r_bot',
+                       'is_passive', 'is_removed')
+_fields_1d_depthlike = ('depths', )
+_fields_0d = ('is_source_bottom', )
+
+
 class Rescale(object):
     '''
     Rescale the image(s) in a sample to a given size.
@@ -25,7 +32,7 @@ class Rescale(object):
     def __call__(self, sample):
 
         # 2D arrays (image-like)
-        for key in ('signals', 'mask_top', 'mask_bot'):
+        for key in _fields_2d:
             if key in sample:
                 sample[key] = skimage.transform.resize(
                     sample[key],
@@ -35,7 +42,7 @@ class Rescale(object):
                 )
 
         # 1D arrays (column-like)
-        for key in ('timestamps', 'd_top', 'd_bot', 'r_top', 'r_bot'):
+        for key in _fields_1d_timelike:
             if key in sample:
                 sample[key] = np.interp(
                     np.linspace(0, len(sample[key]) - 1, self.output_size[0]),
@@ -44,7 +51,7 @@ class Rescale(object):
                 )
 
         # 1D arrays (row-like)
-        for key in ('depths', ):
+        for key in _fields_1d_depthlike:
             if key in sample:
                 sample[key] = np.interp(
                     np.linspace(0, len(sample[key]) - 1, self.output_size[1]),
@@ -125,11 +132,8 @@ class RandomReflection(object):
             # Nothing to do
             return sample
 
-        # Reflect x co-ordinates
-        sample['timestamps'] = sample['timestamps'][::-1].copy()
-
         # Reflect data
-        for key in ('signals', 'd_top', 'd_bot', 'mask_top', 'mask_bot'):
+        for key in _fields_2d + _fields_1d_timelike:
             if key in sample:
                 sample[key] = np.flip(sample[key], self.axis).copy()
 
@@ -165,10 +169,12 @@ class RandomStretchDepth(object):
         if random.random() > 0.5:
             factor = 1. / factor
 
-        sample['d_bot'] += self.expected_bottom_gap
+        if not sample['is_source_bottom']:
+            sample['d_bot'] += self.expected_bottom_gap
         for key in ('depths', 'd_top', 'd_bot'):
             sample[key] *= factor
-        sample['d_bot'] -= self.expected_bottom_gap
+        if not sample['is_source_bottom']:
+            sample['d_bot'] -= self.expected_bottom_gap
 
         return sample
 
@@ -199,9 +205,55 @@ class RandomCropWidth(object):
         rgt = lft + width - int(crop_amount)
 
         # Crop data
-        for key in ('timestamps', 'signals', 'd_top', 'd_bot', 'mask_top', 'mask_bot'):
+        for key in _fields_2d + _fields_1d_timelike:
             if key in sample:
                 sample[key] = sample[key][lft:rgt]
+
+        return sample
+
+
+class RandomCropTop(object):
+    '''
+    Randomly crop the top off a sample.
+
+    Parameters
+    ----------
+    max_crop_fraction : float, optional
+        Maximum amount of material to crop away, as a fraction of the total
+        height. The crop depth will be sampled uniformly from the range
+        of shallowest measure to shallowest point on the top line
+        (assuming this is not deepr than the `max_crop_fraction`).
+        If `None` (default), the crop is unlimited.
+    '''
+
+    def __init__(self, max_crop_fraction=None):
+        self.max_crop_fraction = max_crop_fraction
+
+    def __call__(self, sample):
+
+        shallowest_measure = sample['depths'][0]
+        shallowest_line = np.nanmin(sample['d_top'])
+        if self.max_crop_fraction is None:
+            deepest_crop = shallowest_line
+        else:
+            max_crop_depth = (
+                sample['depths'][0] +
+                (sample['depths'][-1] - sample['depths'][0]) * self.max_crop_fraction
+            )
+            deepest_crop = np.minimum(shallowest_line, max_crop_depth)
+
+        crop_depth = random.uniform(shallowest_measure, deepest_crop)
+
+        # Crop data
+        depth_crop_mask = sample['depths'] >= crop_depth
+
+        for key in _fields_1d_depthlike:
+            if key in sample:
+                sample[key] = sample[key][depth_crop_mask]
+
+        for key in _fields_2d:
+            if key in sample:
+                sample[key] = sample[key][:, depth_crop_mask]
 
         return sample
 

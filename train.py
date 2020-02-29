@@ -24,8 +24,17 @@ from echofilter.raw.loader import get_partition_list
 from echofilter.unet import UNet
 
 
-DATA_MEAN = -81.5
-DATA_STDEV = 21.9
+## For mobile dataset,
+# DATA_MEAN = -81.5
+# DATA_STDEV = 21.9
+
+## For stationary dataset,
+# DATA_MEAN = -78.7
+# DATA_STDEV = 19.2
+
+# Overall values to use
+DATA_MEAN = -80.
+DATA_STDEV = 20.
 
 
 def main(
@@ -58,6 +67,7 @@ def main(
         echofilter.transforms.RandomCropWidth(0.5),
         echofilter.transforms.RandomStretchDepth(0.5),
         echofilter.transforms.RandomReflection(),
+        echofilter.transforms.RandomCropTop(0.75),
     ])
     train_transform_post = torchvision.transforms.Compose([
         echofilter.transforms.Normalize(DATA_MEAN, DATA_STDEV),
@@ -94,7 +104,7 @@ def main(
         train_paths,
         window_len=int(1.5 * sample_shape[0]),
         crop_depth=crop_depth,
-        num_windows_per_transect=10,
+        num_windows_per_transect=None,
         use_dynamic_offsets=True,
         transform_pre=train_transform_pre,
         transform_post=train_transform_post,
@@ -103,7 +113,7 @@ def main(
         val_paths,
         window_len=sample_shape[0],
         crop_depth=crop_depth,
-        num_windows_per_transect=20,
+        num_windows_per_transect=None,
         use_dynamic_offsets=False,
         transform_post=val_transform,
     )
@@ -111,7 +121,7 @@ def main(
         val_paths,
         window_len=sample_shape[0],
         crop_depth=crop_depth,
-        num_windows_per_transect=20,
+        num_windows_per_transect=None,
         use_dynamic_offsets=False,
         transform_pre=train_transform_pre,
         transform_post=train_transform_post,
@@ -618,6 +628,12 @@ if __name__ == '__main__':
     )
 
     # Training methodology parameters
+    parser.add_argument(
+        '--device',
+        type=str,
+        default='cuda',
+        help='device to use (default: "cuda", using first gpu)',
+    )
     parser.add_argument(
         '-j', '--workers',
         dest='n_worker',

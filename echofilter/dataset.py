@@ -64,31 +64,42 @@ class TransectDataset(torch.utils.data.Dataset):
         self.datapoints = []
 
         for transect_path in self.transect_paths:
-            # Lookup the number of rows in the transect
-            # Load the sharding metadata
-            with open(os.path.join(transect_path, 'shard_size.txt'), 'r') as f:
-                n_timestamps, shard_len = f.readline().strip().split(',')
-                n_timestamps = int(n_timestamps)
-            # Generate an array for window centers within the transect
-            # - if this is for training, we want to randomise the offsets
-            # - if this is for validation, we want stable windows
-            num_windows = self.num_windows
-            if self.num_windows is None or self.num_windows == 0:
-                # Load enough windows to include all datapoints
-                num_windows = int(np.ceil(n_timestamps / self.window_len))
-            centers = np.linspace(0, n_timestamps, num_windows + 1)[:num_windows]
-            if len(centers) > 1:
-                max_dy_offset = centers[1] - centers[0]
-            else:
-                max_dy_offset = n_timestamps
-            if self.use_dynamic_offsets:
-                centers += random.random() * max_dy_offset
-            else:
-                centers += max_dy_offset / 2
-            centers = np.round(centers)
-            # Add each (transect, center) to the list for this epoch
-            for center_idx in centers:
-                self.datapoints.append((transect_path, int(center_idx)))
+            # Check how many segments the transect was divided into
+            segments_meta_fname = os.path.join(transect_path, 'n_segment.txt')
+            if not os.path.isfile(segments_meta_fname):
+                # Silently skip missing transects
+                continue
+            with open(segments_meta_fname, 'r') as f:
+                n_segment = int(f.readline().strip())
+
+            # For each segment, specify some samples over its duration
+            for i_segment in range(n_segment):
+                seg_path = os.path.join(transect_path, str(i_segment))
+                # Lookup the number of rows in the transect
+                # Load the sharding metadata
+                with open(os.path.join(seg_path, 'shard_size.txt'), 'r') as f:
+                    n_timestamps, shard_len = f.readline().strip().split(',')
+                    n_timestamps = int(n_timestamps)
+                # Generate an array for window centers within the transect
+                # - if this is for training, we want to randomise the offsets
+                # - if this is for validation, we want stable windows
+                num_windows = self.num_windows
+                if self.num_windows is None or self.num_windows == 0:
+                    # Load enough windows to include all datapoints
+                    num_windows = int(np.ceil(n_timestamps / self.window_len))
+                centers = np.linspace(0, n_timestamps, num_windows + 1)[:num_windows]
+                if len(centers) > 1:
+                    max_dy_offset = centers[1] - centers[0]
+                else:
+                    max_dy_offset = n_timestamps
+                if self.use_dynamic_offsets:
+                    centers += random.random() * max_dy_offset
+                else:
+                    centers += max_dy_offset / 2
+                centers = np.round(centers)
+                # Add each (transect, center) to the list for this epoch
+                for center_idx in centers:
+                    self.datapoints.append((seg_path, int(center_idx)))
 
     def __getitem__(self, index):
         transect_pth, center_idx = self.datapoints[index]
@@ -102,9 +113,18 @@ class TransectDataset(torch.utils.data.Dataset):
         sample['d_bot'] = sample.pop('bottom')
         sample['signals'] = sample.pop('Sv')
         # Handle missing top and bottom lines during passive segments
-        min_depth = np.nanmin(sample['d_top'])
-        sample['d_top'] = np.nan_to_num(sample['d_top'], nan=min_depth)
-        sample['d_bot'] = np.nan_to_num(sample['d_top'], nan=np.max(sample['depths']))
+        if sample['is_source_bottom']:
+            passive_top_val = np.min(sample['depths'])
+            passive_bot_val = np.nanmax(sample['d_bot'])
+            if np.isnan(passive_bot_val):
+                passive_bot_val = np.max(sample['depths']) - 1.69
+        else:
+            passive_top_val = np.nanmin(sample['d_top'])
+            if np.isnan(passive_top_val):
+                passive_top_val = 0.966
+            passive_bot_val = np.max(sample['depths'])
+        sample['d_top'][np.isnan(sample['d_top'])] = passive_top_val
+        sample['d_bot'][np.isnan(sample['d_bot'])] = passive_bot_val
 
         if self.transform_pre is not None:
             sample = self.transform_pre(sample)
@@ -112,6 +132,7 @@ class TransectDataset(torch.utils.data.Dataset):
         depth_crop_mask = sample['depths'] <= self.crop_depth
         sample['depths'] = sample['depths'][depth_crop_mask]
         sample['signals'] = sample['signals'][:, depth_crop_mask]
+        sample['mask'] = sample['mask'][:, depth_crop_mask]
         # Convert lines to masks
         ddepths = np.broadcast_to(sample['depths'], sample['signals'].shape)
         mask_top = np.single(ddepths < np.expand_dims(sample['d_top'], -1))
