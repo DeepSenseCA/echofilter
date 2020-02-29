@@ -92,7 +92,12 @@ def count_lines(filename):
     return lines
 
 
-def transect_loader(fname, skip_lines=1, warn_row_overflow=1):
+def transect_loader(
+    fname,
+    skip_lines=1,
+    warn_row_overflow=1,
+    expand_for_overflow=False,
+):
     '''
     Loads an entire survey CSV.
 
@@ -107,6 +112,9 @@ def transect_loader(fname, skip_lines=1, warn_row_overflow=1):
         row exceeds the expected number. If this is an int, this is the number
         of times to display the warnings before they are supressed. If this
         is `True`, the number of outputs is unlimited. Default is `1`.
+    expand_for_overflow : bool, optional
+        Whether to dynamically grow the output size if rows are longer than
+        expected. Default is `False`.
 
     Returns
     -------
@@ -140,7 +148,6 @@ def transect_loader(fname, skip_lines=1, warn_row_overflow=1):
 
     data = np.empty((n_lines - skip_lines, n_depths))
     timestamps = np.empty((n_lines - skip_lines))
-    depths = np.linspace(depth_start, depth_stop, n_depths)
 
     n_warn_overflow = 0
     n_warn_underflow = 0
@@ -149,12 +156,22 @@ def transect_loader(fname, skip_lines=1, warn_row_overflow=1):
         if i_line < skip_lines:
             continue
         i_entry = i_line - skip_lines
-        if len(row) > n_depths and n_warn_overflow < warn_row_overflow:
-            print(
-                'Row {} of {} exceeds expected n_depths of {} with {}'
-                .format(i_line, fname, n_depths, len(row))
-            )
-            n_warn_overflow += 1
+        if len(row) > n_depths:
+            if n_warn_overflow < warn_row_overflow:
+                print(
+                    'Row {} of {} exceeds expected n_depths of {} with {}'
+                    .format(i_line, fname, n_depths, len(row))
+                )
+                n_warn_overflow += 1
+            if expand_for_overflow:
+                data = np.pad(
+                    data,
+                    ((0, 0), (0, len(row) - n_depths)),
+                    constant_values=np.nan,
+                )
+                n_depths = len(row)
+                depth_start = meta['Depth_start']
+                depth_stop = meta['Depth_stop']
         if len(row) < n_depths:
             if n_warn_underflow < warn_row_overflow:
                 print(
@@ -177,6 +194,8 @@ def transect_loader(fname, skip_lines=1, warn_row_overflow=1):
 
     # Turn NaNs into NaNs (instead of extremely negative number)
     data[data < -1e6] = np.nan
+
+    depths = np.linspace(depth_start, depth_stop, n_depths)
 
     return timestamps, depths, data
 
