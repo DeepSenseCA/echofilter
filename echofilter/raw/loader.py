@@ -95,7 +95,7 @@ def count_lines(filename):
 def transect_loader(
     fname,
     skip_lines=1,
-    warn_row_overflow=1,
+    warn_row_overflow=None,
     expand_for_overflow=True,
 ):
     '''
@@ -115,7 +115,7 @@ def transect_loader(
         maximum number of underflow and overflow warnings differ: if
         `expand_for_overflow`, the overflow always produces a message and the
         underflow messages stop at 2; otherwise the values are reversed.
-        Default is `1`.
+        Default is `None`.
     expand_for_overflow : bool, optional
         Whether to dynamically grow the output size if rows are longer than
         expected. Default is `True`.
