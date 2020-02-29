@@ -99,7 +99,7 @@ def transect_loader(
     expand_for_overflow=True,
 ):
     '''
-    Loads an entire survey CSV.
+    Loads an entire survey transect CSV.
 
     Parameters
     ----------
@@ -124,7 +124,7 @@ def transect_loader(
     numpy.ndarray
         Depth of each column, in metres.
     numpy.ndarray
-        Survey signal (echo strength, units unknown).
+        Survey signal (Sv, for instance). Units match that of the file.
     '''
 
     if warn_row_overflow is True:
