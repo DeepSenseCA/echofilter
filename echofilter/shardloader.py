@@ -12,12 +12,12 @@ ROOT_DATA_DIR = raw.loader.ROOT_DATA_DIR
 
 
 def segment_and_shard_transect(
-        transect_pth,
-        dataset='mobile',
-        max_depth=100.,
-        shard_len=128,
-        root_data_dir=ROOT_DATA_DIR
-        ):
+    transect_pth,
+    dataset='mobile',
+    max_depth=100.,
+    shard_len=128,
+    root_data_dir=ROOT_DATA_DIR
+):
     '''
     Creates a sharded copy of a transect, with the transect cut into segments
     based on recording starts/stops. Each segment is split across multiple
@@ -155,10 +155,10 @@ def write_transect_shards(dirname, transect, max_depth=100., shard_len=128):
 
 
 def load_transect_from_shards_abs(
-        transect_abs_pth,
-        i1=0,
-        i2=None,
-        ):
+    transect_abs_pth,
+    i1=0,
+    i2=None,
+):
     '''
     Load transect data from shard files.
 
@@ -262,13 +262,13 @@ def load_transect_from_shards_abs(
 
 
 def load_transect_from_shards_rel(
-        transect_rel_pth,
-        i1=0,
-        i2=None,
-        dataset='mobile',
-        segment=0,
-        root_data_dir=ROOT_DATA_DIR,
-        ):
+    transect_rel_pth,
+    i1=0,
+    i2=None,
+    dataset='mobile',
+    segment=0,
+    root_data_dir=ROOT_DATA_DIR,
+):
     '''
     Load transect data from shard files.
 
