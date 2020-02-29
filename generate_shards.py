@@ -26,6 +26,20 @@ def single(
 
     Wrapper around echofilter.shardloader.segment_and_shard_transect which
     adds verboseness and graceful failure options.
+
+    Parameters
+    ----------
+    transect_pth : str
+        Relative path to transect.
+    verbose : bool, optional
+        Whether to print which transect is being processed. Default is `False`.
+    fail_gracefully : bool, optional
+        If `True`, any transect which triggers an errors during processing
+        will be printed out, but processing the rest of the transects will
+        continue. If `False`, the process will halt with an error as soon as
+        any single transect hits an error. Default is `True`.
+    *kwargs
+        See `echofilter.shardloader.segment_and_shard_transect`.
     '''
     if verbose:
         print('Sharding {}'.format(transect_pth))
@@ -54,6 +68,34 @@ def main(
 ):
     '''
     Shard all transections in one partition of a dataset.
+
+    Wrapper around echofilter.shardloader.segment_and_shard_transect which
+    adds verboseness and graceful failure options.
+
+    Parameters
+    ----------
+    partition : str
+        Name of the partition to process (`'train'`, `'validate'`, `'test'`,
+        etc).
+    dataset : str
+        Name of the dataset to process (`'mobile'`, `'stationary'`, etc).
+    partitioning_version : str, optional
+        Name of the partition version to use process. Default is `'firstpass'`.
+    progress_bar : bool, optional
+        Whether to output a progress bar using `tqdm`. Default is `False`.
+    ncores : int, optional
+        Number of cores to use for multiprocessing. To disable multiprocessing,
+        set to `1`. Set to `None` to use all available cores.
+        Default is `None`.
+    verbose : bool, optional
+        Whether to print which transect is being processed. Default is `False`.
+    fail_gracefully : bool, optional
+        If `True`, any transect which triggers an errors during processing
+        will be printed out, but processing the rest of the transects will
+        continue. If `False`, the process will halt with an error as soon as
+        any single transect hits an error. Default is `True`.
+    *kwargs
+        See `echofilter.shardloader.segment_and_shard_transect`.
     '''
     if verbose:
         print('Getting partition list "{}" for "{}"'.format(partition, dataset))
