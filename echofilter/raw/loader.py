@@ -92,7 +92,7 @@ def count_lines(filename):
     return lines
 
 
-def transect_loader(fname, skip_lines=1, warn_row_overflow=True):
+def transect_loader(fname, skip_lines=1, warn_row_overflow=1):
     '''
     Loads an entire survey CSV.
 
@@ -106,7 +106,7 @@ def transect_loader(fname, skip_lines=1, warn_row_overflow=True):
         Whether to print a warning message if the number of elements in a
         row exceeds the expected number. If this is an int, this is the number
         of times to display the warnings before they are supressed. If this
-        is `True`, the number of outputs is unlimited. Default is `True`.
+        is `True`, the number of outputs is unlimited. Default is `1`.
 
     Returns
     -------
