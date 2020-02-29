@@ -94,7 +94,7 @@ def count_lines(filename):
 
 def transect_loader(
     fname,
-    skip_lines=1,
+    skip_lines=0,
     warn_row_overflow=None,
     expand_for_overflow=True,
 ):
@@ -106,7 +106,7 @@ def transect_loader(
     fname : str
         Path to survey CSV file.
     skip_lines : int, optional
-        Number of initial entries to skip. Default is 1.
+        Number of initial entries to skip. Default is 0.
     warn_row_overflow : bool or int, optional
         Whether to print a warning message if the number of elements in a
         row exceeds the expected number. If this is an int, this is the number
