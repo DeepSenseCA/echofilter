@@ -309,8 +309,8 @@ def load_transect_from_shards_rel(
     dirname = os.path.join(root_shard_dir, transect_rel_pth, str(segment))
     return load_transect_from_shards_abs(
         dirname,
-        i1=0,
-        i2=None,
+        i1=i1,
+        i2=i2,
     )
 
 
