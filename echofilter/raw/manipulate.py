@@ -384,24 +384,31 @@ def fixup_lines(
 
     # This mask can't handle regions where all the data was removed.
     # Find those and replace them with the original lines, if they were
-    # provided. If they weren't, interpolate to fill the holes.
+    # provided. If they weren't, interpolate to fill the holes (if there is
+    # something to interpolate).
     all_removed = ~np.any(mask, axis=1)
+    everything_removed = ~np.any(all_removed)
     if d_top is not None:
         d_top_new[all_removed] = d_top[all_removed]
-    else:
+    elif ~everything_removed:
         d_top_new[all_removed] = np.interp(
             timestamps[all_removed],
             timestamps[~all_removed],
             d_top_new[~all_removed],
         )
+    else:
+        d_top_new[all_removed] = np.nan
+
     if d_bot is not None:
         d_bot_new[all_removed] = d_bot[all_removed]
-    else:
+    elif ~everything_removed:
         d_bot_new[all_removed] = np.interp(
             timestamps[all_removed],
             timestamps[~all_removed],
             d_bot_new[~all_removed],
         )
+    else:
+        d_bot_new[all_removed] = np.nan
 
     # Convert this into start and end points for later use(?)
     # removal_starts, removal_ends = find_nonzero_region_boundaries(all_removed)
