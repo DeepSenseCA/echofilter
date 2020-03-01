@@ -9,6 +9,7 @@ import os
 import warnings
 
 import numpy as np
+import scipy.stats
 import pandas as pd
 
 
@@ -97,7 +98,7 @@ def transect_loader(
     fname,
     skip_lines=0,
     warn_row_overflow=None,
-    expand_for_overflow=True,
+    row_len_selector='mode',
 ):
     '''
     Loads an entire survey transect CSV.
@@ -117,9 +118,10 @@ def transect_loader(
         `expand_for_overflow`, the overflow always produces a message and the
         underflow messages stop at 2; otherwise the values are reversed.
         Default is `None`.
-    expand_for_overflow : bool, optional
-        Whether to dynamically grow the output size if rows are longer than
-        expected. Default is `True`.
+    row_len_selector : {'init', 'min', 'max', 'median', 'mode'}, optional
+        The method used to determine which row length (number of depth samples)
+        to use. Default is `'mode'`, the most common row length across all
+        the measurement timepoints.
 
     Returns
     -------
@@ -131,6 +133,12 @@ def transect_loader(
     numpy.ndarray
         Survey signal (Sv, for instance). Units match that of the file.
     '''
+
+    row_len_selector = row_len_selector.lower()
+    if row_len_selector in {'init', 'min'}:
+        expand_for_overflow = False
+    else:
+        expand_for_overflow = True
 
     if warn_row_overflow is True:
         warn_row_overflow = np.inf
@@ -148,21 +156,25 @@ def transect_loader(
     # which is excluded from output
     n_lines = count_lines(fname) - 1
     n_distances = 0
-    depth_start = None
-    depth_stop = None
 
     # Initialise output array
     for i_line, (meta, row) in enumerate(transect_reader(fname)):
         if i_line < min(n_lines, max(1, skip_lines)):
             continue
-        n_depths = len(row)
-        depth_start = meta['Depth_start']
-        depth_stop = meta['Depth_stop']
+        n_depths_init = len(row)
+        depth_start_init = meta['Depth_start']
+        depth_stop_init = meta['Depth_stop']
         break
+
+    n_depths = n_depths_init
 
     data = np.empty((n_lines - skip_lines, n_depths))
     data[:] = np.nan
     timestamps = np.empty((n_lines - skip_lines))
+
+    row_lengths = np.empty((n_lines - skip_lines))
+    row_depth_starts = {}
+    row_depth_ends = {}
 
     n_warn_overflow = 0
     n_warn_underflow = 0
@@ -171,6 +183,30 @@ def transect_loader(
         if i_line < skip_lines:
             continue
         i_entry = i_line - skip_lines
+
+        # Track the range of depths used in the row with this length
+        row_lengths[i_entry] = len(row)
+        if len(row) not in row_depth_starts:
+            row_depth_starts[len(row)] = meta['Depth_start']
+            row_depth_ends[len(row)] = meta['Depth_stop']
+        else:
+            if (
+                row_depth_starts[len(row)] != meta['Depth_start'] or
+                row_depth_ends[len(row)] != meta['Depth_stop']
+            ):
+                raise ValueError(
+                    'Rows with the same length of {} have different depth'
+                    ' start/stop values ({}/{} vs {}/{}). This transect loader'
+                    ' can not handle a mixture of depth resolutions.'
+                    .format(
+                        len(row),
+                        row_depth_starts[len(row)],
+                        row_depth_ends[len(row)],
+                        meta['Depth_start'],
+                        meta['Depth_stop'],
+                    )
+                )
+
         if len(row) > n_depths:
             if n_warn_overflow < warn_row_overflow:
                 print(
@@ -186,8 +222,7 @@ def transect_loader(
                     constant_values=np.nan,
                 )
                 n_depths = len(row)
-                depth_start = meta['Depth_start']
-                depth_stop = meta['Depth_stop']
+
         if len(row) < n_depths:
             if n_warn_underflow < warn_row_underflow:
                 print(
@@ -198,6 +233,7 @@ def transect_loader(
             data[i_entry, :len(row)] = row
         else:
             data[i_entry, :] = row[:n_depths]
+
         timestamps[i_entry] = datetime.datetime.strptime(
             '{}T{}.{:06d}'.format(
                 meta['Ping_date'],
@@ -212,7 +248,39 @@ def transect_loader(
         warnings.filterwarnings('ignore', 'invalid value encountered in less')
         data[data < -1e6] = np.nan
 
+    # Work out what row length we should return
+    if row_len_selector == 'init':
+        n_depths = n_depths_init
+    elif row_len_selector == 'min':
+        n_depths = np.min(row_lengths)
+    elif row_len_selector == 'max':
+        n_depths = np.max(row_lengths)
+    elif row_len_selector == 'median':
+        n_depths = np.median(row_lengths)
+        # If the median is half-way between two values, round up
+        if n_depths not in row_depth_starts:
+            n_depths = int(np.round(n_depths))
+        # If the median is still not between values, drop the last value
+        # to make the array be odd, guaranteeing the median is an observed
+        # value, not an intermediary.
+        if n_depths not in row_depth_starts:
+            n_depths = np.median(row_lengths[:-1])
+    elif row_len_selector == 'mode':
+        n_depths = int(scipy.stats.mode(row_lengths, axis=None)[0])
+    else:
+        raise ValueError(
+            'Unsupported row_len_selector value: {}'
+            .format(row_len_selector)
+        )
+
+    # Use depths corresponding to that declared in the rows which had the
+    # number of entries used.
+    depth_start = row_depth_starts[n_depths]
+    depth_stop = row_depth_ends[n_depths]
     depths = np.linspace(depth_start, depth_stop, n_depths)
+
+    # Crop the data down to size
+    data = data[:, :n_depths]
 
     return timestamps, depths, data
 
