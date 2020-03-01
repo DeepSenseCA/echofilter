@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import functools
+import multiprocessing
 import os
 import traceback
-
-import tqdm
 
 import echofilter.raw.loader
 import echofilter.shardloader
@@ -13,16 +13,88 @@ import echofilter.shardloader
 ROOT_DATA_DIR = echofilter.raw.loader.ROOT_DATA_DIR
 
 
+def single(
+    transect_pth,
+    verbose=False,
+    fail_gracefully=True,
+    **kwargs,
+):
+    '''
+    Shard a single transect.
+
+    Wrapper around echofilter.shardloader.segment_and_shard_transect which
+    adds verboseness and graceful failure options.
+
+    Parameters
+    ----------
+    transect_pth : str
+        Relative path to transect.
+    verbose : bool, optional
+        Whether to print which transect is being processed. Default is `False`.
+    fail_gracefully : bool, optional
+        If `True`, any transect which triggers an errors during processing
+        will be printed out, but processing the rest of the transects will
+        continue. If `False`, the process will halt with an error as soon as
+        any single transect hits an error. Default is `True`.
+    *kwargs
+        See `echofilter.shardloader.segment_and_shard_transect`.
+    '''
+    if verbose:
+        print('Sharding {}'.format(transect_pth))
+    try:
+        echofilter.shardloader.segment_and_shard_transect(
+            transect_pth,
+            **kwargs,
+        )
+    except Exception as ex:
+        if not fail_gracefully:
+            raise ex
+        print('Error sharding {}'.format(transect_pth))
+        print("".join(traceback.TracebackException.from_exception(ex).format()))
+
+
 def main(
-        partition,
-        dataset,
-        partitioning_version='firstpass',
-        max_depth=100.,
-        shard_len=128,
-        root_data_dir=ROOT_DATA_DIR,
-        progress_bar=False,
-        verbose=False,
-    ):
+    partition,
+    dataset,
+    partitioning_version='firstpass',
+    progress_bar=False,
+    ncores=None,
+    verbose=False,
+    fail_gracefully=True,
+    root_data_dir=ROOT_DATA_DIR,
+    **kwargs,
+):
+    '''
+    Shard all transections in one partition of a dataset.
+
+    Wrapper around echofilter.shardloader.segment_and_shard_transect which
+    adds verboseness and graceful failure options.
+
+    Parameters
+    ----------
+    partition : str
+        Name of the partition to process (`'train'`, `'validate'`, `'test'`,
+        etc).
+    dataset : str
+        Name of the dataset to process (`'mobile'`, `'stationary'`, etc).
+    partitioning_version : str, optional
+        Name of the partition version to use process. Default is `'firstpass'`.
+    progress_bar : bool, optional
+        Whether to output a progress bar using `tqdm`. Default is `False`.
+    ncores : int, optional
+        Number of cores to use for multiprocessing. To disable multiprocessing,
+        set to `1`. Set to `None` to use all available cores.
+        Default is `None`.
+    verbose : bool, optional
+        Whether to print which transect is being processed. Default is `False`.
+    fail_gracefully : bool, optional
+        If `True`, any transect which triggers an errors during processing
+        will be printed out, but processing the rest of the transects will
+        continue. If `False`, the process will halt with an error as soon as
+        any single transect hits an error. Default is `True`.
+    *kwargs
+        See `echofilter.shardloader.segment_and_shard_transect`.
+    '''
     if verbose:
         print('Getting partition list "{}" for "{}"'.format(partition, dataset))
     transect_pths = echofilter.raw.loader.get_partition_list(
@@ -35,20 +107,28 @@ def main(
     if verbose:
         print('Will process {} transects'.format(len(transect_pths)))
         print()
-    for transect_pth in (tqdm.tqdm(transect_pths) if progress_bar else transect_pths):
-        if verbose:
-            print('Sharding {}'.format(transect_pth))
-        try:
-            echofilter.shardloader.segment_and_shard_transect(
-                transect_pth,
-                dataset=dataset,
-                max_depth=max_depth,
-                shard_len=shard_len,
-                root_data_dir=root_data_dir,
-            )
-        except Exception as ex:
-            print('Error sharding {}'.format(transect_pth))
-            print("".join(traceback.TracebackException.from_exception(ex).format()))
+
+    if progress_bar:
+        from tqdm.autonotebook import tqdm
+        maybe_tqdm = lambda x: tqdm(x, total=len(session_paths))
+    else:
+        maybe_tqdm = lambda x: x
+
+    fn = functools.partial(
+        single,
+        dataset=dataset,
+        verbose=verbose,
+        fail_gracefully=fail_gracefully,
+        root_data_dir=root_data_dir,
+        **kwargs,
+    )
+    if ncores == 1:
+        for transect_pth in maybe_tqdm(transect_pths):
+            fn(transect_pth)
+    else:
+        with multiprocessing.Pool(ncores) as pool:
+            for _ in maybe_tqdm(pool.imap_unordered(fn, transect_pths)):
+                pass
 
 
 if __name__ == '__main__':
@@ -70,6 +150,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--root',
+        dest='root_data_dir',
         type=str,
         default=ROOT_DATA_DIR,
         help='root data directory',
@@ -93,6 +174,14 @@ if __name__ == '__main__':
         help='number of samples in each shard',
     )
     parser.add_argument(
+        '--ncores',
+        type=int,
+        default=None,
+        help=
+            'number of cores to use (default: all). Set to 1 to disable'
+            ' multiprocessing.',
+    )
+    parser.add_argument(
         '--verbose', '-v',
         action='count',
         default=0,
@@ -106,12 +195,4 @@ if __name__ == '__main__':
     print("Sharding {} partition of {}".format(args.partition, args.dataset))
 
     # Run command with these arguments
-    main(
-        args.partition,
-        args.dataset,
-        partitioning_version=args.partitioning_version,
-        max_depth=args.max_depth,
-        shard_len=args.shard_len,
-        root_data_dir=args.root,
-        verbose=args.verbose,
-    )
+    main(**vars(args))

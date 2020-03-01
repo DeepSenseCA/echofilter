@@ -12,12 +12,12 @@ ROOT_DATA_DIR = raw.loader.ROOT_DATA_DIR
 
 
 def segment_and_shard_transect(
-        transect_pth,
-        dataset='mobile',
-        max_depth=100.,
-        shard_len=128,
-        root_data_dir=ROOT_DATA_DIR
-        ):
+    transect_pth,
+    dataset='mobile',
+    max_depth=100.,
+    shard_len=128,
+    root_data_dir=ROOT_DATA_DIR
+):
     '''
     Creates a sharded copy of a transect, with the transect cut into segments
     based on recording starts/stops. Each segment is split across multiple
@@ -117,7 +117,10 @@ def write_transect_shards(dirname, transect, max_depth=100., shard_len=128):
 
     # Reduce floating point precision for some variables
     for key in ('Sv', 'top', 'bottom'):
-        transect[key] = np.single(transect[key])
+        transect[key] = np.half(transect[key])
+
+    # Ensure is_source_bottom is an array
+    transect['is_source_bottom'] = np.array(transect['is_source_bottom'])
 
     # Prep output directory
     os.makedirs(dirname, exist_ok=True)
@@ -130,32 +133,69 @@ def write_transect_shards(dirname, transect, max_depth=100., shard_len=128):
     # Work out where to split the arrays
     indices = range(shard_len, transect['Sv'].shape[0], shard_len)
 
-    splits = {}
+    # Split the transect into shards
+    n_shards = len(indices) + 1
+    shards = [{} for _ in range(n_shards)]
     for key in transect:
-        if key in ('depths', 'is_source_bottom'):
-            continue
-        splits[key] = np.split(transect[key], indices)
+        if (
+            key in ('depths', 'is_source_bottom') or
+            not hasattr(transect[key], '__len__')
+        ):
+            for i_shards in range(n_shards):
+                shards[i_shards][key] = transect[key]
+        else:
+            for i_split, split in enumerate(np.split(transect[key], indices)):
+                shards[i_split][key] = split
 
-    for key in splits:
-        if len(splits[key]) != len(splits['Sv']):
+    for shard in shards:
+        if shard.keys() != shards[0].keys():
             raise ValueError('Inconsistent split lengths')
 
-    transect['is_source_bottom'] = np.array(transect['is_source_bottom'])
-
     # Save the data for each of the shards
-    for i in range(len(splits['Sv'])):
-        os.makedirs(os.path.join(dirname, str(i)), exist_ok=True)
-        for key in ('depths', 'is_source_bottom'):
-            transect[key].dump(os.path.join(dirname, str(i), key + '.npy'))
-        for key in splits:
-            splits[key][i].dump(os.path.join(dirname, str(i), key + '.npy'))
+    for i_shard, shard in enumerate(shards):
+        fname = os.path.join(dirname, '{}.npz'.format(i_shard))
+        np.savez_compressed(fname, **shard)
+
+
+def _pad1d(array, pad_width, axis=0, **kwargs):
+    '''
+    Pad an array along a single axis only.
+
+    Parameters
+    ----------
+    array : numpy.ndarary
+        Array to be padded.
+    pad_width : int or tuple
+        The amount to pad, either a length two tuple of values for each edge,
+        or an int if the padding should be the same for each side.
+    axis : int, optional
+        The axis to pad. Default is `0`.
+    **kwargs
+        As per `numpy.pad`.
+
+    Returns
+    -------
+    numpy.ndarary
+        Padded array.
+
+    See also
+    --------
+    numpy.pad
+    '''
+    pads = [(0, 0) for _ in array.ndim]
+    if hasattr(pad_width, '__len__'):
+        pads[axis] = pad_width
+    else:
+        pads[axis] = (pad_width, pad_width)
+    return np.pad(array, pads, **kwargs)
 
 
 def load_transect_from_shards_abs(
-        transect_abs_pth,
-        i1=0,
-        i2=None,
-        ):
+    transect_abs_pth,
+    i1=0,
+    i2=None,
+    pad_mode='edge',
+):
     '''
     Load transect data from shard files.
 
@@ -170,6 +210,10 @@ def load_transect_from_shards_abs(
         `i1` to `i2` is inclusive on the left and exclusive on the right, so
         datapoint `i2 - 1` is the right-most datapoint loaded. Default is
         `None`, which loads everything up to and including to the last sample.
+    pad_mode : str, optional
+        Padding method for out-of-bounds inputs. Must be supported by
+        `numpy.pad`, such as `'contast'`, `'reflect'`, or `'edge'`. If the mode
+        is `'contast'`, the array will be padded with zeros. Default is 'edge'.
 
     Returns
     -------
@@ -236,44 +280,38 @@ def load_transect_from_shards_abs(
     j2 = int(min(i2, n_timestamps - 1) / shard_len)
 
     transect = {}
+
+    shards = [
+        np.load(os.path.join(transect_abs_pth, str(j) + '.npz'), allow_pickle=True)
+        for j in range(j1, j2 + 1)
+    ]
     # Depths and is_source_bottom should all be the same. Only load one of
     # each of them.
-    for key in ('depths', 'is_source_bottom'):
-        transect[key] = np.load(
-            os.path.join(transect_abs_pth, str(j1), key + '.npy'),
-            allow_pickle=True,
-        )
-
-    # Load the rest, knitting the shards back together and cutting down to just
-    # the necessary timestamps.
-    def load_shard(fname):
-        # Load necessary shards
-        broad_data = np.concatenate([
-            np.load(os.path.join(transect_abs_pth, str(j), fname + '.npy'), allow_pickle=True)
-            for j in range(j1, j2+1)
-        ])
-        # Have to trim data down, and pad if requested indices out of range
-        return np.concatenate([
-            broad_data[[0] * (i1_ - i1)],
-            broad_data[(i1_ - j1 * shard_len) : (i2_ - j1 * shard_len)],
-            broad_data[[-1] * (i2 - i2_)],
-        ])
-
-    for key in ('timestamps', 'Sv', 'mask', 'top', 'bottom', 'is_passive',
-                'is_removed'):
-        transect[key] = load_shard(key)
+    for key in shards[0].keys():
+        if key in ('depths', 'is_source_bottom'):
+            transect[key] = shards[0][key]
+        else:
+            broad_data = np.concatenate([shard[key] for shard in shards])
+            # Have to trim data down, and pad if requested indices out of range
+            transect[key] = _pad1d(
+                broad_data[(i1_ - j1 * shard_len) : (i2_ - j1 * shard_len)],
+                (i1_ - i1, i2 - i2_),
+                axis=0,
+                mode=pad_mode,
+            )
 
     return transect
 
 
 def load_transect_from_shards_rel(
-        transect_rel_pth,
-        i1=0,
-        i2=None,
-        dataset='mobile',
-        segment=0,
-        root_data_dir=ROOT_DATA_DIR,
-        ):
+    transect_rel_pth,
+    i1=0,
+    i2=None,
+    dataset='mobile',
+    segment=0,
+    root_data_dir=ROOT_DATA_DIR,
+    **kwargs,
+):
     '''
     Load transect data from shard files.
 
@@ -292,6 +330,8 @@ def load_transect_from_shards_rel(
         Name of dataset. Default is `'mobile'`.
     root_data_dir : str
         Path to root directory where data is located.
+    **kwargs
+        As per `load_transect_from_shards_abs`.
 
     Returns
     -------
@@ -314,8 +354,9 @@ def load_transect_from_shards_rel(
     dirname = os.path.join(root_shard_dir, transect_rel_pth, str(segment))
     return load_transect_from_shards_abs(
         dirname,
-        i1=0,
-        i2=None,
+        i1=i1,
+        i2=i2,
+        **kwargs,
     )
 
 

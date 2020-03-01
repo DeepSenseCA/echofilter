@@ -6,8 +6,10 @@ import skimage.transform
 
 
 _fields_2d = ('signals', 'mask', 'mask_top', 'mask_bot')
-_fields_1d_timelike = ('timestamps', 'd_top', 'd_bot', 'r_top', 'r_bot',
-                       'is_passive', 'is_removed')
+_fields_1d_timelike = (
+    'timestamps', 'd_top', 'd_bot', 'r_top', 'r_bot', 'd_top-original',
+    'd_bot-original', 'is_passive', 'is_removed',
+)
 _fields_1d_depthlike = ('depths', )
 _fields_0d = ('is_source_bottom', )
 
@@ -171,7 +173,7 @@ class RandomStretchDepth(object):
 
         if not sample['is_source_bottom']:
             sample['d_bot'] += self.expected_bottom_gap
-        for key in ('depths', 'd_top', 'd_bot'):
+        for key in ('depths', 'd_top', 'd_bot', 'd_top-original', 'd_bot-original'):
             sample[key] *= factor
         if not sample['is_source_bottom']:
             sample['d_bot'] -= self.expected_bottom_gap
