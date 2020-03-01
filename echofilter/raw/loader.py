@@ -182,6 +182,7 @@ def transect_loader(
                 data = np.pad(
                     data,
                     ((0, 0), (0, len(row) - n_depths)),
+                    mode='constant',
                     constant_values=np.nan,
                 )
                 n_depths = len(row)
