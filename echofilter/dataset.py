@@ -116,7 +116,7 @@ class TransectDataset(torch.utils.data.Dataset):
         sample['d_bot-original'] = sample.pop('bottom-original')
         sample['signals'] = sample.pop('Sv')
         # Handle missing top and bottom lines during passive segments
-        if sample['is_source_bottom']:
+        if sample['is_upward_facing']:
             passive_top_val = np.min(sample['depths'])
             passive_bot_val = np.nanmax(sample['d_bot'])
             if np.isnan(passive_bot_val):

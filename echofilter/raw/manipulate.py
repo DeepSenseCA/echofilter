@@ -469,7 +469,7 @@ def load_decomposed_transect_mask(
                 Logical array showing whether a timepoint is entirely removed
                 by the mask. Shaped (num_timestamps, ). Does not include
                 periods of passive recording.
-            - 'is_source_bottom' : bool
+            - 'is_upward_facing' : bool
                 Indicates whether the recording source is located at the
                 deepest depth (i.e. the seabed), facing upwards. Otherwise, the
                 recording source is at the shallowest depth (i.e. the surface),
@@ -539,10 +539,10 @@ def load_decomposed_transect_mask(
     is_removed = allnan & ~is_passive
 
     # Determine whether depths are ascending or descending
-    is_source_bottom = (depths_raw[-1] < depths_raw[0])
+    is_upward_facing = (depths_raw[-1] < depths_raw[0])
     # Ensure depth is always increasing (which corresponds to descending from
     # the air down the water column)
-    if is_source_bottom:
+    if is_upward_facing:
         depths_raw = depths_raw[::-1]
         signals_raw = signals_raw[:, ::-1]
         mask = mask[:, ::-1]
@@ -566,7 +566,7 @@ def load_decomposed_transect_mask(
     transect['bottom-original'] = d_bot
     transect['is_passive'] = is_passive
     transect['is_removed'] = is_removed
-    transect['is_source_bottom'] = is_source_bottom
+    transect['is_upward_facing'] = is_upward_facing
 
     return transect
 

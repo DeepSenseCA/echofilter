@@ -104,7 +104,7 @@ def write_transect_shards(dirname, transect, max_depth=100., shard_len=128):
         - bottom.npy
         - is_passive.npy
         - is_removed.npy
-        - is_source_bottom.npy
+        - is_upward_facing.npy
 
       which contain pickled numpy dumps of the matrices for each shard.
     '''
@@ -119,8 +119,8 @@ def write_transect_shards(dirname, transect, max_depth=100., shard_len=128):
     for key in ('Sv', 'top', 'bottom'):
         transect[key] = np.half(transect[key])
 
-    # Ensure is_source_bottom is an array
-    transect['is_source_bottom'] = np.array(transect['is_source_bottom'])
+    # Ensure is_upward_facing is an array
+    transect['is_upward_facing'] = np.array(transect['is_upward_facing'])
 
     # Prep output directory
     os.makedirs(dirname, exist_ok=True)
@@ -138,7 +138,7 @@ def write_transect_shards(dirname, transect, max_depth=100., shard_len=128):
     shards = [{} for _ in range(n_shards)]
     for key in transect:
         if (
-            key in ('depths', 'is_source_bottom') or
+            key in ('depths', 'is_upward_facing') or
             not hasattr(transect[key], '__len__')
         ):
             for i_shards in range(n_shards):
@@ -247,7 +247,7 @@ def load_transect_from_shards_abs(
                 Logical array showing whether a timepoint is entirely removed
                 by the mask. Shaped (num_timestamps, ). Does not include
                 periods of passive recording.
-            - 'is_source_bottom' : bool
+            - 'is_upward_facing' : bool
                 Indicates whether the recording source is located at the
                 deepest depth (i.e. the seabed), facing upwards. Otherwise, the
                 recording source is at the shallowest depth (i.e. the surface),
@@ -285,10 +285,10 @@ def load_transect_from_shards_abs(
         np.load(os.path.join(transect_abs_pth, str(j) + '.npz'), allow_pickle=True)
         for j in range(j1, j2 + 1)
     ]
-    # Depths and is_source_bottom should all be the same. Only load one of
+    # Depths and is_upward_facing should all be the same. Only load one of
     # each of them.
     for key in shards[0].keys():
-        if key in ('depths', 'is_source_bottom'):
+        if key in ('depths', 'is_upward_facing'):
             transect[key] = shards[0][key]
         else:
             broad_data = np.concatenate([shard[key] for shard in shards])
