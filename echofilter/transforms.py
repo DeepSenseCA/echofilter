@@ -11,7 +11,7 @@ _fields_1d_timelike = (
     'd_bot-original', 'is_passive', 'is_removed',
 )
 _fields_1d_depthlike = ('depths', )
-_fields_0d = ('is_source_bottom', )
+_fields_0d = ('is_upward_facing', )
 
 
 class Rescale(object):
@@ -171,11 +171,11 @@ class RandomStretchDepth(object):
         if random.random() > 0.5:
             factor = 1. / factor
 
-        if not sample['is_source_bottom']:
+        if not sample['is_upward_facing']:
             sample['d_bot'] += self.expected_bottom_gap
         for key in ('depths', 'd_top', 'd_bot', 'd_top-original', 'd_bot-original'):
             sample[key] *= factor
-        if not sample['is_source_bottom']:
+        if not sample['is_upward_facing']:
             sample['d_bot'] -= self.expected_bottom_gap
 
         return sample

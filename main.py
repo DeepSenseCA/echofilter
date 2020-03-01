@@ -103,10 +103,10 @@ def main(
 
         # Configure data to match what the model expects to see
         # Determine whether depths are ascending or descending
-        is_source_bottom = (data['depths'][-1] < data['depths'][0])
+        is_upward_facing = (data['depths'][-1] < data['depths'][0])
         # Ensure depth is always increasing (which corresponds to descending from
         # the air down the water column)
-        if is_source_bottom:
+        if is_upward_facing:
             data['depths'] = data['depths'][::-1].copy()
             data['signals'] = data['signals'][:, ::-1].copy()
         # Apply transforms
