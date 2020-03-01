@@ -137,7 +137,10 @@ def write_transect_shards(dirname, transect, max_depth=100., shard_len=128):
     n_shards = len(indices) + 1
     shards = [{} for _ in range(n_shards)]
     for key in transect:
-        if key in ('depths', 'is_source_bottom'):
+        if (
+            key in ('depths', 'is_source_bottom') or
+            not hasattr(transect[key], '__len__')
+        ):
             for i_shards in range(n_shards):
                 shards[i_shards][key] = transect[key]
         else:
