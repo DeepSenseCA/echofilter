@@ -14,7 +14,7 @@ from . import loader
 ROOT_DATA_DIR = loader.ROOT_DATA_DIR
 
 
-def find_passive_data(signals, n_depth_use=26, threshold=10, deviation=None):
+def find_passive_data(signals, n_depth_use=38, threshold=25., deviation=None):
     '''
     Find segments of Sv recording which correspond to passive recording.
 
