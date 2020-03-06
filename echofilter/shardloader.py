@@ -182,7 +182,7 @@ def _pad1d(array, pad_width, axis=0, **kwargs):
     --------
     numpy.pad
     '''
-    pads = [(0, 0) for _ in array.ndim]
+    pads = [(0, 0) for _ in range(array.ndim)]
     if hasattr(pad_width, '__len__'):
         pads[axis] = pad_width
     else:
