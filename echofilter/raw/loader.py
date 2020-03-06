@@ -78,6 +78,7 @@ def count_lines(filename):
         Path to file.
 
     Returns
+    -------
     int
         Number of lines in file.
     '''
