@@ -327,13 +327,16 @@ def main(
         is_best = loss_val < best_loss_val
         best_loss_val = min(loss_val, best_loss_val)
 
-        save_checkpoint({
-            'epoch': epoch,
-            'state_dict': model.state_dict(),
-            'best_loss': best_loss_val,
-            'optimizer': optimizer.state_dict(),
-            'meters': meters_val,
-        }, is_best)
+        save_checkpoint(
+            {
+                'epoch': epoch,
+                'state_dict': model.state_dict(),
+                'best_loss': best_loss_val,
+                'optimizer': optimizer.state_dict(),
+                'meters': meters_val,
+            },
+            is_best,
+        )
         meters_to_csv(meters_val, is_best)
 
         # Ensure the tensorboard outputs for this epoch are flushed
