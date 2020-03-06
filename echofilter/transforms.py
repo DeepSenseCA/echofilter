@@ -37,7 +37,7 @@ class Rescale(object):
         for key in _fields_2d:
             if key in sample:
                 sample[key] = skimage.transform.resize(
-                    sample[key],
+                    np.asarray(sample[key]).astype(np.float),
                     self.output_size,
                     clip=False,
                     preserve_range=False,
