@@ -44,6 +44,7 @@ def main(
         crop_depth=70,
         resume='',
         log_name=None,
+        log_name_append=None,
         latent_channels=64,
         expansion_factor=2,
         device='cuda',
@@ -59,12 +60,13 @@ def main(
 
     seed_all(seed)
 
-    # Make a tensorboard writer
     if log_name is None or log_name == '':
-        log_name = '{}_{}'.format(
-            datetime.datetime.now().strftime('%Y-%b-%d_%H:%M:%S'),
-            os.uname()[1],
-        )
+        log_name = datetime.datetime.now().strftime('%Y-%b-%d_%H:%M:%S')
+    if log_name_append is not None:
+        log_name_append = os.uname()[1]
+    if len(log_name_append) > 0:
+        log_name += '_' + log_name_append
+    # Make a tensorboard writer
     writer = SummaryWriter(log_dir=os.path.join('runs', dataset_name, log_name))
 
     # Augmentations
@@ -628,7 +630,14 @@ if __name__ == '__main__':
         dest='log_name',
         default=None,
         type=str,
-        help='output directory name (default: DATE_TIME_HOSTNAME)',
+        help='output directory name (default: DATE_TIME)',
+    )
+    parser.add_argument(
+        '--log-append',
+        dest='log_name_append',
+        default=None,
+        type=str,
+        help='string to append to output directory name (default: HOSTNAME)',
     )
 
     # Model parameters
