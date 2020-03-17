@@ -1,5 +1,6 @@
 import os
 import random
+import warnings
 
 import numpy as np
 import torch.utils.data
@@ -119,11 +120,15 @@ class TransectDataset(torch.utils.data.Dataset):
         # Handle missing top and bottom lines during passive segments
         if sample['is_upward_facing']:
             passive_top_val = np.min(sample['depths'])
-            passive_bot_val = np.nanmax(sample['d_bot'])
+            with warnings.catch_warnings():
+                warnings.filterwarnings('ignore', 'All-NaN (slice|axis) encountered')
+                passive_bot_val = np.nanmax(sample['d_bot'])
             if np.isnan(passive_bot_val):
                 passive_bot_val = np.max(sample['depths']) - 1.69
         else:
-            passive_top_val = np.nanmin(sample['d_top'])
+            with warnings.catch_warnings():
+                warnings.filterwarnings('ignore', 'All-NaN (slice|axis) encountered')
+                passive_top_val = np.nanmin(sample['d_top'])
             if np.isnan(passive_top_val):
                 passive_top_val = 0.966
             passive_bot_val = np.max(sample['depths'])
