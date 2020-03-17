@@ -44,6 +44,7 @@ def main(
         crop_depth=70,
         resume='',
         log_name=None,
+        log_name_append=None,
         latent_channels=64,
         expansion_factor=2,
         device='cuda',
@@ -65,6 +66,8 @@ def main(
             datetime.datetime.now().strftime('%Y-%b-%d_%H:%M:%S'),
             os.uname()[1],
         )
+    if log_name_append is not None and log_name_append != '':
+        log_name += '_' + log_name_append
     writer = SummaryWriter(log_dir=os.path.join('runs', dataset_name, log_name))
 
     # Augmentations
@@ -629,6 +632,13 @@ if __name__ == '__main__':
         default=None,
         type=str,
         help='output directory name (default: DATE_TIME_HOSTNAME)',
+    )
+    parser.add_argument(
+        '--log-append',
+        dest='log_name_append',
+        default=None,
+        type=str,
+        help='string to append to output directory name (default: None)',
     )
 
     # Model parameters
