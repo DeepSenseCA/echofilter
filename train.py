@@ -43,6 +43,7 @@ def main(
         sample_shape=(128, 512),
         crop_depth=70,
         resume='',
+        log_name=None,
         latent_channels=64,
         expansion_factor=2,
         device='cuda',
@@ -59,8 +60,12 @@ def main(
     seed_all(seed)
 
     # Make a tensorboard writer
-    # Writer will output to ./runs/ directory by default
-    writer = SummaryWriter()
+    if log_name is None or log_name == '':
+        log_name = '{}_{}'.format(
+            datetime.datetime.now().strftime('%Y-%b-%d_%H:%M:%S'),
+            os.uname()[1],
+        )
+    writer = SummaryWriter(log_dir=os.path.join('runs', dataset_name, log_name))
 
     # Augmentations
     train_transform_pre = torchvision.transforms.Compose([
@@ -336,8 +341,9 @@ def main(
                 'meters': meters_val,
             },
             is_best,
+            dirname=os.path.join('models', log_name),
         )
-        meters_to_csv(meters_val, is_best)
+        meters_to_csv(meters_val, is_best, dirname=os.path.join('models', log_name))
 
         # Ensure the tensorboard outputs for this epoch are flushed
         writer.flush()
@@ -567,19 +573,21 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
     return losses.avg, meters, (example_data, example_target, example_output)
 
 
-def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
-    torch.save(state, filename)
+def save_checkpoint(state, is_best, dirname='.', filename='checkpoint.pth.tar'):
+    os.makedirs(dirname, exist_ok=True)
+    torch.save(state, os.path.join(dirname, filename))
     if is_best:
-        shutil.copyfile(filename, 'model_best.pth.tar')
+        shutil.copyfile(os.path.join(dirname, filename), os.path.join(dirname, 'model_best.pth.tar'))
 
 
-def meters_to_csv(meters, is_best, filename='meters.csv'):
+def meters_to_csv(meters, is_best, dirname='.', filename='meters.csv'):
+    os.makedirs(dirname, exist_ok=True)
     df = pd.DataFrame()
     for meter in meters:
         df[meter.name] = meter.values
-    df.to_csv(filename, index=False)
+    df.to_csv(os.path.join(dirname, filename), index=False)
     if is_best:
-        shutil.copyfile(filename, 'model_best.meters.csv')
+        shutil.copyfile(os.path.join(dirname, filename), os.path.join(dirname, 'model_best.meters.csv'))
 
 
 if __name__ == '__main__':
@@ -614,6 +622,13 @@ if __name__ == '__main__':
         type=str,
         metavar='PATH',
         help='path to latest checkpoint (default: none)',
+    )
+    parser.add_argument(
+        '--log',
+        dest='log_name',
+        default=None,
+        type=str,
+        help='output directory name (default: DATE_TIME_HOSTNAME)',
     )
 
     # Model parameters
