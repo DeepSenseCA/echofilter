@@ -62,7 +62,7 @@ def main(
 
     if log_name is None or log_name == '':
         log_name = datetime.datetime.now().strftime('%Y-%b-%d_%H:%M:%S')
-    if log_name_append is not None:
+    if log_name_append is None:
         log_name_append = os.uname()[1]
     if len(log_name_append) > 0:
         log_name += '_' + log_name_append
