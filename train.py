@@ -22,6 +22,7 @@ from echofilter import criterions
 from echofilter.meters import AverageMeter, ProgressMeter
 from echofilter.raw.loader import get_partition_list
 from echofilter.unet import UNet
+from echofilter.wrapper import Echofilter, EchofilterLoss
 
 
 ## For mobile dataset,
@@ -170,7 +171,9 @@ def main(
         'expansion_factor {}'
         .format(latent_channels, expansion_factor)
     )
-    model = UNet(1, 2, latent_channels=latent_channels, expansion_factor=expansion_factor)
+    model = Echofilter(
+        UNet(1, 2, latent_channels=latent_channels, expansion_factor=expansion_factor),
+    )
     model.to(device)
     print(
         'Built model with {} trainable parameters'
@@ -178,7 +181,7 @@ def main(
     )
 
     # define loss function (criterion) and optimizer
-    criterion = torch.nn.BCEWithLogitsLoss()
+    criterion = EchofilterLoss()
 
     optimizer = torch.optim.Adam(
         model.parameters(),
@@ -220,16 +223,16 @@ def main(
         loader_train.dataset.initialise_datapoints()
 
         # train for one epoch
-        loss_tr, meters_tr, (ex_data_tr, ex_target_tr, ex_output_tr) = train(
+        loss_tr, meters_tr, (ex_data_tr, ex_batch_tr, ex_output_tr) = train(
             loader_train, model, criterion, optimizer, device, epoch, print_freq=print_freq
         )
 
         # evaluate on validation set
-        loss_val, meters_val, (ex_data_val, ex_target_val, ex_output_val) = validate(
+        loss_val, meters_val, (ex_data_val, ex_batch_val, ex_output_val) = validate(
             loader_val, model, criterion, device, print_freq=print_freq, prefix='Validation'
         )
         # evaluate on augmented validation set
-        loss_augval, meters_augval, (ex_data_augval, ex_target_augval, ex_output_augval) = validate(
+        loss_augval, meters_augval, (ex_data_augval, ex_batch_augval, ex_output_augval) = validate(
             loader_augval, model, criterion, device, print_freq=print_freq, prefix='Aug-Val   '
         )
         print(
@@ -272,11 +275,17 @@ def main(
                     name += '/Overall'
                 writer.add_scalar('{}/{}'.format(name, partition), meter.avg, epoch)
 
+        def ensure_clim_met(x, x0=0., x1=1.):
+            x = x.clone()
+            x[0, :, 0, 0] = 0
+            x[0, :, 0, 1] = 1
+            return x
+
         # Add example images to tensorboard
-        for (ex_data, ex_target, ex_output), partition in (
-                ((ex_data_tr, ex_target_tr, ex_output_tr), 'Train'),
-                ((ex_data_val, ex_target_val, ex_output_val), 'Val'),
-                ((ex_data_augval, ex_target_augval, ex_output_augval), 'ValAug'),
+        for (ex_data, ex_batch, ex_output), partition in (
+                ((ex_data_tr, ex_batch_tr, ex_output_tr), 'Train'),
+                ((ex_data_val, ex_batch_val, ex_output_val), 'Val'),
+                ((ex_data_augval, ex_batch_augval, ex_output_augval), 'ValAug'),
             ):
             writer.add_images(
                 'Input/' + partition,
@@ -286,40 +295,55 @@ def main(
             )
             writer.add_images(
                 'Top/' + partition + '/Target',
-                ex_target[:, :1],
+                ensure_clim_met(ex_batch['mask_top'].unsqueeze(1)),
+                epoch,
+                dataformats='NCWH',
+            )
+            writer.add_images(
+                'Top/' + partition + '/Output/p',
+                ensure_clim_met(ex_output['p_is_above_top'].unsqueeze(1)),
                 epoch,
                 dataformats='NCWH',
             )
             writer.add_images(
                 'Bottom/' + partition + '/Target',
-                ex_target[:, 1:],
+                ensure_clim_met(ex_batch['mask_bot'].unsqueeze(1)),
                 epoch,
                 dataformats='NCWH',
             )
             writer.add_images(
-                'Top/' + partition + '/Output/Logits',
-                ex_output[:, :1],
+                'Bottom/' + partition + '/Output/p',
+                ensure_clim_met(ex_output['p_is_below_bottom'].unsqueeze(1)),
                 epoch,
                 dataformats='NCWH',
             )
             writer.add_images(
-                'Bottom/' + partition + '/Output/Logits',
-                ex_output[:, 1:],
-                epoch,
-                dataformats='NCWH',
-            )
-            msk = torch.sigmoid(ex_output)
-            msk[0, :, 0, 0] = 0
-            msk[0, :, 0, 1] = 1
-            writer.add_images(
-                'Top/' + partition + '/Output/Probabilities',
-                msk[:, :1],
+                'Overall/' + partition + '/Target',
+                ensure_clim_met(ex_batch['mask'].float().unsqueeze(1)),
                 epoch,
                 dataformats='NCWH',
             )
             writer.add_images(
-                'Bottom/' + partition + '/Output/Probabilities',
-                msk[:, 1:],
+                'Overall/' + partition + '/Output/p',
+                ensure_clim_met(ex_output['p_keep_pixel'].unsqueeze(1)),
+                epoch,
+                dataformats='NCWH',
+            )
+            writer.add_images(
+                'Overall/' + partition + '/Output/mask',
+                ensure_clim_met(ex_output['mask_keep_pixel'].float().unsqueeze(1)),
+                epoch,
+                dataformats='NCWH',
+            )
+            writer.add_images(
+                'Overall/' + partition + '/Overlap',
+                ensure_clim_met(
+                    torch.stack([
+                        ex_output['mask_keep_pixel'].float(),
+                        torch.zeros_like(ex_output['mask_keep_pixel'], dtype=torch.float),
+                        ex_batch['mask'].float(),
+                    ], dim=1)
+                ),
                 epoch,
                 dataformats='NCWH',
             )
@@ -398,46 +422,51 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         data_time.update(time.time() - end)
 
         data = batch['signals'].unsqueeze(1)
-        target = torch.stack((batch['mask_top'], batch['mask_bot']), dim=1)
 
         data = data.to(device, dtype, non_blocking=True)
-        target = target.to(device, dtype, non_blocking=True)
+        batch = {k: v.to(device, dtype, non_blocking=True) for k, v in batch.items()}
 
         # Compute output
         output = model(data)
-        loss = criterion(output, target)
+        loss = criterion(output, batch)
         # Record loss
         ns = data.size(0)
         losses.update(loss.item(), ns)
 
         if i == max(0, len(loader) - 2):
             example_data = data.detach()
-            example_target = target.detach()
-            example_output = output.detach()
+            example_batch = {k: v.detach() for k, v in batch.items()}
+            example_output = {k: v.detach() for k, v in output.items()}
 
         # Measure and record performance with various metrics
-        accuracies.update(100.0 * criterions.mask_accuracy_with_logits(output, target).item(), ns)
-        precisions.update(100.0 * criterions.mask_precision_with_logits(output, target).item(), ns)
-        recalls.update(100.0 * criterions.mask_recall_with_logits(output, target).item(), ns)
-        f1s.update(criterions.mask_f1_score_with_logits(output, target).item(), ns)
-        jaccards.update(criterions.mask_jaccard_index_with_logits(output, target).item(), ns)
+        overall_output = output['mask_keep_pixel'].float()
+        overall_target = batch['mask']
 
-        top_output, bot_output = output.unbind(1)
-        top_target, bot_target = target.unbind(1)
+        accuracies.update(100.0 * criterions.mask_accuracy(overall_output, overall_target).item(), ns)
+        precisions.update(100.0 * criterions.mask_precision(overall_output, overall_target).item(), ns)
+        recalls.update(100.0 * criterions.mask_recall(overall_output, overall_target).item(), ns)
+        f1s.update(criterions.mask_f1_score(overall_output, overall_target).item(), ns)
+        jaccards.update(criterions.mask_jaccard_index(overall_output, overall_target).item(), ns)
 
-        top_accuracies.update(100.0 * criterions.mask_accuracy_with_logits(top_output, top_target).item(), ns)
-        top_precisions.update(100.0 * criterions.mask_precision_with_logits(top_output, top_target).item(), ns)
-        top_recalls.update(100.0 * criterions.mask_recall_with_logits(top_output, top_target).item(), ns)
-        top_f1s.update(criterions.mask_f1_score_with_logits(top_output, top_target).item(), ns)
-        top_jaccards.update(criterions.mask_jaccard_index_with_logits(top_output, top_target).item(), ns)
+        top_output = output['p_is_above_top']
+        top_target = batch['mask_top']
+
+        top_accuracies.update(100.0 * criterions.mask_accuracy(top_output, top_target).item(), ns)
+        top_precisions.update(100.0 * criterions.mask_precision(top_output, top_target).item(), ns)
+        top_recalls.update(100.0 * criterions.mask_recall(top_output, top_target).item(), ns)
+        top_f1s.update(criterions.mask_f1_score(top_output, top_target).item(), ns)
+        top_jaccards.update(criterions.mask_jaccard_index(top_output, top_target).item(), ns)
         top_active_output.update(100.0 * criterions.mask_active_fraction(top_output).item(), ns)
         top_active_target.update(100.0 * criterions.mask_active_fraction(top_target).item(), ns)
 
-        bot_accuracies.update(100.0 * criterions.mask_accuracy_with_logits(bot_output, bot_target).item(), ns)
-        bot_precisions.update(100.0 * criterions.mask_precision_with_logits(bot_output, bot_target).item(), ns)
-        bot_recalls.update(100.0 * criterions.mask_recall_with_logits(bot_output, bot_target).item(), ns)
-        bot_f1s.update(criterions.mask_f1_score_with_logits(bot_output, bot_target).item(), ns)
-        bot_jaccards.update(criterions.mask_jaccard_index_with_logits(bot_output, bot_target).item(), ns)
+        bot_output = output['p_is_below_bottom']
+        bot_target = batch['mask_bot']
+
+        bot_accuracies.update(100.0 * criterions.mask_accuracy(bot_output, bot_target).item(), ns)
+        bot_precisions.update(100.0 * criterions.mask_precision(bot_output, bot_target).item(), ns)
+        bot_recalls.update(100.0 * criterions.mask_recall(bot_output, bot_target).item(), ns)
+        bot_f1s.update(criterions.mask_f1_score(bot_output, bot_target).item(), ns)
+        bot_jaccards.update(criterions.mask_jaccard_index(bot_output, bot_target).item(), ns)
         bot_active_output.update(100.0 * criterions.mask_active_fraction(bot_output).item(), ns)
         bot_active_target.update(100.0 * criterions.mask_active_fraction(bot_target).item(), ns)
 
@@ -453,7 +482,7 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         if i % print_freq == 0 or i + 1 == len(loader):
             progress.display(i + 1)
 
-    return losses.avg, meters, (example_data, example_target, example_output)
+    return losses.avg, meters, (example_data, example_batch, example_output)
 
 
 def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
@@ -500,8 +529,8 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
     model.eval()
 
     example_data = []
+    example_batch = []
     example_output = []
-    example_target = []
     example_interval = max(1, len(loader) // num_examples)
 
     with torch.no_grad():
@@ -511,48 +540,53 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
             data_time.update(time.time() - end)
 
             data = batch['signals'].unsqueeze(1)
-            target = torch.stack((batch['mask_top'], batch['mask_bot']), dim=1)
 
             data = data.to(device, dtype, non_blocking=True)
-            target = target.to(device, dtype, non_blocking=True)
+            batch = {k: v.to(device, dtype, non_blocking=True) for k, v in batch.items()}
 
             # Compute output
             output = model(data)
-            loss = criterion(output, target)
+            loss = criterion(output, batch)
             # Record loss
             ns = data.size(0)
             losses.update(loss.item(), ns)
 
             if i % example_interval == 0 and len(example_data) < num_examples:
                 example_data.append(data[0].detach())
-                example_target.append(target[0].detach())
-                example_output.append(output[0].detach())
+                example_batch.append({k: v[0].detach() for k, v in batch.items()})
+                example_output.append({k: v[0].detach() for k, v in output.items()})
 
             # Measure and record performance with various metrics
-            accuracies.update(100.0 * criterions.mask_accuracy_with_logits(output, target, reduction='none'))
-            precisions.update(100.0 * criterions.mask_precision_with_logits(output, target, reduction='none'))
-            recalls.update(100.0 * criterions.mask_recall_with_logits(output, target, reduction='none'))
-            f1s.update(criterions.mask_f1_score_with_logits(output, target, reduction='none'))
-            jaccards.update(criterions.mask_jaccard_index_with_logits(output, target, reduction='none'))
+            overall_output = output['mask_keep_pixel'].float()
+            overall_target = batch['mask']
 
-            top_output, bot_output = output.unbind(1)
-            top_target, bot_target = target.unbind(1)
+            accuracies.update(100.0 * criterions.mask_accuracy(overall_output, overall_target).item(), ns)
+            precisions.update(100.0 * criterions.mask_precision(overall_output, overall_target).item(), ns)
+            recalls.update(100.0 * criterions.mask_recall(overall_output, overall_target).item(), ns)
+            f1s.update(criterions.mask_f1_score(overall_output, overall_target).item(), ns)
+            jaccards.update(criterions.mask_jaccard_index(overall_output, overall_target).item(), ns)
 
-            top_accuracies.update(100.0 * criterions.mask_accuracy_with_logits(top_output, top_target, reduction='none'))
-            top_precisions.update(100.0 * criterions.mask_precision_with_logits(top_output, top_target, reduction='none'))
-            top_recalls.update(100.0 * criterions.mask_recall_with_logits(top_output, top_target, reduction='none'))
-            top_f1s.update(criterions.mask_f1_score_with_logits(top_output, top_target, reduction='none'))
-            top_jaccards.update(criterions.mask_jaccard_index_with_logits(top_output, top_target, reduction='none'))
-            top_active_output.update(100.0 * criterions.mask_active_fraction(top_output, reduction='none'))
-            top_active_target.update(100.0 * criterions.mask_active_fraction(top_target, reduction='none'))
+            top_output = output['p_is_above_top']
+            top_target = batch['mask_top']
 
-            bot_accuracies.update(100.0 * criterions.mask_accuracy_with_logits(bot_output, bot_target, reduction='none'))
-            bot_precisions.update(100.0 * criterions.mask_precision_with_logits(bot_output, bot_target, reduction='none'))
-            bot_recalls.update(100.0 * criterions.mask_recall_with_logits(bot_output, bot_target, reduction='none'))
-            bot_f1s.update(criterions.mask_f1_score_with_logits(bot_output, bot_target, reduction='none'))
-            bot_jaccards.update(criterions.mask_jaccard_index_with_logits(bot_output, bot_target, reduction='none'))
-            bot_active_output.update(100.0 * criterions.mask_active_fraction(bot_output, reduction='none'))
-            bot_active_target.update(100.0 * criterions.mask_active_fraction(bot_target, reduction='none'))
+            top_accuracies.update(100.0 * criterions.mask_accuracy(top_output, top_target).item(), ns)
+            top_precisions.update(100.0 * criterions.mask_precision(top_output, top_target).item(), ns)
+            top_recalls.update(100.0 * criterions.mask_recall(top_output, top_target).item(), ns)
+            top_f1s.update(criterions.mask_f1_score(top_output, top_target).item(), ns)
+            top_jaccards.update(criterions.mask_jaccard_index(top_output, top_target).item(), ns)
+            top_active_output.update(100.0 * criterions.mask_active_fraction(top_output).item(), ns)
+            top_active_target.update(100.0 * criterions.mask_active_fraction(top_target).item(), ns)
+
+            bot_output = output['p_is_below_bottom']
+            bot_target = batch['mask_bot']
+
+            bot_accuracies.update(100.0 * criterions.mask_accuracy(bot_output, bot_target).item(), ns)
+            bot_precisions.update(100.0 * criterions.mask_precision(bot_output, bot_target).item(), ns)
+            bot_recalls.update(100.0 * criterions.mask_recall(bot_output, bot_target).item(), ns)
+            bot_f1s.update(criterions.mask_f1_score(bot_output, bot_target).item(), ns)
+            bot_jaccards.update(criterions.mask_jaccard_index(bot_output, bot_target).item(), ns)
+            bot_active_output.update(100.0 * criterions.mask_active_fraction(bot_output).item(), ns)
+            bot_active_target.update(100.0 * criterions.mask_active_fraction(bot_target).item(), ns)
 
             # measure elapsed time
             batch_time.update(time.time() - end)
@@ -563,10 +597,10 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
 
     # Restack samples, converting list into higher-dim tensor
     example_data = torch.stack(example_data, dim=0)
-    example_target = torch.stack(example_target, dim=0)
-    example_output = torch.stack(example_output, dim=0)
+    example_batch = {k: torch.stack([a[k] for a in example_batch], dim=0) for k in example_batch[0]}
+    example_output = {k: torch.stack([a[k] for a in example_output], dim=0) for k in example_output[0]}
 
-    return losses.avg, meters, (example_data, example_target, example_output)
+    return losses.avg, meters, (example_data, example_batch, example_output)
 
 
 def save_checkpoint(state, is_best, dirname='.', filename='checkpoint.pth.tar'):
