@@ -210,12 +210,6 @@ def main(
             .format(resume, checkpoint['epoch'])
         )
 
-    # Add graph to tensorboard
-    batch = next(iter(loader_train))
-    data = batch['signals'].unsqueeze(1)
-    data = data.to(device, torch.float, non_blocking=True)
-    writer.add_graph(model, data)
-
     print('Starting training')
     t_start = time.time()
     for epoch in range(start_epoch, n_epoch + 1):
