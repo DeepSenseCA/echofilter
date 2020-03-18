@@ -281,6 +281,44 @@ def main(
             x[0, :, 0, 1] = 1
             return x
 
+        def add_image_border(x):
+            '''
+            Add a green border around a a tensor of images.
+
+            Parameters
+            ----------
+            x : torch.Tensor
+                Tensor in NCWH or NCHW format.
+
+            Returns
+            -------
+            torch.Tensor
+                As `x`, but padded with a green border.
+            '''
+            if x.shape[1] == 1:
+                x = torch.cat([x, x, x], dim=1)
+            if x.shape[1] != 3:
+                raise ValueError('RGB image needs three color channels')
+            shp = list(x.shape)
+            shp[-1] = 1
+            x = torch.cat([
+                torch.zeros(shp, dtype=x.dtype, device=x.device),
+                x,
+                torch.zeros(shp, dtype=x.dtype, device=x.device),
+            ], dim=-1)
+            shp = list(x.shape)
+            shp[-2] = 1
+            x = torch.cat([
+                torch.zeros(shp, dtype=x.dtype, device=x.device),
+                x,
+                torch.zeros(shp, dtype=x.dtype, device=x.device),
+            ], dim=-2)
+            x[:, 1, :, 0] = 1.
+            x[:, 1, :, -1] = 1.
+            x[:, 1, 0, :] = 1.
+            x[:, 1, -1, :] = 1.
+            return x
+
         # Add example images to tensorboard
         for (ex_data, ex_batch, ex_output), partition in (
                 ((ex_data_tr, ex_batch_tr, ex_output_tr), 'Train'),
@@ -295,55 +333,55 @@ def main(
             )
             writer.add_images(
                 'Top/' + partition + '/Target',
-                ensure_clim_met(ex_batch['mask_top'].unsqueeze(1)),
+                ensure_clim_met(add_image_border(ex_batch['mask_top'].unsqueeze(1))),
                 epoch,
                 dataformats='NCWH',
             )
             writer.add_images(
                 'Top/' + partition + '/Output/p',
-                ensure_clim_met(ex_output['p_is_above_top'].unsqueeze(1)),
+                ensure_clim_met(add_image_border(ex_output['p_is_above_top'].unsqueeze(1))),
                 epoch,
                 dataformats='NCWH',
             )
             writer.add_images(
                 'Bottom/' + partition + '/Target',
-                ensure_clim_met(ex_batch['mask_bot'].unsqueeze(1)),
+                ensure_clim_met(add_image_border(ex_batch['mask_bot'].unsqueeze(1))),
                 epoch,
                 dataformats='NCWH',
             )
             writer.add_images(
                 'Bottom/' + partition + '/Output/p',
-                ensure_clim_met(ex_output['p_is_below_bottom'].unsqueeze(1)),
+                ensure_clim_met(add_image_border(ex_output['p_is_below_bottom'].unsqueeze(1))),
                 epoch,
                 dataformats='NCWH',
             )
             writer.add_images(
                 'Overall/' + partition + '/Target',
-                ensure_clim_met(ex_batch['mask'].float().unsqueeze(1)),
+                ensure_clim_met(add_image_border(ex_batch['mask'].float().unsqueeze(1))),
                 epoch,
                 dataformats='NCWH',
             )
             writer.add_images(
                 'Overall/' + partition + '/Output/p',
-                ensure_clim_met(ex_output['p_keep_pixel'].unsqueeze(1)),
+                ensure_clim_met(add_image_border(ex_output['p_keep_pixel'].unsqueeze(1))),
                 epoch,
                 dataformats='NCWH',
             )
             writer.add_images(
                 'Overall/' + partition + '/Output/mask',
-                ensure_clim_met(ex_output['mask_keep_pixel'].float().unsqueeze(1)),
+                ensure_clim_met(add_image_border(ex_output['mask_keep_pixel'].float().unsqueeze(1))),
                 epoch,
                 dataformats='NCWH',
             )
             writer.add_images(
                 'Overall/' + partition + '/Overlap',
-                ensure_clim_met(
+                ensure_clim_met(add_image_border(
                     torch.stack([
                         ex_output['mask_keep_pixel'].float(),
                         torch.zeros_like(ex_output['mask_keep_pixel'], dtype=torch.float),
                         ex_batch['mask'].float(),
                     ], dim=1)
-                ),
+                )),
                 epoch,
                 dataformats='NCWH',
             )
