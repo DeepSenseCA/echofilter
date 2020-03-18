@@ -30,8 +30,8 @@ class Echofilter(nn.Module):
             outputs['logit_is_boundary_top'] = logits[:, i]
             outputs['p_is_boundary_top'] = F.softmax(outputs['logit_is_boundary_top'], dim=-1)
             outputs['p_is_above_top'] = torch.flip(
-                torch.cumsum(torch.flip(outputs['p_is_boundary_top'], dim=-1), dim=-1),
-                dim=-1,
+                torch.cumsum(torch.flip(outputs['p_is_boundary_top'], dims=(-1, )), dim=-1),
+                dims=(-1, ),
             )
             i += 1
         else:
@@ -114,7 +114,7 @@ class EchofilterLoss(_Loss):
             shp[-1] = 1
             X = torch.cat([X, torch.zeros(shp, dtype=X.dtype, device=X.device)], dim=-1)
             X = X.narrow(-1, 0, X.shape[-1] - 1) - X.narrow(-1, 1, X.shape[-1] - 1)
-            C = X.shape[-1] - torch.argmax(torch.flip(X, dim=-1), dim=-1)
+            C = X.shape[-1] - 1 - torch.argmax(torch.flip(X, dims=(-1, )), dim=-1)
             loss += self.top_mask * F.cross_entropy(
                 input['logit_is_boundary_top'].transpose(-2, -1), C, reduction=self.reduction,
             )
@@ -134,9 +134,9 @@ class EchofilterLoss(_Loss):
             shp = list(X.shape)
             shp[-1] = 1
             X = torch.cat([torch.zeros(shp, dtype=X.dtype, device=X.device), X], dim=-1)
-            X = X.narrow(-1, 0, X.shape[-1] - 1) - X.narrow(-1, 1, X.shape[-1] - 1)
+            X = X.narrow(-1, 1, X.shape[-1] - 1) - X.narrow(-1, 0, X.shape[-1] - 1)
             C = torch.argmax(X, dim=-1)
-            loss += self.top_mask * F.cross_entropy(
+            loss += self.bottom_mask * F.cross_entropy(
                 input['logit_is_boundary_bottom'].transpose(-2, -1), C, reduction=self.reduction,
             )
         else:
