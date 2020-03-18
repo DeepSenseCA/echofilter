@@ -496,6 +496,7 @@ def load_decomposed_transect_mask(
     fname_top1 = os.path.join(root_data_dir, dataset, sample + '_turbulence.evl')
     fname_top2 = os.path.join(root_data_dir, dataset, sample + '_air.evl')
     fname_bot = os.path.join(root_data_dir, dataset, sample + '_bottom.evl')
+    fname_surf = os.path.join(root_data_dir, dataset, sample + '_surface.evl')
 
     if os.path.isfile(fname_top1):
         fname_top = fname_top1
@@ -522,6 +523,16 @@ def load_decomposed_transect_mask(
         )
     else:
         t_bot = d_bot = None
+
+    if os.path.isfile(fname_surf):
+        t_surf, d_surf = loader.evl_loader(fname_surf)
+    elif dataset == 'stationary':
+        raise ValueError(
+            'Expected {} to exist when dateset is {}.'
+            .format(fname_surf, dataset)
+        )
+    else:
+        t_surf = d_surf = None
 
     # Generate new lines from mask
     d_top_new, d_bot_new, passive_starts, passive_ends = fixup_lines(
@@ -564,6 +575,7 @@ def load_decomposed_transect_mask(
 
     d_top = tidy_up_line(t_top, d_top)
     d_bot = tidy_up_line(t_bot, d_bot)
+    d_surf = tidy_up_line(t_surf, d_surf)
 
     transect = {}
     transect['timestamps'] = ts_raw
@@ -572,6 +584,7 @@ def load_decomposed_transect_mask(
     transect['mask'] = mask
     transect['top'] = d_top_new
     transect['bottom'] = d_bot_new
+    transect['surface'] = d_surf
     transect['top-original'] = d_top
     transect['bottom-original'] = d_bot
     transect['is_passive'] = is_passive
