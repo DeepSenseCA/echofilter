@@ -155,8 +155,8 @@ def make_lines_from_mask(mask, depths=None, max_gap_squash=2.):
         Depth of bottom line. As for `d_top`, but for the other end of the
         array.
     '''
-    # Ensure input is an array.
-    mask = np.asarray(mask)
+    # Ensure input is an array. Make a copy, so we don't modify the input.
+    mask = np.array(mask, copy=True)
 
     # Autocomplete depth with index.
     if depths is None:
@@ -542,6 +542,7 @@ def load_decomposed_transect_mask(
 
     # Determine whether each timestamp is for recording which was completely
     # removed from analysis (but not because it is passive recording)
+    mask = ~np.isnan(signals_mskd)
     allnan = np.all(np.isnan(signals_mskd), axis=1)
     is_removed = allnan & ~is_passive
 
