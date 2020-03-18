@@ -26,12 +26,25 @@ class Echofilter(nn.Module):
             outputs['logit_is_above_top'] = logits[:, i]
             outputs['p_is_above_top'] = torch.sigmoid(outputs['logit_is_above_top'])
             i += 1
+        elif self.params['top'] == 'boundary':
+            outputs['logit_is_boundary_top'] = logits[:, i]
+            outputs['p_is_boundary_top'] = F.softmax(outputs['logit_is_boundary_top'], dim=-1)
+            outputs['p_is_above_top'] = torch.flip(
+                torch.cumsum(torch.flip(outputs['p_is_boundary_top'], dim=-1), dim=-1),
+                dim=-1,
+            )
+            i += 1
         else:
             raise ValueError('Unsupported "top" parameter: {}'.format(self.params['top']))
 
         if self.params['bottom'] == 'mask':
             outputs['logit_is_below_bottom'] = logits[:, i]
             outputs['p_is_below_bottom'] = torch.sigmoid(outputs['logit_is_below_bottom'])
+            i += 1
+        elif self.params['bottom'] == 'boundary':
+            outputs['logit_is_boundary_bottom'] = logits[:, i]
+            outputs['p_is_boundary_bottom'] = F.softmax(outputs['logit_is_boundary_bottom'], dim=-1)
+            outputs['p_is_below_bottom'] = torch.cumsum(outputs['p_is_boundary_bottom'], dim=-1)
             i += 1
         else:
             raise ValueError('Unsupported "bottom" parameter: {}'.format(self.params['bottom']))
@@ -93,22 +106,42 @@ class EchofilterLoss(_Loss):
             pass
         elif 'logit_is_above_top' in input:
             loss += self.top_mask * F.binary_cross_entropy_with_logits(
-                input['logit_is_above_top'], target['mask_top'], reduction=self.reduction
+                input['logit_is_above_top'], target['mask_top'], reduction=self.reduction,
+            )
+        elif 'logit_is_boundary_top' in input:
+            X = target['mask_top']
+            shp = list(X.shape)
+            shp[-1] = 1
+            X = torch.cat([X, torch.zeros(shp, dtype=X.dtype, device=X.device)], dim=-1)
+            X = X.narrow(-1, 0, X.shape[-1] - 1) - X.narrow(-1, 1, X.shape[-1] - 1)
+            C = X.shape[-1] - torch.argmax(torch.flip(X, dim=-1), dim=-1)
+            loss += self.top_mask * F.cross_entropy(
+                input['logit_is_boundary_top'].transpose(-2, -1), C, reduction=self.reduction,
             )
         else:
             loss += self.top_mask * F.binary_cross_entropy(
-                input['p_is_above_top'], target['mask_top'], reduction=self.reduction
+                input['p_is_above_top'], target['mask_top'], reduction=self.reduction,
             )
 
         if not self.bottom_mask:
             pass
         elif 'logit_is_below_bottom' in input:
             loss += self.bottom_mask * F.binary_cross_entropy_with_logits(
-                input['logit_is_below_bottom'], target['mask_bot'], reduction=self.reduction
+                input['logit_is_below_bottom'], target['mask_bot'], reduction=self.reduction,
+            )
+        elif 'logit_is_boundary_bottom' in input:
+            X = target['mask_bot']
+            shp = list(X.shape)
+            shp[-1] = 1
+            X = torch.cat([torch.zeros(shp, dtype=X.dtype, device=X.device), X], dim=-1)
+            X = X.narrow(-1, 0, X.shape[-1] - 1) - X.narrow(-1, 1, X.shape[-1] - 1)
+            C = torch.argmax(X, dim=-1)
+            loss += self.top_mask * F.cross_entropy(
+                input['logit_is_boundary_bottom'].transpose(-2, -1), C, reduction=self.reduction,
             )
         else:
             loss += self.bottom_mask * F.binary_cross_entropy(
-                input['p_is_below_bottom'], target['mask_bot'], reduction=self.reduction
+                input['p_is_below_bottom'], target['mask_bot'], reduction=self.reduction,
             )
 
         if self.removed_segment:
