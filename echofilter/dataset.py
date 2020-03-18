@@ -117,6 +117,12 @@ class TransectDataset(torch.utils.data.Dataset):
         sample['d_top-original'] = sample.pop('top-original')
         sample['d_bot-original'] = sample.pop('bottom-original')
         sample['signals'] = sample.pop('Sv')
+        if (sample['depths'][-1] < sample['depths'][0]):
+            # Found some upward-facing data that needs to be reflected
+            sample['depths'] = np.flip(sample['depths'], -1).copy()
+            sample['signals'] = np.flip(sample['signals'], -1).copy()
+            sample['mask'] = np.flip(sample['mask'], -1).copy()
+
         sample['mask'] = sample['mask'].astype(np.float)
         # Handle missing top and bottom lines during passive segments
         if sample['is_upward_facing']:
