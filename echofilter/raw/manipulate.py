@@ -155,8 +155,8 @@ def make_lines_from_mask(mask, depths=None, max_gap_squash=2.):
         Depth of bottom line. As for `d_top`, but for the other end of the
         array.
     '''
-    # Ensure input is an array.
-    mask = np.asarray(mask)
+    # Ensure input is an array. Make a copy, so we don't modify the input.
+    mask = np.array(mask, copy=True)
 
     # Autocomplete depth with index.
     if depths is None:
