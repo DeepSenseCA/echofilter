@@ -550,9 +550,9 @@ def load_decomposed_transect_mask(
     # Ensure depth is always increasing (which corresponds to descending from
     # the air down the water column)
     if is_upward_facing:
-        depths_raw = depths_raw[::-1]
-        signals_raw = signals_raw[:, ::-1]
-        mask = mask[:, ::-1]
+        depths_raw = depths_raw[::-1].copy()
+        signals_raw = signals_raw[:, ::-1].copy()
+        mask = mask[:, ::-1].copy()
 
     if d_top is None:
         d_top = np.nan * np.ones_like(ts_raw)
