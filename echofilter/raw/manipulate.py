@@ -555,14 +555,16 @@ def load_decomposed_transect_mask(
         signals_raw = signals_raw[:, ::-1].copy()
         mask = mask[:, ::-1].copy()
 
-    if d_top is None:
-        d_top = np.nan * np.ones_like(ts_raw)
-    else:
-        d_top = np.interp(ts_raw, t_top, d_top)
-    if d_bot is None:
-        d_bot = np.nan * np.ones_like(ts_raw)
-    else:
-        d_bot = np.interp(ts_raw, t_bot, d_bot)
+    def tidy_up_line(t, d):
+        if d is None:
+            d = np.nan * np.ones_like(ts_raw)
+        else:
+            d = np.interp(ts_raw, t, d)
+        return d
+
+    d_top = tidy_up_line(t_top, d_top)
+    d_bot = tidy_up_line(t_bot, d_bot)
+
     transect = {}
     transect['timestamps'] = ts_raw
     transect['depths'] = depths_raw
