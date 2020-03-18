@@ -542,6 +542,7 @@ def load_decomposed_transect_mask(
 
     # Determine whether each timestamp is for recording which was completely
     # removed from analysis (but not because it is passive recording)
+    mask = ~np.isnan(signals_mskd)
     allnan = np.all(np.isnan(signals_mskd), axis=1)
     is_removed = allnan & ~is_passive
 
