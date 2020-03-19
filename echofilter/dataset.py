@@ -157,6 +157,20 @@ class TransectDataset(torch.utils.data.Dataset):
         for key in ['d_top', 'd_bot', 'd_surf', 'd_top-original', 'd_bot-original']:
             sample['r' + key[1:]] = sample[key] / depth_range
 
+        # Make a mask indicating left-over patches. This is 0 everywhere,
+        # except 1s whereever pixels in the overall mask are removed for
+        # reasons not explained by the top and bottom lines, and is_passive and
+        # is_removed indicators.
+        sample['mask_patches'] = 1 - sample['mask']
+        sample['mask_patches'][sample['is_passive'] > 0.5] = 0
+        sample['mask_patches'][sample['is_removed'] > 0.5] = 0
+
+        sample['mask_patches-original'] = sample['mask_patches'].copy()
+        for suffix in ('', '-original'):
+            sample['mask_patches' + suffix][sample['mask_top' + suffix] > 0.5] = 0
+            sample['mask_patches' + suffix][sample['mask_bot' + suffix] > 0.5] = 0
+            sample['mask_patches' + suffix] = np.single(sample['mask_patches' + suffix])
+
         if self.transform_post is not None:
             sample = self.transform_post(sample)
 
