@@ -142,11 +142,16 @@ class TransectDataset(torch.utils.data.Dataset):
 
         # Convert lines to masks and relative lines
         ddepths = np.broadcast_to(sample['depths'], sample['signals'].shape)
-        sample['mask_top'] = np.single(ddepths < np.expand_dims(sample['d_top'], -1))
-        sample['mask_bot'] = np.single(ddepths > np.expand_dims(sample['d_bot'], -1))
+        for suffix in ['', '-original']:
+            sample['mask_top' + suffix] = np.single(
+                ddepths < np.expand_dims(sample['d_top' + suffix], -1)
+            )
+            sample['mask_bot' + suffix] = np.single(
+                ddepths > np.expand_dims(sample['d_bot' + suffix], -1)
+            )
 
         depth_range = abs(sample['depths'][-1] - sample['depths'][0])
-        for key in ['d_top', 'd_bot']:
+        for key in ['d_top', 'd_bot', 'd_top-original', 'd_bot-original']:
             sample['r' + key[1:]] = sample[key] / depth_range
 
         if self.transform_post is not None:
