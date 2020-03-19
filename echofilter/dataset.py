@@ -112,6 +112,7 @@ class TransectDataset(torch.utils.data.Dataset):
         )
         sample['d_top'] = sample.pop('top')
         sample['d_bot'] = sample.pop('bottom')
+        sample['d_surf'] = sample.pop('surface')
         sample['d_top-original'] = sample.pop('top-original')
         sample['d_bot-original'] = sample.pop('bottom-original')
         sample['signals'] = sample.pop('Sv')
@@ -128,6 +129,7 @@ class TransectDataset(torch.utils.data.Dataset):
             passive_bot_val = np.max(sample['depths'])
         sample['d_top'][np.isnan(sample['d_top'])] = passive_top_val
         sample['d_bot'][np.isnan(sample['d_bot'])] = passive_bot_val
+        sample['d_surf'][np.isnan(sample['d_surf'])] = np.min(sample['depths'])
         sample['d_top-original'][np.isnan(sample['d_top-original'])] = passive_top_val
         sample['d_bot-original'][np.isnan(sample['d_bot-original'])] = passive_bot_val
 
@@ -149,9 +151,10 @@ class TransectDataset(torch.utils.data.Dataset):
             sample['mask_bot' + suffix] = np.single(
                 ddepths > np.expand_dims(sample['d_bot' + suffix], -1)
             )
+        sample['mask_surf'] = np.single(ddepths < np.expand_dims(sample['d_surf'], -1))
 
         depth_range = abs(sample['depths'][-1] - sample['depths'][0])
-        for key in ['d_top', 'd_bot', 'd_top-original', 'd_bot-original']:
+        for key in ['d_top', 'd_bot', 'd_surf', 'd_top-original', 'd_bot-original']:
             sample['r' + key[1:]] = sample[key] / depth_range
 
         if self.transform_post is not None:

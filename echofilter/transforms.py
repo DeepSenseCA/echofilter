@@ -9,11 +9,13 @@ _fields_2d = (
     'signals', 'mask',
     'mask_top', 'mask_bot',
     'mask_top-original', 'mask_bot-original',
+    'mask_surf',
 )
 _fields_1d_timelike = (
     'timestamps',
     'd_top', 'd_bot', 'r_top', 'r_bot',
     'd_top-original', 'd_bot-original', 'r_top-original', 'r_bot-original',
+    'd_surf', 'r_surf',
     'is_passive', 'is_removed',
 )
 _fields_1d_depthlike = ('depths', )
@@ -179,7 +181,7 @@ class RandomStretchDepth(object):
 
         if not sample['is_upward_facing']:
             sample['d_bot'] += self.expected_bottom_gap
-        for key in ('depths', 'd_top', 'd_bot', 'd_top-original', 'd_bot-original'):
+        for key in ('depths', 'd_top', 'd_bot', 'd_top-original', 'd_bot-original', 'd_surf'):
             sample[key] *= factor
         if not sample['is_upward_facing']:
             sample['d_bot'] -= self.expected_bottom_gap
