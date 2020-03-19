@@ -112,9 +112,23 @@ class EchofilterLoss(_Loss):
             X = target['mask_top']
             shp = list(X.shape)
             shp[-1] = 1
-            X = torch.cat([X, torch.zeros(shp, dtype=X.dtype, device=X.device)], dim=-1)
+            X = torch.cat(
+                [
+                    torch.ones(shp, dtype=X.dtype, device=X.device),
+                    X,
+                    torch.zeros(shp, dtype=X.dtype, device=X.device),
+                ],
+                dim=-1,
+            )
+            X = X.float()
             X = X.narrow(-1, 0, X.shape[-1] - 1) - X.narrow(-1, 1, X.shape[-1] - 1)
-            C = X.shape[-1] - 1 - torch.argmax(torch.flip(X, dims=(-1, )), dim=-1)
+            C = torch.argmax(X, dim=-1)
+            Cmax = torch.tensor(
+                [input['logit_is_boundary_top'].shape[-1] - 1],
+                device=C.device,
+                dtype=C.dtype,
+            )
+            C = torch.min(C, Cmax)
             loss += self.top_mask * F.cross_entropy(
                 input['logit_is_boundary_top'].transpose(-2, -1), C, reduction=self.reduction,
             )
@@ -133,9 +147,23 @@ class EchofilterLoss(_Loss):
             X = target['mask_bot']
             shp = list(X.shape)
             shp[-1] = 1
-            X = torch.cat([torch.zeros(shp, dtype=X.dtype, device=X.device), X], dim=-1)
-            X = X.narrow(-1, 1, X.shape[-1] - 1) - X.narrow(-1, 0, X.shape[-1] - 1)
-            C = torch.argmax(X, dim=-1)
+            X = torch.cat(
+                [
+                    torch.zeros(shp, dtype=X.dtype, device=X.device),
+                    X,
+                    torch.ones(shp, dtype=X.dtype, device=X.device),
+                ],
+                dim=-1,
+            )
+            X = X.float()
+            X = X.narrow(-1, 0, X.shape[-1] - 1) - X.narrow(-1, 1, X.shape[-1] - 1)
+            C = torch.argmin(X, dim=-1)
+            Cmax = torch.tensor(
+                [input['logit_is_boundary_bottom'].shape[-1] - 1],
+                device=C.device,
+                dtype=C.dtype,
+            )
+            C = torch.min(C, Cmax)
             loss += self.bottom_mask * F.cross_entropy(
                 input['logit_is_boundary_bottom'].transpose(-2, -1), C, reduction=self.reduction,
             )
