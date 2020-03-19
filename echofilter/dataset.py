@@ -123,6 +123,9 @@ class TransectDataset(torch.utils.data.Dataset):
             sample['signals'] = np.flip(sample['signals'], -1).copy()
             sample['mask'] = np.flip(sample['mask'], -1).copy()
 
+        # Ensure passive is removed in overall mask
+        sample['mask'][sample['is_passive'] > 0.5] = 0
+        # Change dtype to float
         sample['mask'] = sample['mask'].astype(np.float)
         # Handle missing top and bottom lines during passive segments
         if sample['is_upward_facing']:
