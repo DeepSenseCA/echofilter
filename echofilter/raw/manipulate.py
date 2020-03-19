@@ -556,6 +556,11 @@ def load_decomposed_transect_mask(
     mask = ~np.isnan(signals_mskd)
     if np.all(mask):
         print('No data points were masked out in {}'.format(fname_masked))
+        # Use lines to create a mask
+        ddepths = np.broadcast_to(depths_mskd, signals_mskd.shape)
+        mask[ddepths < np.expand_dims(d_top_new, -1)] = 0
+        mask[ddepths > np.expand_dims(d_bot_new, -1)] = 0
+        mask[is_passive] = 0
     allnan = np.all(np.isnan(signals_mskd), axis=1)
     is_removed = allnan & ~is_passive
 
