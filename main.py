@@ -17,6 +17,7 @@ from torchutils.utils import count_parameters
 import echofilter.raw.loader
 import echofilter.transforms
 from echofilter.unet import UNet
+from echofilter.wrapper import Echofilter
 
 
 DATA_MEAN = -80.
@@ -54,7 +55,9 @@ def main(
         'expansion_factor {}'
         .format(latent_channels, expansion_factor)
     )
-    model = UNet(1, 2, latent_channels=latent_channels, expansion_factor=expansion_factor)
+    model = Echofilter(
+        UNet(1, 2, latent_channels=latent_channels, expansion_factor=expansion_factor),
+    )
 
     if not os.path.isfile(checkpoint_path):
         raise EnvironmentError("No checkpoint found at '{}'".format(checkpoint_path))
@@ -117,10 +120,10 @@ def main(
         # Put data through model
         with torch.no_grad():
             output = model(input)
+            output = {k: v[0].squeeze(0).cpu().numpy() for k, v in output.items()}
         # Convert output into lines
-        output = output.squeeze(0).cpu().numpy()
-        top_depths = data['depths'][last_nonzero(output[0] > 0., -1)]
-        bottom_depths = data['depths'][first_nonzero(output[1] > 0., -1)]
+        top_depths = data['depths'][last_nonzero(output['p_is_above_top'] > 0.5, -1)]
+        bottom_depths = data['depths'][first_nonzero(output['p_is_below_bottom'] > 0.5, -1)]
         # Export evl files
         os.makedirs(os.path.dirname(os.path.join(output_dir, fname)), exist_ok=True)
         print(os.path.join(output_dir, fname + '.top.evl'))
