@@ -123,8 +123,6 @@ class TransectDataset(torch.utils.data.Dataset):
             sample['signals'] = np.flip(sample['signals'], -1).copy()
             sample['mask'] = np.flip(sample['mask'], -1).copy()
 
-        # Ensure passive is removed in overall mask
-        sample['mask'][sample['is_passive'] > 0.5] = 0
         # Change dtype to float
         sample['mask'] = sample['mask'].astype(np.float)
         # Handle missing top and bottom lines during passive segments
@@ -171,6 +169,12 @@ class TransectDataset(torch.utils.data.Dataset):
         depth_range = abs(sample['depths'][-1] - sample['depths'][0])
         for key in ['d_top', 'd_bot', 'd_surf', 'd_top-original', 'd_bot-original']:
             sample['r' + key[1:]] = sample[key] / depth_range
+
+        # Ensure mask is masked out everywhere we know it should be
+        sample['mask'][sample['is_passive'] > 0.5] = 0
+        sample['mask'][sample['is_removed'] > 0.5] = 0
+        sample['mask'][sample['mask_top'] > 0.5] = 0
+        sample['mask'][sample['mask_bot'] > 0.5] = 0
 
         # Make a mask indicating left-over patches. This is 0 everywhere,
         # except 1s whereever pixels in the overall mask are removed for
