@@ -112,6 +112,7 @@ class TransectDataset(torch.utils.data.Dataset):
         )
         sample['d_top'] = sample.pop('top')
         sample['d_bot'] = sample.pop('bottom')
+        sample['d_surf'] = sample.pop('surface')
         sample['d_top-original'] = sample.pop('top-original')
         sample['d_bot-original'] = sample.pop('bottom-original')
         sample['signals'] = sample.pop('Sv')
@@ -128,27 +129,51 @@ class TransectDataset(torch.utils.data.Dataset):
             passive_bot_val = np.max(sample['depths'])
         sample['d_top'][np.isnan(sample['d_top'])] = passive_top_val
         sample['d_bot'][np.isnan(sample['d_bot'])] = passive_bot_val
+        sample['d_surf'][np.isnan(sample['d_surf'])] = np.min(sample['depths'])
         sample['d_top-original'][np.isnan(sample['d_top-original'])] = passive_top_val
         sample['d_bot-original'][np.isnan(sample['d_bot-original'])] = passive_bot_val
 
         if self.transform_pre is not None:
             sample = self.transform_pre(sample)
+
         # Apply depth crop
         depth_crop_mask = sample['depths'] <= self.crop_depth
         sample['depths'] = sample['depths'][depth_crop_mask]
         sample['signals'] = sample['signals'][:, depth_crop_mask]
         sample['mask'] = sample['mask'][:, depth_crop_mask]
-        # Convert lines to masks
+
+        # Convert lines to masks and relative lines
         ddepths = np.broadcast_to(sample['depths'], sample['signals'].shape)
-        mask_top = np.single(ddepths < np.expand_dims(sample['d_top'], -1))
-        mask_bot = np.single(ddepths > np.expand_dims(sample['d_bot'], -1))
-        sample['mask_top'] = mask_top
-        sample['mask_bot'] = mask_bot
+        for suffix in ['', '-original']:
+            sample['mask_top' + suffix] = np.single(
+                ddepths < np.expand_dims(sample['d_top' + suffix], -1)
+            )
+            sample['mask_bot' + suffix] = np.single(
+                ddepths > np.expand_dims(sample['d_bot' + suffix], -1)
+            )
+        sample['mask_surf'] = np.single(ddepths < np.expand_dims(sample['d_surf'], -1))
+
         depth_range = abs(sample['depths'][-1] - sample['depths'][0])
-        sample['r_top'] = sample['d_top'] / depth_range
-        sample['r_bot'] = sample['d_bot'] / depth_range
+        for key in ['d_top', 'd_bot', 'd_surf', 'd_top-original', 'd_bot-original']:
+            sample['r' + key[1:]] = sample[key] / depth_range
+
+        # Make a mask indicating left-over patches. This is 0 everywhere,
+        # except 1s whereever pixels in the overall mask are removed for
+        # reasons not explained by the top and bottom lines, and is_passive and
+        # is_removed indicators.
+        sample['mask_patches'] = 1 - sample['mask']
+        sample['mask_patches'][sample['is_passive'] > 0.5] = 0
+        sample['mask_patches'][sample['is_removed'] > 0.5] = 0
+
+        sample['mask_patches-original'] = sample['mask_patches'].copy()
+        for suffix in ('', '-original'):
+            sample['mask_patches' + suffix][sample['mask_top' + suffix] > 0.5] = 0
+            sample['mask_patches' + suffix][sample['mask_bot' + suffix] > 0.5] = 0
+            sample['mask_patches' + suffix] = np.single(sample['mask_patches' + suffix])
+
         if self.transform_post is not None:
             sample = self.transform_post(sample)
+
         return sample
 
     def __len__(self):
