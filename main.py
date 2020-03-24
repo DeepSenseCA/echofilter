@@ -119,8 +119,8 @@ def main(
             output = model(input)
         # Convert output into lines
         output = output.squeeze(0).cpu().numpy()
-        top_depths = data['depths'][last_nonzero(output[0] > 0.5, -1)]
-        bottom_depths = data['depths'][first_nonzero(output[1] > 0.5, -1)]
+        top_depths = data['depths'][last_nonzero(output[0] > 0., -1)]
+        bottom_depths = data['depths'][first_nonzero(output[1] > 0., -1)]
         # Export evl files
         os.makedirs(os.path.dirname(os.path.join(output_dir, fname)), exist_ok=True)
         print(os.path.join(output_dir, fname + '.top.evl'))
