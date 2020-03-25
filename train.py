@@ -399,9 +399,9 @@ def main(
                 'meters': meters_val,
             },
             is_best,
-            dirname=os.path.join('models', log_name),
+            dirname=os.path.join('models', dataset_name, log_name),
         )
-        meters_to_csv(meters_val, is_best, dirname=os.path.join('models', log_name))
+        meters_to_csv(meters_val, is_best, dirname=os.path.join('models', dataset_name, log_name))
 
         # Ensure the tensorboard outputs for this epoch are flushed
         writer.flush()
