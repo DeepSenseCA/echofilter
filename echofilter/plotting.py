@@ -172,3 +172,69 @@ def plot_transect(
     plt.gca().invert_yaxis()
     plt.xlabel(xlabel, fontsize=18)
     plt.ylabel('Depth (m)', fontsize=18)
+
+
+def plot_transect_predictions(transect, prediction, cmap=None):
+    '''
+    Plot the generated output for a transect against its ground truth data.
+
+        - Ground truth data is shown in black, predictions in white.
+        - Passive regions are hatched in / direction for ground truth, \\ for
+          prediciton.
+        - Removed regions are hatched in \\ direction for ground truth, / for
+          prediction.
+
+    Parameters
+    ----------
+    transect : dict
+        Ground truth data for the transect.
+    prediction : dict
+        Predictions for the transect.
+    cmap : str, optional
+        Name of a registered matplotlib colormap. If `None` (default), the
+        current default colormap is used.
+    '''
+
+    plot_transect(
+        transect,
+        x_scale='index',
+        top_color='k',
+        bot_color='k',
+        passive_color='k',
+        removed_color='k',
+    )
+
+    # Convert output into lines
+    for shape_y in (prediction['p_is_above_top'].shape[-1], prediction['p_is_below_bottom'].shape[-1]):
+        if not np.allclose(prediction['depths'].shape, shape_y):
+            print(
+                'Shape mismatch: {} {}'.format(prediction['depths'].shape, shape_y)
+            )
+    top_depths = prediction['depths'][utils.last_nonzero(prediction['p_is_above_top'] > 0.5, -1)]
+    bottom_depths = prediction['depths'][utils.first_nonzero(prediction['p_is_below_bottom'] > 0.5, -1)]
+
+    tt = np.linspace(0, len(transect['timestamps']) - 1, len(top_depths))
+    plt.plot(tt, top_depths, 'w', linewidth=2)
+    plt.plot(tt, bottom_depths, 'w', linewidth=2)
+
+    # Mark removed areas
+    plot_indicator_hatch(
+        prediction.get('p_is_passive', np.array([])) > 0.5,
+        xx=tt,
+        ymin=transect['depths'][0],
+        ymax=transect['depths'][-1],
+        hatch='\\\\',
+        color='w',
+    )
+    plot_indicator_hatch(
+        prediction.get('p_is_removed', np.array([])) > 0.5,
+        xx=tt,
+        ymin=transect['depths'][0],
+        ymax=transect['depths'][-1],
+        hatch='//',
+        color='w',
+    )
+
+    if cmap is not None:
+        plt.set_cmap(cmap)
+    plt.gca().invert_yaxis()
