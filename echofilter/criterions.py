@@ -5,8 +5,11 @@ def _binarise_and_reshape(arg, threshold=0.5, ndim=2):
     # Binarise mask
     arg = (arg > threshold)
     # Reshape so pixels are vectorised by batch
-    shape = list(arg.shape)
-    shape = shape[:-ndim] + [-1]
+    if ndim is None:
+        shape = [arg.shape[0], -1]
+    else:
+        shape = list(arg.shape)
+        shape = shape[:-ndim] + [-1]
     arg = arg.reshape(shape)
     return arg
 
