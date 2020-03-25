@@ -462,7 +462,7 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
     losses = AverageMeter('Loss', ':.4e')
 
     meters = {}
-    for chn in ['Overall', 'Top', 'Bottom']:
+    for chn in ['Overall', 'Top', 'Bottom', 'RemovedSeg', 'Passive']:
         meters[chn] = {}
         meters[chn]['Accuracy'] = AverageMeter('Accuracy (' + chn + ')', ':6.2f')
         meters[chn]['Precision'] = AverageMeter('Precision (' + chn + ')', ':6.2f')
@@ -517,6 +517,12 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
             elif chn == 'bottom':
                 output_k = output['p_is_below_bottom']
                 target_k = batch['mask_bot']
+            elif chn == 'removedseg':
+                output_k = output['p_is_removed']
+                target_k = batch['is_removed']
+            elif chn == 'passive':
+                output_k = output['p_is_passive']
+                target_k = batch['is_passive']
             else:
                 raise ValueError('Unrecognised output channel: {}'.format(chn))
 
@@ -561,7 +567,7 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
     losses = AverageMeter('Loss', ':.4e')
 
     meters = {}
-    for chn in ['Overall', 'Top', 'Bottom']:
+    for chn in ['Overall', 'Top', 'Bottom', 'RemovedSeg', 'Passive']:
         meters[chn] = {}
         meters[chn]['Accuracy'] = AverageMeter('Accuracy (' + chn + ')', ':6.2f')
         meters[chn]['Precision'] = AverageMeter('Precision (' + chn + ')', ':6.2f')
@@ -620,6 +626,12 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
                 elif chn == 'bottom':
                     output_k = output['p_is_below_bottom']
                     target_k = batch['mask_bot']
+                elif chn == 'removedseg':
+                    output_k = output['p_is_removed']
+                    target_k = batch['is_removed']
+                elif chn == 'passive':
+                    output_k = output['p_is_passive']
+                    target_k = batch['is_passive']
                 else:
                     raise ValueError('Unrecognised output channel: {}'.format(chn))
 
