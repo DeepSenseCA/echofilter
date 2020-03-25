@@ -67,6 +67,9 @@ def main(
         log_name_append = os.uname()[1]
     if len(log_name_append) > 0:
         log_name += '_' + log_name_append
+
+    print('Output will be written to {}/{}'.format(dataset_name, log_name))
+
     # Make a tensorboard writer
     writer = SummaryWriter(log_dir=os.path.join('runs', dataset_name, log_name))
 
