@@ -41,6 +41,28 @@ def plot_transect(
     ----------
     transect : dict
         Transect values.
+    signal_type : str, optional
+        The signal to plot as a heatmap. Default is `'Sv'`. If this is
+        `'Sv_masked'`, the mask (given by `transect['mask']`) is used to
+        mask `'transect['Sv']` before plotting.
+    x_scale : {'index', 'timestamp' 'time'}, optional
+        Scaling for x-axis. If `'timestamp'`, the number of seconds since the
+        Unix epoch is shown; if `'time'`, the amount of time in seconds since
+        the start of the transect is shown. Default is `'index'`.
+    show_regions : bool, optional
+        Whether to show segments of data maked as removed or passive with
+        hatching. Passive data is shown with `'/'` oriented lines, other removed
+        timestamps with `'\'` oriented lines. Default is `True`.
+    top_color : color, optional
+        Color of top line. Default is `'#a6cee3'`.
+    bot_color : color, optional
+        Color of bottom line. Default is `'#b2df8a'`.
+    passive_color : color, optional
+        Color of passive segment hatching. Default is `[.4, .4, .4]`.
+    removed_color : color, optional
+        Color of removed segment hatching. Default is `[0, 0, 1]`.
+    linewidth : int
+        Width of lines. Default is `2`.
     '''
     x_scale = x_scale.lower()
 
