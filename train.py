@@ -242,41 +242,40 @@ def main(
             'Completed {} epochs in {}'
             .format(epoch, datetime.timedelta(seconds=time.time() - t_start))
         )
-        name_fmt = '{:.<23s}'
+        # Print metrics to terminal
+        name_fmt = '{:.<28s}'
         print(
             (name_fmt + ' Train: {:.4e}  AugVal: {:.4e}  Val: {:.4e}')
             .format('Loss', loss_tr, loss_augval, loss_val)
         )
-        for meter_tr, meter_val, meter_augval in zip(meters_tr, meters_val, meters_augval):
-            if meter_tr.name != meter_val.name:
-                fmt_str = name_fmt + ' Train: {' + meter_tr.fmt + '}'
-                print(fmt_str.format(meter_tr.name, meter_tr.avg))
-                fmt_str = name_fmt + ' AugVal: {' + meter_augval.fmt + '}'
-                print(fmt_str.format(meter_augval.name, meter_augval.avg))
-                fmt_str = name_fmt + ' Val: {' + meter_val.fmt + '}'
-                print(fmt_str.format(meter_val.name, meter_val.avg))
-            else:
+        for chn in meters_tr:
+            # For each output plane
+            print(chn)
+            for cr in meters_tr[chn]:
+                # For each criterion
                 fmt_str = name_fmt
-                fmt_str += ' Train: {' + meter_tr.fmt + '}'
-                fmt_str += '    AugVal: {' + meter_augval.fmt + '}'
-                fmt_str += '    Val: {' + meter_val.fmt + '}'
-                print(fmt_str.format(meter_tr.name, meter_tr.avg, meter_augval.avg, meter_val.avg))
+                fmt_str += ' Train: {' + meters_tr[chn][cr].fmt + '}'
+                fmt_str += '    AugVal: {' + meters_augval[chn][cr].fmt + '}'
+                fmt_str += '    Val: {' + meters_val[chn][cr].fmt + '}'
+                print(
+                    fmt_str.format(
+                        meters_tr[chn][cr].name,
+                        meters_tr[chn][cr].avg,
+                        meters_augval[chn][cr].avg,
+                        meters_val[chn][cr].avg,
+                    )
+                )
 
         # Add metrics to tensorboard
         for loss_p, partition in ((loss_tr, 'Train'), (loss_val, 'Val'), (loss_augval, 'ValAug')):
             writer.add_scalar('{}/{}'.format('Loss', partition), loss_p, epoch)
-        for meters, partition in ((meters_tr, 'Train'), (meters_val, 'Val'), (meters_augval, 'ValAug')):
-            for meter in meters:
-                name = meter.name
-                if '(top)' in name:
-                    name = name.replace('(top)', '').strip()
-                    name += '/Top'
-                elif '(bottom)' in name:
-                    name = name.replace('(bottom)', '').strip()
-                    name += '/Bottom'
-                else:
-                    name += '/Overall'
-                writer.add_scalar('{}/{}'.format(name, partition), meter.avg, epoch)
+        for chn in meters_tr:
+            # For each output plane
+            for cr in meters_tr[chn]:
+                # For each criterion
+                writer.add_scalar('{}/{}/{}'.format(cr, chn, 'Train'), meters_tr[chn][cr].avg, epoch)
+                writer.add_scalar('{}/{}/{}'.format(cr, chn, 'ValAug'), meters_augval[chn][cr].avg, epoch)
+                writer.add_scalar('{}/{}/{}'.format(cr, chn, 'Val'), meters_val[chn][cr].avg, epoch)
 
         def ensure_clim_met(x, x0=0., x1=1.):
             x = x.clone()
@@ -418,37 +417,20 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
     data_time = AverageMeter('Data', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
 
-    accuracies = AverageMeter('Accuracy', ':6.2f')
-    precisions = AverageMeter('Precision', ':6.2f')
-    recalls = AverageMeter('Recall', ':6.2f')
-    f1s = AverageMeter('F1', ':6.4f')
-    jaccards = AverageMeter('Jaccard', ':6.4f')
-
-    top_accuracies = AverageMeter('Accuracy (top)', ':6.2f')
-    top_precisions = AverageMeter('Precision (top)', ':6.2f')
-    top_recalls = AverageMeter('Recall (top)', ':6.2f')
-    top_f1s = AverageMeter('F1 (top)', ':6.4f')
-    top_jaccards = AverageMeter('Jaccard (top)', ':6.4f')
-    top_active_output = AverageMeter('Active output (top)', ':6.2f')
-    top_active_target = AverageMeter('Active target (top)', ':6.2f')
-
-    bot_accuracies = AverageMeter('Accuracy (bottom)', ':6.2f')
-    bot_precisions = AverageMeter('Precision (bottom)', ':6.2f')
-    bot_recalls = AverageMeter('Recall (bottom)', ':6.2f')
-    bot_f1s = AverageMeter('F1 (bottom)', ':6.4f')
-    bot_jaccards = AverageMeter('Jaccard (bottom)', ':6.4f')
-    bot_active_output = AverageMeter('Active output (bottom)', ':6.2f')
-    bot_active_target = AverageMeter('Active target (bottom)', ':6.2f')
-
-    meters = [
-        accuracies, precisions, recalls, f1s, jaccards,
-        top_accuracies, top_precisions, top_recalls, top_f1s, top_jaccards, top_active_output, top_active_target,
-        bot_accuracies, bot_precisions, bot_recalls, bot_f1s, bot_jaccards, bot_active_output, bot_active_target,
-    ]
+    meters = {}
+    for chn in ['Overall', 'Top', 'Bottom']:
+        meters[chn] = {}
+        meters[chn]['Accuracy'] = AverageMeter('Accuracy (' + chn + ')', ':6.2f')
+        meters[chn]['Precision'] = AverageMeter('Precision (' + chn + ')', ':6.2f')
+        meters[chn]['Recall'] = AverageMeter('Recall (' + chn + ')', ':6.2f')
+        meters[chn]['F1 Score'] = AverageMeter('F1 Score (' + chn + ')', ':6.4f')
+        meters[chn]['Jaccard'] = AverageMeter('Jaccard (' + chn + ')', ':6.4f')
+        meters[chn]['Active output'] = AverageMeter('Active output (' + chn + ')', ':6.2f')
+        meters[chn]['Active target'] = AverageMeter('Active target (' + chn + ')', ':6.2f')
 
     progress = ProgressMeter(
         len(loader),
-        [batch_time, data_time, losses, accuracies, f1s, jaccards],
+        [batch_time, data_time, losses, meters['Overall']['Accuracy'], meters['Overall']['Jaccard']],
         prefix="Epoch: [{}]".format(epoch),
     )
 
@@ -480,36 +462,38 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
             example_output = {k: v.detach() for k, v in output.items()}
 
         # Measure and record performance with various metrics
-        overall_output = output['mask_keep_pixel'].float()
-        overall_target = batch['mask']
+        for chn, meters_k in meters.items():
+            chn = chn.lower()
+            if chn == 'overall':
+                output_k = output['mask_keep_pixel'].float()
+                target_k = batch['mask']
+            elif chn == 'top':
+                output_k = output['p_is_above_top']
+                target_k = batch['mask_top']
+            elif chn == 'bottom':
+                output_k = output['p_is_below_bottom']
+                target_k = batch['mask_bot']
+            else:
+                raise ValueError('Unrecognised output channel: {}'.format(chn))
 
-        accuracies.update(100.0 * criterions.mask_accuracy(overall_output, overall_target).item(), ns)
-        precisions.update(100.0 * criterions.mask_precision(overall_output, overall_target).item(), ns)
-        recalls.update(100.0 * criterions.mask_recall(overall_output, overall_target).item(), ns)
-        f1s.update(criterions.mask_f1_score(overall_output, overall_target).item(), ns)
-        jaccards.update(criterions.mask_jaccard_index(overall_output, overall_target).item(), ns)
-
-        top_output = output['p_is_above_top']
-        top_target = batch['mask_top']
-
-        top_accuracies.update(100.0 * criterions.mask_accuracy(top_output, top_target).item(), ns)
-        top_precisions.update(100.0 * criterions.mask_precision(top_output, top_target).item(), ns)
-        top_recalls.update(100.0 * criterions.mask_recall(top_output, top_target).item(), ns)
-        top_f1s.update(criterions.mask_f1_score(top_output, top_target).item(), ns)
-        top_jaccards.update(criterions.mask_jaccard_index(top_output, top_target).item(), ns)
-        top_active_output.update(100.0 * criterions.mask_active_fraction(top_output).item(), ns)
-        top_active_target.update(100.0 * criterions.mask_active_fraction(top_target).item(), ns)
-
-        bot_output = output['p_is_below_bottom']
-        bot_target = batch['mask_bot']
-
-        bot_accuracies.update(100.0 * criterions.mask_accuracy(bot_output, bot_target).item(), ns)
-        bot_precisions.update(100.0 * criterions.mask_precision(bot_output, bot_target).item(), ns)
-        bot_recalls.update(100.0 * criterions.mask_recall(bot_output, bot_target).item(), ns)
-        bot_f1s.update(criterions.mask_f1_score(bot_output, bot_target).item(), ns)
-        bot_jaccards.update(criterions.mask_jaccard_index(bot_output, bot_target).item(), ns)
-        bot_active_output.update(100.0 * criterions.mask_active_fraction(bot_output).item(), ns)
-        bot_active_target.update(100.0 * criterions.mask_active_fraction(bot_target).item(), ns)
+            for c, v in meters_k.items():
+                c = c.lower()
+                if c == 'accuracy':
+                    v.update(100. * criterions.mask_accuracy(output_k, target_k).item(), ns)
+                elif c == 'precision':
+                    v.update(100. * criterions.mask_precision(output_k, target_k).item(), ns)
+                elif c == 'recall':
+                    v.update(100. * criterions.mask_recall(output_k, target_k).item(), ns)
+                elif c == 'f1 score' or c == 'f1':
+                    v.update(criterions.mask_f1_score(output_k, target_k).item(), ns)
+                elif c == 'jaccard':
+                    v.update(criterions.mask_jaccard_index(output_k, target_k).item(), ns)
+                elif c == 'active output':
+                    v.update(100. * criterions.mask_active_fraction(output_k).item(), ns)
+                elif c == 'active target':
+                    v.update(100. * criterions.mask_active_fraction(target_k).item(), ns)
+                else:
+                    raise ValueError('Unrecognised criterion: {}'.format(c))
 
         # compute gradient and do optimizer update step
         optimizer.zero_grad()
@@ -532,37 +516,20 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
     data_time = AverageMeter('Data', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
 
-    accuracies = AverageMeter('Accuracy', ':6.2f')
-    precisions = AverageMeter('Precision', ':6.2f')
-    recalls = AverageMeter('Recall', ':6.2f')
-    f1s = AverageMeter('F1', ':6.4f')
-    jaccards = AverageMeter('Jaccard', ':6.4f')
-
-    top_accuracies = AverageMeter('Accuracy (top)', ':6.2f')
-    top_precisions = AverageMeter('Precision (top)', ':6.2f')
-    top_recalls = AverageMeter('Recall (top)', ':6.2f')
-    top_f1s = AverageMeter('F1 (top)', ':6.4f')
-    top_jaccards = AverageMeter('Jaccard (top)', ':6.4f')
-    top_active_output = AverageMeter('Active output (top)', ':6.2f')
-    top_active_target = AverageMeter('Active target (top)', ':6.2f')
-
-    bot_accuracies = AverageMeter('Accuracy (bottom)', ':6.2f')
-    bot_precisions = AverageMeter('Precision (bottom)', ':6.2f')
-    bot_recalls = AverageMeter('Recall (bottom)', ':6.2f')
-    bot_f1s = AverageMeter('F1 (bottom)', ':6.4f')
-    bot_jaccards = AverageMeter('Jaccard (bottom)', ':6.4f')
-    bot_active_output = AverageMeter('Active output (bottom)', ':6.2f')
-    bot_active_target = AverageMeter('Active target (bottom)', ':6.2f')
-
-    meters = [
-        accuracies, precisions, recalls, f1s, jaccards,
-        top_accuracies, top_precisions, top_recalls, top_f1s, top_jaccards, top_active_output, top_active_target,
-        bot_accuracies, bot_precisions, bot_recalls, bot_f1s, bot_jaccards, bot_active_output, bot_active_target,
-    ]
+    meters = {}
+    for chn in ['Overall', 'Top', 'Bottom']:
+        meters[chn] = {}
+        meters[chn]['Accuracy'] = AverageMeter('Accuracy (' + chn + ')', ':6.2f')
+        meters[chn]['Precision'] = AverageMeter('Precision (' + chn + ')', ':6.2f')
+        meters[chn]['Recall'] = AverageMeter('Recall (' + chn + ')', ':6.2f')
+        meters[chn]['F1 Score'] = AverageMeter('F1 Score (' + chn + ')', ':6.4f')
+        meters[chn]['Jaccard'] = AverageMeter('Jaccard (' + chn + ')', ':6.4f')
+        meters[chn]['Active output'] = AverageMeter('Active output (' + chn + ')', ':6.2f')
+        meters[chn]['Active target'] = AverageMeter('Active target (' + chn + ')', ':6.2f')
 
     progress = ProgressMeter(
         len(loader),
-        [batch_time, data_time, losses, accuracies, f1s, jaccards],
+        [batch_time, data_time, losses, meters['Overall']['Accuracy'], meters['Overall']['Jaccard']],
         prefix=prefix + ': ',
     )
 
@@ -598,36 +565,38 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
                 example_output.append({k: v[0].detach() for k, v in output.items()})
 
             # Measure and record performance with various metrics
-            overall_output = output['mask_keep_pixel'].float()
-            overall_target = batch['mask']
+            for chn, meters_k in meters.items():
+                chn = chn.lower()
+                if chn == 'overall':
+                    output_k = output['mask_keep_pixel'].float()
+                    target_k = batch['mask']
+                elif chn == 'top':
+                    output_k = output['p_is_above_top']
+                    target_k = batch['mask_top']
+                elif chn == 'bottom':
+                    output_k = output['p_is_below_bottom']
+                    target_k = batch['mask_bot']
+                else:
+                    raise ValueError('Unrecognised output channel: {}'.format(chn))
 
-            accuracies.update(100.0 * criterions.mask_accuracy(overall_output, overall_target).item(), ns)
-            precisions.update(100.0 * criterions.mask_precision(overall_output, overall_target).item(), ns)
-            recalls.update(100.0 * criterions.mask_recall(overall_output, overall_target).item(), ns)
-            f1s.update(criterions.mask_f1_score(overall_output, overall_target).item(), ns)
-            jaccards.update(criterions.mask_jaccard_index(overall_output, overall_target).item(), ns)
-
-            top_output = output['p_is_above_top']
-            top_target = batch['mask_top']
-
-            top_accuracies.update(100.0 * criterions.mask_accuracy(top_output, top_target).item(), ns)
-            top_precisions.update(100.0 * criterions.mask_precision(top_output, top_target).item(), ns)
-            top_recalls.update(100.0 * criterions.mask_recall(top_output, top_target).item(), ns)
-            top_f1s.update(criterions.mask_f1_score(top_output, top_target).item(), ns)
-            top_jaccards.update(criterions.mask_jaccard_index(top_output, top_target).item(), ns)
-            top_active_output.update(100.0 * criterions.mask_active_fraction(top_output).item(), ns)
-            top_active_target.update(100.0 * criterions.mask_active_fraction(top_target).item(), ns)
-
-            bot_output = output['p_is_below_bottom']
-            bot_target = batch['mask_bot']
-
-            bot_accuracies.update(100.0 * criterions.mask_accuracy(bot_output, bot_target).item(), ns)
-            bot_precisions.update(100.0 * criterions.mask_precision(bot_output, bot_target).item(), ns)
-            bot_recalls.update(100.0 * criterions.mask_recall(bot_output, bot_target).item(), ns)
-            bot_f1s.update(criterions.mask_f1_score(bot_output, bot_target).item(), ns)
-            bot_jaccards.update(criterions.mask_jaccard_index(bot_output, bot_target).item(), ns)
-            bot_active_output.update(100.0 * criterions.mask_active_fraction(bot_output).item(), ns)
-            bot_active_target.update(100.0 * criterions.mask_active_fraction(bot_target).item(), ns)
+                for c, v in meters_k.items():
+                    c = c.lower()
+                    if c == 'accuracy':
+                        v.update(100. * criterions.mask_accuracy(output_k, target_k).item(), ns)
+                    elif c == 'precision':
+                        v.update(100. * criterions.mask_precision(output_k, target_k).item(), ns)
+                    elif c == 'recall':
+                        v.update(100. * criterions.mask_recall(output_k, target_k).item(), ns)
+                    elif c == 'f1 score' or c == 'f1':
+                        v.update(criterions.mask_f1_score(output_k, target_k).item(), ns)
+                    elif c == 'jaccard':
+                        v.update(criterions.mask_jaccard_index(output_k, target_k).item(), ns)
+                    elif c == 'active output':
+                        v.update(100. * criterions.mask_active_fraction(output_k).item(), ns)
+                    elif c == 'active target':
+                        v.update(100. * criterions.mask_active_fraction(target_k).item(), ns)
+                    else:
+                        raise ValueError('Unrecognised criterion: {}'.format(c))
 
             # measure elapsed time
             batch_time.update(time.time() - end)
@@ -654,8 +623,11 @@ def save_checkpoint(state, is_best, dirname='.', filename='checkpoint.pth.tar'):
 def meters_to_csv(meters, is_best, dirname='.', filename='meters.csv'):
     os.makedirs(dirname, exist_ok=True)
     df = pd.DataFrame()
-    for meter in meters:
-        df[meter.name] = meter.values
+    for chn in meters:
+        # For each output plane
+        for criterion_name, meter in meters[chn].items():
+            # For each criterion
+            df[meter.name] = meter.values
     df.to_csv(os.path.join(dirname, filename), index=False)
     if is_best:
         shutil.copyfile(os.path.join(dirname, filename), os.path.join(dirname, 'model_best.meters.csv'))
