@@ -57,7 +57,7 @@ def main(
         .format(latent_channels, expansion_factor)
     )
     model = Echofilter(
-        UNet(1, 2, latent_channels=latent_channels, expansion_factor=expansion_factor),
+        UNet(1, 4, latent_channels=latent_channels, expansion_factor=expansion_factor),
     )
 
     if not os.path.isfile(checkpoint_path):
