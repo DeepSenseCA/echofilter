@@ -23,6 +23,63 @@ PASSIVE_COLOR = [.4, .4, .4]
 REMOVED_COLOR = [0, 0, 1]
 
 
+def plot_indicator_hatch(indicator, xx=None, ymin=None, ymax=None, hatch='//', color='k'):
+    '''
+    Plots a hatch across indicated segments along the x-axis of a plot.
+
+    Parameters
+    ----------
+    indicator : numpy.ndarray vector
+        Whether to include or exclude each column along the x-axis. Included
+        columns are indicated with non-zero values.
+    xx : numpy.ndarray vector, optional
+        Values taken by indicator along the x-axis. If `None` (default), the
+        indices of `indicator` are used: `arange(len(indicator))`.
+    ymin : float, optional
+        The lower y-value of the extent of the hatching. If `None` (default),
+        the minimum y-value of the current axes is used.
+    ymax : float, optional
+        The upper y-value of the extent of the hatching. If `None` (default),
+        the maximum y-value of the current axes is used.
+    hatch : str, optional
+        Hatching pattern to use. Default is `'//'`.
+    color : color, optional
+        Color of the hatching pattern. Default is black.
+    '''
+
+    if xx is None:
+        xx = np.arange(len(indicator))
+    if ymin is None or ymax is None:
+        ylim = plt.gca().get_ylim()
+    if ymin is None:
+        ymin = ylim[0]
+    if ymax is None:
+        ymax = ylim[1]
+
+    indices = np.nonzero(indicator)[0]
+
+    if len(indices) == 0:
+        return
+
+    r_starts = [indices[0]]
+    r_ends = []
+    breaks = np.nonzero(indices[1:] - indices[:-1] > 1)[0]
+    for break_idx in breaks:
+        r_ends.append(indices[break_idx])
+        r_starts.append(indices[break_idx + 1])
+    r_ends.append(indices[-1])
+    for r_start, r_end in zip(r_starts, r_ends):
+        plt.fill_between(
+            xx[[r_start, r_end]],
+            [ymin, ymin],
+            [ymax, ymax],
+            facecolor='none',
+            hatch=hatch,
+            edgecolor=color,
+            linewidth=0.0,
+        )
+
+
 def plot_transect(
     transect,
     signal_type='Sv',
@@ -91,51 +148,23 @@ def plot_transect(
     plt.plot(tt, transect['top'], top_color, linewidth=linewidth)
     plt.plot(tt, transect['bottom'], bot_color, linewidth=linewidth)
 
-    if not show_regions or 'is_passive' not in transect:
-        indices = []
-    else:
-        indices = np.nonzero(transect['is_passive'])[0]
-    if len(indices) > 0:
-        r_starts = [indices[0]]
-        r_ends = []
-        breaks = np.nonzero(indices[1:] - indices[:-1] > 1)[0]
-        for break_idx in breaks:
-            r_ends.append(indices[break_idx])
-            r_starts.append(indices[break_idx + 1])
-        r_ends.append(indices[-1])
-        for r_start, r_end in zip(r_starts, r_ends):
-            plt.fill_between(
-                tt[[r_start, r_end]],
-                transect['depths'][[0, 0]],
-                transect['depths'][[-1, -1]],
-                facecolor='none',
-                hatch='//',
-                edgecolor=passive_color,
-                linewidth=0.0,
-            )
-
-    if not show_regions or 'is_removed' not in transect:
-        indices = []
-    else:
-        indices = np.nonzero(transect['is_removed'])[0]
-    if len(indices) > 0:
-        r_starts = [indices[0]]
-        r_ends = []
-        breaks = np.nonzero(indices[1:] - indices[:-1] > 1)[0]
-        for break_idx in breaks:
-            r_ends.append(indices[break_idx])
-            r_starts.append(indices[break_idx + 1])
-        r_ends.append(indices[-1])
-        for r_start, r_end in zip(r_starts, r_ends):
-            plt.fill_between(
-                tt[[r_start, r_end]],
-                transect['depths'][[0, 0]],
-                transect['depths'][[-1, -1]],
-                facecolor='none',
-                hatch='\\\\',
-                edgecolor=removed_color,
-                linewidth=0.0,
-            )
+    if show_regions:
+        plot_indicator_hatch(
+            transect.get('is_passive', []),
+            xx=tt,
+            ymin=transect['depths'][0],
+            ymax=transect['depths'][-1],
+            hatch='//',
+            color=passive_color,
+        )
+        plot_indicator_hatch(
+            transect.get('is_removed', []),
+            xx=tt,
+            ymin=transect['depths'][0],
+            ymax=transect['depths'][-1],
+            hatch='\\\\',
+            color=removed_color,
+        )
 
     plt.tick_params(reset=True, color=(.2, .2, .2))
     plt.tick_params(labelsize=14)
