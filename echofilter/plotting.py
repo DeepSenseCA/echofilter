@@ -7,6 +7,8 @@ import copy
 import numpy as np
 import matplotlib.pyplot as plt
 
+from . import utils
+
 
 TOP_COLOR = 'c'
 BOT_COLOR = '#00ee00'

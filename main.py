@@ -16,6 +16,7 @@ from torchutils.utils import count_parameters
 
 import echofilter.raw.loader
 import echofilter.transforms
+import echofilter.utils
 from echofilter.unet import UNet
 from echofilter.wrapper import Echofilter
 
@@ -122,25 +123,14 @@ def main(
             output = model(input)
             output = {k: v[0].squeeze(0).cpu().numpy() for k, v in output.items()}
         # Convert output into lines
-        top_depths = data['depths'][last_nonzero(output['p_is_above_top'] > 0.5, -1)]
-        bottom_depths = data['depths'][first_nonzero(output['p_is_below_bottom'] > 0.5, -1)]
+        top_depths = data['depths'][echofilter.utils.last_nonzero(output['p_is_above_top'] > 0.5, -1)]
+        bottom_depths = data['depths'][echofilter.utils.first_nonzero(output['p_is_below_bottom'] > 0.5, -1)]
         # Export evl files
         os.makedirs(os.path.dirname(os.path.join(output_dir, fname)), exist_ok=True)
         print(os.path.join(output_dir, fname + '.top.evl'))
         print(os.path.join(output_dir, fname + '.bottom.evl'))
         echofilter.raw.loader.evl_writer(os.path.join(output_dir, fname + '.top.evl'), timestamps, top_depths)
         echofilter.raw.loader.evl_writer(os.path.join(output_dir, fname + '.bottom.evl'), timestamps, bottom_depths)
-
-
-def first_nonzero(arr, axis, invalid_val=-1):
-    mask = arr!=0
-    return np.where(mask.any(axis=axis), mask.argmax(axis=axis), invalid_val)
-
-
-def last_nonzero(arr, axis, invalid_val=-1):
-    mask = arr!=0
-    val = arr.shape[axis] - np.flip(mask, axis=axis).argmax(axis=axis) - 1
-    return np.where(mask.any(axis=axis), val, invalid_val)
 
 
 if __name__ == '__main__':
