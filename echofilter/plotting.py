@@ -213,6 +213,14 @@ def plot_transect(
             hatch='\\\\',
             color=removed_color,
         )
+    if show_regions and 'mask_patches' in transect:
+        plot_mask_hatch(
+            tt,
+            transect['depths'],
+            transect['mask_patches'],
+            hatch='\\\\',
+            color=removed_color,
+        )
 
     plt.tick_params(reset=True, color=(.2, .2, .2))
     plt.tick_params(labelsize=14)
