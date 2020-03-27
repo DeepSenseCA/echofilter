@@ -119,9 +119,8 @@ class TransectDataset(torch.utils.data.Dataset):
         sample['signals'] = sample.pop('Sv')
         if (sample['depths'][-1] < sample['depths'][0]):
             # Found some upward-facing data that needs to be reflected
-            sample['depths'] = np.flip(sample['depths'], -1).copy()
-            sample['signals'] = np.flip(sample['signals'], -1).copy()
-            sample['mask'] = np.flip(sample['mask'], -1).copy()
+            for k in ['depths', 'signals', 'mask']:
+                sample[k] = np.flip(sample[k], -1).copy()
 
         # Change dtype to float
         sample['mask'] = sample['mask'].astype(np.float)
