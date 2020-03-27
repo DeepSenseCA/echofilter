@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 
 from collections import OrderedDict
+import copy
 import os
 import shutil
 import datetime
 import time
 
 import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import torch.nn
 import torch.optim
@@ -21,8 +24,10 @@ import echofilter.transforms
 from echofilter import criterions
 from echofilter.meters import AverageMeter, ProgressMeter
 from echofilter.raw.loader import get_partition_list
+from echofilter.raw.manipulate import load_decomposed_transect_mask
 from echofilter.unet import UNet
 from echofilter.wrapper import Echofilter, EchofilterLoss
+from echofilter.plotting import plot_transect_predictions
 
 
 ## For mobile dataset,
@@ -36,6 +41,22 @@ from echofilter.wrapper import Echofilter, EchofilterLoss
 # Overall values to use
 DATA_MEAN = -80.
 DATA_STDEV = 20.
+
+# Transects to plot for debugging
+PLOT_TRANSECTS = {
+    'mobile': [
+        'mobile/Survey07/Survey07_GR4_N5W_survey7',
+        'mobile/Survey14/Survey14_GR4_N0W_E',
+        'mobile/Survey16/Survey16_GR4_N5W_E',
+        'mobile/Survey17/Survey17_GR4_N5W_E',
+    ],
+    'stationary': [
+        'stationary/december2017/evExports/december2017_D20180213-T115216_D20180213-T172216',
+        'stationary/march2018/evExports/march2018_D20180513-T195216_D20180514-T012216',
+        'stationary/september2018/evExports/september2018_D20181027-T202217_D20181028-T015217',
+        'stationary/september2018/evExports/september2018_D20181107-T122220_D20181107-T175217',
+    ]
+}
 
 
 def main(
@@ -388,6 +409,22 @@ def main(
                 dataformats='NCWH',
             )
 
+        for k, plot_transects_k in PLOT_TRANSECTS.items():
+            if k not in dataset_name:
+                continue
+            for transect_name in plot_transects_k:
+                transect, prediction = generate_from_file(
+                    model,
+                    os.path.join(data_dir, transect_name),
+                    sample_shape=sample_shape,
+                    crop_depth=crop_depth,
+                    device=device,
+                    dtype=torch.float,
+                )
+                hf = plt.figure(figsize=(15, 9))
+                plot_transect_predictions(transect, prediction, cmap='viridis')
+                writer.add_figure(transect_name.replace('/evExports', ''), hf, epoch, close=True)
+
         # remember best loss and save checkpoint
         is_best = loss_val < best_loss_val
         best_loss_val = min(loss_val, best_loss_val)
@@ -613,6 +650,79 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
     return losses.avg, meters, (example_data, example_batch, example_output)
 
 
+def generate_from_transect(model, transect, sample_shape, crop_depth, device, dtype=torch.float):
+    '''
+    Generate an output for a sample transect, .
+    '''
+
+    # Put model in evaluation mode
+    model.eval()
+
+    # Make a copy of the transect which we will use to
+    data = copy.deepcopy(transect)
+
+    # Apply depth crop
+    depth_crop_mask = data['depths'] <= crop_depth
+    data['depths'] = data['depths'][depth_crop_mask]
+    data['signals'] = data['signals'][:, depth_crop_mask]
+
+    # Configure data to match what the model expects to see
+    # Ensure depth is always increasing (which corresponds to descending from
+    # the air down the water column)
+    if (data['depths'][-1] < data['depths'][0]):
+        # Found some upward-facing data that still needs to be reflected
+        for k in ['depths', 'signals', 'mask']:
+            data[k] = np.flip(data[k], -1).copy()
+
+    # Apply transforms
+    transform = torchvision.transforms.Compose([
+        echofilter.transforms.Normalize(DATA_MEAN, DATA_STDEV),
+        echofilter.transforms.ReplaceNan(-3),
+        echofilter.transforms.Rescale((data['signals'].shape[0], sample_shape[1])),
+    ])
+    data = transform(data)
+    input = torch.tensor(data['signals']).unsqueeze(0).unsqueeze(0)
+    input = input.to(device, dtype)
+    # Put data through model
+    with torch.no_grad():
+        output = model(input)
+        output = {k: v.squeeze(0).cpu().numpy() for k, v in output.items()}
+
+    output['depths'] = data['depths']
+    output['timestamps'] = data['timestamps']
+
+    return output
+
+
+def generate_from_file(model, fname, *args, **kwargs):
+    '''
+    Generate an output for a sample transect, specified by its file path.
+    '''
+    # Load the data
+    transect = load_decomposed_transect_mask(fname)
+    # Convert lines to masks
+    ddepths = np.broadcast_to(transect['depths'], transect['Sv'].shape)
+    transect['mask_top'] = np.single(
+        ddepths < np.expand_dims(transect['top'], -1)
+    )
+    transect['mask_bot'] = np.single(
+        ddepths > np.expand_dims(transect['bottom'], -1)
+    )
+    # Add mask_patches to the data, for plotting
+    transect['mask_patches'] = 1 - transect['mask']
+    transect['mask_patches'][transect['is_passive'] > 0.5] = 0
+    transect['mask_patches'][transect['is_removed'] > 0.5] = 0
+    transect['mask_patches'][transect['mask_top'] > 0.5] = 0
+    transect['mask_patches'][transect['mask_bot'] > 0.5] = 0
+
+    # Generate predictions for the transect
+    transect['signals'] = transect.pop('Sv')
+    prediction = generate_from_transect(model, transect, *args, **kwargs)
+    transect['Sv'] = transect.pop('signals')
+
+    return transect, prediction
+
+
 def save_checkpoint(state, is_best, dirname='.', filename='checkpoint.pth.tar'):
     os.makedirs(dirname, exist_ok=True)
     torch.save(state, os.path.join(dirname, filename))
@@ -758,5 +868,9 @@ if __name__ == '__main__':
         default=1e-4,
         help='weight decay (default: 1e-4)',
     )
+
+    # Use seaborn to set matplotlib plotting defaults
+    import seaborn as sns
+    sns.set()
 
     main(**vars(parser.parse_args()))
