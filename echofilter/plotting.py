@@ -290,6 +290,14 @@ def plot_transect_predictions(transect, prediction, cmap=None):
         hatch='//',
         color='w',
     )
+    if 'p_is_patch' in prediction:
+        plot_mask_hatch(
+            tt,
+            prediction['depths'],
+            prediction['p_is_patch'] > 0.5,
+            hatch='//',
+            color='w',
+        )
 
     if cmap is not None:
         plt.set_cmap(cmap)
