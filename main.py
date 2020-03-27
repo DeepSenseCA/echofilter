@@ -121,7 +121,7 @@ def main(
         # Put data through model
         with torch.no_grad():
             output = model(input)
-            output = {k: v[0].squeeze(0).cpu().numpy() for k, v in output.items()}
+            output = {k: v.squeeze(0).cpu().numpy() for k, v in output.items()}
         # Convert output into lines
         top_depths = data['depths'][echofilter.utils.last_nonzero(output['p_is_above_top'] > 0.5, -1)]
         bottom_depths = data['depths'][echofilter.utils.first_nonzero(output['p_is_below_bottom'] > 0.5, -1)]
