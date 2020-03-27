@@ -80,6 +80,54 @@ def plot_indicator_hatch(indicator, xx=None, ymin=None, ymax=None, hatch='//', c
         )
 
 
+def plot_mask_hatch(*args, hatch='//', color='k'):
+    '''
+    Plot hatching according to a mask shape.
+
+    Parameters
+    ----------
+    X, Y : array-like, optional
+        The coordinates of the values in Z.
+
+        X and Y must both be 2-D with the same shape as Z (e.g. created via
+        numpy.meshgrid), or they must both be 1-D such that len(X) == M is the
+        number of columns in Z and len(Y) == N is the number of rows in Z.
+
+        If not given, they are assumed to be integer indices, i.e.
+        X = range(M), Y = range(N).
+    Z : array-like(N, M)
+        Indicator for which locations should be hatched. If Z is not a boolean
+        array, any location where Z > 0 will be hatched.
+    hatch : str, optional
+        The hatching pattern to apply. Default is '//'.
+    color : color, optional
+        The color of the hatch. Default is black.
+    '''
+    args = list(args)
+    args[-1] = args[-1] > 0
+    if len(args) == 3:
+        # Transpose Z if necessary, as it expects its shape the opposite way
+        # around to what you might expect.
+        if args[0].shape[0] == args[2].shape[1] and args[1].shape[0] == args[2].shape[0]:
+            pass
+        elif args[0].shape[0] == args[2].shape[0] and args[1].shape[0] == args[2].shape[1]:
+            args[2] = args[2].T
+    cs = plt.contourf(
+        *args,
+        levels=[-3.4e38, 0.5, 3.4e38],
+        colors=['none', 'none'],
+        hatches=[None, hatch],
+    )
+    # Change the color of the hatches in each layer
+    for collection in cs.collections:
+        collection.set_edgecolor(color)
+    # Doing this also colors in the box around each level.
+    # We can remove the colored line around the levels by setting the
+    # linewidth to 0.
+    for collection in cs.collections:
+        collection.set_linewidth(0.)
+
+
 def plot_transect(
     transect,
     signal_type='Sv',
