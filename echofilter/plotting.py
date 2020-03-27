@@ -255,7 +255,7 @@ def plot_transect(
     ensure_axes_inverted(dir='y')
 
 
-def plot_transect_predictions(transect, prediction, cmap=None):
+def plot_transect_predictions(transect, prediction, cmap=None, linewidth=2):
     '''
     Plot the generated output for a transect against its ground truth data.
 
@@ -274,6 +274,8 @@ def plot_transect_predictions(transect, prediction, cmap=None):
     cmap : str, optional
         Name of a registered matplotlib colormap. If `None` (default), the
         current default colormap is used.
+    linewidth : int
+        Width of lines. Default is `2`.
     '''
 
     plot_transect(
@@ -283,6 +285,7 @@ def plot_transect_predictions(transect, prediction, cmap=None):
         bot_color='k',
         passive_color='k',
         removed_color='k',
+        linewidth=linewidth,
     )
 
     # Convert output into lines
@@ -295,8 +298,8 @@ def plot_transect_predictions(transect, prediction, cmap=None):
     bottom_depths = prediction['depths'][utils.first_nonzero(prediction['p_is_below_bottom'] > 0.5, -1)]
 
     tt = np.linspace(0, len(transect['timestamps']) - 1, len(top_depths))
-    plt.plot(tt, top_depths, 'w', linewidth=2)
-    plt.plot(tt, bottom_depths, 'w', linewidth=2)
+    plt.plot(tt, top_depths, 'w', linewidth=linewidth)
+    plt.plot(tt, bottom_depths, 'w', linewidth=linewidth)
 
     # Mark removed areas
     plot_indicator_hatch(
