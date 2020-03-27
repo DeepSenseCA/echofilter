@@ -423,7 +423,11 @@ def main(
                 )
                 hf = plt.figure(figsize=(15, 9))
                 plot_transect_predictions(transect, prediction, cmap='viridis')
-                writer.add_figure(transect_name.replace('/evExports', ''), hf, epoch, close=True)
+                transect_name = transect_name.replace('/evExports', '')
+                figpth = os.path.join('models', dataset_name, log_name, 'samples', transect_name + '_output.png')
+                os.makedirs(os.path.dirname(figpth), exist_ok=True)
+                plt.savefig(figpth)
+                writer.add_figure(transect_name, hf, epoch, close=True)
 
         # remember best loss and save checkpoint
         is_best = loss_val < best_loss_val
