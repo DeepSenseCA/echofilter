@@ -51,9 +51,8 @@ def segment_and_shard_transect(
     # Load the data, with mask decomposed into top, bottom, passive,
     # and removed regions.
     transect = raw.manipulate.load_decomposed_transect_mask(
-        transect_pth,
+        os.path.join(root_data_dir, dataset, transect_pth),
         dataset,
-        root_data_dir,
     )
 
     segments = raw.manipulate.split_transect(**transect)
