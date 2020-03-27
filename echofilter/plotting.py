@@ -23,6 +23,29 @@ PASSIVE_COLOR = [.4, .4, .4]
 REMOVED_COLOR = [0, 0, 1]
 
 
+def ensure_axes_inverted(axes=None, dir='y'):
+    '''
+    Invert axis direction, if not already inverted.
+
+    Parameters
+    ----------
+    axes : matplotlib.axes or None
+        The axes to invert. If `None`, the current axes are used (default).
+    dir : {'x', 'y', 'xy'}
+        The axis to invert. Default is `'y'`.
+    '''
+    if axes is None:
+        axes = plt.gca()
+    if 'y' in dir:
+        lim = axes.get_ylim()
+        if lim[1] > lim[0]:
+            axes.invert_yaxis()
+    if 'x' in dir:
+        lim = axes.get_xlim()
+        if lim[1] > lim[0]:
+            axes.invert_xaxis()
+
+
 def plot_indicator_hatch(indicator, xx=None, ymin=None, ymax=None, hatch='//', color='k'):
     '''
     Plots a hatch across indicated segments along the x-axis of a plot.
@@ -225,9 +248,11 @@ def plot_transect(
     plt.tick_params(reset=True, color=(.2, .2, .2))
     plt.tick_params(labelsize=14)
 
-    plt.gca().invert_yaxis()
     plt.xlabel(xlabel, fontsize=18)
     plt.ylabel('Depth (m)', fontsize=18)
+
+    # Make sure y-axis is inverted (lowest depth at the top)
+    ensure_axes_inverted(dir='y')
 
 
 def plot_transect_predictions(transect, prediction, cmap=None):
@@ -301,4 +326,5 @@ def plot_transect_predictions(transect, prediction, cmap=None):
 
     if cmap is not None:
         plt.set_cmap(cmap)
-    plt.gca().invert_yaxis()
+    # Make sure y-axis is inverted (lowest depth at the top)
+    ensure_axes_inverted(dir='y')
