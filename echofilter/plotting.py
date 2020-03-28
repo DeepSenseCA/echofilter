@@ -161,6 +161,7 @@ def plot_transect(
     passive_color=PASSIVE_COLOR,
     removed_color=REMOVED_COLOR,
     linewidth=2,
+    cmap=None,
 ):
     '''
     Plot a transect.
@@ -191,6 +192,9 @@ def plot_transect(
         Color of removed segment hatching. Default is `[0, 0, 1]`.
     linewidth : int
         Width of lines. Default is `2`.
+    cmap : str, optional
+        Name of a registered matplotlib colormap. If `None` (default), the
+        current default colormap is used.
     '''
     x_scale = x_scale.lower()
 
@@ -216,6 +220,8 @@ def plot_transect(
         transect['depths'],
         signal.T,
     )
+    if cmap is not None:
+        plt.set_cmap(cmap)
     plt.plot(tt, transect['top'], top_color, linewidth=linewidth)
     plt.plot(tt, transect['bottom'], bot_color, linewidth=linewidth)
 
@@ -255,7 +261,7 @@ def plot_transect(
     ensure_axes_inverted(dir='y')
 
 
-def plot_transect_predictions(transect, prediction, cmap=None, linewidth=2):
+def plot_transect_predictions(transect, prediction, linewidth=2, cmap=None):
     '''
     Plot the generated output for a transect against its ground truth data.
 
@@ -271,11 +277,11 @@ def plot_transect_predictions(transect, prediction, cmap=None, linewidth=2):
         Ground truth data for the transect.
     prediction : dict
         Predictions for the transect.
+    linewidth : int
+        Width of lines. Default is `2`.
     cmap : str, optional
         Name of a registered matplotlib colormap. If `None` (default), the
         current default colormap is used.
-    linewidth : int
-        Width of lines. Default is `2`.
     '''
 
     plot_transect(
@@ -286,6 +292,7 @@ def plot_transect_predictions(transect, prediction, cmap=None, linewidth=2):
         passive_color='k',
         removed_color='k',
         linewidth=linewidth,
+        cmap=cmap,
     )
 
     # Convert output into lines
@@ -326,8 +333,5 @@ def plot_transect_predictions(transect, prediction, cmap=None, linewidth=2):
             hatch='//',
             color='w',
         )
-
-    if cmap is not None:
-        plt.set_cmap(cmap)
     # Make sure y-axis is inverted (lowest depth at the top)
     ensure_axes_inverted(dir='y')
