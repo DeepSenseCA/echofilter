@@ -422,7 +422,7 @@ def main(
                     dtype=torch.float,
                 )
                 hf = plt.figure(figsize=(15, 9))
-                plot_transect_predictions(transect, prediction, cmap='viridis')
+                plot_transect_predictions(transect, prediction, cmap='viridis', linewidth=1)
                 transect_name = transect_name.replace('/evExports', '')
                 figpth = os.path.join('models', dataset_name, log_name, 'samples', transect_name + '_output.png')
                 os.makedirs(os.path.dirname(figpth), exist_ok=True)
