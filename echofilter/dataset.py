@@ -1,5 +1,6 @@
 import os
 import random
+import warnings
 
 import numpy as np
 import torch.utils.data
@@ -116,14 +117,26 @@ class TransectDataset(torch.utils.data.Dataset):
         sample['d_top-original'] = sample.pop('top-original')
         sample['d_bot-original'] = sample.pop('bottom-original')
         sample['signals'] = sample.pop('Sv')
+        if (sample['depths'][-1] < sample['depths'][0]):
+            # Found some upward-facing data that needs to be reflected
+            sample['depths'] = np.flip(sample['depths'], -1).copy()
+            sample['signals'] = np.flip(sample['signals'], -1).copy()
+            sample['mask'] = np.flip(sample['mask'], -1).copy()
+
+        # Change dtype to float
+        sample['mask'] = sample['mask'].astype(np.float)
         # Handle missing top and bottom lines during passive segments
         if sample['is_upward_facing']:
             passive_top_val = np.min(sample['depths'])
-            passive_bot_val = np.nanmax(sample['d_bot'])
+            with warnings.catch_warnings():
+                warnings.filterwarnings('ignore', 'All-NaN (slice|axis) encountered')
+                passive_bot_val = np.nanmax(sample['d_bot'])
             if np.isnan(passive_bot_val):
                 passive_bot_val = np.max(sample['depths']) - 1.69
         else:
-            passive_top_val = np.nanmin(sample['d_top'])
+            with warnings.catch_warnings():
+                warnings.filterwarnings('ignore', 'All-NaN (slice|axis) encountered')
+                passive_top_val = np.nanmin(sample['d_top'])
             if np.isnan(passive_top_val):
                 passive_top_val = 0.966
             passive_bot_val = np.max(sample['depths'])
@@ -156,6 +169,12 @@ class TransectDataset(torch.utils.data.Dataset):
         depth_range = abs(sample['depths'][-1] - sample['depths'][0])
         for key in ['d_top', 'd_bot', 'd_surf', 'd_top-original', 'd_bot-original']:
             sample['r' + key[1:]] = sample[key] / depth_range
+
+        # Ensure mask is masked out everywhere we know it should be
+        sample['mask'][sample['is_passive'] > 0.5] = 0
+        sample['mask'][sample['is_removed'] > 0.5] = 0
+        sample['mask'][sample['mask_top'] > 0.5] = 0
+        sample['mask'][sample['mask_bot'] > 0.5] = 0
 
         # Make a mask indicating left-over patches. This is 0 everywhere,
         # except 1s whereever pixels in the overall mask are removed for
