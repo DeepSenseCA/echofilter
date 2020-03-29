@@ -462,7 +462,7 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
     losses = AverageMeter('Loss', ':.4e')
 
     meters = {}
-    for chn in ['Overall', 'Top', 'Bottom', 'RemovedSeg', 'Passive']:
+    for chn in ['Overall', 'Top', 'Bottom', 'RemovedSeg', 'Passive', 'Patch']:
         meters[chn] = {}
         meters[chn]['Accuracy'] = AverageMeter('Accuracy (' + chn + ')', ':6.2f')
         meters[chn]['Precision'] = AverageMeter('Precision (' + chn + ')', ':6.2f')
@@ -523,6 +523,9 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
             elif chn == 'passive':
                 output_k = output['p_is_passive']
                 target_k = batch['is_passive']
+            elif chn == 'patch':
+                output_k = output['p_is_patch']
+                target_k = batch['mask_patches']
             else:
                 raise ValueError('Unrecognised output channel: {}'.format(chn))
 
@@ -567,7 +570,7 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
     losses = AverageMeter('Loss', ':.4e')
 
     meters = {}
-    for chn in ['Overall', 'Top', 'Bottom', 'RemovedSeg', 'Passive']:
+    for chn in ['Overall', 'Top', 'Bottom', 'RemovedSeg', 'Passive', 'Patch']:
         meters[chn] = {}
         meters[chn]['Accuracy'] = AverageMeter('Accuracy (' + chn + ')', ':6.2f')
         meters[chn]['Precision'] = AverageMeter('Precision (' + chn + ')', ':6.2f')
@@ -632,6 +635,9 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
                 elif chn == 'passive':
                     output_k = output['p_is_passive']
                     target_k = batch['is_passive']
+                elif chn == 'patch':
+                    output_k = output['p_is_patch']
+                    target_k = batch['mask_patches']
                 else:
                     raise ValueError('Unrecognised output channel: {}'.format(chn))
 
