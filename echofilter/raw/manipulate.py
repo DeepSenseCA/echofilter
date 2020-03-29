@@ -642,3 +642,47 @@ def split_transect(timestamps=None, threshold=50, **transect):
             else:
                 segment[key] = transect[key][seg_start:seg_end]
         yield segment
+
+
+def join_transect(transects):
+    '''
+    Joins segmented transects together into a single dictionary.
+
+    Parameters
+    ----------
+    transects : iterable of dict
+        Transect segments, each with the same fields and compatible shapes.
+
+    Yields
+    ------
+    dict
+        Transect data.
+    '''
+
+    non_timelike_dims = ['depths']
+
+    for i, transect in enumerate(transects):
+        if 'depths' not in transect:
+            raise ValueError(
+                "'depths' is a required field, not found in transect {}".format(i)
+            )
+        if i == 0:
+            output = {k: [] for k in transect}
+            output['depths'] = transect['depths']
+            for key in transect:
+                if np.asarray(transect[key]).size <= 1:
+                    output[key] = transect[key]
+                    non_timelike_dims.append(key)
+        if not np.allclose(output['depths'], transect['depths']):
+            raise ValueError("'depths' must be the same for all segments.")
+        if transect.keys() != output.keys():
+            raise ValueError('Keys mismatch.')
+        for key in output:
+            if key in non_timelike_dims: continue
+            output[key].append(transect[key])
+
+    for key in output:
+        if key in non_timelike_dims: continue
+        output[key] = np.concatenate(output[key], axis=0)
+
+    return output
