@@ -160,7 +160,7 @@ def plot_transect(
     bot_color=BOT_COLOR,
     passive_color=PASSIVE_COLOR,
     removed_color=REMOVED_COLOR,
-    linewidth=2,
+    linewidth=1,
     cmap=None,
 ):
     '''
@@ -261,7 +261,7 @@ def plot_transect(
     ensure_axes_inverted(dir='y')
 
 
-def plot_transect_predictions(transect, prediction, linewidth=2, cmap=None):
+def plot_transect_predictions(transect, prediction, linewidth=1, cmap=None):
     '''
     Plot the generated output for a transect against its ground truth data.
 
