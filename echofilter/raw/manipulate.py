@@ -426,9 +426,8 @@ def fixup_lines(
 
 
 def load_decomposed_transect_mask(
-        sample,
-        dataset='mobile',
-        root_data_dir=ROOT_DATA_DIR,
+        sample_path,
+        dataset='',
     ):
     '''
     Loads a raw and masked transect and decomposes the mask into top and bottom
@@ -436,14 +435,13 @@ def load_decomposed_transect_mask(
 
     Parameters
     ----------
-    sample : str
-        Name of sample (its relative path within dataset directory).
-    dataset : str, optional
-        Name of dataset (corresponding to name of directory within
-        `root_data_dir` which contains `sample`). Default is `'mobile'`.
-    root_data_dir : str, optional
-        Path to root directory where data is located.
-        Default is as given in `raw.loader.ROOT_DATA_DIR`.
+    sample_path : str
+        Path to sample, without extension. The raw data should be located at
+        `sample_path + '_Sv_raw.csv'`.
+    dataset : {'mobile', 'stationary', ''}, optional
+        Name of dataset. Used to check integrity of the data loaded against
+        what is expected for that dataset. Default is `''`, which has no
+        dataset-specific expectations.
 
     Returns
     -------
@@ -483,20 +481,18 @@ def load_decomposed_transect_mask(
                 facing downwards.
     '''
 
-    root_data_dir = loader.remove_trailing_slash(root_data_dir)
-
     # Load raw data
-    fname_raw = os.path.join(root_data_dir, dataset, sample + '_Sv_raw.csv')
-    fname_masked = os.path.join(root_data_dir, dataset, sample + '_Sv.csv')
+    fname_raw = os.path.join(sample_path + '_Sv_raw.csv')
+    fname_masked = os.path.join(sample_path + '_Sv.csv')
 
     ts_raw, depths_raw, signals_raw = loader.transect_loader(fname_raw)
     ts_mskd, depths_mskd, signals_mskd = loader.transect_loader(fname_masked)
     mask = ~np.isnan(signals_mskd)
 
-    fname_top1 = os.path.join(root_data_dir, dataset, sample + '_turbulence.evl')
-    fname_top2 = os.path.join(root_data_dir, dataset, sample + '_air.evl')
-    fname_bot = os.path.join(root_data_dir, dataset, sample + '_bottom.evl')
-    fname_surf = os.path.join(root_data_dir, dataset, sample + '_surface.evl')
+    fname_top1 = os.path.join(sample_path + '_turbulence.evl')
+    fname_top2 = os.path.join(sample_path + '_air.evl')
+    fname_bot = os.path.join(sample_path + '_bottom.evl')
+    fname_surf = os.path.join(sample_path + '_surface.evl')
 
     if os.path.isfile(fname_top1):
         fname_top = fname_top1
@@ -646,3 +642,47 @@ def split_transect(timestamps=None, threshold=50, **transect):
             else:
                 segment[key] = transect[key][seg_start:seg_end]
         yield segment
+
+
+def join_transect(transects):
+    '''
+    Joins segmented transects together into a single dictionary.
+
+    Parameters
+    ----------
+    transects : iterable of dict
+        Transect segments, each with the same fields and compatible shapes.
+
+    Yields
+    ------
+    dict
+        Transect data.
+    '''
+
+    non_timelike_dims = ['depths']
+
+    for i, transect in enumerate(transects):
+        if 'depths' not in transect:
+            raise ValueError(
+                "'depths' is a required field, not found in transect {}".format(i)
+            )
+        if i == 0:
+            output = {k: [] for k in transect}
+            output['depths'] = transect['depths']
+            for key in transect:
+                if np.asarray(transect[key]).size <= 1:
+                    output[key] = transect[key]
+                    non_timelike_dims.append(key)
+        if not np.allclose(output['depths'], transect['depths']):
+            raise ValueError("'depths' must be the same for all segments.")
+        if transect.keys() != output.keys():
+            raise ValueError('Keys mismatch.')
+        for key in output:
+            if key in non_timelike_dims: continue
+            output[key].append(transect[key])
+
+    for key in output:
+        if key in non_timelike_dims: continue
+        output[key] = np.concatenate(output[key], axis=0)
+
+    return output

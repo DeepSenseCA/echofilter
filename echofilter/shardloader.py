@@ -51,9 +51,8 @@ def segment_and_shard_transect(
     # Load the data, with mask decomposed into top, bottom, passive,
     # and removed regions.
     transect = raw.manipulate.load_decomposed_transect_mask(
-        transect_pth,
+        os.path.join(root_data_dir, dataset, transect_pth),
         dataset,
-        root_data_dir,
     )
 
     segments = raw.manipulate.split_transect(**transect)
@@ -328,6 +327,8 @@ def load_transect_from_shards_rel(
         `None`, which loads everything up to and including to the last sample.
     dataset : str, optional
         Name of dataset. Default is `'mobile'`.
+    segment : int, optional
+        Which segment to load. Default is `0`.
     root_data_dir : str
         Path to root directory where data is located.
     **kwargs
@@ -335,19 +336,7 @@ def load_transect_from_shards_rel(
 
     Returns
     -------
-    timestamps : numpy.ndarray
-        Timestamps (in seconds since Unix epoch), with each entry
-        corresponding to each row in the `signals` data. The number of entries,
-        `num_timestamps` is equal to `i2 - i1`.
-    depths : numpy.ndarray
-        Depths from the surface (in metres), with each entry corresponding
-        to each column in the `signals` data.
-    signals : numpy.ndarray
-        Echogram Sv data, shaped `(num_timestamps, num_depths)`.
-    top : numpy.ndarray
-        Depth of top line, shaped `(num_timestamps, )`.
-    bottom : numpy.ndarray
-        Depth of bottom line, shaped `(num_timestamps, )`.
+    See `load_transect_from_shards_abs`.
     '''
     root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
     root_shard_dir = os.path.join(root_data_dir + '_sharded', dataset)
@@ -357,6 +346,75 @@ def load_transect_from_shards_rel(
         i1=i1,
         i2=i2,
         **kwargs,
+    )
+
+
+def load_transect_segments_from_shards_abs(
+    transect_abs_pth,
+    segments=None,
+):
+    '''
+    Load transect data from shard files.
+
+    Parameters
+    ----------
+    transect_abs_pth : str
+        Absolute path to transect shard segments directory.
+    segments : iterable or None
+        Which segments to load. If `None` (default), all segments are loaded.
+
+    Returns
+    -------
+    See `load_transect_from_shards_abs`.
+    '''
+    if segments is None:
+        # Load the segmentation metadata
+        with open(os.path.join(transect_abs_pth, 'n_segment.txt'), 'r') as f:
+            n_segment = int(f.readline().strip())
+        segments = range(n_segment)
+
+    # Load each segment
+    transects = []
+    for segment in segments:
+        dirname = os.path.join(transect_abs_pth, str(segment))
+        transects.append(load_transect_from_shards_abs(dirname))
+
+    # Join the segments together
+    return raw.manipulate.join_transect(transects)
+
+
+def load_transect_segments_from_shards_rel(
+    transect_rel_pth,
+    dataset='mobile',
+    segments=None,
+    root_data_dir=ROOT_DATA_DIR,
+):
+    '''
+    Load transect data from shard files.
+
+    Parameters
+    ----------
+    transect_rel_pth : str
+        Relative path to transect.
+    dataset : str, optional
+        Name of dataset. Default is `'mobile'`.
+    segments : iterable or None
+        Which segments to load. If `None` (default), all segments are loaded.
+    root_data_dir : str
+        Path to root directory where data is located.
+    **kwargs
+        As per `load_transect_from_shards_abs`.
+
+    Returns
+    -------
+    See `load_transect_from_shards_abs`.
+    '''
+    root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
+    root_shard_dir = os.path.join(root_data_dir + '_sharded', dataset)
+    dirname = os.path.join(root_shard_dir, transect_rel_pth)
+    return load_transect_segments_from_shards_abs(
+        dirname,
+        segments=segments,
     )
 
 
