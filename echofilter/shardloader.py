@@ -336,19 +336,7 @@ def load_transect_from_shards_rel(
 
     Returns
     -------
-    timestamps : numpy.ndarray
-        Timestamps (in seconds since Unix epoch), with each entry
-        corresponding to each row in the `signals` data. The number of entries,
-        `num_timestamps` is equal to `i2 - i1`.
-    depths : numpy.ndarray
-        Depths from the surface (in metres), with each entry corresponding
-        to each column in the `signals` data.
-    signals : numpy.ndarray
-        Echogram Sv data, shaped `(num_timestamps, num_depths)`.
-    top : numpy.ndarray
-        Depth of top line, shaped `(num_timestamps, )`.
-    bottom : numpy.ndarray
-        Depth of bottom line, shaped `(num_timestamps, )`.
+    See `load_transect_from_shards_abs`.
     '''
     root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
     root_shard_dir = os.path.join(root_data_dir + '_sharded', dataset)
