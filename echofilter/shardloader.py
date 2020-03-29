@@ -327,6 +327,8 @@ def load_transect_from_shards_rel(
         `None`, which loads everything up to and including to the last sample.
     dataset : str, optional
         Name of dataset. Default is `'mobile'`.
+    segment : int, optional
+        Which segment to load. Default is `0`.
     root_data_dir : str
         Path to root directory where data is located.
     **kwargs
