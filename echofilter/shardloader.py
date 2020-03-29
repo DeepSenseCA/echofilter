@@ -349,6 +349,75 @@ def load_transect_from_shards_rel(
     )
 
 
+def load_transect_segments_from_shards_abs(
+    transect_abs_pth,
+    segments=None,
+):
+    '''
+    Load transect data from shard files.
+
+    Parameters
+    ----------
+    transect_abs_pth : str
+        Absolute path to transect shard segments directory.
+    segments : iterable or None
+        Which segments to load. If `None` (default), all segments are loaded.
+
+    Returns
+    -------
+    See `load_transect_from_shards_abs`.
+    '''
+    if segments is None:
+        # Load the segmentation metadata
+        with open(os.path.join(transect_abs_pth, 'n_segment.txt'), 'r') as f:
+            n_segment = int(f.readline().strip())
+        segments = range(n_segment)
+
+    # Load each segment
+    transects = []
+    for segment in segments:
+        dirname = os.path.join(transect_abs_pth, str(segment))
+        transects.append(load_transect_from_shards_abs(dirname))
+
+    # Join the segments together
+    return raw.manipulate.join_transect(transects)
+
+
+def load_transect_segments_from_shards_rel(
+    transect_rel_pth,
+    dataset='mobile',
+    segments=None,
+    root_data_dir=ROOT_DATA_DIR,
+):
+    '''
+    Load transect data from shard files.
+
+    Parameters
+    ----------
+    transect_rel_pth : str
+        Relative path to transect.
+    dataset : str, optional
+        Name of dataset. Default is `'mobile'`.
+    segments : iterable or None
+        Which segments to load. If `None` (default), all segments are loaded.
+    root_data_dir : str
+        Path to root directory where data is located.
+    **kwargs
+        As per `load_transect_from_shards_abs`.
+
+    Returns
+    -------
+    See `load_transect_from_shards_abs`.
+    '''
+    root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
+    root_shard_dir = os.path.join(root_data_dir + '_sharded', dataset)
+    dirname = os.path.join(root_shard_dir, transect_rel_pth)
+    return load_transect_segments_from_shards_abs(
+        dirname,
+        segments=segments,
+    )
+
+
 # Backwards compatibility
 shard_transect = segment_and_shard_transect
 load_transect_from_shards = load_transect_from_shards_rel
