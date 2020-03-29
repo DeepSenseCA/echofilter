@@ -44,12 +44,17 @@ class Echofilter(nn.Module):
         outputs['p_is_passive'] = torch.sigmoid(outputs['logit_is_passive'])
         i += 1
 
+        outputs['logit_is_patch'] = logits[:, i]
+        outputs['p_is_patch'] = torch.sigmoid(outputs['logit_is_patch'])
+        i += 1
+
         outputs['p_keep_pixel'] = (
             1.
             * (1 - outputs['p_is_above_top'])
             * (1 - outputs['p_is_below_bottom'])
             * (1 - outputs['p_is_removed'].unsqueeze(-1))
             * (1 - outputs['p_is_passive'].unsqueeze(-1))
+            * (1 - outputs['p_is_patch'])
         )
         outputs['mask_keep_pixel'] = (
             1.
@@ -57,6 +62,7 @@ class Echofilter(nn.Module):
             * (outputs['p_is_below_bottom'] < 0.5)
             * (outputs['p_is_removed'].unsqueeze(-1) < 0.5)
             * (outputs['p_is_passive'].unsqueeze(-1) < 0.5)
+            * (outputs['p_is_patch'] < 0.5)
         )
         return outputs
 

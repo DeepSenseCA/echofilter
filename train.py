@@ -197,7 +197,7 @@ def main(
         .format(latent_channels, expansion_factor)
     )
     model = Echofilter(
-        UNet(1, 4, latent_channels=latent_channels, expansion_factor=expansion_factor),
+        UNet(1, 5, latent_channels=latent_channels, expansion_factor=expansion_factor),
     )
     model.to(device)
     print(
