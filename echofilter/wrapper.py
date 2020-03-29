@@ -77,12 +77,14 @@ class EchofilterLoss(_Loss):
         bottom_mask=1.,
         removed_segment=1.,
         passive=1.,
+        patch=1.,
     ):
         super(EchofilterLoss, self).__init__(None, None, reduction)
         self.top_mask = top_mask
         self.bottom_mask = bottom_mask
         self.removed_segment = removed_segment
         self.passive = passive
+        self.patch = patch
 
     def forward(self, input, target):
         loss = 0
@@ -117,6 +119,11 @@ class EchofilterLoss(_Loss):
         if self.passive:
             loss += self.passive * F.binary_cross_entropy_with_logits(
                 input['logit_is_passive'], target['is_passive'], reduction=self.reduction,
+            )
+
+        if self.patch:
+            loss += self.patch * F.binary_cross_entropy_with_logits(
+                input['logit_is_patch'], target['mask_patches'], reduction=self.reduction,
             )
 
         return loss
