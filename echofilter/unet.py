@@ -106,6 +106,11 @@ class UNet(nn.Module):
         self.n_classes = n_classes
         self.bilinear = bilinear
 
+        # Store generation parameters
+        self.n_steps = n_steps
+        self.latent_channels = latent_channels
+        self.expansion_factor = expansion_factor
+
         lc = latent_channels
         xf = expansion_factor
 
