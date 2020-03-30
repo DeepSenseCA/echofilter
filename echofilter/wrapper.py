@@ -25,6 +25,7 @@ class Echofilter(nn.Module):
         if self.params['top'] == 'mask':
             outputs['logit_is_above_top'] = logits[:, i]
             outputs['p_is_above_top'] = torch.sigmoid(outputs['logit_is_above_top'])
+            outputs['p_is_below_top'] = 1 - outputs['p_is_above_top']
             i += 1
         elif self.params['top'] == 'boundary':
             outputs['logit_is_boundary_top'] = logits[:, i]
@@ -33,9 +34,11 @@ class Echofilter(nn.Module):
                 torch.cumsum(torch.flip(outputs['p_is_boundary_top'], dims=(-1, )), dim=-1),
                 dims=(-1, ),
             )
+            outputs['p_is_below_top'] = torch.cumsum(outputs['p_is_boundary_top'], dim=-1)
             # Due to floating point precision, max value can exceed 1.
             # Fix this by clipping the values to the appropriate range.
             outputs['p_is_above_top'].clamp_(0, 1)
+            outputs['p_is_below_top'].clamp_(0, 1)
             i += 1
         else:
             raise ValueError('Unsupported "top" parameter: {}'.format(self.params['top']))
@@ -43,14 +46,20 @@ class Echofilter(nn.Module):
         if self.params['bottom'] == 'mask':
             outputs['logit_is_below_bottom'] = logits[:, i]
             outputs['p_is_below_bottom'] = torch.sigmoid(outputs['logit_is_below_bottom'])
+            outputs['p_is_above_bottom'] = 1 - outputs['p_is_below_bottom']
             i += 1
         elif self.params['bottom'] == 'boundary':
             outputs['logit_is_boundary_bottom'] = logits[:, i]
             outputs['p_is_boundary_bottom'] = F.softmax(outputs['logit_is_boundary_bottom'], dim=-1)
             outputs['p_is_below_bottom'] = torch.cumsum(outputs['p_is_boundary_bottom'], dim=-1)
+            outputs['p_is_above_bottom'] = torch.flip(
+                torch.cumsum(torch.flip(outputs['p_is_boundary_bottom'], dims=(-1, )), dim=-1),
+                dims=(-1, ),
+            )
             # Due to floating point precision, max value can exceed 1.
             # Fix this by clipping the values to the appropriate range.
             outputs['p_is_below_bottom'].clamp_(0, 1)
+            outputs['p_is_above_bottom'].clamp_(0, 1)
             i += 1
         else:
             raise ValueError('Unsupported "bottom" parameter: {}'.format(self.params['bottom']))
