@@ -33,6 +33,9 @@ class Echofilter(nn.Module):
                 torch.cumsum(torch.flip(outputs['p_is_boundary_top'], dims=(-1, )), dim=-1),
                 dims=(-1, ),
             )
+            # Due to floating point precision, max value can exceed 1.
+            # Fix this by clipping the values to the appropriate range.
+            outputs['p_is_above_top'].clamp_(0, 1)
             i += 1
         else:
             raise ValueError('Unsupported "top" parameter: {}'.format(self.params['top']))
@@ -45,6 +48,9 @@ class Echofilter(nn.Module):
             outputs['logit_is_boundary_bottom'] = logits[:, i]
             outputs['p_is_boundary_bottom'] = F.softmax(outputs['logit_is_boundary_bottom'], dim=-1)
             outputs['p_is_below_bottom'] = torch.cumsum(outputs['p_is_boundary_bottom'], dim=-1)
+            # Due to floating point precision, max value can exceed 1.
+            # Fix this by clipping the values to the appropriate range.
+            outputs['p_is_below_bottom'].clamp_(0, 1)
             i += 1
         else:
             raise ValueError('Unsupported "bottom" parameter: {}'.format(self.params['bottom']))
@@ -68,7 +74,7 @@ class Echofilter(nn.Module):
             * (1 - outputs['p_is_removed'].unsqueeze(-1))
             * (1 - outputs['p_is_passive'].unsqueeze(-1))
             * (1 - outputs['p_is_patch'])
-        )
+        ).clamp_(0, 1)
         outputs['mask_keep_pixel'] = (
             1.
             * (outputs['p_is_above_top'] < 0.5)
