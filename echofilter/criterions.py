@@ -1,17 +1,20 @@
 import torch
 
 
-def _binarise_and_reshape(arg, threshold=0.5, ndim=2):
+def _binarise_and_reshape(arg, threshold=0.5, ndim=None):
     # Binarise mask
     arg = (arg > threshold)
     # Reshape so pixels are vectorised by batch
-    shape = list(arg.shape)
-    shape = shape[:-ndim] + [-1]
+    if ndim is None:
+        shape = [arg.shape[0], -1]
+    else:
+        shape = list(arg.shape)
+        shape = shape[:-ndim] + [-1]
     arg = arg.reshape(shape)
     return arg
 
 
-def mask_active_fraction(input, threshold=0.5, ndim=2, reduction='mean'):
+def mask_active_fraction(input, threshold=0.5, ndim=None, reduction='mean'):
     # Binarise and reshape mask
     input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
 
@@ -33,7 +36,7 @@ def mask_active_fraction_with_logits(input, *args, **kwargs):
     return mask_active_fraction(torch.sigmoid(input), *args, **kwargs)
 
 
-def mask_accuracy(input, target, threshold=0.5, ndim=2, reduction='mean'):
+def mask_accuracy(input, target, threshold=0.5, ndim=None, reduction='mean'):
     # Binarise and reshape masks
     input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
     target = _binarise_and_reshape(target, threshold=threshold, ndim=ndim)
@@ -58,7 +61,7 @@ def mask_accuracy_with_logits(input, *args, **kwargs):
     return mask_accuracy(torch.sigmoid(input), *args, **kwargs)
 
 
-def mask_precision(input, target, threshold=0.5, ndim=2, reduction='mean'):
+def mask_precision(input, target, threshold=0.5, ndim=None, reduction='mean'):
     # Binarise and reshape masks
     input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
     target = _binarise_and_reshape(target, threshold=threshold, ndim=ndim)
@@ -85,7 +88,7 @@ def mask_precision_with_logits(input, *args, **kwargs):
     return mask_precision(torch.sigmoid(input), *args, **kwargs)
 
 
-def mask_recall(input, target, threshold=0.5, ndim=2, reduction='mean'):
+def mask_recall(input, target, threshold=0.5, ndim=None, reduction='mean'):
     # Binarise and reshape masks
     input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
     target = _binarise_and_reshape(target, threshold=threshold, ndim=ndim)
@@ -135,7 +138,7 @@ def mask_f1_score_with_logits(input, *args, **kwargs):
     return mask_f1_score(torch.sigmoid(input), *args, **kwargs)
 
 
-def mask_jaccard_index(input, target, threshold=0.5, ndim=2, reduction='mean'):
+def mask_jaccard_index(input, target, threshold=0.5, ndim=None, reduction='mean'):
     # Binarise and reshape masks
     input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
     target = _binarise_and_reshape(target, threshold=threshold, ndim=ndim)
