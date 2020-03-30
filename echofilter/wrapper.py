@@ -78,8 +78,8 @@ class Echofilter(nn.Module):
 
         outputs['p_keep_pixel'] = (
             1.
-            * (1 - outputs['p_is_above_top'])
-            * (1 - outputs['p_is_below_bottom'])
+            * 0.5 * ((1 - outputs['p_is_above_top']) + outputs['p_is_below_top'])
+            * 0.5 * ((1 - outputs['p_is_below_bottom']) + outputs['p_is_above_bottom'])
             * (1 - outputs['p_is_removed'].unsqueeze(-1))
             * (1 - outputs['p_is_passive'].unsqueeze(-1))
             * (1 - outputs['p_is_patch'])
