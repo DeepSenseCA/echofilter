@@ -92,7 +92,14 @@ def rint(x):
 
 
 class UNet(nn.Module):
-    def __init__(self, in_channels, n_classes, bilinear=True, latent_channels=64, expansion_factor=2):
+    def __init__(
+        self,
+        in_channels,
+        n_classes,
+        bilinear=True,
+        latent_channels=64,
+        expansion_factor=2,
+    ):
         super(UNet, self).__init__()
         self.in_channels = in_channels
         self.n_classes = n_classes
