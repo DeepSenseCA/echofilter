@@ -99,6 +99,7 @@ class UNet(nn.Module):
         bilinear=True,
         latent_channels=64,
         expansion_factor=2,
+        n_steps=4,
     ):
         super(UNet, self).__init__()
         self.in_channels = in_channels
@@ -109,25 +110,27 @@ class UNet(nn.Module):
         xf = expansion_factor
 
         self.inc = DoubleConv(in_channels, rint(lc))
-        self.down1 = Down(rint(lc            ), rint(lc * xf       ))
-        self.down2 = Down(rint(lc * xf       ), rint(lc * (xf ** 2)))
-        self.down3 = Down(rint(lc * (xf ** 2)), rint(lc * (xf ** 3)))
-        self.down4 = Down(rint(lc * (xf ** 3)), rint(lc * (xf ** 3)))
-        self.up1 = Up(rint(lc * (xf ** 3)) * 2, rint(lc * (xf ** 2)), bilinear)
-        self.up2 = Up(rint(lc * (xf ** 2)) * 2, rint(lc * xf       ), bilinear)
-        self.up3 = Up(rint(lc * xf       ) * 2, rint(lc            ), bilinear)
-        self.up4 = Up(rint(lc            ) * 2, rint(lc            ), bilinear)
+
+        self.down_steps = nn.ModuleList()
+        self.up_steps = nn.ModuleList()
+        for i_step in range(n_steps):
+            nodes_here = rint(lc * (xf ** i_step))
+            nodes_next = rint(lc * (xf ** min(n_steps - 1, i_step + 1)))
+            self.down_steps.append(Down(nodes_here, nodes_next))
+        for i_step in range(n_steps - 1, -1, -1):
+            nodes_here = 2 * rint(lc * (xf ** i_step))
+            nodes_next = rint(lc * (xf ** max(0, i_step - 1)))
+            self.up_steps.append(Up(nodes_here, nodes_next, bilinear=bilinear))
+
         self.outc = OutConv(rint(lc), n_classes)
 
     def forward(self, x):
-        x1 = self.inc(x)
-        x2 = self.down1(x1)
-        x3 = self.down2(x2)
-        x4 = self.down3(x3)
-        x5 = self.down4(x4)
-        x = self.up1(x5, x4)
-        x = self.up2(x, x3)
-        x = self.up3(x, x2)
-        x = self.up4(x, x1)
+        x = self.inc(x)
+        memory = [x]
+        for step in self.down_steps:
+            memory.append(step(memory[-1]))
+        x = memory.pop()
+        for step in self.up_steps:
+            x = step(x, memory.pop())
         logits = self.outc(x)
         return logits
