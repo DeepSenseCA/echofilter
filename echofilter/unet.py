@@ -97,9 +97,9 @@ class UNet(nn.Module):
         in_channels,
         n_classes,
         bilinear=True,
+        n_steps=4,
         latent_channels=64,
         expansion_factor=2,
-        n_steps=4,
     ):
         super(UNet, self).__init__()
         self.in_channels = in_channels
