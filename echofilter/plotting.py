@@ -20,7 +20,7 @@ TOP_COLOR_DARK = '#1f78b4'
 BOT_COLOR_DARK = '#33a02c'
 
 PASSIVE_COLOR = [.4, .4, .4]
-REMOVED_COLOR = [0, 0, 1]
+REMOVED_COLOR = 'b'
 
 
 def ensure_axes_inverted(axes=None, dir='y'):
@@ -159,7 +159,7 @@ def plot_transect(
     top_color=TOP_COLOR,
     bot_color=BOT_COLOR,
     passive_color=PASSIVE_COLOR,
-    removed_color=REMOVED_COLOR,
+    removed_color=None,
     linewidth=1,
     cmap=None,
 ):
@@ -189,7 +189,8 @@ def plot_transect(
     passive_color : color, optional
         Color of passive segment hatching. Default is `[.4, .4, .4]`.
     removed_color : color, optional
-        Color of removed segment hatching. Default is `[0, 0, 1]`.
+        Color of removed segment hatching. Default is `'r'` if `cmap` is
+        `'viridis'`, and `'b'` otherwise.
     linewidth : int
         Width of lines. Default is `2`.
     cmap : str, optional
@@ -197,6 +198,13 @@ def plot_transect(
         current default colormap is used.
     '''
     x_scale = x_scale.lower()
+
+    if removed_color is not None:
+        pass
+    elif cmap is 'viridis':
+        removed_color = 'r'
+    else:
+        removed_color = REMOVED_COLOR
 
     if x_scale == 'index':
         tt = np.arange(transect['timestamps'].shape[0])
