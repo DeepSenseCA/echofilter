@@ -58,6 +58,8 @@ def main(
     )
     model = Echofilter(
         UNet(1, 5, latent_channels=latent_channels, expansion_factor=expansion_factor),
+        top='boundary',
+        bottom='boundary',
     )
 
     if not os.path.isfile(checkpoint_path):
