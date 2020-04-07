@@ -46,16 +46,21 @@ class Down(nn.Module):
 class Up(nn.Module):
     """Upscaling then double conv"""
 
-    def __init__(self, in_channels, out_channels, bilinear=True):
+    def __init__(self, in_channels_to_upscale, in_channels_skip, out_channels, bilinear=True):
         super().__init__()
+
+        if in_channels_to_upscale is None:
+            in_channels_to_upscale = in_channels // 2
 
         # if bilinear, use the normal convolutions to reduce the number of channels
         if bilinear:
             self.up = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
         else:
-            self.up = nn.ConvTranspose2d(in_channels // 2, in_channels // 2, kernel_size=2, stride=2)
+            self.up = nn.ConvTranspose2d(
+                in_channels_to_upscale, in_channels_to_upscale, kernel_size=2, stride=2,
+            )
 
-        self.conv = DoubleConv(in_channels, out_channels)
+        self.conv = DoubleConv(in_channels_to_upscale + in_channels_skip, out_channels)
 
     def forward(self, x1, x2):
         x1 = self.up(x1)
@@ -100,6 +105,7 @@ class UNet(nn.Module):
         n_steps=4,
         latent_channels=64,
         expansion_factor=2,
+        exponent_matching='in',
     ):
         super(UNet, self).__init__()
         self.in_channels = in_channels
@@ -110,6 +116,7 @@ class UNet(nn.Module):
         self.n_steps = n_steps
         self.latent_channels = latent_channels
         self.expansion_factor = expansion_factor
+        self.exponent_matching = exponent_matching
 
         lc = latent_channels
         xf = expansion_factor
@@ -119,13 +126,40 @@ class UNet(nn.Module):
         self.down_steps = nn.ModuleList()
         self.up_steps = nn.ModuleList()
         for i_step in range(n_steps):
-            nodes_here = rint(lc * (xf ** i_step))
-            nodes_next = rint(lc * (xf ** min(n_steps - 1, i_step + 1)))
+            # Number of channels in the input
+            expo_prev = i_step
+            nodes_here = rint(lc * (xf ** expo_prev))
+            # Number of channels in the output
+            expo_next = expo_prev + 1
+            if self.exponent_matching == 'in':
+                # Final step doesn't increase the number of channels
+                expo_next = min(n_steps - 1, expo_next)
+            nodes_next = rint(lc * (xf ** expo_next))
+            # Create the layer and add it to the module list
             self.down_steps.append(Down(nodes_here, nodes_next))
         for i_step in range(n_steps - 1, -1, -1):
-            nodes_here = 2 * rint(lc * (xf ** i_step))
-            nodes_next = rint(lc * (xf ** max(0, i_step - 1)))
-            self.up_steps.append(Up(nodes_here, nodes_next, bilinear=bilinear))
+            # Either we have the same number of channels for both inputs
+            # (the skip connection and the previous layer), or we can have
+            # the number of channels match for the skip connection (which was
+            # the output of Down at this step) and our output at this step.
+            if self.exponent_matching == 'in':
+                expo_prev = i_step
+            elif self.exponent_matching == 'out':
+                expo_prev = i_step + 1
+            else:
+                raise ValueError('Unrecognised exponent_matching: {}'.format(exponent_matching))
+            expo_next = max(0, expo_prev - 1)
+            # Number of channels which are passed through at the full spatial
+            # resolution (skip connection)
+            nodes_from_skip = rint(lc * (xf ** i_step))
+            # Number of channels which come from the previous layer and need
+            # to be upsampled
+            nodes_from_prev = rint(lc * (xf ** expo_prev))
+            nodes_incoming = nodes_from_prev + nodes_from_skip
+            nodes_next = rint(lc * (xf ** expo_next))
+            self.up_steps.append(
+                Up(nodes_from_prev, nodes_from_skip, nodes_next, bilinear=bilinear)
+            )
 
         self.outc = OutConv(rint(lc), n_classes)
 
