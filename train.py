@@ -68,6 +68,7 @@ def main(
         resume='',
         log_name=None,
         log_name_append=None,
+        n_steps=4,
         latent_channels=64,
         expansion_factor=2,
         device='cuda',
@@ -192,12 +193,13 @@ def main(
     print()
     print(
         'Constructing U-Net model with '
+        '{} steps, '
         'initial latent channels {}, '
         'expansion_factor {}'
-        .format(latent_channels, expansion_factor)
+        .format(n_steps, latent_channels, expansion_factor)
     )
     model = Echofilter(
-        UNet(1, 5, latent_channels=latent_channels, expansion_factor=expansion_factor),
+        UNet(1, 5, n_steps=n_steps, latent_channels=latent_channels, expansion_factor=expansion_factor),
         top='boundary',
         bottom='boundary',
     )
@@ -850,6 +852,12 @@ if __name__ == '__main__':
     )
 
     # Model parameters
+    parser.add_argument(
+        '--n-steps',
+        type=int,
+        default=4,
+        help='number of steps down and up in the UNet (default: 4)',
+    )
     parser.add_argument(
         '--latent-channels',
         type=int,
