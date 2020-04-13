@@ -212,7 +212,7 @@ def main(
     # define loss function (criterion) and optimizer
     criterion = EchofilterLoss()
 
-    optimizer = torch.optim.Adam(
+    optimizer = torch.optim.AdamW(
         model.parameters(),
         lr,
         betas=(momentum, 0.999),
