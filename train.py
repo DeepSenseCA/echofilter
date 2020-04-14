@@ -270,6 +270,8 @@ def main(
         )
         # Print metrics to terminal
         name_fmt = '{:.<28s}'
+        current_lr = get_current_lr(optimizer)
+        print((name_fmt + ' : {:.4e}').format('Learning rate', current_lr))
         print(
             (name_fmt + ' Train: {:.4e}  AugVal: {:.4e}  Val: {:.4e}')
             .format('Loss', loss_tr, loss_augval, loss_val)
@@ -292,6 +294,8 @@ def main(
                     )
                 )
 
+        # Add hyper parameters to tensorboard
+        writer.add_scalar('LR', current_lr, epoch)
         # Add metrics to tensorboard
         for loss_p, partition in ((loss_tr, 'Train'), (loss_val, 'Val'), (loss_augval, 'ValAug')):
             writer.add_scalar('{}/{}'.format('Loss', partition), loss_p, epoch)
@@ -458,6 +462,10 @@ def main(
 
     # Close tensorboard connection
     writer.close()
+
+
+def get_current_lr(optimizer):
+    return optimizer.param_groups[0]['lr']
 
 
 def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float, print_freq=10):
