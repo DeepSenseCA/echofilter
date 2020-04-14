@@ -252,16 +252,16 @@ def main(
         loader_train.dataset.initialise_datapoints()
 
         # train for one epoch
-        loss_tr, meters_tr, (ex_data_tr, ex_batch_tr, ex_output_tr) = train(
+        loss_tr, meters_tr, (ex_input_tr, ex_batch_tr, ex_output_tr) = train(
             loader_train, model, criterion, optimizer, device, epoch, print_freq=print_freq
         )
 
         # evaluate on validation set
-        loss_val, meters_val, (ex_data_val, ex_batch_val, ex_output_val) = validate(
+        loss_val, meters_val, (ex_input_val, ex_batch_val, ex_output_val) = validate(
             loader_val, model, criterion, device, print_freq=print_freq, prefix='Validation'
         )
         # evaluate on augmented validation set
-        loss_augval, meters_augval, (ex_data_augval, ex_batch_augval, ex_output_augval) = validate(
+        loss_augval, meters_augval, (ex_input_augval, ex_batch_augval, ex_output_augval) = validate(
             loader_augval, model, criterion, device, print_freq=print_freq, prefix='Aug-Val   '
         )
         print(
@@ -352,14 +352,14 @@ def main(
             return x
 
         # Add example images to tensorboard
-        for (ex_data, ex_batch, ex_output), partition in (
-                ((ex_data_tr, ex_batch_tr, ex_output_tr), 'Train'),
-                ((ex_data_val, ex_batch_val, ex_output_val), 'Val'),
-                ((ex_data_augval, ex_batch_augval, ex_output_augval), 'ValAug'),
+        for (ex_input, ex_batch, ex_output), partition in (
+                ((ex_input_tr, ex_batch_tr, ex_output_tr), 'Train'),
+                ((ex_input_val, ex_batch_val, ex_output_val), 'Val'),
+                ((ex_input_augval, ex_batch_augval, ex_output_augval), 'ValAug'),
             ):
             writer.add_images(
                 'Input/' + partition,
-                ex_data,
+                ex_input,
                 epoch,
                 dataformats='NCWH',
             )
@@ -493,27 +493,25 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
     # switch to train mode
     model.train()
 
-    example_data = example_output = example_target = None
+    example_input = example_output = example_target = None
 
     end = time.time()
     for i, batch in enumerate(loader):
         # measure data loading time
         data_time.update(time.time() - end)
 
-        data = batch['signals'].unsqueeze(1)
-
-        data = data.to(device, dtype, non_blocking=True)
         batch = {k: v.to(device, dtype, non_blocking=True) for k, v in batch.items()}
+        input = batch['signals'].unsqueeze(1)
 
         # Compute output
-        output = model(data)
+        output = model(input)
         loss = criterion(output, batch)
         # Record loss
-        ns = data.size(0)
+        ns = input.size(0)
         losses.update(loss.item(), ns)
 
         if i == max(0, len(loader) - 2):
-            example_data = data.detach()
+            example_input = input.detach()
             example_batch = {k: v.detach() for k, v in batch.items()}
             example_output = {k: v.detach() for k, v in output.items()}
 
@@ -572,7 +570,7 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         if i % print_freq == 0 or i + 1 == len(loader):
             progress.display(i + 1)
 
-    return losses.avg, meters, (example_data, example_batch, example_output)
+    return losses.avg, meters, (example_input, example_batch, example_output)
 
 
 def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
@@ -601,7 +599,7 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
     # switch to evaluate mode
     model.eval()
 
-    example_data = []
+    example_input = []
     example_batch = []
     example_output = []
     example_interval = max(1, len(loader) // num_examples)
@@ -612,20 +610,18 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
             # measure data loading time
             data_time.update(time.time() - end)
 
-            data = batch['signals'].unsqueeze(1)
-
-            data = data.to(device, dtype, non_blocking=True)
             batch = {k: v.to(device, dtype, non_blocking=True) for k, v in batch.items()}
+            input = batch['signals'].unsqueeze(1)
 
             # Compute output
-            output = model(data)
+            output = model(input)
             loss = criterion(output, batch)
             # Record loss
-            ns = data.size(0)
+            ns = input.size(0)
             losses.update(loss.item(), ns)
 
-            if i % example_interval == 0 and len(example_data) < num_examples:
-                example_data.append(data[0].detach())
+            if i % example_interval == 0 and len(example_input) < num_examples:
+                example_input.append(input[0].detach())
                 example_batch.append({k: v[0].detach() for k, v in batch.items()})
                 example_output.append({k: v[0].detach() for k, v in output.items()})
 
@@ -680,11 +676,11 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
                 progress.display(i + 1)
 
     # Restack samples, converting list into higher-dim tensor
-    example_data = torch.stack(example_data, dim=0)
+    example_input = torch.stack(example_input, dim=0)
     example_batch = {k: torch.stack([a[k] for a in example_batch], dim=0) for k in example_batch[0]}
     example_output = {k: torch.stack([a[k] for a in example_output], dim=0) for k in example_output[0]}
 
-    return losses.avg, meters, (example_data, example_batch, example_output)
+    return losses.avg, meters, (example_input, example_batch, example_output)
 
 
 def generate_from_transect(model, transect, sample_shape, crop_depth, device, dtype=torch.float):
