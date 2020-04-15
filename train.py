@@ -96,9 +96,6 @@ def main(
 
     print('Output will be written to {}/{}'.format(dataset_name, log_name))
 
-    # Make a tensorboard writer
-    writer = SummaryWriter(log_dir=os.path.join('runs', dataset_name, log_name))
-
     # Augmentations
     train_transform_pre = torchvision.transforms.Compose([
         echofilter.transforms.RandomCropWidth(0.5),
@@ -222,6 +219,30 @@ def main(
         weight_decay=weight_decay,
     )
     schedule_data = {'name': schedule}
+
+    if schedule == 'lrfinder':
+        from torch_lr_finder import LRFinder
+
+        print('Running learning rate finder')
+        lr_finder = LRFinder(model, optimizer, criterion, device=device)
+        lr_finder.range_test(loader_train, end_lr=100, num_iter=100)
+        print('Plotting learning rate finder results')
+        hf = plt.figure(figsize=(15, 9))
+        ax = plt.axes()
+        lr_finder.plot(skip_start=0, skip_end=0, log_lr=True, ax=ax)
+        plt.tick_params(reset=True, color=(.2, .2, .2))
+        plt.tick_params(labelsize=14)
+        ax.minorticks_on()
+        ax.tick_params(direction='out')
+        # Save figure
+        figpth = os.path.join('models', dataset_name, log_name, 'lrfinder.png')
+        os.makedirs(os.path.dirname(figpth), exist_ok=True)
+        plt.savefig(figpth)
+        print('LR Finder results saved to {}'.format(figpth))
+        return
+
+    # Make a tensorboard writer
+    writer = SummaryWriter(log_dir=os.path.join('runs', dataset_name, log_name))
 
     # Initialise loop tracking
     start_epoch = 1
