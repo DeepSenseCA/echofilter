@@ -256,17 +256,17 @@ def main(
         loader_train.dataset.initialise_datapoints()
 
         # train for one epoch
-        loss_tr, meters_tr, (ex_input_tr, ex_batch_tr, ex_output_tr) = train(
+        loss_tr, meters_tr, (ex_input_tr, ex_data_tr, ex_output_tr) = train(
             loader_train, model, criterion, optimizer, device, epoch, print_freq=print_freq,
             schedule_data=schedule_data,
         )
 
         # evaluate on validation set
-        loss_val, meters_val, (ex_input_val, ex_batch_val, ex_output_val) = validate(
+        loss_val, meters_val, (ex_input_val, ex_data_val, ex_output_val) = validate(
             loader_val, model, criterion, device, print_freq=print_freq, prefix='Validation'
         )
         # evaluate on augmented validation set
-        loss_augval, meters_augval, (ex_input_augval, ex_batch_augval, ex_output_augval) = validate(
+        loss_augval, meters_augval, (ex_input_augval, ex_data_augval, ex_output_augval) = validate(
             loader_augval, model, criterion, device, print_freq=print_freq, prefix='Aug-Val   '
         )
         print(
@@ -357,10 +357,10 @@ def main(
             return x
 
         # Add example images to tensorboard
-        for (ex_input, ex_batch, ex_output), partition in (
-                ((ex_input_tr, ex_batch_tr, ex_output_tr), 'Train'),
-                ((ex_input_val, ex_batch_val, ex_output_val), 'Val'),
-                ((ex_input_augval, ex_batch_augval, ex_output_augval), 'ValAug'),
+        for (ex_input, ex_data, ex_output), partition in (
+                ((ex_input_tr, ex_data_tr, ex_output_tr), 'Train'),
+                ((ex_input_val, ex_data_val, ex_output_val), 'Val'),
+                ((ex_input_augval, ex_data_augval, ex_output_augval), 'ValAug'),
             ):
             writer.add_images(
                 'Input/' + partition,
@@ -370,7 +370,7 @@ def main(
             )
             writer.add_images(
                 'Top/' + partition + '/Target',
-                ensure_clim_met(add_image_border(ex_batch['mask_top'].unsqueeze(1))),
+                ensure_clim_met(add_image_border(ex_data['mask_top'].unsqueeze(1))),
                 epoch,
                 dataformats='NCWH',
             )
@@ -382,7 +382,7 @@ def main(
             )
             writer.add_images(
                 'Bottom/' + partition + '/Target',
-                ensure_clim_met(add_image_border(ex_batch['mask_bot'].unsqueeze(1))),
+                ensure_clim_met(add_image_border(ex_data['mask_bot'].unsqueeze(1))),
                 epoch,
                 dataformats='NCWH',
             )
@@ -394,7 +394,7 @@ def main(
             )
             writer.add_images(
                 'Overall/' + partition + '/Target',
-                ensure_clim_met(add_image_border(ex_batch['mask'].float().unsqueeze(1))),
+                ensure_clim_met(add_image_border(ex_data['mask'].float().unsqueeze(1))),
                 epoch,
                 dataformats='NCWH',
             )
@@ -416,7 +416,7 @@ def main(
                     torch.stack([
                         ex_output['mask_keep_pixel'].float(),
                         torch.zeros_like(ex_output['mask_keep_pixel'], dtype=torch.float),
-                        ex_batch['mask'].float(),
+                        ex_data['mask'].float(),
                     ], dim=1)
                 )),
                 epoch,
@@ -501,26 +501,26 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
     # switch to train mode
     model.train()
 
-    example_input = example_output = example_target = None
+    example_input = example_data = example_output = None
 
     end = time.time()
-    for i, batch in enumerate(loader):
+    for i, (input, metadata) in enumerate(loader):
         # measure data loading time
         data_time.update(time.time() - end)
 
-        batch = batch.to(device, dtype, non_blocking=True)
-        input = batch['signals'].unsqueeze(1)
+        input = input.to(device, dtype, non_blocking=True)
+        metadata = metadata.to(device, dtype, non_blocking=True)
 
         # Compute output
         output = model(input)
-        loss = criterion(output, batch)
+        loss = criterion(output, metadata)
         # Record loss
         ns = input.size(0)
         losses.update(loss.item(), ns)
 
         if i == max(0, len(loader) - 2):
             example_input = input.detach()
-            example_batch = batch.detach()
+            example_data = metadata.detach()
             example_output = output.detach()
 
         # Measure and record performance with various metrics
@@ -528,22 +528,22 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
             chn = chn.lower()
             if chn == 'overall':
                 output_k = output['mask_keep_pixel'].float()
-                target_k = batch['mask']
+                target_k = metadata['mask']
             elif chn == 'top':
                 output_k = output['p_is_above_top']
-                target_k = batch['mask_top']
+                target_k = metadata['mask_top']
             elif chn == 'bottom':
                 output_k = output['p_is_below_bottom']
-                target_k = batch['mask_bot']
+                target_k = metadata['mask_bot']
             elif chn == 'removedseg':
                 output_k = output['p_is_removed']
-                target_k = batch['is_removed']
+                target_k = metadata['is_removed']
             elif chn == 'passive':
                 output_k = output['p_is_passive']
-                target_k = batch['is_passive']
+                target_k = metadata['is_passive']
             elif chn == 'patch':
                 output_k = output['p_is_patch']
-                target_k = batch['mask_patches']
+                target_k = metadata['mask_patches']
             else:
                 raise ValueError('Unrecognised output channel: {}'.format(chn))
 
@@ -578,7 +578,7 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         if i % print_freq == 0 or i + 1 == len(loader):
             progress.display(i + 1)
 
-    return losses.avg, meters, (example_input, example_batch, example_output)
+    return losses.avg, meters, (example_input, example_data, example_output)
 
 
 def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
@@ -608,29 +608,29 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
     model.eval()
 
     example_input = []
-    example_batch = []
+    example_data = []
     example_output = []
     example_interval = max(1, len(loader) // num_examples)
 
     with torch.no_grad():
         end = time.time()
-        for i, batch in enumerate(loader):
+        for i, (input, metadata) in enumerate(loader):
             # measure data loading time
             data_time.update(time.time() - end)
 
-            batch = batch.to(device, dtype, non_blocking=True)
-            input = batch['signals'].unsqueeze(1)
+            input = input.to(device, dtype, non_blocking=True)
+            metadata = metadata.to(device, dtype, non_blocking=True)
 
             # Compute output
             output = model(input)
-            loss = criterion(output, batch)
+            loss = criterion(output, metadata)
             # Record loss
             ns = input.size(0)
             losses.update(loss.item(), ns)
 
             if i % example_interval == 0 and len(example_input) < num_examples:
                 example_input.append(input[0].detach())
-                example_batch.append({k: v[0].detach() for k, v in batch.items()})
+                example_data.append({k: v[0].detach() for k, v in metadata.items()})
                 example_output.append({k: v[0].detach() for k, v in output.items()})
 
             # Measure and record performance with various metrics
@@ -638,22 +638,22 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
                 chn = chn.lower()
                 if chn == 'overall':
                     output_k = output['mask_keep_pixel'].float()
-                    target_k = batch['mask']
+                    target_k = metadata['mask']
                 elif chn == 'top':
                     output_k = output['p_is_above_top']
-                    target_k = batch['mask_top']
+                    target_k = metadata['mask_top']
                 elif chn == 'bottom':
                     output_k = output['p_is_below_bottom']
-                    target_k = batch['mask_bot']
+                    target_k = metadata['mask_bot']
                 elif chn == 'removedseg':
                     output_k = output['p_is_removed']
-                    target_k = batch['is_removed']
+                    target_k = metadata['is_removed']
                 elif chn == 'passive':
                     output_k = output['p_is_passive']
-                    target_k = batch['is_passive']
+                    target_k = metadata['is_passive']
                 elif chn == 'patch':
                     output_k = output['p_is_patch']
-                    target_k = batch['mask_patches']
+                    target_k = metadata['mask_patches']
                 else:
                     raise ValueError('Unrecognised output channel: {}'.format(chn))
 
@@ -685,10 +685,10 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
 
     # Restack samples, converting list into higher-dim tensor
     example_input = torch.stack(example_input, dim=0)
-    example_batch = {k: torch.stack([a[k] for a in example_batch], dim=0) for k in example_batch[0]}
+    example_data = {k: torch.stack([a[k] for a in example_data], dim=0) for k in example_data[0]}
     example_output = {k: torch.stack([a[k] for a in example_output], dim=0) for k in example_output[0]}
 
-    return losses.avg, meters, (example_input, example_batch, example_output)
+    return losses.avg, meters, (example_input, example_data, example_output)
 
 
 def generate_from_transect(model, transect, sample_shape, crop_depth, device, dtype=torch.float):
