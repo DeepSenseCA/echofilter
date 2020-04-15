@@ -18,6 +18,7 @@ from torch.utils.tensorboard import SummaryWriter
 import torchvision.transforms
 from torchutils.random import seed_all
 from torchutils.utils import count_parameters
+import ranger
 
 import echofilter.dataset
 import echofilter.transforms
@@ -221,6 +222,12 @@ def main(
         optimizer_class = torch.optim.Adam
     elif optimizer_name == 'adamw':
         optimizer_class = torch.optim.AdamW
+    elif optimizer_name == 'ranger':
+        optimizer_class = ranger.Ranger
+    elif optimizer_name == 'rangerva':
+        optimizer_class = ranger.RangerVA
+    elif optimizer_name == 'rangerqh':
+        optimizer_class = ranger.RangerQH
     else:
         # We don't support arbitrary optimizers from torch.optim because they
         # need different configuration parameters to Adam.
