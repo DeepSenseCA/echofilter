@@ -77,6 +77,7 @@ def main(
         n_epoch=10,
         seed=None,
         print_freq=10,
+        optimizer='adamw',
         schedule='constant',
         lr=0.1,
         momentum=0.9,
@@ -215,7 +216,17 @@ def main(
     # define loss function (criterion) and optimizer
     criterion = EchofilterLoss()
 
-    optimizer = torch.optim.AdamW(
+    optimizer_name = optimizer.lower()
+    if optimizer_name == 'adam':
+        optimizer_class = torch.optim.Adam
+    elif optimizer_name == 'adamw':
+        optimizer_class = torch.optim.AdamW
+    else:
+        # We don't support arbitrary optimizers from torch.optim because they
+        # need different configuration parameters to Adam.
+        raise ValueError('Unrecognised optimizer: {}'.format(optimizer))
+
+    optimizer = optimizer_class(
         model.parameters(),
         lr,
         betas=(momentum, 0.999),
@@ -925,6 +936,13 @@ if __name__ == '__main__':
     )
 
     # Optimiser parameters
+    parser.add_argument(
+        '--optim', '--optimiser', '--optimizer',
+        dest='optimizer',
+        type=str,
+        default='adamw',
+        help='optimizer name (default: "adamw")',
+    )
     parser.add_argument(
         '--schedule',
         type=str,
