@@ -508,7 +508,7 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         # measure data loading time
         data_time.update(time.time() - end)
 
-        batch = {k: v.to(device, dtype, non_blocking=True) for k, v in batch.items()}
+        batch = batch.to(device, dtype, non_blocking=True)
         input = batch['signals'].unsqueeze(1)
 
         # Compute output
@@ -520,8 +520,8 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
 
         if i == max(0, len(loader) - 2):
             example_input = input.detach()
-            example_batch = {k: v.detach() for k, v in batch.items()}
-            example_output = {k: v.detach() for k, v in output.items()}
+            example_batch = batch.detach()
+            example_output = output.detach()
 
         # Measure and record performance with various metrics
         for chn, meters_k in meters.items():
@@ -618,7 +618,7 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
             # measure data loading time
             data_time.update(time.time() - end)
 
-            batch = {k: v.to(device, dtype, non_blocking=True) for k, v in batch.items()}
+            batch = batch.to(device, dtype, non_blocking=True)
             input = batch['signals'].unsqueeze(1)
 
             # Compute output

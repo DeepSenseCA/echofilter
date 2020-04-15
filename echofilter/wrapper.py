@@ -7,6 +7,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.modules.loss import _Loss
 
+from .utils import TensorDict
+
 
 class Echofilter(nn.Module):
     def __init__(self, model, top='mask', bottom='mask'):
@@ -19,7 +21,7 @@ class Echofilter(nn.Module):
 
     def forward(self, x):
         logits = self.model(x)
-        outputs = {}
+        outputs = TensorDict()
         i = 0
 
         if self.params['top'] == 'mask':
