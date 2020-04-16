@@ -243,7 +243,7 @@ def main(
 
         print('Running learning rate finder')
         lr_finder = LRFinder(model, optimizer, criterion, device=device)
-        lr_finder.range_test(loader_train, end_lr=100, num_iter=100)
+        lr_finder.range_test(loader_train, end_lr=100, num_iter=100, diverge_th=3)
         print('Plotting learning rate finder results')
         hf = plt.figure(figsize=(15, 9))
         ax = plt.axes()
