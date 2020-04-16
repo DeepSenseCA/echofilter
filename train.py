@@ -247,7 +247,7 @@ def main(
         print('Plotting learning rate finder results')
         hf = plt.figure(figsize=(15, 9))
         ax = plt.axes()
-        lr_finder.plot(skip_start=0, skip_end=0, log_lr=True, ax=ax)
+        lr_finder.plot(skip_start=0, skip_end=1, log_lr=True, ax=ax)
         plt.tick_params(reset=True, color=(.2, .2, .2))
         plt.tick_params(labelsize=14)
         ax.minorticks_on()
