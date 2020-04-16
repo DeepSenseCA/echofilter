@@ -18,6 +18,7 @@ from torch.utils.tensorboard import SummaryWriter
 import torchvision.transforms
 from torchutils.random import seed_all
 from torchutils.utils import count_parameters
+import ranger
 
 import echofilter.dataset
 import echofilter.transforms
@@ -77,12 +78,16 @@ def main(
         n_epoch=10,
         seed=None,
         print_freq=10,
+        optimizer='adamw',
+        schedule='constant',
         lr=0.1,
         momentum=0.9,
         weight_decay=1e-5,
     ):
 
     seed_all(seed)
+
+    schedule = schedule.lower()
 
     if log_name is None or log_name == '':
         log_name = datetime.datetime.now().strftime('%Y-%b-%d_%H:%M:%S')
@@ -212,12 +217,29 @@ def main(
     # define loss function (criterion) and optimizer
     criterion = EchofilterLoss()
 
-    optimizer = torch.optim.AdamW(
+    optimizer_name = optimizer.lower()
+    if optimizer_name == 'adam':
+        optimizer_class = torch.optim.Adam
+    elif optimizer_name == 'adamw':
+        optimizer_class = torch.optim.AdamW
+    elif optimizer_name == 'ranger':
+        optimizer_class = ranger.Ranger
+    elif optimizer_name == 'rangerva':
+        optimizer_class = ranger.RangerVA
+    elif optimizer_name == 'rangerqh':
+        optimizer_class = ranger.RangerQH
+    else:
+        # We don't support arbitrary optimizers from torch.optim because they
+        # need different configuration parameters to Adam.
+        raise ValueError('Unrecognised optimizer: {}'.format(optimizer))
+
+    optimizer = optimizer_class(
         model.parameters(),
         lr,
         betas=(momentum, 0.999),
         weight_decay=weight_decay,
     )
+    schedule_data = {'name': schedule}
 
     # Initialise loop tracking
     start_epoch = 1
@@ -253,7 +275,8 @@ def main(
 
         # train for one epoch
         loss_tr, meters_tr, (ex_input_tr, ex_batch_tr, ex_output_tr) = train(
-            loader_train, model, criterion, optimizer, device, epoch, print_freq=print_freq
+            loader_train, model, criterion, optimizer, device, epoch, print_freq=print_freq,
+            schedule_data=schedule_data,
         )
 
         # evaluate on validation set
@@ -468,7 +491,10 @@ def get_current_lr(optimizer):
     return optimizer.param_groups[0]['lr']
 
 
-def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float, print_freq=10):
+def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float, print_freq=10, schedule_data=None):
+    if schedule_data is None:
+        schedule_data = {'name': 'constant'}
+
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
@@ -917,6 +943,19 @@ if __name__ == '__main__':
     )
 
     # Optimiser parameters
+    parser.add_argument(
+        '--optim', '--optimiser', '--optimizer',
+        dest='optimizer',
+        type=str,
+        default='adamw',
+        help='optimizer name (default: "adamw")',
+    )
+    parser.add_argument(
+        '--schedule',
+        type=str,
+        default='constant',
+        help='LR schedule (default: "constant")',
+    )
     parser.add_argument(
         '--lr', '--learning-rate',
         dest='lr',

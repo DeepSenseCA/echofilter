@@ -7,4 +7,5 @@ torch
 torchvision
 tqdm
 skimage
-git+https://github.com/scottclowe/pytorch-utils#egg=torchutils
+git+https://github.com/scottclowe/pytorch-utils
+git+https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer.git@ea591d7138fd586626e2176041be5f71cd9fff77
