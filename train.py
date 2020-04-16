@@ -548,7 +548,7 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         data_time.update(time.time() - end)
 
         input = input.to(device, dtype, non_blocking=True)
-        metadata = metadata.to(device, dtype, non_blocking=True)
+        metadata = {k: v.to(device, dtype, non_blocking=True) for k, v in metadata.items()}
 
         # Compute output
         output = model(input)
@@ -658,7 +658,7 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
             data_time.update(time.time() - end)
 
             input = input.to(device, dtype, non_blocking=True)
-            metadata = metadata.to(device, dtype, non_blocking=True)
+            metadata = {k: v.to(device, dtype, non_blocking=True) for k, v in metadata.items()}
 
             # Compute output
             output = model(input)
