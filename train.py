@@ -23,6 +23,7 @@ import ranger
 import echofilter.dataset
 import echofilter.transforms
 import echofilter.shardloader
+import echofilter.utils
 from echofilter import criterions
 from echofilter.meters import AverageMeter, ProgressMeter
 from echofilter.raw.loader import get_partition_list
@@ -314,7 +315,7 @@ def main(
         )
         # Print metrics to terminal
         name_fmt = '{:.<28s}'
-        current_lr = get_current_lr(optimizer)
+        current_lr = echofilter.utils.get_current_lr(optimizer)
         print((name_fmt + ' : {:.4e}').format('Learning rate', current_lr))
         print(
             (name_fmt + ' Train: {:.4e}  AugVal: {:.4e}  Val: {:.4e}')
@@ -506,10 +507,6 @@ def main(
 
     # Close tensorboard connection
     writer.close()
-
-
-def get_current_lr(optimizer):
-    return optimizer.param_groups[0]['lr']
 
 
 def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float, print_freq=10, schedule_data=None):
