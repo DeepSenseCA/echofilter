@@ -7,6 +7,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.modules.loss import _Loss
 
+from .utils import TensorDict
+
 
 class Echofilter(nn.Module):
     def __init__(self, model, top='mask', bottom='mask'):
@@ -19,7 +21,7 @@ class Echofilter(nn.Module):
 
     def forward(self, x):
         logits = self.model(x)
-        outputs = {}
+        outputs = TensorDict()
         i = 0
 
         if self.params['top'] == 'mask':
@@ -123,7 +125,9 @@ class EchofilterLoss(_Loss):
             pass
         elif 'logit_is_above_top' in input:
             loss += self.top_mask * F.binary_cross_entropy_with_logits(
-                input['logit_is_above_top'], target['mask_top'], reduction=self.reduction,
+                input['logit_is_above_top'],
+                target['mask_top'].to(input['logit_is_above_top'].device, input['logit_is_above_top'].dtype),
+                reduction=self.reduction,
             )
         elif 'logit_is_boundary_top' in input:
             X = target['mask_top']
@@ -158,7 +162,9 @@ class EchofilterLoss(_Loss):
             pass
         elif 'logit_is_below_bottom' in input:
             loss += self.bottom_mask * F.binary_cross_entropy_with_logits(
-                input['logit_is_below_bottom'], target['mask_bot'], reduction=self.reduction,
+                input['logit_is_below_bottom'],
+                target['mask_bot'].to(input['logit_is_below_bottom'].device, input['logit_is_below_bottom'].dtype),
+                reduction=self.reduction,
             )
         elif 'logit_is_boundary_bottom' in input:
             X = target['mask_bot']
@@ -186,27 +192,37 @@ class EchofilterLoss(_Loss):
             )
         else:
             loss += self.bottom_mask * F.binary_cross_entropy(
-                input['p_is_below_bottom'], target['mask_bot'], reduction=self.reduction,
+                input['p_is_below_bottom'],
+                target['mask_bot'].to(input['p_is_below_bottom'].device, input['p_is_below_bottom'].dtype),
+                reduction=self.reduction,
             )
 
         if self.removed_segment:
             loss += self.removed_segment * F.binary_cross_entropy_with_logits(
-                input['logit_is_removed'], target['is_removed'], reduction=self.reduction,
+                input['logit_is_removed'],
+                target['is_removed'].to(input['logit_is_removed'].device, input['logit_is_removed'].dtype),
+                reduction=self.reduction,
             )
 
         if self.passive:
             loss += self.passive * F.binary_cross_entropy_with_logits(
-                input['logit_is_passive'], target['is_passive'], reduction=self.reduction,
+                input['logit_is_passive'],
+                target['is_passive'].to(input['logit_is_passive'].device, input['logit_is_passive'].dtype),
+                reduction=self.reduction,
             )
 
         if self.patch:
             loss += self.patch * F.binary_cross_entropy_with_logits(
-                input['logit_is_patch'], target['mask_patches'], reduction=self.reduction,
+                input['logit_is_patch'],
+                target['mask_patches'].to(input['logit_is_patch'].device, input['logit_is_patch'].dtype),
+                reduction=self.reduction,
             )
 
         if self.overall:
             loss += self.overall * F.binary_cross_entropy(
-                input['p_keep_pixel'], target['mask'], reduction=self.reduction,
+                input['p_keep_pixel'],
+                target['mask'].to(input['p_keep_pixel'].device, input['p_keep_pixel'].dtype),
+                reduction=self.reduction,
             )
 
         return loss

@@ -5,6 +5,7 @@ pillow
 tensorboard
 torch
 torchvision
+git+https://github.com/scottclowe/pytorch-lr-finder.git@65d27e31cb3dc229119f5105739efcd45a306e5d
 tqdm
 skimage
 git+https://github.com/scottclowe/pytorch-utils

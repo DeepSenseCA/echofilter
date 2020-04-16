@@ -192,7 +192,8 @@ class TransectDataset(torch.utils.data.Dataset):
         if self.transform_post is not None:
             sample = self.transform_post(sample)
 
-        return sample
+        input = np.expand_dims(sample['signals'], 0).astype(np.float32)
+        return input, sample
 
     def __len__(self):
         return len(self.datapoints)
