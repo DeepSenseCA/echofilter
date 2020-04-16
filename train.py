@@ -995,8 +995,8 @@ if __name__ == '__main__':
         '--wd', '--weight-decay',
         dest='weight_decay',
         type=float,
-        default=1e-4,
-        help='weight decay (default: 1e-4)',
+        default=1e-5,
+        help='weight decay (default: 1e-5)',
     )
 
     # Use seaborn to set matplotlib plotting defaults
