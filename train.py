@@ -24,6 +24,7 @@ import echofilter.dataset
 import echofilter.transforms
 import echofilter.shardloader
 from echofilter import criterions
+from echofilter import torch_backports
 from echofilter.meters import AverageMeter, ProgressMeter
 from echofilter.raw.loader import get_partition_list
 from echofilter.raw.manipulate import load_decomposed_transect_mask
@@ -82,12 +83,19 @@ def main(
         schedule='constant',
         lr=0.1,
         momentum=0.9,
+        base_momentum=None,
         weight_decay=1e-5,
+        warmup_pct=0.3,
+        anneal_strategy='cos',
     ):
 
     seed_all(seed)
 
+    # Input handling
     schedule = schedule.lower()
+
+    if base_momentum is None:
+        base_momentum = momentum
 
     if log_name is None or log_name == '':
         log_name = datetime.datetime.now().strftime('%Y-%b-%d_%H:%M:%S')
@@ -258,6 +266,24 @@ def main(
         plt.savefig(figpth)
         print('LR Finder results saved to {}'.format(figpth))
         return
+    elif schedule == 'constant':
+        pass
+    elif schedule == 'onecycle':
+        schedule_data['scheduler'] = torch_backports.OneCycleLR(
+            optimizer,
+            max_lr=lr,
+            steps_per_epoch=len(loader_train),
+            epochs=n_epoch,
+            pct_start=warmup_pct,
+            anneal_strategy=anneal_strategy,
+            cycle_momentum=True,
+            base_momentum=base_momentum,
+            max_momentum=momentum,
+            div_factor=1e4,
+            final_div_factor=1e4,
+        )
+    else:
+        raise ValueError('Unsupported schedule: {}'.format(schedule))
 
     # Make a tensorboard writer
     writer = SummaryWriter(log_dir=os.path.join('runs', dataset_name, log_name))
@@ -609,6 +635,8 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        if 'scheduler' in schedule_data:
+            schedule_data['scheduler'].step()
 
         # measure elapsed time
         batch_time.update(time.time() - end)
@@ -989,7 +1017,13 @@ if __name__ == '__main__':
         '--momentum',
         type=float,
         default=0.9,
-        help='momentum',
+        help='momentum (default: 0.9)',
+    )
+    parser.add_argument(
+        '--base-momentum',
+        type=float,
+        default=None,
+        help='base momentum; only used for OneCycle schedule (default: same as momentum)',
     )
     parser.add_argument(
         '--wd', '--weight-decay',
@@ -997,6 +1031,18 @@ if __name__ == '__main__':
         type=float,
         default=1e-5,
         help='weight decay (default: 1e-5)',
+    )
+    parser.add_argument(
+        '--warmup-pct',
+        type=float,
+        default=0.3,
+        help='fraction of training to spend warming up LR; only used for OneCycle schedule (default: 0.3)',
+    )
+    parser.add_argument(
+        '--anneal-strategy',
+        type=str,
+        default='cos',
+        help='annealing strategy; only used for OneCycle schedule (default: "cos")',
     )
 
     # Use seaborn to set matplotlib plotting defaults
