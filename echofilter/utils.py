@@ -43,6 +43,19 @@ def last_nonzero(arr, axis, invalid_val=-1):
 
 
 def get_current_lr(optimizer):
+    '''
+    Get the learning rate of an optimizer.
+
+    Parameters
+    ----------
+    optimizer : torch.optim.Optimizer
+        An optimizer, with a learning rate common to all parameter groups.
+
+    Returns
+    -------
+    float
+        The learning rate of the first parameter group.
+    '''
     return optimizer.param_groups[0]['lr']
 
 
