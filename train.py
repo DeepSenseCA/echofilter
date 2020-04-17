@@ -201,7 +201,13 @@ def main(
         .format(n_steps, latent_channels, expansion_factor)
     )
     model = Echofilter(
-        UNet(1, 5, n_steps=n_steps, latent_channels=latent_channels, expansion_factor=expansion_factor),
+        UNet(
+            1,
+            5,
+            n_steps=n_steps,
+            latent_channels=latent_channels,
+            expansion_factor=expansion_factor,
+        ),
         top='boundary',
         bottom='boundary',
     )
