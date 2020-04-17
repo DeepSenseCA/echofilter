@@ -279,8 +279,8 @@ def main(
             cycle_momentum=True,
             base_momentum=base_momentum,
             max_momentum=momentum,
-            div_factor=1e4,
-            final_div_factor=1e4,
+            div_factor=1e3,
+            final_div_factor=1e5,
         )
     else:
         raise ValueError('Unsupported schedule: {}'.format(schedule))
