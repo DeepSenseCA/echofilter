@@ -72,6 +72,7 @@ def main(
         n_steps=4,
         latent_channels=64,
         expansion_factor=2,
+        down_pool='max',
         device='cuda',
         n_worker=4,
         batch_size=64,
@@ -207,6 +208,7 @@ def main(
             n_steps=n_steps,
             latent_channels=latent_channels,
             expansion_factor=expansion_factor,
+            down_pool=down_pool,
         ),
         top='boundary',
         bottom='boundary',
@@ -926,6 +928,12 @@ if __name__ == '__main__':
         type=float,
         default=2.0,
         help='expansion for number of channels as model becomes deeper (default: 2.0)',
+    )
+    parser.add_argument(
+        '--down-pool',
+        type=str,
+        default='max',
+        help='pooling mode for downsampling within unet (default: "max")',
     )
 
     # Training methodology parameters
