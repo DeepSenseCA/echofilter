@@ -301,6 +301,8 @@ def main(
             schedule_data=schedule_data,
         )
 
+        t_val_start = time.time()
+
         # evaluate on validation set
         loss_val, meters_val, (ex_input_val, ex_data_val, ex_output_val) = validate(
             loader_val, model, criterion, device, print_freq=print_freq, prefix='Validation'
@@ -309,6 +311,8 @@ def main(
         loss_augval, meters_augval, (ex_input_augval, ex_data_augval, ex_output_augval) = validate(
             loader_augval, model, criterion, device, print_freq=print_freq, prefix='Aug-Val   '
         )
+        t_val_end = time.time()
+
         print(
             'Completed {} epochs in {}'
             .format(epoch, datetime.timedelta(seconds=time.time() - t_start))
@@ -506,6 +510,12 @@ def main(
             dirname=os.path.join('models', dataset_name, log_name),
         )
         meters_to_csv(meters_val, is_best, dirname=os.path.join('models', dataset_name, log_name))
+
+        # Note how long everything took
+        writer.add_scalar('time/train', t_val_start - t_epoch_start, epoch)
+        writer.add_scalar('time/val', t_val_end - t_val_start, epoch)
+        writer.add_scalar('time/log', time.time() - t_val_end, epoch)
+        writer.add_scalar('time/epoch', time.time() - t_epoch_start, epoch)
 
         # Ensure the tensorboard outputs for this epoch are flushed
         writer.flush()
