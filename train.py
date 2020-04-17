@@ -296,7 +296,7 @@ def main(
         loader_train.dataset.initialise_datapoints()
 
         # train for one epoch
-        loss_tr, meters_tr, (ex_input_tr, ex_data_tr, ex_output_tr) = train(
+        loss_tr, meters_tr, (ex_input_tr, ex_data_tr, ex_output_tr), (batch_time, data_time) = train(
             loader_train, model, criterion, optimizer, device, epoch, print_freq=print_freq,
             schedule_data=schedule_data,
         )
@@ -512,6 +512,8 @@ def main(
         meters_to_csv(meters_val, is_best, dirname=os.path.join('models', dataset_name, log_name))
 
         # Note how long everything took
+        writer.add_scalar('time/batch', batch_time.avg, epoch)
+        writer.add_scalar('time/batch/data', data_time.avg, epoch)
         writer.add_scalar('time/train', t_val_start - t_epoch_start, epoch)
         writer.add_scalar('time/val', t_val_end - t_val_start, epoch)
         writer.add_scalar('time/log', time.time() - t_val_end, epoch)
@@ -629,7 +631,7 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         if i % print_freq == 0 or i + 1 == len(loader):
             progress.display(i + 1)
 
-    return losses.avg, meters, (example_input, example_data, example_output)
+    return losses.avg, meters, (example_input, example_data, example_output), (batch_time, data_time)
 
 
 def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
