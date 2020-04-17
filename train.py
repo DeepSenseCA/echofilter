@@ -347,7 +347,7 @@ def main(
                 )
 
         # Add hyper parameters to tensorboard
-        writer.add_scalar('LR', current_lr, epoch)
+        writer.add_scalar('learning_rate', current_lr, epoch)
         writer.add_scalar('momentum', current_mom, epoch)
         writer.add_scalar('parameter_count', count_parameters(model, only_trainable=True), epoch)
 
