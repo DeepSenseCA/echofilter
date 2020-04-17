@@ -71,11 +71,20 @@ def main(
         resume='',
         log_name=None,
         log_name_append=None,
-        n_steps=4,
+        n_block=4,
         latent_channels=64,
         expansion_factor=2,
-        down_pool='max',
-        down_pool_initial=None,
+        expand_only_on_down=False,
+        blocks_per_downsample=1,
+        blocks_before_first_downsample=1,
+        intrablock_expansion=6,
+        se_reduction=4,
+        downsampling_modes='max',
+        upsampling_modes='bilinear',
+        depthwise_separable_conv=True,
+        residual=True,
+        actfn='InplaceReLU',
+        kernel_size=5,
         device='cuda',
         n_worker=4,
         batch_size=64,
@@ -206,20 +215,30 @@ def main(
     print()
     print(
         'Constructing U-Net model with '
-        '{} steps, '
+        '{} blocks, '
         'initial latent channels {}, '
         'expansion_factor {}'
-        .format(n_steps, latent_channels, expansion_factor)
+        .format(n_block, latent_channels, expansion_factor)
     )
     model = Echofilter(
         UNet(
             1,
             5,
-            n_steps=n_steps,
-            latent_channels=latent_channels,
-            expansion_factor=expansion_factor,
-            down_pool=down_pool,
-            down_pool_initial=down_pool_initial,
+            initial_channels=latent_channels,
+            bottleneck_channels=latent_channels,
+            n_block=n_block,
+            unet_expansion_factor=expansion_factor,
+            expand_only_on_down=expand_only_on_down,
+            blocks_per_downsample=blocks_per_downsample,
+            blocks_before_first_downsample=blocks_before_first_downsample,
+            intrablock_expansion=intrablock_expansion,
+            se_reduction=se_reduction,
+            downsampling_modes=downsampling_modes,
+            upsampling_modes=upsampling_modes,
+            depthwise_separable_conv=depthwise_separable_conv,
+            residual=residual,
+            actfn=actfn,
+            kernel_size=kernel_size,
         ),
         top='boundary',
         bottom='boundary',
@@ -957,10 +976,11 @@ if __name__ == '__main__':
 
     # Model parameters
     parser.add_argument(
-        '--n-steps',
+        '--nblock', '--num-blocks',
+        dest='n_block',
         type=int,
         default=4,
-        help='number of steps down and up in the UNet (default: 4)',
+        help='number of blocks down and up in the UNet (default: 4)',
     )
     parser.add_argument(
         '--latent-channels',
@@ -971,20 +991,78 @@ if __name__ == '__main__':
     parser.add_argument(
         '--expansion-factor',
         type=float,
-        default=2.0,
-        help='expansion for number of channels as model becomes deeper (default: 2.0)',
+        default=2.,
+        help='expansion for number of channels as model becomes deeper (default: 2.)',
     )
     parser.add_argument(
-        '--down-pool',
+        '--expand-only-on-down',
+        action='store_true',
+        help='only expand channels on dowsampling blocks',
+    )
+    parser.add_argument(
+        '--blocks-per-downsample',
+        nargs='+',
+        type=int,
+        default=(1, ),
+        help='for each dim, number of blocks between downsample steps (default: 1)',
+    )
+    parser.add_argument(
+        '--blocks-before-first-downsample',
+        nargs='+',
+        type=int,
+        default=(1, ),
+        help='for each dim, number of blocks before first downsample step (default: 1)',
+    )
+    parser.add_argument(
+        '--intrablock-expansion',
+        type=float,
+        default=6.,
+        help='expansion within inverse residual blocks (default: 6.)',
+    )
+    parser.add_argument(
+        '--se-reduction',
+        type=float,
+        default=4.,
+        help='reduction within squeeze-and-excite blocks (default: 4.)',
+    )
+    parser.add_argument(
+        '--downsampling-modes',
+        nargs='+',
         type=str,
         default='max',
-        help='pooling mode for downsampling within unet (default: "max")',
+        help='for each downsampling step, the method to use (default: "max")',
     )
     parser.add_argument(
-        '--down-pool-initial',
+        '--upsampling-modes',
+        nargs='+',
         type=str,
-        default=None,
-        help='pooling mode for downsampling first layer of unet (default: match --down-pool)',
+        default='bilinear',
+        help='for each upsampling step, the method to use (default: "bilinear")',
+    )
+    parser.add_argument(
+        '--fused-conv',
+        dest='depthwise_separable_conv',
+        action='store_false',
+        help='use fused instead of depthwise separable convolutions',
+    )
+    parser.add_argument(
+        '--no-residual',
+        dest='residual',
+        action='store_false',
+        help="don't use residual blocks",
+    )
+    parser.add_argument(
+        '--actfn',
+        type=str,
+        default='InplaceReLU',
+        help='activation function to use',
+    )
+    parser.add_argument(
+        '--kernel',
+        dest='kernel_size',
+        type=int,
+        default=5,
+        help='convolution kernel size (default: 5)',
     )
 
     # Training methodology parameters
@@ -1086,4 +1164,10 @@ if __name__ == '__main__':
     import seaborn as sns
     sns.set()
 
-    main(**vars(parser.parse_args()))
+    kwargs = vars(parser.parse_args())
+
+    for k in ['blocks_per_downsample', 'blocks_before_first_downsample']:
+        if len(kwargs[k]) == 1:
+            kwargs[k] = kwargs[k][0]
+
+    main(**kwargs)

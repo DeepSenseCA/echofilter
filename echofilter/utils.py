@@ -4,7 +4,31 @@ General utility functions.
 
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
+
+
+def rint(x, minval=None):
+    '''
+    Rounds and casts as an int, optionally with a floor value.
+
+    Parameters
+    ----------
+    x : float
+        Number to round.
+    minval : bool, optional
+        A floor value for the output. If `None`, no floor is applied. Default
+        is `None`.
+
+    Returns
+    -------
+    int
+        The number rounded to the nearest int, and cast as an int. If `minval`
+        is set, the max with `minval` is taken.
+    '''
+    x = int(round(x))
+    if minval is not None:
+        x = max(minval, x)
+    return x
 
 
 def first_nonzero(arr, axis, invalid_val=-1):
