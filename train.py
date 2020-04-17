@@ -316,7 +316,10 @@ def main(
         # Print metrics to terminal
         name_fmt = '{:.<28s}'
         current_lr = echofilter.utils.get_current_lr(optimizer)
-        print((name_fmt + ' : {:.4e}').format('Learning rate', current_lr))
+        current_mom = echofilter.utils.get_current_momentum(optimizer)
+
+        print((name_fmt + ' {:.4e}').format('Learning rate', current_lr))
+        print((name_fmt + ' {:.4e}').format('Momentum', current_mom))
         print(
             (name_fmt + ' Train: {:.4e}  AugVal: {:.4e}  Val: {:.4e}')
             .format('Loss', loss_tr, loss_augval, loss_val)
@@ -341,6 +344,8 @@ def main(
 
         # Add hyper parameters to tensorboard
         writer.add_scalar('LR', current_lr, epoch)
+        writer.add_scalar('momentum', current_mom, epoch)
+
         # Add metrics to tensorboard
         for loss_p, partition in ((loss_tr, 'Train'), (loss_val, 'Val'), (loss_augval, 'ValAug')):
             writer.add_scalar('{}/{}'.format('Loss', partition), loss_p, epoch)
