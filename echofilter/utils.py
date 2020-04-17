@@ -97,6 +97,17 @@ class TensorDict(nn.ParameterDict):
         else:
             self._parameters[key] = parameter
 
+    def detach(self):
+        out = TensorDict()
+        for k, p in self._parameters.items():
+            out[k] = p.detach()
+        return out
+
+    def detach_(self):
+        for k, p in self._parameters.items():
+            self._parameters[k] = p.detach()
+        return self._parameters
+
     def extra_repr(self):
         child_lines = []
         for k, p in self._parameters.items():

@@ -559,7 +559,7 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
 
         if i == max(0, len(loader) - 2):
             example_input = input.detach()
-            example_data = metadata.detach()
+            example_data = {k: v.detach() for k, v in metadata.items()}
             example_output = output.detach()
 
         # Measure and record performance with various metrics
