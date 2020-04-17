@@ -42,7 +42,6 @@ def last_nonzero(arr, axis, invalid_val=-1):
     return np.where(mask.any(axis=axis), val, invalid_val)
 
 
-
 def get_current_lr(optimizer):
     return optimizer.param_groups[0]['lr']
 
