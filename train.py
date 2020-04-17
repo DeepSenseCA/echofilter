@@ -349,6 +349,7 @@ def main(
         # Add hyper parameters to tensorboard
         writer.add_scalar('LR', current_lr, epoch)
         writer.add_scalar('momentum', current_mom, epoch)
+        writer.add_scalar('parameter_count', count_parameters(model, only_trainable=True), epoch)
 
         # Add metrics to tensorboard
         for loss_p, partition in ((loss_tr, 'Train'), (loss_val, 'Val'), (loss_augval, 'ValAug')):
