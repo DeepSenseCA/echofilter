@@ -23,6 +23,7 @@ import ranger
 import echofilter.dataset
 import echofilter.transforms
 import echofilter.shardloader
+import echofilter.utils
 from echofilter import criterions
 from echofilter.meters import AverageMeter, ProgressMeter
 from echofilter.raw.loader import get_partition_list
@@ -295,10 +296,12 @@ def main(
         loader_train.dataset.initialise_datapoints()
 
         # train for one epoch
-        loss_tr, meters_tr, (ex_input_tr, ex_data_tr, ex_output_tr) = train(
+        loss_tr, meters_tr, (ex_input_tr, ex_data_tr, ex_output_tr), (batch_time, data_time) = train(
             loader_train, model, criterion, optimizer, device, epoch, print_freq=print_freq,
             schedule_data=schedule_data,
         )
+
+        t_val_start = time.time()
 
         # evaluate on validation set
         loss_val, meters_val, (ex_input_val, ex_data_val, ex_output_val) = validate(
@@ -308,14 +311,19 @@ def main(
         loss_augval, meters_augval, (ex_input_augval, ex_data_augval, ex_output_augval) = validate(
             loader_augval, model, criterion, device, print_freq=print_freq, prefix='Aug-Val   '
         )
+        t_val_end = time.time()
+
         print(
             'Completed {} epochs in {}'
             .format(epoch, datetime.timedelta(seconds=time.time() - t_start))
         )
         # Print metrics to terminal
         name_fmt = '{:.<28s}'
-        current_lr = get_current_lr(optimizer)
-        print((name_fmt + ' : {:.4e}').format('Learning rate', current_lr))
+        current_lr = echofilter.utils.get_current_lr(optimizer)
+        current_mom = echofilter.utils.get_current_momentum(optimizer)
+
+        print((name_fmt + ' {:.4e}').format('Learning rate', current_lr))
+        print((name_fmt + ' {:.4e}').format('Momentum', current_mom))
         print(
             (name_fmt + ' Train: {:.4e}  AugVal: {:.4e}  Val: {:.4e}')
             .format('Loss', loss_tr, loss_augval, loss_val)
@@ -339,7 +347,10 @@ def main(
                 )
 
         # Add hyper parameters to tensorboard
-        writer.add_scalar('LR', current_lr, epoch)
+        writer.add_scalar('learning_rate', current_lr, epoch)
+        writer.add_scalar('momentum', current_mom, epoch)
+        writer.add_scalar('parameter_count', count_parameters(model, only_trainable=True), epoch)
+
         # Add metrics to tensorboard
         for loss_p, partition in ((loss_tr, 'Train'), (loss_val, 'Val'), (loss_augval, 'ValAug')):
             writer.add_scalar('{}/{}'.format('Loss', partition), loss_p, epoch)
@@ -501,15 +512,19 @@ def main(
         )
         meters_to_csv(meters_val, is_best, dirname=os.path.join('models', dataset_name, log_name))
 
+        # Note how long everything took
+        writer.add_scalar('time/batch', batch_time.avg, epoch)
+        writer.add_scalar('time/batch/data', data_time.avg, epoch)
+        writer.add_scalar('time/train', t_val_start - t_epoch_start, epoch)
+        writer.add_scalar('time/val', t_val_end - t_val_start, epoch)
+        writer.add_scalar('time/log', time.time() - t_val_end, epoch)
+        writer.add_scalar('time/epoch', time.time() - t_epoch_start, epoch)
+
         # Ensure the tensorboard outputs for this epoch are flushed
         writer.flush()
 
     # Close tensorboard connection
     writer.close()
-
-
-def get_current_lr(optimizer):
-    return optimizer.param_groups[0]['lr']
 
 
 def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float, print_freq=10, schedule_data=None):
@@ -617,7 +632,7 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
         if i % print_freq == 0 or i + 1 == len(loader):
             progress.display(i + 1)
 
-    return losses.avg, meters, (example_input, example_data, example_output)
+    return losses.avg, meters, (example_input, example_data, example_output), (batch_time, data_time)
 
 
 def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
