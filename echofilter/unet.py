@@ -130,6 +130,7 @@ class UNet(nn.Module):
         self.latent_channels = latent_channels
         self.expansion_factor = expansion_factor
         self.exponent_matching = exponent_matching
+        self.down_pool = down_pool
 
         lc = latent_channels
         xf = expansion_factor
