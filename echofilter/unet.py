@@ -14,13 +14,15 @@ import torch.nn.functional as F
 class DoubleConv(nn.Module):
     """(convolution => [BN] => ReLU) * 2"""
 
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, stride=1):
         super().__init__()
         self.double_conv = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1, padding_mode='border'),
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1,
+                      padding_mode='border', stride=stride),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1, padding_mode='border'),
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1,
+                      padding_mode='border'),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True)
         )
@@ -32,15 +34,25 @@ class DoubleConv(nn.Module):
 class Down(nn.Module):
     """Downscaling with maxpool then double conv"""
 
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, pool='max'):
         super().__init__()
-        self.maxpool_conv = nn.Sequential(
-            nn.MaxPool2d(2),
-            DoubleConv(in_channels, out_channels)
-        )
+        modules = []
+
+        conv_stride = 1
+        if pool == 'max':
+            modules.append(nn.MaxPool2d(2))
+        elif pool == 'avg':
+            modules.append(nn.AvgPool2d(2))
+        elif pool == 'stride':
+            conv_stride = 2
+        else:
+            raise ValueError('Unsupported pooling method: {}'.format(pool))
+
+        modules.append(DoubleConv(in_channels, out_channels, stride=conv_stride))
+        self.pool_conv = nn.Sequential(*modules)
 
     def forward(self, x):
-        return self.maxpool_conv(x)
+        return self.pool_conv(x)
 
 
 class Up(nn.Module):
@@ -106,6 +118,7 @@ class UNet(nn.Module):
         latent_channels=64,
         expansion_factor=2,
         exponent_matching='in',
+        down_pool='max',
     ):
         super(UNet, self).__init__()
         self.in_channels = in_channels
@@ -136,7 +149,7 @@ class UNet(nn.Module):
                 expo_next = min(n_steps - 1, expo_next)
             nodes_next = rint(lc * (xf ** expo_next))
             # Create the layer and add it to the module list
-            self.down_steps.append(Down(nodes_here, nodes_next))
+            self.down_steps.append(Down(nodes_here, nodes_next, pool=down_pool))
         for i_step in range(n_steps - 1, -1, -1):
             # Either we have the same number of channels for both inputs
             # (the skip connection and the previous layer), or we can have
