@@ -947,6 +947,14 @@ if __name__ == '__main__':
         help='which dataset to use',
     )
     parser.add_argument(
+        '--shape',
+        dest='sample_shape',
+        nargs=2,
+        type=int,
+        default=(128, 512),
+        help='input shape [W, H] (default: (128, 512))',
+    )
+    parser.add_argument(
         '--crop-depth',
         type=float,
         default=70,
