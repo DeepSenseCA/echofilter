@@ -220,26 +220,27 @@ def main(
         'expansion_factor {}'
         .format(n_block, latent_channels, expansion_factor)
     )
+    model_parameters = dict(
+        in_channels=1,
+        out_channels=5,
+        initial_channels=latent_channels,
+        bottleneck_channels=latent_channels,
+        n_block=n_block,
+        unet_expansion_factor=expansion_factor,
+        expand_only_on_down=expand_only_on_down,
+        blocks_per_downsample=blocks_per_downsample,
+        blocks_before_first_downsample=blocks_before_first_downsample,
+        intrablock_expansion=intrablock_expansion,
+        se_reduction=se_reduction,
+        downsampling_modes=downsampling_modes,
+        upsampling_modes=upsampling_modes,
+        depthwise_separable_conv=depthwise_separable_conv,
+        residual=residual,
+        actfn=actfn,
+        kernel_size=kernel_size,
+    )
     model = Echofilter(
-        UNet(
-            1,
-            5,
-            initial_channels=latent_channels,
-            bottleneck_channels=latent_channels,
-            n_block=n_block,
-            unet_expansion_factor=expansion_factor,
-            expand_only_on_down=expand_only_on_down,
-            blocks_per_downsample=blocks_per_downsample,
-            blocks_before_first_downsample=blocks_before_first_downsample,
-            intrablock_expansion=intrablock_expansion,
-            se_reduction=se_reduction,
-            downsampling_modes=downsampling_modes,
-            upsampling_modes=upsampling_modes,
-            depthwise_separable_conv=depthwise_separable_conv,
-            residual=residual,
-            actfn=actfn,
-            kernel_size=kernel_size,
-        ),
+        UNet(**model_parameters),
         top='boundary',
         bottom='boundary',
     )
@@ -558,6 +559,7 @@ def main(
 
         save_checkpoint(
             {
+                'model_parameters': model_parameters,
                 'epoch': epoch,
                 'state_dict': model.state_dict(),
                 'best_loss': best_loss_val,
