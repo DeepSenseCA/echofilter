@@ -384,6 +384,8 @@ def main(
             .format('Loss', loss_tr, loss_augval, loss_val)
         )
         for chn in meters_tr:
+            if chn.lower() != 'overall':
+                continue
             # For each output plane
             print(chn)
             for cr in meters_tr[chn]:
