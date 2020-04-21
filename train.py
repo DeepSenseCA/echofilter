@@ -1180,4 +1180,8 @@ if __name__ == '__main__':
         if len(kwargs[k]) == 1:
             kwargs[k] = kwargs[k][0]
 
+    print('CLI arguments:')
+    print(kwargs)
+    print()
+
     main(**kwargs)
