@@ -239,6 +239,10 @@ def main(
         actfn=actfn,
         kernel_size=kernel_size,
     )
+    print()
+    print(model_parameters)
+    print()
+
     model = Echofilter(
         UNet(**model_parameters),
         top='boundary',
