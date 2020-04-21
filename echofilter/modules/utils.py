@@ -19,6 +19,8 @@ def _ntuple(n):
     def parse(x):
         if isinstance(x, container_abcs.Iterable):
             x = tuple(x)
+            if len(x) == 0:
+                raise ValueError('Input {} is an empty iterable'.format(x))
             if len(x) > 1 or n == 1:
                 return x
             x = x[0]
