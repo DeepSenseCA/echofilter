@@ -119,17 +119,22 @@ class UNet(nn.Module):
         expansion_factor=2,
         exponent_matching='in',
         down_pool='max',
+        down_pool_initial=None,
     ):
         super(UNet, self).__init__()
         self.in_channels = in_channels
         self.n_classes = n_classes
         self.bilinear = bilinear
+        if down_pool_initial is None:
+            down_pool_initial = down_pool
 
         # Store generation parameters
         self.n_steps = n_steps
         self.latent_channels = latent_channels
         self.expansion_factor = expansion_factor
         self.exponent_matching = exponent_matching
+        self.down_pool = down_pool
+        self.down_pool_initial = down_pool_initial
 
         lc = latent_channels
         xf = expansion_factor
@@ -149,7 +154,8 @@ class UNet(nn.Module):
                 expo_next = min(n_steps - 1, expo_next)
             nodes_next = rint(lc * (xf ** expo_next))
             # Create the layer and add it to the module list
-            self.down_steps.append(Down(nodes_here, nodes_next, pool=down_pool))
+            dp_use = down_pool_initial if i_step == 0 else down_pool
+            self.down_steps.append(Down(nodes_here, nodes_next, pool=dp_use))
         for i_step in range(n_steps - 1, -1, -1):
             # Either we have the same number of channels for both inputs
             # (the skip connection and the previous layer), or we can have

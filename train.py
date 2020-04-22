@@ -75,6 +75,7 @@ def main(
         latent_channels=64,
         expansion_factor=2,
         down_pool='max',
+        down_pool_initial=None,
         device='cuda',
         n_worker=4,
         batch_size=64,
@@ -218,6 +219,7 @@ def main(
             latent_channels=latent_channels,
             expansion_factor=expansion_factor,
             down_pool=down_pool,
+            down_pool_initial=down_pool_initial,
         ),
         top='boundary',
         bottom='boundary',
@@ -977,6 +979,12 @@ if __name__ == '__main__':
         type=str,
         default='max',
         help='pooling mode for downsampling within unet (default: "max")',
+    )
+    parser.add_argument(
+        '--down-pool-initial',
+        type=str,
+        default=None,
+        help='pooling mode for downsampling first layer of unet (default: match --down-pool)',
     )
 
     # Training methodology parameters
