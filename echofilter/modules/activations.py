@@ -1,5 +1,8 @@
 '''
 Pytorch activation functions.
+
+Swish and Mish implementations taken from https://github.com/fastai/fastai2
+under the Apache License Version 2.0.
 '''
 
 import functools
@@ -12,9 +15,8 @@ import torch.nn.functional as F
 __all__ = [
     'str2actfnfactory',
     'InplaceReLU',
+    'swish',
     'Swish',
-    'MemoryEfficientSwishFunc',
-    'MemoryEfficientSwish',
     'HardSwish',
     'mish',
     'Mish',
@@ -45,7 +47,7 @@ def str2actfnfactory(actfn_name):
     if actfn_name == 'inplacerelu' or actfn_name == 'reluinplace':
         return InplaceReLU
     elif actfn_name == 'swish':
-        return MemoryEfficientSwish
+        return Swish
     elif actfn_name == 'hardswish':
         return HardSwish
     elif actfn_name == 'mish':
@@ -62,42 +64,44 @@ InplaceReLU = functools.partial(
 )
 
 
-class Swish(nn.Module):
-    def forward(self, x):
-        return x * torch.sigmoid(x)
+# Swish
+@torch.jit.script
+def _swish_jit_fwd(x):
+    return x.mul(torch.sigmoid(x))
 
 
-class MemoryEfficientSwishFunc(torch.autograd.Function):
-    '''
-    A more compute, less memory, version of Swish.
+@torch.jit.script
+def _swish_jit_bwd(x, grad_output):
+    x_sigmoid = torch.sigmoid(x)
+    return grad_output * (x_sigmoid * (1 + x * (1 - x_sigmoid)))
 
-    Notes
-    -----
-    https://github.com/lukemelas/EfficientNet-PyTorch
-    '''
+
+class _SwishJitAutoFn(torch.autograd.Function):
     @staticmethod
-    def forward(ctx, i):
-        result = i * torch.sigmoid(i)
-        ctx.save_for_backward(i)
-        return result
+    def forward(ctx, x):
+        ctx.save_for_backward(x)
+        return _swish_jit_fwd(x)
 
     @staticmethod
     def backward(ctx, grad_output):
-        i = ctx.saved_variables[0]
-        sigmoid_i = torch.sigmoid(i)
-        return grad_output * (sigmoid_i * (1 + i * (1 - sigmoid_i)))
+        x = ctx.saved_variables[0]
+        return _swish_jit_bwd(x, grad_output)
 
 
-class MemoryEfficientSwish(nn.Module):
+def swish(x, inplace=False):
+    return _SwishJitAutoFn.apply(x)
+
+
+class Swish(nn.Module):
     def forward(self, x):
-        return MemoryEfficientSwishFunc.apply(x)
+        return _SwishJitAutoFn.apply(x)
 
 
 class HardSwish(nn.Module):
     '''
     A second-order approximation to the swish activation function.
 
-    https://arxiv.org/abs/1905.02244
+    See https://arxiv.org/abs/1905.02244
     '''
     def __init__(self, inplace=True):
         super().__init__()
@@ -112,20 +116,39 @@ class HardSwish(nn.Module):
         return inplace_str
 
 
+# Mish
 @torch.jit.script
-def mish(input):
+def _mish_jit_fwd(x):
+    return x.mul(torch.tanh(F.softplus(x)))
+
+
+@torch.jit.script
+def _mish_jit_bwd(x, grad_output):
+    x_sigmoid = torch.sigmoid(x)
+    x_tanh_sp = F.softplus(x).tanh()
+    return grad_output.mul(x_tanh_sp + x * x_sigmoid * (1 - x_tanh_sp * x_tanh_sp))
+
+
+class MishJitAutoFn(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, x):
+        ctx.save_for_backward(x)
+        return _mish_jit_fwd(x)
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        x = ctx.saved_variables[0]
+        return _mish_jit_bwd(x, grad_output)
+
+
+def mish(x):
     '''
     Applies the mish function element-wise:
     mish(x) = x * tanh(softplus(x)) = x * tanh(ln(1 + exp(x)))
 
-    Notes
-    -----
-    Mish: A Self Regularized Non-Monotonic Neural Activation Function,
-    Diganta Misra
-    https://arxiv.org/abs/1908.08681
-    https://github.com/digantamisra98/Mish
+    See https://arxiv.org/abs/1908.08681
     '''
-    return input * torch.tanh(F.softplus(input))
+    return MishJitAutoFn.apply(x)
 
 
 class Mish(nn.Module):
@@ -133,18 +156,10 @@ class Mish(nn.Module):
     Applies the mish function element-wise:
     mish(x) = x * tanh(softplus(x)) = x * tanh(ln(1 + exp(x)))
 
-    Notes
-    -----
-    Mish: A Self Regularized Non-Monotonic Neural Activation Function,
-    Diganta Misra
-    https://arxiv.org/abs/1908.08681
-    https://github.com/digantamisra98/Mish
+    See https://arxiv.org/abs/1908.08681
     '''
-    def __init__(self):
-        super().__init__()
-
-    def forward(self, input):
-        return mish(input)
+    def forward(self, x):
+        return MishJitAutoFn.apply(x)
 
 
 class HardMish(nn.Module):
