@@ -131,6 +131,10 @@ def main(
         print("NVIDIA apex must be installed to use mixed precision.")
         use_mixed_precision = False
 
+    # Need to set the default device for apex.amp
+    if device is not None and device != 'cpu':
+        torch.cuda.set_device(torch.device(device))
+
     # Augmentations
     train_transform_pre = torchvision.transforms.Compose([
         echofilter.transforms.RandomCropWidth(0.5),
