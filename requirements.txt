@@ -2,11 +2,11 @@ numpy
 scipy
 pandas
 pillow
+scikit-image
 tensorboard
 torch
 torchvision
 git+https://github.com/scottclowe/pytorch-lr-finder.git@65d27e31cb3dc229119f5105739efcd45a306e5d
 tqdm
-skimage
 git+https://github.com/scottclowe/pytorch-utils
 git+https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer.git@ea591d7138fd586626e2176041be5f71cd9fff77
