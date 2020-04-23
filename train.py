@@ -99,6 +99,7 @@ def main(
         weight_decay=1e-5,
         warmup_pct=0.3,
         anneal_strategy='cos',
+        overall_loss_weight=1.,
     ):
 
     seed_all(seed)
@@ -255,7 +256,7 @@ def main(
     )
 
     # define loss function (criterion) and optimizer
-    criterion = EchofilterLoss()
+    criterion = EchofilterLoss(overall=overall_loss_weight)
 
     optimizer_name = optimizer.lower()
     if optimizer_name == 'adam':
@@ -1174,6 +1175,12 @@ if __name__ == '__main__':
         type=str,
         default='cos',
         help='annealing strategy; only used for OneCycle schedule (default: "cos")',
+    )
+    parser.add_argument(
+        '--overall-loss-weight',
+        type=float,
+        default=1.,
+        help='weighting for overall loss term, set to 0 to disable (default: 1.0)',
     )
 
     # Use seaborn to set matplotlib plotting defaults
