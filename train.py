@@ -397,8 +397,8 @@ def main(
         t_val_end = time.time()
 
         print(
-            'Completed {} epochs in {}'
-            .format(epoch, datetime.timedelta(seconds=time.time() - t_start))
+            'Completed {} of {} epochs in {}'
+            .format(epoch, n_epoch, datetime.timedelta(seconds=time.time() - t_start))
         )
         # Print metrics to terminal
         name_fmt = '{:.<28s}'
