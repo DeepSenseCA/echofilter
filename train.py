@@ -19,6 +19,10 @@ import torchvision.transforms
 from torchutils.random import seed_all
 from torchutils.utils import count_parameters
 import ranger
+try:
+    import apex
+except ImportError:
+    apex = None
 
 import echofilter.dataset
 import echofilter.transforms
@@ -85,6 +89,8 @@ def main(
         residual=True,
         actfn='InplaceReLU',
         kernel_size=5,
+        use_mixed_precision=None,
+        amp_opt='O1',
         device='cuda',
         n_worker=4,
         batch_size=64,
@@ -118,6 +124,16 @@ def main(
         log_name += '_' + log_name_append
 
     print('Output will be written to {}/{}'.format(dataset_name, log_name))
+
+    if use_mixed_precision is None:
+        use_mixed_precision = not 'cpu' in device
+    if use_mixed_precision and apex is None:
+        print("NVIDIA apex must be installed to use mixed precision.")
+        use_mixed_precision = False
+
+    # Need to set the default device for apex.amp
+    if device is not None and device != 'cpu':
+        torch.cuda.set_device(torch.device(device))
 
     # Augmentations
     train_transform_pre = torchvision.transforms.Compose([
@@ -321,6 +337,10 @@ def main(
     else:
         raise ValueError('Unsupported schedule: {}'.format(schedule))
 
+    if use_mixed_precision:
+        print('Converting model to mixed precision, opt="{}"'.format(amp_opt))
+        model, optimizer = apex.amp.initialize(model, optimizer, opt_level=amp_opt)
+
     # Make a tensorboard writer
     writer = SummaryWriter(log_dir=os.path.join('runs', dataset_name, log_name))
 
@@ -342,6 +362,8 @@ def main(
         best_loss_val = checkpoint['best_loss']
         model.load_state_dict(checkpoint['state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer'])
+        if use_mixed_precision and 'amp' in checkpoint:
+            apex.amp.load_state_dict(checkpoint['amp'])
         print(
             "Loaded checkpoint '{}' (epoch {})"
             .format(resume, checkpoint['epoch'])
@@ -359,7 +381,7 @@ def main(
         # train for one epoch
         loss_tr, meters_tr, (ex_input_tr, ex_data_tr, ex_output_tr), (batch_time, data_time) = train(
             loader_train, model, criterion, optimizer, device, epoch, print_freq=print_freq,
-            schedule_data=schedule_data,
+            schedule_data=schedule_data, use_mixed_precision=use_mixed_precision,
         )
 
         t_val_start = time.time()
@@ -562,15 +584,18 @@ def main(
         is_best = loss_val < best_loss_val
         best_loss_val = min(loss_val, best_loss_val)
 
+        checkpoint = {
+            'model_parameters': model_parameters,
+            'epoch': epoch,
+            'state_dict': model.state_dict(),
+            'best_loss': best_loss_val,
+            'optimizer': optimizer.state_dict(),
+            'meters': meters_val,
+        }
+        if use_mixed_precision:
+            checkpoint['amp'] = apex.amp.state_dict()
         save_checkpoint(
-            {
-                'model_parameters': model_parameters,
-                'epoch': epoch,
-                'state_dict': model.state_dict(),
-                'best_loss': best_loss_val,
-                'optimizer': optimizer.state_dict(),
-                'meters': meters_val,
-            },
+            checkpoint,
             is_best,
             dirname=os.path.join('models', dataset_name, log_name),
         )
@@ -591,7 +616,10 @@ def main(
     writer.close()
 
 
-def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float, print_freq=10, schedule_data=None):
+def train(
+    loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
+    print_freq=10, schedule_data=None, use_mixed_precision=False
+):
     if schedule_data is None:
         schedule_data = {'name': 'constant'}
 
@@ -686,7 +714,11 @@ def train(loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
 
         # compute gradient and do optimizer update step
         optimizer.zero_grad()
-        loss.backward()
+        if use_mixed_precision:
+            with apex.amp.scale_loss(loss, optimizer) as scaled_loss:
+                scaled_loss.backward()
+        else:
+            loss.backward()
         optimizer.step()
         if 'scheduler' in schedule_data:
             schedule_data['scheduler'].step()
@@ -1088,6 +1120,19 @@ if __name__ == '__main__':
         type=str,
         default='cuda',
         help='device to use (default: "cuda", using first gpu)',
+    )
+    parser.add_argument(
+        '--no-amp',
+        dest='use_mixed_precision',
+        action='store_false',
+        default=None,
+        help='use fp32 instead of mixed precision (default: use mixed precision on gpu)',
+    )
+    parser.add_argument(
+        '--amp-opt',
+        type=str,
+        default='O1',
+        help='optimizer level for apex automatic mixed precision (default: "O1")',
     )
     parser.add_argument(
         '-j', '--workers',
