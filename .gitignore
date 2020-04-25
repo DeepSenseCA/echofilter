@@ -5,6 +5,9 @@
 # Core dump files on deepsense
 core.*
 
+# Temporary notebooks
+Untitled*.ipynb
+
 
 ##---------------------------------------------------
 # Continuous Integration .gitignore files
