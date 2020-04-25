@@ -625,7 +625,7 @@ def train(
 
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
-    losses = AverageMeter('Loss', ':.4e')
+    losses = AverageMeter('Loss', ':.4f')
 
     meters = {}
     for chn in ['Overall', 'Top', 'Bottom', 'RemovedSeg', 'Passive', 'Patch']:
@@ -737,7 +737,7 @@ def validate(loader, model, criterion, device, dtype=torch.float, print_freq=10,
              prefix='Test', num_examples=32):
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
-    losses = AverageMeter('Loss', ':.4e')
+    losses = AverageMeter('Loss', ':.4f')
 
     meters = {}
     for chn in ['Overall', 'Top', 'Bottom', 'RemovedSeg', 'Passive', 'Patch']:
