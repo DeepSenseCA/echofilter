@@ -1,3 +1,4 @@
+import collections
 import os
 import random
 
@@ -35,9 +36,12 @@ class Rescale(object):
     '''
 
     def __init__(self, output_size):
-        assert isinstance(output_size, (int, tuple))
         if isinstance(output_size, int):
             output_size = (output_size, output_size)
+        elif isinstance(output_size, collections.Sequence):
+            output_size = tuple(output_size)
+        else:
+            raise ValueError('Output size must be an int or a tuple.')
         self.output_size = output_size
 
     def __call__(self, sample):

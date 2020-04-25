@@ -1,194 +1,385 @@
-"""
-Implementation of the U-Net model.
+'''
+U-Net model.
+'''
 
-Adapted from
-https://github.com/milesial/Pytorch-UNet/tree/060bdcd69886a3082a6f8fb7746e12d5fca3e360
-under GPLv3.
-"""
+import functools
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
+from torch import nn
 
-
-class DoubleConv(nn.Module):
-    """(convolution => [BN] => ReLU) * 2"""
-
-    def __init__(self, in_channels, out_channels, stride=1):
-        super().__init__()
-        self.double_conv = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1,
-                      padding_mode='border', stride=stride),
-            nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1,
-                      padding_mode='border'),
-            nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True)
-        )
-
-    def forward(self, x):
-        return self.double_conv(x)
+from . import modules
 
 
 class Down(nn.Module):
-    """Downscaling with maxpool then double conv"""
+    """
+    Downscaling layer, downsampling by a factor of two in one or more dimensions.
+    """
 
-    def __init__(self, in_channels, out_channels, pool='max'):
-        super().__init__()
-        modules = []
+    def __init__(self, mode='max', compress_dims=True):
+        super(Down, self).__init__()
 
-        conv_stride = 1
-        if pool == 'max':
-            modules.append(nn.MaxPool2d(2))
-        elif pool == 'avg':
-            modules.append(nn.AvgPool2d(2))
-        elif pool == 'stride':
-            conv_stride = 2
+        compress_dims = modules.utils._pair(compress_dims)
+        kernel_sizes = modules.utils._pair(2 if compress_dim else 1 for compress_dim in compress_dims)
+
+        if mode == 'max':
+            self.pool = nn.MaxPool2d(kernel_sizes)
+        elif mode == 'avg':
+            self.pool = nn.AvgPool2d(kernel_sizes)
         else:
-            raise ValueError('Unsupported pooling method: {}'.format(pool))
-
-        modules.append(DoubleConv(in_channels, out_channels, stride=conv_stride))
-        self.pool_conv = nn.Sequential(*modules)
+            raise ValueError('Unsupported pooling method: {}'.format(mode))
 
     def forward(self, x):
-        return self.pool_conv(x)
+        return self.pool(x)
 
 
 class Up(nn.Module):
-    """Upscaling then double conv"""
+    '''
+    Upscaling layer, upsampling by a factor of two in one or more dimensions.
+    '''
 
-    def __init__(self, in_channels_to_upscale, in_channels_skip, out_channels, bilinear=True):
-        super().__init__()
+    def __init__(self, in_channels=None, up_dims=True, mode='bilinear'):
+        super(Up, self).__init__()
 
-        if in_channels_to_upscale is None:
-            in_channels_to_upscale = in_channels // 2
+        up_dims = modules.utils._pair(up_dims)
+        kernel_sizes = modules.utils._pair(2 if up_dim else 1 for up_dim in up_dims)
 
-        # if bilinear, use the normal convolutions to reduce the number of channels
-        if bilinear:
-            self.up = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
-        else:
+        # If conv mode, use a transposed convolution to increase the size
+        # Otherwise, use one of the nn.Upsample modes:
+        # {'nearest', 'linear', 'bilinear', 'bicubic'}
+        if 'conv' in mode:
+            if in_channels is None:
+                raise ValueError(
+                    'Number of channels must be provided if upscaling with '
+                    'transposed convolution.'
+                )
             self.up = nn.ConvTranspose2d(
-                in_channels_to_upscale, in_channels_to_upscale, kernel_size=2, stride=2,
+                in_channels, in_channels, kernel_size=kernel_sizes, stride=kernel_sizes,
             )
-
-        self.conv = DoubleConv(in_channels_to_upscale + in_channels_skip, out_channels)
-
-    def forward(self, x1, x2):
-        x1 = self.up(x1)
-        # input is CHW
-        diffY = torch.tensor([x2.size()[2] - x1.size()[2]])
-        diffX = torch.tensor([x2.size()[3] - x1.size()[3]])
-
-        x1 = F.pad(
-            x1,
-            [diffX // 2, diffX - diffX // 2, diffY // 2, diffY - diffY // 2],
-            mode='replicate',
-        )
-        # if you have padding issues, see
-        # https://github.com/HaiyongJiang/U-Net-Pytorch-Unstructured-Buggy/commit/0e854509c2cea854e247a9c615f175f76fbb2e3a
-        # https://github.com/xiaopeng-liao/Pytorch-UNet/commit/8ebac70e633bac59fc22bb5195e513d5832fb3bd
-        x = torch.cat([x2, x1], dim=1)
-        return self.conv(x)
-
-
-class OutConv(nn.Module):
-    def __init__(self, in_channels, out_channels):
-        super(OutConv, self).__init__()
-        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=1)
+        else:
+            self.up = nn.Upsample(scale_factor=kernel_sizes, mode=mode, align_corners=True)
 
     def forward(self, x):
-        return self.conv(x)
+        return self.up(x)
 
 
-def rint(x):
+class UNetBlock(nn.Module):
     '''
-    Returns rounded value, cast as an int.
+    Create a (cascading set of) UNet block(s).
+
+    Each block performs the steps:
+        - Store input to be used in skip connection
+        - Down step
+        - Horizontal block
+        - <Recursion>
+        - Up step
+        - Concatenate with skip connection
+        - Horizontal block
+
+    Where <Recursion> is a call generating a child UNetBlock instance.
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels to this block.
+    horizontal_block_factory : callable
+        A `torch.nn.Module` constructor or function which returns a block of
+        layers. The resulting module must accept `in_channels` and
+        `out_channels` as its first two arguments.
+    n_block : int, optional
+        The number of nested UNetBlocks to use. Default is `1` (no nesting).
+    block_expansion_factor : int or float, optional
+        Expansion factor for the number of channels between nested UNetBlocks.
+        Default is `2`.
+    expand_only_on_down : bool, optional
+        Whether to exand the number of channels only when one of the spatial
+        dimensions is compressed. Default is `False`.
+    blocks_per_downsample : int or sequence, optional
+        How many blocks to include between each downsample operation. This can
+        be a tuple of values for each spatial dimension, or an int which
+        uses the same value for each spatial dimension. Default is `1`.
+    blocks_before_first_downsample : int or sequence, optional
+        How many blocks to include before the first spatial downsampling
+        occurs. Default is `1`.
+    downsampling_modes : {'max', 'avg', 'stride'} or sequence, optional
+        The downsampling mode to use. If this is a string, the same
+        downsampling mode is used for every downsampling step. If it is
+        a sequence, it should contain a string for each downsampling step.
+        If the input sequence is too short, the final value will be used
+        for all remaining downsampling steps. Default is `'max'`.
+    upsampling_modes : str or sequence, optional
+        The upsampling mode to use. If this is a string, it must be `'conv'`,
+        or something supported by `torch.nn.Upsample`; the same
+        upsampling mode is used for every upsampling step. If it is
+        a sequence, it should contain a string for each upsampling step.
+        If the input sequence is too short, the final value will be used
+        for all remaining upsampling steps. Default is `'bilinear'`.
+    _i_block : int, optional
+        The current block number. Used internally to track recursion.
+        Default is `0`.
+    _i_down : int, optional
+        Used internally to track downsampling depth. Default is `0`.
+
+    Notes
+    -----
+    This class is defined recursively, and will instantiate itself as its own
+    child until the number of blocks has been satisfied.
     '''
-    return int(round(x))
-
-
-class UNet(nn.Module):
     def __init__(
         self,
         in_channels,
-        n_classes,
-        bilinear=True,
-        n_steps=4,
-        latent_channels=64,
-        expansion_factor=2,
-        exponent_matching='in',
-        down_pool='max',
-        down_pool_initial=None,
+        horizontal_block_factory,
+        n_block=1,
+        block_expansion_factor=2,
+        expand_only_on_down=False,
+        blocks_per_downsample=1,
+        blocks_before_first_downsample=0,
+        downsampling_modes='max',
+        upsampling_modes='bilinear',
+        _i_block=0,
+        _i_down=0,
     ):
-        super(UNet, self).__init__()
-        self.in_channels = in_channels
-        self.n_classes = n_classes
-        self.bilinear = bilinear
-        if down_pool_initial is None:
-            down_pool_initial = down_pool
+        super(UNetBlock, self).__init__()
 
-        # Store generation parameters
-        self.n_steps = n_steps
-        self.latent_channels = latent_channels
-        self.expansion_factor = expansion_factor
-        self.exponent_matching = exponent_matching
-        self.down_pool = down_pool
-        self.down_pool_initial = down_pool_initial
+        # Ensure these variables are a tuple of length two
+        blocks_per_downsample = modules.utils._pair(blocks_per_downsample)
+        blocks_before_first_downsample = modules.utils._pair(blocks_before_first_downsample)
 
-        lc = latent_channels
-        xf = expansion_factor
+        # Check which downsampling and upsampling mode we are using for this
+        # layer (may be the same for every layer)
+        if isinstance(downsampling_modes, str):
+            downsampling_mode = downsampling_modes
+        elif _i_down >= len(downsampling_modes):
+            downsampling_mode = downsampling_modes[-1]
+        else:
+            downsampling_mode = downsampling_modes[_i_down]
 
-        self.inc = DoubleConv(in_channels, rint(lc))
+        if isinstance(upsampling_modes, str):
+            upsampling_mode = upsampling_modes
+        elif _i_down >= len(upsampling_modes):
+            upsampling_mode = upsampling_modes[-1]
+        else:
+            upsampling_mode = upsampling_modes[_i_down]
 
-        self.down_steps = nn.ModuleList()
-        self.up_steps = nn.ModuleList()
-        for i_step in range(n_steps):
-            # Number of channels in the input
-            expo_prev = i_step
-            nodes_here = rint(lc * (xf ** expo_prev))
-            # Number of channels in the output
-            expo_next = expo_prev + 1
-            if self.exponent_matching == 'in':
-                # Final step doesn't increase the number of channels
-                expo_next = min(n_steps - 1, expo_next)
-            nodes_next = rint(lc * (xf ** expo_next))
-            # Create the layer and add it to the module list
-            dp_use = down_pool_initial if i_step == 0 else down_pool
-            self.down_steps.append(Down(nodes_here, nodes_next, pool=dp_use))
-        for i_step in range(n_steps - 1, -1, -1):
-            # Either we have the same number of channels for both inputs
-            # (the skip connection and the previous layer), or we can have
-            # the number of channels match for the skip connection (which was
-            # the output of Down at this step) and our output at this step.
-            if self.exponent_matching == 'in':
-                expo_prev = i_step
-            elif self.exponent_matching == 'out':
-                expo_prev = i_step + 1
-            else:
-                raise ValueError('Unrecognised exponent_matching: {}'.format(exponent_matching))
-            expo_next = max(0, expo_prev - 1)
-            # Number of channels which are passed through at the full spatial
-            # resolution (skip connection)
-            nodes_from_skip = rint(lc * (xf ** i_step))
-            # Number of channels which come from the previous layer and need
-            # to be upsampled
-            nodes_from_prev = rint(lc * (xf ** expo_prev))
-            nodes_incoming = nodes_from_prev + nodes_from_skip
-            nodes_next = rint(lc * (xf ** expo_next))
-            self.up_steps.append(
-                Up(nodes_from_prev, nodes_from_skip, nodes_next, bilinear=bilinear)
+        # Check which dimensions need to be compressed with this block
+        compress_dims = tuple(
+            _i_block >= i0 and (_i_block - i0) % k == 0
+            for i0, k in zip(blocks_before_first_downsample, blocks_per_downsample)
+        )
+        compress_any_dims = any(compress_dims)
+
+        # Determine whether we are increasing the number of channels, and
+        # if so what to
+        if expand_only_on_down and not compress_any_dims:
+            out_channels = in_channels
+        else:
+            out_channels = int(max(1, round(in_channels * block_expansion_factor)))
+
+        # Downsamling step. If the mode is "stride", this is incorporated
+        # into the horizontal block with a strided convolution. If there
+        # is no need to downsample, it will be the Identity function.
+        stride = 1
+        if not compress_any_dims:
+            self.down = nn.Identity()
+        elif downsampling_mode == 'stride':
+            self.down = nn.Identity()
+            stride = tuple(
+                2 if compress_dim else 1
+                for compress_dim in compress_dims
+            )
+        else:
+            self.down = Down(mode=downsampling_mode, compress_dims=compress_dims)
+
+        # First horizontal block. It might begin with a downsampling stride,
+        # and might increase the number of channels.
+        self.horizontal_block_a = horizontal_block_factory(
+            in_channels,
+            out_channels,
+            stride=stride,
+        )
+
+        # In the sequence, the inner step comes next. But we will define it
+        # once we have finished defining everything else in this UNet block.
+
+        # Upsampling step. Does the inverse of the Down step, using some
+        # method.
+        if not compress_any_dims:
+            self.up = nn.Identity()
+        else:
+            self.up = Up(in_channels=out_channels, up_dims=compress_dims, mode=upsampling_mode)
+
+        # Concatenation step
+        self.concatenate = modules.FlexibleConcat2d()
+
+        # Second horizontal block. Takes both the skip connection and the
+        # upsampled data as its input.
+        self.horizontal_block_b = horizontal_block_factory(
+            in_channels + out_channels,
+            in_channels,
+        )
+
+        if _i_block >= n_block - 1:
+            # End recursion, by doing nothing for the inner loop.
+            self.nested = nn.Identity()
+        else:
+            # Recurse deeper! Call this class again, but with the
+            # block counter increased.
+            self.nested = UNetBlock(
+                out_channels,
+                horizontal_block_factory,
+                n_block=n_block,
+                block_expansion_factor=block_expansion_factor,
+                expand_only_on_down=expand_only_on_down,
+                blocks_per_downsample=blocks_per_downsample,
+                blocks_before_first_downsample=blocks_before_first_downsample,
+                downsampling_modes=downsampling_modes,
+                upsampling_modes=upsampling_modes,
+                _i_block=_i_block + 1,
+                _i_down=_i_down + compress_any_dims,
             )
 
-        self.outc = OutConv(rint(lc), n_classes)
+    def forward(self, input):
+        x = self.down(input)
+        x = self.horizontal_block_a(x)
+        x = self.nested(x)
+        x = self.up(x)
+        x = self.concatenate(x, input)
+        x = self.horizontal_block_b(x)
+        return x
+
+
+class UNet(nn.Module):
+    '''
+    UNet model.
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    out_channels : int
+        Number of output channels.
+    initial_channels : int, optional
+        Number of latent channels to output from the initial convolution
+        facing the input layer. Default is `32`.
+    bottleneck_channels : int, optional
+        Number of channels to output from the first block, before the first
+        unet downsampling step can occur. Default is the same as
+        `initial_channels`.
+    n_block : int, optional
+        Number of blocks, both up and down. Default is `4`.
+    unet_expansion_factor : int or float, optional
+        Channel expansion factor between unet blocks. Default is `2`.
+    expand_only_on_down : bool, optional
+        Whether to only apply `unet_expansion_factor` on unet blocks which
+        actually containg a down/up sampling component, and not on vanilla
+        blocks. Default is `False`.
+    blocks_per_downsample : int or sequence, optional
+        Block interval between dowsampling steps in the unet. If this is
+        a sequence, it corresponds to the number of blocks for each spatial
+        dimension. Default is `1`.
+    blocks_before_first_downsample : int, optional
+        Number of blocks to use before and after the main unet structure.
+        Must be at least `1`. Default is `1`.
+    intrablock_expansion : int or float, optional
+        Channel expansion factor within inverse residual block. Default is `6`.
+    se_reduction : int or float, optional
+        Channel reduction factor within squeeze and excite block.
+        Default is `4`.
+    downsampling_modes : {'max', 'avg', 'stride'} or sequence, optional
+        The downsampling mode to use. If this is a string, the same
+        downsampling mode is used for every downsampling step. If it is
+        a sequence, it should contain a string for each downsampling step.
+        If the input sequence is too short, the final value will be used
+        for all remaining downsampling steps. Default is `'max'`.
+    upsampling_modes : str or sequence, optional
+        The upsampling mode to use. If this is a string, it must be `'conv'`,
+        or something supported by `torch.nn.Upsample`; the same
+        upsampling mode is used for every upsampling step. If it is
+        a sequence, it should contain a string for each upsampling step.
+        If the input sequence is too short, the final value will be used
+        for all remaining upsampling steps. Default is `'bilinear'`.
+    depthwise_separable_conv : bool, optional
+        Whether to use depthwise separable convolutions in the MBConv block.
+        Otherwise, the depth and pointwise convolutions are fused together
+        into a regular convolution. Default is `True`.
+    residual : bool, optional
+        Whether to use a residual architecture for the MBConv blocks.
+        Default is `True`.
+    actfn : str, optional
+        Name of the activation function to use. Default is `'InplaceReLU'`.
+    kernel_size : int, optional
+        Size of convolution kernel to use. Default is `5`.
+    '''
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        initial_channels=32,
+        bottleneck_channels=None,
+        n_block=4,
+        unet_expansion_factor=2,
+        expand_only_on_down=False,
+        blocks_per_downsample=1,
+        blocks_before_first_downsample=1,
+        intrablock_expansion=6,
+        se_reduction=4,
+        downsampling_modes='max',
+        upsampling_modes='bilinear',
+        depthwise_separable_conv=True,
+        residual=True,
+        actfn='InplaceReLU',
+        kernel_size=5,
+    ):
+        super(UNet, self).__init__()
+
+        if bottleneck_channels is None:
+            bottleneck_channels = initial_channels
+        if blocks_before_first_downsample < 1:
+            raise ValueError(
+                'An initial block is hard coded. Number of blocks before first'
+                ' downsample must be at least 1.'
+            )
+
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+
+        actfn_factory = modules.activations.str2actfnfactory(actfn)
+
+        horizontal_block_factory = functools.partial(
+            modules.MBConv,
+            expansion=intrablock_expansion,
+            se_reduction=se_reduction,
+            fused=not depthwise_separable_conv,
+            residual=residual,
+            actfn=actfn_factory,
+            kernel_size=kernel_size,
+        )
+
+        self.initial_conv = nn.Sequential(
+            modules.Conv2dSame(in_channels, initial_channels, kernel_size=kernel_size),
+            nn.BatchNorm2d(bottleneck_channels),
+            actfn_factory(),
+        )
+        self.first_block = horizontal_block_factory(
+            bottleneck_channels,
+            bottleneck_channels,
+            expansion=1,
+        )
+        self.main_blocks = UNetBlock(
+            bottleneck_channels,
+            horizontal_block_factory,
+            n_block=n_block,
+            block_expansion_factor=unet_expansion_factor,
+            expand_only_on_down=expand_only_on_down,
+            blocks_per_downsample=blocks_per_downsample,
+            blocks_before_first_downsample=blocks_before_first_downsample - 1,
+            downsampling_modes=downsampling_modes,
+            upsampling_modes=upsampling_modes,
+        )
+        self.final_block = horizontal_block_factory(bottleneck_channels, out_channels)
 
     def forward(self, x):
-        x = self.inc(x)
-        memory = [x]
-        for step in self.down_steps:
-            memory.append(step(memory[-1]))
-        x = memory.pop()
-        for step in self.up_steps:
-            x = step(x, memory.pop())
-        logits = self.outc(x)
-        return logits
+        x = self.initial_conv(x)
+        x = self.first_block(x)
+        x = self.main_blocks(x)
+        x = self.final_block(x)
+        return x
