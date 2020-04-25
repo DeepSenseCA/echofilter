@@ -406,7 +406,7 @@ def main(
         current_mom = echofilter.utils.get_current_momentum(optimizer)
 
         print((name_fmt + ' {:.4e}').format('Learning rate', current_lr))
-        print((name_fmt + ' {:.4e}').format('Momentum', current_mom))
+        print((name_fmt + ' {:.4f}').format('Momentum', current_mom))
         print(
             (name_fmt + ' Train: {:.4e}  AugVal: {:.4e}  Val: {:.4e}')
             .format('Loss', loss_tr, loss_augval, loss_val)
