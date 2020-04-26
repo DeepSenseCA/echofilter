@@ -333,7 +333,10 @@ class UNet(nn.Module):
 
         if bottleneck_channels is None:
             bottleneck_channels = initial_channels
-        if blocks_before_first_downsample < 1:
+
+        blocks_before_first_downsample = modules.utils._pair(blocks_before_first_downsample)
+
+        if any(b < 1 for b in blocks_before_first_downsample):
             raise ValueError(
                 'An initial block is hard coded. Number of blocks before first'
                 ' downsample must be at least 1.'
@@ -371,7 +374,7 @@ class UNet(nn.Module):
             block_expansion_factor=unet_expansion_factor,
             expand_only_on_down=expand_only_on_down,
             blocks_per_downsample=blocks_per_downsample,
-            blocks_before_first_downsample=blocks_before_first_downsample - 1,
+            blocks_before_first_downsample=tuple(b - 1 for b in blocks_before_first_downsample),
             downsampling_modes=downsampling_modes,
             upsampling_modes=upsampling_modes,
         )
