@@ -1086,7 +1086,8 @@ if __name__ == '__main__':
         help='expansion within inverse residual blocks (default: 6.)',
     )
     parser.add_argument(
-        '--se-reduction',
+        '--se-reduction', '--se',
+        dest='se_reduction',
         type=float,
         default=4.,
         help='reduction within squeeze-and-excite blocks (default: 4.)',
