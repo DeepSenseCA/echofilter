@@ -1242,8 +1242,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '--overall-loss-weight',
         type=float,
-        default=1.,
-        help='weighting for overall loss term, set to 0 to disable (default: 1.0)',
+        default=0.,
+        help='weighting for overall loss term (default: 0.)',
     )
 
     # Use seaborn to set matplotlib plotting defaults
