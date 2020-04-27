@@ -590,6 +590,7 @@ def main(
 
         checkpoint = {
             'model_parameters': model_parameters,
+            'sample_shape': sample_shape,
             'epoch': epoch,
             'state_dict': model.state_dict(),
             'best_loss': best_loss_val,

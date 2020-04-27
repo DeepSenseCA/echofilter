@@ -31,7 +31,7 @@ def main(
         data_dir='/data/dsforce/surveyExports',
         output_dir='processed',
         dataset_name='mobile',
-        image_height=512,
+        image_height=None,
         crop_depth=70,
         device='cuda',
         n_worker=4,
@@ -55,6 +55,9 @@ def main(
     else:
         # Map model to be loaded to specified single gpu.
         checkpoint = torch.load(checkpoint_path, map_location=device)
+
+    if image_height is None:
+        image_height = checkpoint.get('sample_shape', (128, 512))[1]
 
     print(
         'Constructing U-Net model, with parameters:\n{}'
@@ -169,8 +172,8 @@ if __name__ == '__main__':
         '--image-height', '--height',
         dest='image_height',
         type=float,
-        default=512,
-        help='input image height, in pixels (default: 512)',
+        default=None,
+        help='input image height, in pixels (default: same as using during training)',
     )
     parser.add_argument(
         '--crop-depth',
