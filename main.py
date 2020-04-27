@@ -33,9 +33,6 @@ def main(
         dataset_name='mobile',
         sample_shape=(128, 512),
         crop_depth=70,
-        n_steps=4,
-        latent_channels=64,
-        expansion_factor=2,
         device='cuda',
         n_worker=4,
         batch_size=64,
@@ -50,20 +47,6 @@ def main(
         echofilter.transforms.ReplaceNan(-3),
     ])
 
-    print()
-    print(
-        'Constructing U-Net model with '
-        '{} steps, '
-        'initial latent channels {}, '
-        'expansion_factor {}'
-        .format(n_steps, latent_channels, expansion_factor)
-    )
-    model = Echofilter(
-        UNet(1, 5, n_steps=n_steps, latent_channels=latent_channels, expansion_factor=expansion_factor),
-        top='boundary',
-        bottom='boundary',
-    )
-
     if not os.path.isfile(checkpoint_path):
         raise EnvironmentError("No checkpoint found at '{}'".format(checkpoint_path))
     print("Loading checkpoint '{}'".format(checkpoint_path))
@@ -72,7 +55,20 @@ def main(
     else:
         # Map model to be loaded to specified single gpu.
         checkpoint = torch.load(checkpoint_path, map_location=device)
-    best_loss = checkpoint['best_loss']
+
+    print(
+        'Constructing U-Net model, with parameters:\n{}'
+        .format(checkpoint['model_parameters'])
+    )
+    model = Echofilter(
+        UNet(**checkpoint['model_parameters']),
+        top='boundary',
+        bottom='boundary',
+    )
+    print(
+        'Built model with {} trainable parameters'
+        .format(count_parameters(model, only_trainable=True))
+    )
     model.load_state_dict(checkpoint['state_dict'])
     print(
         "Loaded checkpoint '{}' (epoch {})"
@@ -80,10 +76,6 @@ def main(
     )
     # Ensure model is on correct device
     model.to(device)
-    print(
-        'Built model with {} trainable parameters'
-        .format(count_parameters(model, only_trainable=True))
-    )
     # Put model in evaluation mode
     model.eval()
 
@@ -178,26 +170,6 @@ if __name__ == '__main__':
         type=float,
         default=70,
         help='depth, in metres, at which data should be truncated (default: 70)',
-    )
-
-    # Model parameters
-    parser.add_argument(
-        '--n-steps',
-        type=int,
-        default=4,
-        help='number of steps down and up in the UNet (default: 4)',
-    )
-    parser.add_argument(
-        '--latent-channels',
-        type=int,
-        default=64,
-        help='number of initial/final latent channels to use in the model (default: 64)',
-    )
-    parser.add_argument(
-        '--expansion-factor',
-        type=float,
-        default=2.0,
-        help='expansion for number of channels as model becomes deeper (default: 2.0)',
     )
 
     # Training methodology parameters
