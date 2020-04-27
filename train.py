@@ -82,6 +82,7 @@ def main(
         blocks_per_downsample=1,
         blocks_before_first_downsample=1,
         always_include_skip_connection=True,
+        deepest_inner='identity',
         intrablock_expansion=6,
         se_reduction=4,
         downsampling_modes='max',
@@ -249,6 +250,7 @@ def main(
         blocks_per_downsample=blocks_per_downsample,
         blocks_before_first_downsample=blocks_before_first_downsample,
         always_include_skip_connection=always_include_skip_connection,
+        deepest_inner=deepest_inner,
         intrablock_expansion=intrablock_expansion,
         se_reduction=se_reduction,
         downsampling_modes=downsampling_modes,
@@ -1069,6 +1071,12 @@ if __name__ == '__main__':
         dest='always_include_skip_connection',
         action='store_false',
         help='only include skip connections when downsampling',
+    )
+    parser.add_argument(
+        '--deepest-inner',
+        type=str,
+        default='identity',
+        help='layer to include at the deepest point of the UNet (default: "identity")',
     )
     parser.add_argument(
         '--intrablock-expansion',
