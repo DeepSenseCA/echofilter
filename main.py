@@ -31,7 +31,7 @@ def main(
         data_dir='/data/dsforce/surveyExports',
         output_dir='processed',
         dataset_name='mobile',
-        sample_shape=(128, 512),
+        image_height=512,
         crop_depth=70,
         device='cuda',
         n_worker=4,
@@ -111,7 +111,7 @@ def main(
             data['signals'] = data['signals'][:, ::-1].copy()
         # Apply transforms
         data = transform(data)
-        data = echofilter.transforms.Rescale((signals.shape[0], sample_shape[1]))(data)
+        data = echofilter.transforms.Rescale((signals.shape[0], image_height))(data)
         input = torch.tensor(data['signals']).unsqueeze(0).unsqueeze(0)
         input = input.to(device, dtype)
         # Put data through model
@@ -164,6 +164,13 @@ if __name__ == '__main__':
         default='model_best.pth.tar',
         metavar='PATH',
         help='path to checkpoint to load (default: "model_best.pth.tar")',
+    )
+    parser.add_argument(
+        '--image-height', '--height',
+        dest='image_height',
+        type=float,
+        default=512,
+        help='input image height, in pixels (default: 512)',
     )
     parser.add_argument(
         '--crop-depth',
