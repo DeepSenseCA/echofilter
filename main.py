@@ -147,7 +147,7 @@ if __name__ == '__main__':
         'files',
         type=str,
         nargs='+',
-        default='model_best.pth.tar',
+        default=[],
         metavar='FILE',
         help='file(s) to process',
     )
