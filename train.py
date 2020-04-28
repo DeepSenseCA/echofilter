@@ -3,6 +3,7 @@
 from collections import OrderedDict
 import copy
 import os
+import pprint
 import shutil
 import datetime
 import time
@@ -261,7 +262,7 @@ def main(
         kernel_size=kernel_size,
     )
     print()
-    print(model_parameters)
+    pprint.pprint(model_parameters)
     print()
 
     model = Echofilter(

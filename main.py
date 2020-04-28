@@ -2,6 +2,7 @@
 
 from collections import OrderedDict
 import os
+import pprint
 import shutil
 import datetime
 import time
@@ -59,10 +60,8 @@ def main(
     if image_height is None:
         image_height = checkpoint.get('sample_shape', (128, 512))[1]
 
-    print(
-        'Constructing U-Net model, with parameters:\n{}'
-        .format(checkpoint['model_parameters'])
-    )
+    print('Constructing U-Net model, with parameters:')
+    pprint.pprint(checkpoint['model_parameters'])
     model = Echofilter(
         UNet(**checkpoint['model_parameters']),
         top='boundary',
