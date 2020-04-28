@@ -81,6 +81,7 @@ def main(
         expand_only_on_down=False,
         blocks_per_downsample=1,
         blocks_before_first_downsample=1,
+        always_include_skip_connection=True,
         intrablock_expansion=6,
         se_reduction=4,
         downsampling_modes='max',
@@ -247,6 +248,7 @@ def main(
         expand_only_on_down=expand_only_on_down,
         blocks_per_downsample=blocks_per_downsample,
         blocks_before_first_downsample=blocks_before_first_downsample,
+        always_include_skip_connection=always_include_skip_connection,
         intrablock_expansion=intrablock_expansion,
         se_reduction=se_reduction,
         downsampling_modes=downsampling_modes,
@@ -1061,6 +1063,12 @@ if __name__ == '__main__':
         type=int,
         default=(1, ),
         help='for each dim, number of blocks before first downsample step (default: 1)',
+    )
+    parser.add_argument(
+        '--only-skip-connection-on-downsample',
+        dest='always_include_skip_connection',
+        action='store_false',
+        help='only include skip connections when downsampling',
     )
     parser.add_argument(
         '--intrablock-expansion',

@@ -100,6 +100,9 @@ class UNetBlock(nn.Module):
     blocks_before_first_downsample : int or sequence, optional
         How many blocks to include before the first spatial downsampling
         occurs. Default is `1`.
+    always_include_skip_connection : bool, optional
+        If `True`, a skip connection is included even if no dimensions were
+        downsampled in this block. Default is `True`.
     downsampling_modes : {'max', 'avg', 'stride'} or sequence, optional
         The downsampling mode to use. If this is a string, the same
         downsampling mode is used for every downsampling step. If it is
@@ -133,6 +136,7 @@ class UNetBlock(nn.Module):
         expand_only_on_down=False,
         blocks_per_downsample=1,
         blocks_before_first_downsample=0,
+        always_include_skip_connection=True,
         downsampling_modes='max',
         upsampling_modes='bilinear',
         _i_block=0,
@@ -207,13 +211,19 @@ class UNetBlock(nn.Module):
         else:
             self.up = Up(in_channels=out_channels, up_dims=compress_dims, mode=upsampling_mode)
 
-        # Concatenation step
-        self.concatenate = modules.FlexibleConcat2d()
+        if compress_any_dims or always_include_skip_connection:
+            # Concatenation step
+            self.concatenate = modules.FlexibleConcat2d()
+            b_in_channels = in_channels + out_channels
+        else:
+            # No concatenation step
+            self.concatenate = None
+            b_in_channels = out_channels
 
         # Second horizontal block. Takes both the skip connection and the
         # upsampled data as its input.
         self.horizontal_block_b = horizontal_block_factory(
-            in_channels + out_channels,
+            b_in_channels,
             in_channels,
         )
 
@@ -231,6 +241,7 @@ class UNetBlock(nn.Module):
                 expand_only_on_down=expand_only_on_down,
                 blocks_per_downsample=blocks_per_downsample,
                 blocks_before_first_downsample=blocks_before_first_downsample,
+                always_include_skip_connection=always_include_skip_connection,
                 downsampling_modes=downsampling_modes,
                 upsampling_modes=upsampling_modes,
                 _i_block=_i_block + 1,
@@ -242,7 +253,8 @@ class UNetBlock(nn.Module):
         x = self.horizontal_block_a(x)
         x = self.nested(x)
         x = self.up(x)
-        x = self.concatenate(x, input)
+        if self.concatenate is not None:
+            x = self.concatenate(x, input)
         x = self.horizontal_block_b(x)
         return x
 
@@ -279,6 +291,11 @@ class UNet(nn.Module):
     blocks_before_first_downsample : int, optional
         Number of blocks to use before and after the main unet structure.
         Must be at least `1`. Default is `1`.
+    always_include_skip_connection : bool, optional
+        If `True`, a skip connection is included between all blocks equally
+        far from the start and end of the UNet. If `False`, skip connections
+        are only used between downsampling and upsampling operations. Default
+        is `True`.
     intrablock_expansion : int or float, optional
         Channel expansion factor within inverse residual block. Default is `6`.
     se_reduction : int or float, optional
@@ -320,6 +337,7 @@ class UNet(nn.Module):
         expand_only_on_down=False,
         blocks_per_downsample=1,
         blocks_before_first_downsample=1,
+        always_include_skip_connection=True,
         intrablock_expansion=6,
         se_reduction=4,
         downsampling_modes='max',
@@ -375,6 +393,7 @@ class UNet(nn.Module):
             expand_only_on_down=expand_only_on_down,
             blocks_per_downsample=blocks_per_downsample,
             blocks_before_first_downsample=tuple(b - 1 for b in blocks_before_first_downsample),
+            always_include_skip_connection=always_include_skip_connection,
             downsampling_modes=downsampling_modes,
             upsampling_modes=upsampling_modes,
         )
