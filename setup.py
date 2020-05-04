@@ -18,18 +18,16 @@ install_requires = read('requirements.txt').splitlines()
 extras_require = {}
 
 # Dev dependencies
-try:
-    extras_require['dev'] = read('requirements-dev.txt').splitlines()
-except IOError:
-    # doesn't exist
-    pass
+extras_require['dev'] = read('requirements-dev.txt').splitlines()
 
 # Documentation dependencies
-try:
-    extras_require['docs'] = read('requirements-docs.txt').splitlines()
-except IOError:
-    # doesn't exist
-    pass
+extras_require['docs'] = read('requirements-docs.txt').splitlines()
+
+# Model training dependencies
+extras_require['train'] = read('requirements-train.txt').splitlines()
+
+# Jupyter notebook plotting dependencies
+extras_require['plots'] = read('requirements-plots.txt').splitlines()
 
 
 # If there are any extras, add a catch-all case that includes everything.
