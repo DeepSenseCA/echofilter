@@ -8,12 +8,14 @@ import shutil
 import sys
 import time
 
+import appdirs
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn
 import torch.utils.data
 import torchvision.transforms
+from torchvision.datasets.utils import download_url, download_file_from_google_drive
 from torchutils.utils import count_parameters
 from torchutils.device import cuda_is_really_available
 
@@ -27,10 +29,15 @@ from echofilter.wrapper import Echofilter
 DATA_MEAN = -80.
 DATA_STDEV = 20.
 
+CHECKPOINT_RESOURCES = OrderedDict([
+    ('stationary_effunet_block6.xb.2-1_lc32_se2.ckpt.tar', ('gdrive', '114vL-pAxrn9UDhaNG5HxZwjxNy7WMfW_')),
+])
+DEFAULT_CHECKPOINT = next(iter(CHECKPOINT_RESOURCES))
+
 
 def inference(
         files=[],
-        checkpoint_path='model_best.pth.tar',
+        checkpoint=DEFAULT_CHECKPOINT,
         data_dir='/data/dsforce/surveyExports',
         output_dir='processed',
         dataset_name='mobile',
@@ -40,6 +47,7 @@ def inference(
         n_worker=4,
         batch_size=64,
         print_freq=10,
+        cache_dir=None,
     ):
 
     if device is None:
@@ -47,6 +55,21 @@ def inference(
     device = torch.device(device)
 
     dtype = torch.float
+
+    if checkpoint is None:
+        # Use the first item from the list of checkpoints
+        checkpoint = DEFAULT_CHECKPOINT
+
+    if os.path.isfile(checkpoint):
+        checkpoint_path = checkpoint
+    elif checkpoint in CHECKPOINT_RESOURCES:
+        checkpoint_path = download_checkpoint(checkpoint, cache_dir=cache_dir)
+    else:
+        raise ValueError(
+            'The checkpoint parameter should either be a path to a file or '
+            'one of \n{},\nbut {} was provided.'
+            .format(list(CHECKPOINT_RESOURCES.keys()), checkpoint)
+        )
 
     # Preprocessing transforms
     transform = torchvision.transforms.Compose([
@@ -137,6 +160,52 @@ def inference(
         echofilter.raw.loader.evl_writer(os.path.join(output_dir, fname + '.bottom.evl'), timestamps, bottom_depths)
 
 
+def get_default_cache_dir():
+    '''Determine the default cache directory.'''
+    return appdirs.user_cache_dir('echofilter', 'DeepSense')
+
+
+def download_checkpoint(checkpoint_name, cache_dir=None):
+    '''
+    Download a checkpoint if it isn't already cached.
+
+    Parameters
+    ----------
+    checkpoint_name : str
+        Name of checkpoint to download.
+    cache_dir : str or None, optional
+        Path to local cache directory. If `None` (default), an OS-appropriate
+        default cache directory is used.
+
+    Returns
+    -------
+    str
+        Path to downloaded checkpoint file.
+    '''
+    if cache_dir is None:
+        cache_dir = get_default_cache_dir()
+
+    destination = os.path.join(cache_dir, checkpoint_name)
+
+    if os.path.exists(destination):
+        return destination
+
+    os.makedirs(cache_dir, exist_ok=True)
+
+    type, url_or_id = CHECKPOINT_RESOURCES[checkpoint_name]
+
+    if type == 'gdrive':
+        print('Downloading checkpoint {} from GDrive...'.format(checkpoint_name))
+        download_file_from_google_drive(url_or_id, cache_dir, filename=checkpoint_name)
+    else:
+        print('Downloading checkpoint {} from {}...'.format(checkpoint_name, url_or_id))
+        download_url(url_or_id, cache_dir, filename=checkpoint_name)
+
+    print('Downloaded checkpoint to {}'.format(destination))
+
+    return destination
+
+
 def main():
     import argparse
 
@@ -172,11 +241,21 @@ def main():
     )
     parser.add_argument(
         '--checkpoint',
-        dest='checkpoint_path',
         type=str,
-        default='model_best.pth.tar',
+        default=DEFAULT_CHECKPOINT,
         metavar='PATH',
-        help='path to checkpoint to load (default: "model_best.pth.tar")',
+        help=
+            'path to checkpoint to load, or name of checkpoint available to'
+            ' download (default: "{}")'.format(DEFAULT_CHECKPOINT),
+    )
+    DEFAULT_CACHE_DIR = get_default_cache_dir()
+    parser.add_argument(
+        '--cache-dir',
+        type=str,
+        default=DEFAULT_CACHE_DIR,
+        help=
+            'path to checkpoint cache directory (default: "{}")'
+            .format(DEFAULT_CACHE_DIR),
     )
     parser.add_argument(
         '--image-height', '--height',
