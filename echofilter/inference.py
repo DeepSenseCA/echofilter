@@ -146,7 +146,7 @@ def main():
         prog = 'echofilter'
     parser = argparse.ArgumentParser(
         prog=prog,
-        description='Echofilter',
+        description=echofilter.__meta__.description,
     )
     parser.add_argument(
         'files',
