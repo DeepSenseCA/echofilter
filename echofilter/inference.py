@@ -147,11 +147,15 @@ def inference(
         top_depths = data['depths'][echofilter.utils.last_nonzero(output['p_is_above_top'] > 0.5, -1)]
         bottom_depths = data['depths'][echofilter.utils.first_nonzero(output['p_is_below_bottom'] > 0.5, -1)]
         # Export evl files
-        os.makedirs(os.path.dirname(os.path.join(output_dir, fname)), exist_ok=True)
-        print(os.path.join(output_dir, fname + '.top.evl'))
-        print(os.path.join(output_dir, fname + '.bottom.evl'))
-        echofilter.raw.loader.evl_writer(os.path.join(output_dir, fname + '.top.evl'), timestamps, top_depths)
-        echofilter.raw.loader.evl_writer(os.path.join(output_dir, fname + '.bottom.evl'), timestamps, bottom_depths)
+        if output_dir is None or output_dir == '':
+            destination = fname
+        else:
+            destination = os.path.join(output_dir, fname)
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        print(destination + '.top.evl')
+        echofilter.raw.loader.evl_writer(destination + '.top.evl', timestamps, top_depths)
+        print(destination + '.bottom.evl')
+        echofilter.raw.loader.evl_writer(destination + '.bottom.evl', timestamps, bottom_depths)
 
 
 def get_default_cache_dir():
@@ -231,7 +235,9 @@ def main():
         type=str,
         default='processed',
         metavar='DIR',
-        help='path to output directory (default: "processed")',
+        help=
+            'path to output directory. If empty, output is placed in the same'
+            ' directory as the input file. (default: "processed")',
     )
     parser.add_argument(
         '--checkpoint',
