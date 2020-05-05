@@ -38,7 +38,7 @@ DEFAULT_CHECKPOINT = next(iter(CHECKPOINT_RESOURCES))
 def inference(
         files=[],
         checkpoint=DEFAULT_CHECKPOINT,
-        data_dir='/data/dsforce/surveyExports',
+        data_dir='.',
         output_dir='processed',
         image_height=None,
         crop_depth=70,
@@ -222,9 +222,9 @@ def main():
     parser.add_argument(
         '--data-dir',
         type=str,
-        default='/data/dsforce/surveyExports',
+        default='.',
         metavar='DIR',
-        help='path to root data directory',
+        help='path to directory containing FILE (default: ".")',
     )
     parser.add_argument(
         '--output-dir',
