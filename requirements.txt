@@ -4,4 +4,4 @@ pandas
 scikit-image
 torch
 torchvision
-git+https://github.com/scottclowe/pytorch-utils
+torchutils @ git+https://github.com/scottclowe/pytorch-utils#egg=torchutils
