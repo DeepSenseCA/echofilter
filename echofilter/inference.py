@@ -34,11 +34,15 @@ def inference(
         dataset_name='mobile',
         image_height=None,
         crop_depth=70,
-        device='cuda',
+        device=None,
         n_worker=4,
         batch_size=64,
         print_freq=10,
     ):
+
+    if device is None:
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = torch.device(device)
 
     dtype = torch.float
 
@@ -184,8 +188,8 @@ def main():
     parser.add_argument(
         '--device',
         type=str,
-        default='cuda',
-        help='device to use (default: "cuda", using first gpu)',
+        default=None,
+        help='device to use (default: use first gpu, if available, otherwise cpu)',
     )
     parser.add_argument(
         '-j', '--workers',
