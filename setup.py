@@ -164,6 +164,14 @@ setup(
     ],
     # Could also include keywords, download_url, project_urls, etc.
 
+    entry_points={
+        'console_scripts': [
+            'echofilter=echofilter.__main__:main',
+            'echofilter-train=echofilter.train:main',
+            'echofilter-generate-shards=echofilter.generate_shards:main',
+        ],
+    },
+
     # Custom commands
     cmdclass={
         'test': PyTest,

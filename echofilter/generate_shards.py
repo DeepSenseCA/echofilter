@@ -13,7 +13,7 @@ import echofilter.shardloader
 ROOT_DATA_DIR = echofilter.raw.loader.ROOT_DATA_DIR
 
 
-def single(
+def generate_shard(
     transect_pth,
     verbose=False,
     fail_gracefully=True,
@@ -53,7 +53,7 @@ def single(
         print("".join(traceback.TracebackException.from_exception(ex).format()))
 
 
-def main(
+def generate_shards(
     partition,
     dataset,
     partitioning_version='firstpass',
@@ -115,7 +115,7 @@ def main(
         maybe_tqdm = lambda x: x
 
     fn = functools.partial(
-        single,
+        generate_shard,
         dataset=dataset,
         verbose=verbose,
         fail_gracefully=fail_gracefully,
@@ -131,7 +131,7 @@ def main(
                 pass
 
 
-if __name__ == '__main__':
+def main():
     import argparse
 
     # Create parser
@@ -195,4 +195,8 @@ if __name__ == '__main__':
     print("Sharding {} partition of {}".format(args.partition, args.dataset))
 
     # Run command with these arguments
-    main(**vars(args))
+    generate_shards(**vars(args))
+
+
+if __name__ == '__main__':
+    main()

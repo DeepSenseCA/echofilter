@@ -26,7 +26,7 @@ DATA_MEAN = -80.
 DATA_STDEV = 20.
 
 
-def main(
+def inference(
         files=[],
         checkpoint_path='model_best.pth.tar',
         data_dir='/data/dsforce/surveyExports',
@@ -131,8 +131,7 @@ def main(
         echofilter.raw.loader.evl_writer(os.path.join(output_dir, fname + '.bottom.evl'), timestamps, bottom_depths)
 
 
-if __name__ == '__main__':
-
+def main():
     import argparse
 
     # Data parameters
@@ -203,4 +202,8 @@ if __name__ == '__main__':
         help='mini-batch size (default: 64)',
     )
 
-    main(**vars(parser.parse_args()))
+    inference(**vars(parser.parse_args()))
+
+
+if __name__ == '__main__':
+    main()

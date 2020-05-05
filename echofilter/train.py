@@ -68,7 +68,7 @@ PLOT_TRANSECTS = {
 }
 
 
-def main(
+def train(
         data_dir='/data/dsforce/surveyExports',
         dataset_name='mobile',
         sample_shape=(128, 512),
@@ -384,7 +384,7 @@ def main(
         loader_train.dataset.initialise_datapoints()
 
         # train for one epoch
-        loss_tr, meters_tr, (ex_input_tr, ex_data_tr, ex_output_tr), (batch_time, data_time) = train(
+        loss_tr, meters_tr, (ex_input_tr, ex_data_tr, ex_output_tr), (batch_time, data_time) = train_epoch(
             loader_train, model, criterion, optimizer, device, epoch, print_freq=print_freq,
             schedule_data=schedule_data, use_mixed_precision=use_mixed_precision,
         )
@@ -622,7 +622,7 @@ def main(
     writer.close()
 
 
-def train(
+def train_epoch(
     loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
     print_freq=10, schedule_data=None, use_mixed_precision=False
 ):
@@ -973,8 +973,7 @@ def meters_to_csv(meters, is_best, dirname='.', filename='meters.csv'):
         shutil.copyfile(os.path.join(dirname, filename), os.path.join(dirname, 'model_best.meters.csv'))
 
 
-if __name__ == '__main__':
-
+def main():
     import argparse
 
     # Data parameters
@@ -1261,4 +1260,8 @@ if __name__ == '__main__':
     print(kwargs)
     print()
 
-    main(**kwargs)
+    train(**kwargs)
+
+
+if __name__ == '__main__':
+    main()
