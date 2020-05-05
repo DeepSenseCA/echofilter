@@ -36,7 +36,7 @@ DEFAULT_CHECKPOINT = next(iter(CHECKPOINT_RESOURCES))
 
 
 def inference(
-        files=[],
+        files,
         checkpoint=DEFAULT_CHECKPOINT,
         data_dir='.',
         output_dir='processed',
