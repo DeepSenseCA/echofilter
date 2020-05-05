@@ -231,7 +231,7 @@ def main():
         type=str,
         default='processed',
         metavar='DIR',
-        help='path to output directory',
+        help='path to output directory (default: "processed")',
     )
     parser.add_argument(
         '--checkpoint',
@@ -256,7 +256,10 @@ def main():
         dest='image_height',
         type=float,
         default=None,
-        help='input image height, in pixels (default: same as using during training)',
+        help=
+            'input image height, in pixels. The echogram will be resized to'
+            ' have this height, and its width will be kept. (default: same'
+            ' as using during training)',
     )
     parser.add_argument(
         '--crop-depth',
