@@ -40,7 +40,6 @@ def inference(
         checkpoint=DEFAULT_CHECKPOINT,
         data_dir='/data/dsforce/surveyExports',
         output_dir='processed',
-        dataset_name='mobile',
         image_height=None,
         crop_depth=70,
         device=None,
@@ -113,8 +112,6 @@ def inference(
             fname_full = fname
         elif os.path.isfile(os.path.join(data_dir, fname)):
             fname_full = os.path.join(data_dir, fname)
-        elif os.path.isfile(os.path.join(data_dir, dataset_name, fname)):
-            fname_full = os.path.join(data_dir, dataset_name, fname)
         else:
             raise EnvironmentError('Could not locate file {}'.format(fname))
         # Load the data
