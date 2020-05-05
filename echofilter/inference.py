@@ -41,7 +41,7 @@ def inference(
         data_dir='.',
         output_dir='processed',
         image_height=None,
-        crop_depth=70,
+        crop_depth=None,
         device=None,
         cache_dir=None,
     ):
@@ -121,10 +121,11 @@ def inference(
             'depths': depths,
             'signals': signals,
         }
-        # Apply depth crop
-        depth_crop_mask = data['depths'] <= crop_depth
-        data['depths'] = data['depths'][depth_crop_mask]
-        data['signals'] = data['signals'][:, depth_crop_mask]
+        if crop_depth is not None:
+            # Apply depth crop
+            depth_crop_mask = data['depths'] <= crop_depth
+            data['depths'] = data['depths'][depth_crop_mask]
+            data['signals'] = data['signals'][:, depth_crop_mask]
 
         # Configure data to match what the model expects to see
         # Determine whether depths are ascending or descending
@@ -270,8 +271,8 @@ def main():
     parser.add_argument(
         '--crop-depth',
         type=float,
-        default=70,
-        help='depth, in metres, at which data should be truncated (default: 70)',
+        default=None,
+        help='depth, in metres, at which data should be truncated (default: None)',
     )
     parser.add_argument(
         '--device',
