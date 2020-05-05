@@ -44,9 +44,6 @@ def inference(
         image_height=None,
         crop_depth=70,
         device=None,
-        n_worker=4,
-        batch_size=64,
-        print_freq=10,
         cache_dir=None,
     ):
 
@@ -270,27 +267,11 @@ def main():
         default=70,
         help='depth, in metres, at which data should be truncated (default: 70)',
     )
-
-    # Training methodology parameters
     parser.add_argument(
         '--device',
         type=str,
         default=None,
         help='device to use (default: use first gpu, if available, otherwise cpu)',
-    )
-    parser.add_argument(
-        '-j', '--workers',
-        dest='n_worker',
-        type=int,
-        default=4,
-        metavar='N',
-        help='number of data loading workers (default: 4)',
-    )
-    parser.add_argument(
-        '-b', '--batch-size',
-        type=int,
-        default=64,
-        help='mini-batch size (default: 64)',
     )
 
     inference(**vars(parser.parse_args()))
