@@ -3,5 +3,5 @@ matplotlib
 seaborn
 tensorboard
 tqdm
-torch_lr_finder @ git+https://github.com/davidtvs/pytorch-lr-finder.git@1d1e3e7170db3d784ac7e268a63fa8a077880b50#egg=torch_lr_finder
 ranger @ git+https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer.git@ea591d7138fd586626e2176041be5f71cd9fff77#egg=ranger
+torch_lr_finder @ git+https://github.com/davidtvs/pytorch-lr-finder.git@1d1e3e7170db3d784ac7e268a63fa8a077880b50#egg=torch_lr_finder
