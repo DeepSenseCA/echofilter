@@ -4,6 +4,7 @@ from collections import OrderedDict
 import os
 import pprint
 import shutil
+import sys
 import datetime
 import time
 
@@ -140,7 +141,13 @@ def main():
     import argparse
 
     # Data parameters
-    parser = argparse.ArgumentParser(description='Echofilter')
+    prog = os.path.split(sys.argv[0])[1]
+    if prog == '__main__.py':
+        prog = 'echofilter'
+    parser = argparse.ArgumentParser(
+        prog=prog,
+        description='Echofilter',
+    )
     parser.add_argument(
         'files',
         type=str,
