@@ -2,15 +2,16 @@
 
 from collections import OrderedDict
 import copy
+import datetime
 import os
 import pprint
 import shutil
-import datetime
 import time
 
-import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import ranger
 import torch
 import torch.nn
 import torch.optim
@@ -19,7 +20,6 @@ from torch.utils.tensorboard import SummaryWriter
 import torchvision.transforms
 from torchutils.random import seed_all
 from torchutils.utils import count_parameters
-import ranger
 try:
     import apex
 except ImportError:
