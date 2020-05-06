@@ -31,6 +31,7 @@ import echofilter.transforms
 import echofilter.shardloader
 import echofilter.utils
 from echofilter import criterions
+from echofilter import schedulers
 from echofilter import torch_backports
 from echofilter.meters import AverageMeter, ProgressMeter
 from echofilter.raw.loader import get_partition_list
@@ -108,6 +109,7 @@ def train(
         base_momentum=None,
         weight_decay=1e-5,
         warmup_pct=0.3,
+        warmdown_pct=0.75,
         anneal_strategy='cos',
         overall_loss_weight=1.,
     ):
@@ -333,6 +335,21 @@ def train(
             steps_per_epoch=len(loader_train),
             epochs=n_epoch,
             pct_start=warmup_pct,
+            anneal_strategy=anneal_strategy,
+            cycle_momentum=True,
+            base_momentum=base_momentum,
+            max_momentum=momentum,
+            div_factor=1e3,
+            final_div_factor=1e5,
+        )
+    elif schedule == 'mesaonecycle':
+        schedule_data['scheduler'] = schedulers.MesaOneCycleLR(
+            optimizer,
+            max_lr=lr,
+            steps_per_epoch=len(loader_train),
+            epochs=n_epoch,
+            pct_start=warmup_pct,
+            pct_end=warmdown_pct,
             anneal_strategy=anneal_strategy,
             cycle_momentum=True,
             base_momentum=base_momentum,
@@ -1244,7 +1261,17 @@ def main():
         '--warmup-pct',
         type=float,
         default=0.3,
-        help='fraction of training to spend warming up LR; only used for OneCycle schedule (default: 0.3)',
+        help=
+            'fraction of training to spend warming up LR; only used for'
+            ' OneCycle MesaOneCycle schedules (default: 0.3)',
+    )
+    parser.add_argument(
+        '--warmdown-pct',
+        type=float,
+        default=0.75,
+        help=
+            'fraction of training before warming down LR; only used for'
+            ' MesaOneCycle schedule (default: 0.75)',
     )
     parser.add_argument(
         '--anneal-strategy',
