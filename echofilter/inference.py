@@ -106,7 +106,10 @@ def inference(
     # Put model in evaluation mode
     model.eval()
 
-    for fname in parse_files_in_folders(files, data_dir):
+    files = list(parse_files_in_folders(files, data_dir))
+    print('Processing {} file{}'.format(len(files), '' if len(files) == 1 else 's'))
+
+    for fname in files:
         # Check what the full path should be
         if os.path.isfile(fname):
             fname_full = fname
