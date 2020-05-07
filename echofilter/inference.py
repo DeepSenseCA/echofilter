@@ -46,7 +46,7 @@ def inference(
         device=None,
         cache_dir=None,
         keep_ext=False,
-        verbose=0,
+        verbose=1,
     ):
 
     if device is None:
@@ -62,7 +62,7 @@ def inference(
     if os.path.isfile(checkpoint):
         checkpoint_path = checkpoint
     elif checkpoint in CHECKPOINT_RESOURCES:
-        checkpoint_path = download_checkpoint(checkpoint, cache_dir=cache_dir)
+        checkpoint_path = download_checkpoint(checkpoint, cache_dir=cache_dir, verbose=verbose)
     else:
         raise ValueError(
             'The checkpoint parameter should either be a path to a file or '
@@ -78,7 +78,8 @@ def inference(
 
     if not os.path.isfile(checkpoint_path):
         raise EnvironmentError("No checkpoint found at '{}'".format(checkpoint_path))
-    print("Loading checkpoint '{}'".format(checkpoint_path))
+    if verbose >= 1:
+        print("Loading checkpoint '{}'".format(checkpoint_path))
     if device is None:
         checkpoint = torch.load(checkpoint_path)
     else:
@@ -88,29 +89,33 @@ def inference(
     if image_height is None:
         image_height = checkpoint.get('sample_shape', (128, 512))[1]
 
-    print('Constructing U-Net model, with parameters:')
-    pprint.pprint(checkpoint['model_parameters'])
+    if verbose >= 2:
+        print('Constructing U-Net model, with arguments:')
+        pprint.pprint(checkpoint['model_parameters'])
     model = Echofilter(
         UNet(**checkpoint['model_parameters']),
         top='boundary',
         bottom='boundary',
     )
-    print(
-        'Built model with {} trainable parameters'
-        .format(count_parameters(model, only_trainable=True))
-    )
+    if verbose >= 1:
+        print(
+            'Built model with {} trainable parameters'
+            .format(count_parameters(model, only_trainable=True))
+        )
     model.load_state_dict(checkpoint['state_dict'])
-    print(
-        "Loaded checkpoint '{}' (epoch {})"
-        .format(checkpoint_path, checkpoint['epoch'])
-    )
+    if verbose >= 1:
+        print(
+            "Loaded checkpoint state from '{}' (epoch {})"
+            .format(checkpoint_path, checkpoint['epoch'])
+        )
     # Ensure model is on correct device
     model.to(device)
     # Put model in evaluation mode
     model.eval()
 
     files = list(parse_files_in_folders(files, data_dir))
-    print('Processing {} file{}'.format(len(files), '' if len(files) == 1 else 's'))
+    if verbose >= 1:
+        print('Processing {} file{}'.format(len(files), '' if len(files) == 1 else 's'))
 
     if len(files) == 1:
         maybe_tqdm = lambda x: x
@@ -118,7 +123,7 @@ def inference(
         maybe_tqdm = tqdm
 
     for fname in maybe_tqdm(files):
-        if verbose > 0:
+        if verbose >= 2:
             print('Processing {}'.format(fname))
         # Check what the full path should be
         if os.path.isfile(fname):
@@ -128,9 +133,9 @@ def inference(
         else:
             raise EnvironmentError('Could not locate file {}'.format(fname))
         # Load the data
-        if verbose >= 2:
+        if verbose >= 4:
             warn_row_overflow = np.inf
-        elif verbose >= 1:
+        elif verbose >= 3:
             warn_row_overflow = None
         else:
             warn_row_overflow = 0
@@ -177,13 +182,15 @@ def inference(
         if not keep_ext:
             destination = os.path.splitext(destination)[0]
         os.makedirs(os.path.dirname(destination), exist_ok=True)
-        if verbose > 1:
-            print(destination + '.top.evl')
+        if verbose >= 2:
+            print('Writing output {}'.format(destination + '.top.evl'))
         echofilter.raw.loader.evl_writer(destination + '.top.evl', timestamps, top_depths)
-        if verbose > 1:
-            print(destination + '.bottom.evl')
+        if verbose >= 2:
+            print('Writing output {}'.format(destination + '.bottom.evl'))
         echofilter.raw.loader.evl_writer(destination + '.bottom.evl', timestamps, bottom_depths)
 
+    if verbose >= 1:
+        print('Finished processing {} file{}'.format(len(files), '' if len(files) == 1 else 's'))
 
 def parse_files_in_folders(files_or_folders, data_dir, extension='csv'):
     '''
@@ -229,7 +236,7 @@ def get_default_cache_dir():
     return appdirs.user_cache_dir('echofilter', 'DeepSense')
 
 
-def download_checkpoint(checkpoint_name, cache_dir=None):
+def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     '''
     Download a checkpoint if it isn't already cached.
 
@@ -240,6 +247,9 @@ def download_checkpoint(checkpoint_name, cache_dir=None):
     cache_dir : str or None, optional
         Path to local cache directory. If `None` (default), an OS-appropriate
         default cache directory is used.
+    verbose : int, optional
+        Verbosity level. Default is `1`. Set to `0` to disable print
+        statements.
 
     Returns
     -------
@@ -259,13 +269,16 @@ def download_checkpoint(checkpoint_name, cache_dir=None):
     type, url_or_id = CHECKPOINT_RESOURCES[checkpoint_name]
 
     if type == 'gdrive':
-        print('Downloading checkpoint {} from GDrive...'.format(checkpoint_name))
+        if verbose > 0:
+            print('Downloading checkpoint {} from GDrive...'.format(checkpoint_name))
         download_file_from_google_drive(url_or_id, cache_dir, filename=checkpoint_name)
     else:
-        print('Downloading checkpoint {} from {}...'.format(checkpoint_name, url_or_id))
+        if verbose > 0:
+            print('Downloading checkpoint {} from {}...'.format(checkpoint_name, url_or_id))
         download_url(url_or_id, cache_dir, filename=checkpoint_name)
 
-    print('Downloaded checkpoint to {}'.format(destination))
+    if verbose > 0:
+        print('Downloaded checkpoint to {}'.format(destination))
 
     return destination
 
@@ -359,14 +372,14 @@ def main():
     parser.add_argument(
         '--verbose', '-v',
         action='count',
-        default=0,
-        help='increase verbosity level',
+        default=1,
+        help='increase verbosity, print more progress details',
     )
     parser.add_argument(
         '--quiet', '-q',
         action='count',
         default=0,
-        help='decrease verbosity level',
+        help='decrease verbosity, print fewer progress details',
     )
     kwargs = vars(parser.parse_args())
     kwargs['verbose'] -= kwargs.pop('quiet', 0)
