@@ -20,7 +20,8 @@ from torchutils.utils import count_parameters
 from torchutils.device import cuda_is_really_available
 from tqdm.auto import tqdm
 
-import echofilter.raw.loader
+import echofilter.raw
+from echofilter.raw.manipulate import join_transect, split_transect
 import echofilter.transforms
 import echofilter.utils
 from echofilter.unet import UNet
@@ -54,8 +55,6 @@ def inference(
         device = 'cuda' if cuda_is_really_available() else 'cpu'
     device = torch.device(device)
 
-    dtype = torch.float
-
     if checkpoint is None:
         # Use the first item from the list of checkpoints
         checkpoint = DEFAULT_CHECKPOINT
@@ -70,12 +69,6 @@ def inference(
             'one of \n{},\nbut {} was provided.'
             .format(list(CHECKPOINT_RESOURCES.keys()), checkpoint)
         )
-
-    # Preprocessing transforms
-    transform = torchvision.transforms.Compose([
-        echofilter.transforms.Normalize(DATA_MEAN, DATA_STDEV),
-        echofilter.transforms.ReplaceNan(-3),
-    ])
 
     if not os.path.isfile(checkpoint_path):
         raise EnvironmentError("No checkpoint found at '{}'".format(checkpoint_path))
@@ -145,37 +138,18 @@ def inference(
             warn_row_overflow=warn_row_overflow,
             row_len_selector=row_len_selector,
         )
-        data = {
-            'timestamps': timestamps,
-            'depths': depths,
-            'signals': signals,
-        }
-        if crop_depth is not None:
-            # Apply depth crop
-            depth_crop_mask = data['depths'] <= crop_depth
-            data['depths'] = data['depths'][depth_crop_mask]
-            data['signals'] = data['signals'][:, depth_crop_mask]
-
-        # Configure data to match what the model expects to see
-        # Determine whether depths are ascending or descending
-        is_upward_facing = (data['depths'][-1] < data['depths'][0])
-        # Ensure depth is always increasing (which corresponds to descending from
-        # the air down the water column)
-        if is_upward_facing:
-            data['depths'] = data['depths'][::-1].copy()
-            data['signals'] = data['signals'][:, ::-1].copy()
-        # Apply transforms
-        data = transform(data)
-        data = echofilter.transforms.Rescale((signals.shape[0], image_height))(data)
-        input = torch.tensor(data['signals']).unsqueeze(0).unsqueeze(0)
-        input = input.to(device, dtype)
-        # Put data through model
-        with torch.no_grad():
-            output = model(input)
-            output = {k: v.squeeze(0).cpu().numpy() for k, v in output.items()}
+        output = inference_transect(
+            model,
+            timestamps,
+            depths,
+            signals,
+            device,
+            image_height,
+            crop_depth=crop_depth,
+        )
         # Convert output into lines
-        top_depths = data['depths'][echofilter.utils.last_nonzero(output['p_is_above_top'] > 0.5, -1)]
-        bottom_depths = data['depths'][echofilter.utils.first_nonzero(output['p_is_below_bottom'] > 0.5, -1)]
+        top_depths = output['depths'][echofilter.utils.last_nonzero(output['p_is_above_top'] > 0.5, -1)]
+        bottom_depths = output['depths'][echofilter.utils.first_nonzero(output['p_is_below_bottom'] > 0.5, -1)]
         # Export evl files
         if output_dir is None or output_dir == '':
             destination = fname
@@ -193,6 +167,92 @@ def inference(
 
     if verbose >= 1:
         print('Finished processing {} file{}'.format(len(files), '' if len(files) == 1 else 's'))
+
+
+def inference_transect(
+    model,
+    timestamps,
+    depths,
+    signals,
+    device,
+    image_height,
+    crop_depth=None,
+    dtype=torch.float,
+):
+    '''
+    Run inference on a single transect.
+
+    Parameters
+    ----------
+    model : echofilter.wrapper.Echofilter
+        A pytorch Module wrapped in an Echofilter UI layer.
+    timestamps : array_like
+        Sample recording timestamps (in seconds since Unix epoch). Must be a
+        vector.
+    depths : array_like
+        Recording depths from the surface (in metres). Must be a vector.
+    signals : array_like
+        Echogram Sv data. Must be a matrix shaped
+        `(len(timestamps), len(depths))`.
+    image_height : int
+        Height to resize echogram before passing through model.
+    crop_depth : float or None, optional
+        Maximum depth at which to crop input.
+    dtype : torch.dtype, optional
+        Datatype to use for model input. Default is `torch.float`.
+
+    Returns
+    -------
+    dict
+        Dictionary with fields as output by `echofilter.wrapper.Echofilter`,
+        plus `timestamps` and `depths`.
+    '''
+    timestamps = np.asarray(timestamps)
+    depths = np.asarray(depths)
+    signals = np.asarray(signals)
+    transect = {
+        'timestamps': timestamps,
+        'depths': depths,
+        'signals': signals,
+    }
+    if crop_depth is not None:
+        # Apply depth crop
+        depth_crop_mask = transect['depths'] <= crop_depth
+        transect['depths'] = transect['depths'][depth_crop_mask]
+        transect['signals'] = transect['signals'][:, depth_crop_mask]
+
+    # Configure data to match what the model expects to see
+    # Determine whether depths are ascending or descending
+    is_upward_facing = (transect['depths'][-1] < transect['depths'][0])
+    # Ensure depth is always increasing (which corresponds to descending from
+    # the air down the water column)
+    if is_upward_facing:
+        transect['depths'] = transect['depths'][::-1].copy()
+        transect['signals'] = transect['signals'][:, ::-1].copy()
+
+    # To reduce memory consumption, split into segments whenever the recording
+    # interval is longer than normal
+    outputs = []
+    for segment in split_transect(threshold=20, **transect):
+        # Preprocessing transform
+        transform = torchvision.transforms.Compose([
+            echofilter.transforms.Normalize(DATA_MEAN, DATA_STDEV),
+            echofilter.transforms.ReplaceNan(-3),
+            echofilter.transforms.Rescale((segment['signals'].shape[0], image_height)),
+        ])
+        segment = transform(segment)
+        input = torch.tensor(segment['signals']).unsqueeze(0).unsqueeze(0)
+        input = input.to(device, dtype)
+        # Put data through model
+        with torch.no_grad():
+            output = model(input)
+            output = {k: v.squeeze(0).cpu().numpy() for k, v in output.items()}
+        output['timestamps'] = segment['timestamps']
+        output['depths'] = segment['depths']
+        outputs.append(output)
+
+    return join_transect(outputs)
+
 
 def parse_files_in_folders(files_or_folders, data_dir, extension='csv'):
     '''
