@@ -37,19 +37,68 @@ CHECKPOINT_RESOURCES = OrderedDict([
 DEFAULT_CHECKPOINT = next(iter(CHECKPOINT_RESOURCES))
 
 
-def inference(
-        files,
-        checkpoint=DEFAULT_CHECKPOINT,
-        data_dir='.',
-        output_dir='processed',
-        image_height=None,
-        row_len_selector='mode',
-        crop_depth=None,
-        device=None,
-        cache_dir=None,
-        keep_ext=False,
-        verbose=1,
-    ):
+def run_inference(
+    files,
+    data_dir='.',
+    checkpoint=None,
+    output_dir='processed',
+    image_height=None,
+    row_len_selector='mode',
+    crop_depth=None,
+    keep_ext=False,
+    device=None,
+    cache_dir=None,
+    verbose=1,
+):
+    '''
+    Perform inference on input files, and write output lines in evl format.
+
+    Parameters
+    ----------
+    files : iterable
+        Files and folders to be processed. These may be full paths or paths
+        relative to `data_dir`. For each folder specified, any files with
+        extension `'csv'` within the folder and all its tree of subdirectories
+        will be processed.
+    data_dir : str, optional
+        Path to directory where files are found. Default is `'.'`.
+    checkpoint : str or None, optional
+        A path to a checkpoint file, or name of a checkpoint known to this
+        package (listed in `CHECKPOINT_RESOURCES`). If `None` (default),
+        the first checkpoint in `CHECKPOINT_RESOURCES` is used.
+    output_dir : str, optional
+        Directory where output files will be written. If this is `''`, outputs
+        are written to the same directory as each input file. Otherwise, they
+        are written to `output_dir`, preserving their path relative to
+        `data_dir` if relative paths were used. Default is `'processed'`.
+    image_height : int or None, optional
+        Height in pixels of input to model. The data loaded from the csv will
+        be resized to this height (the width of the image is unchanged).
+        If `None` (default), the height matches that used when the model was
+        trained.
+    row_len_selector : str, optional
+        Method used to handle input csv files with different number of Sv
+        values across time (i.e. a non-rectangular input). Default is `'mode'`.
+        See `echofilter.raw.loader.transect_loader` for options.
+    crop_depth : float or None, optional
+        Maxmimum depth to include in input. If `None` (default), there is no
+        maximum and all depths are used.
+    keep_ext : bool, optional
+        Whether to preserve the file extension in the input file name when
+        generating output file name. Default is `False`, removing the
+        extension.
+    device : str or torch.device or None, optional
+        Name of device on which the model will be run. If `None`, the first
+        available CUDA GPU is used if any are found, and otherwise the CPU is
+        used. Set to `'cpu'` to use the CPU even if a CUDA GPU is available.
+    cache_dir : str or None, optional
+        Path to directory where downloaded checkpoint files should be cached.
+        If `None` (default), an OS-appropriate application-specific default
+        cache directory is used.
+    verbose : int, optional
+        Verbosity level. Default is `1`. Set to `0` to disable print
+        statements, or elevate to a higher number to increase verbosity.
+    '''
 
     if device is None:
         device = 'cuda' if cuda_is_really_available() else 'cpu'
@@ -315,7 +364,7 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
         Name of checkpoint to download.
     cache_dir : str or None, optional
         Path to local cache directory. If `None` (default), an OS-appropriate
-        default cache directory is used.
+        application-specific default cache directory is used.
     verbose : int, optional
         Verbosity level. Default is `1`. Set to `0` to disable print
         statements.
@@ -460,7 +509,7 @@ def main():
     kwargs = vars(parser.parse_args())
     kwargs['verbose'] -= kwargs.pop('quiet', 0)
 
-    inference(**kwargs)
+    run_inference(**kwargs)
 
 
 if __name__ == '__main__':
