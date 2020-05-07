@@ -41,7 +41,7 @@ def run_inference(
     files,
     data_dir='.',
     checkpoint=None,
-    output_dir='processed',
+    output_dir='',
     image_height=None,
     row_len_selector='mode',
     crop_depth=None,
@@ -70,7 +70,7 @@ def run_inference(
         Directory where output files will be written. If this is `''`, outputs
         are written to the same directory as each input file. Otherwise, they
         are written to `output_dir`, preserving their path relative to
-        `data_dir` if relative paths were used. Default is `'processed'`.
+        `data_dir` if relative paths were used. Default is `''`.
     image_height : int or None, optional
         Height in pixels of input to model. The data loaded from the csv will
         be resized to this height (the width of the image is unchanged).
@@ -437,12 +437,12 @@ def main():
         '--output-dir',
         nargs='?',
         type=str,
-        default='processed',
+        default='',
         const='',
         metavar='DIR',
         help=
             'path to output directory. If empty, output is placed in the same'
-            ' directory as the input file. (default: "processed")',
+            ' directory as the input file. (default: "")',
     )
     parser.add_argument(
         '--keep-ext',
