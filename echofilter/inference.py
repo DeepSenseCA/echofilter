@@ -323,7 +323,7 @@ def main():
         '--device',
         type=str,
         default=None,
-        help='device to use (default: use first gpu, if available, otherwise cpu)',
+        help='device to use (default: use first gpu if available, otherwise cpu)',
     )
 
     inference(**vars(parser.parse_args()))
