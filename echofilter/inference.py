@@ -42,6 +42,7 @@ def inference(
         data_dir='.',
         output_dir='processed',
         image_height=None,
+        row_len_selector='mode',
         crop_depth=None,
         device=None,
         cache_dir=None,
@@ -142,6 +143,7 @@ def inference(
         timestamps, depths, signals = echofilter.raw.loader.transect_loader(
             fname_full,
             warn_row_overflow=warn_row_overflow,
+            row_len_selector=row_len_selector,
         )
         data = {
             'timestamps': timestamps,
@@ -356,6 +358,13 @@ def main():
             'input image height, in pixels. The echogram will be resized to'
             ' have this height, and its width will be kept. (default: same'
             ' as using during training)',
+    )
+    parser.add_argument(
+        '--row-len-selector',
+        type=str,
+        choices=['init', 'min', 'max', 'median', 'mode'],
+        default='mode',
+        help='how to handle inputs with differing number of samples across time (default: "mode")',
     )
     parser.add_argument(
         '--crop-depth',
