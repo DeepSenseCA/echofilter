@@ -18,6 +18,7 @@ import torchvision.transforms
 from torchvision.datasets.utils import download_url, download_file_from_google_drive
 from torchutils.utils import count_parameters
 from torchutils.device import cuda_is_really_available
+from tqdm.auto import tqdm
 
 import echofilter.raw.loader
 import echofilter.transforms
@@ -109,7 +110,12 @@ def inference(
     files = list(parse_files_in_folders(files, data_dir))
     print('Processing {} file{}'.format(len(files), '' if len(files) == 1 else 's'))
 
-    for fname in files:
+    if len(files) == 1:
+        maybe_tqdm = lambda x: x
+    else:
+        maybe_tqdm = tqdm
+
+    for fname in maybe_tqdm(files):
         # Check what the full path should be
         if os.path.isfile(fname):
             fname_full = fname
