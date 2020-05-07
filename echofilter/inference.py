@@ -435,8 +435,10 @@ def main():
     )
     parser.add_argument(
         '--output-dir',
+        nargs='?',
         type=str,
         default='processed',
+        const='',
         metavar='DIR',
         help=
             'path to output directory. If empty, output is placed in the same'
