@@ -247,13 +247,17 @@ def download_checkpoint(checkpoint_name, cache_dir=None):
 def main():
     import argparse
 
-    # Data parameters
     prog = os.path.split(sys.argv[0])[1]
     if prog == '__main__.py':
         prog = 'echofilter'
     parser = argparse.ArgumentParser(
         prog=prog,
         description=echofilter.__meta__.description,
+    )
+    parser.add_argument(
+        '--version',
+        action='version',
+        version='%(prog)s {version}'.format(version=echofilter.__version__)
     )
     parser.add_argument(
         'files',

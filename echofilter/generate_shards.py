@@ -5,6 +5,7 @@ import functools
 import multiprocessing
 import os
 import traceback
+import sys
 
 import echofilter.raw.loader
 import echofilter.shardloader
@@ -135,8 +136,18 @@ def main():
     import argparse
 
     # Create parser
+
+    prog = os.path.split(sys.argv[0])[1]
+    if prog == '__main__.py' or prog == '__main__':
+        prog = os.path.split(__file__)[1]
     parser = argparse.ArgumentParser(
+        prog=prog,
         description='Generate dataset shards',
+    )
+    parser.add_argument(
+        '--version',
+        action='version',
+        version='%(prog)s {version}'.format(version=echofilter.__version__)
     )
     parser.add_argument(
         'partition',

@@ -6,6 +6,7 @@ import datetime
 import os
 import pprint
 import shutil
+import sys
 import time
 
 import matplotlib.pyplot as plt
@@ -976,8 +977,20 @@ def meters_to_csv(meters, is_best, dirname='.', filename='meters.csv'):
 def main():
     import argparse
 
+    prog = os.path.split(sys.argv[0])[1]
+    if prog == '__main__.py' or prog == '__main__':
+        prog = os.path.split(__file__)[1]
+    parser = argparse.ArgumentParser(
+        prog=prog,
+        description='Echofilter training',
+    )
+    parser.add_argument(
+        '--version',
+        action='version',
+        version='%(prog)s {version}'.format(version=echofilter.__version__)
+    )
+
     # Data parameters
-    parser = argparse.ArgumentParser(description='Echofilter training')
     parser.add_argument(
         '--data-dir',
         type=str,
