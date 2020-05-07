@@ -152,7 +152,14 @@ def inference(
         bottom_depths = output['depths'][echofilter.utils.first_nonzero(output['p_is_below_bottom'] > 0.5, -1)]
         # Export evl files
         if output_dir is None or output_dir == '':
-            destination = fname
+            destination = fname_full
+        elif os.path.isabs(fname):
+            destination = os.path.join(output_dir, os.path.split(fname)[1])
+        elif os.path.abspath(fname).startswith(os.path.abspath(os.path.join(data_dir, ''))):
+            destination = os.path.join(
+                output_dir,
+                os.path.abspath(fname)[len(os.path.abspath(os.path.join(data_dir, ''))):],
+            )
         else:
             destination = os.path.join(output_dir, fname)
         if not keep_ext:
