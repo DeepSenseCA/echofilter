@@ -45,6 +45,7 @@ def inference(
         crop_depth=None,
         device=None,
         cache_dir=None,
+        keep_ext=False,
     ):
 
     if device is None:
@@ -161,6 +162,8 @@ def inference(
             destination = fname
         else:
             destination = os.path.join(output_dir, fname)
+        if not keep_ext:
+            destination = os.path.splitext(destination)[0]
         os.makedirs(os.path.dirname(destination), exist_ok=True)
         print(destination + '.top.evl')
         echofilter.raw.loader.evl_writer(destination + '.top.evl', timestamps, top_depths)
@@ -293,6 +296,11 @@ def main():
         help=
             'path to output directory. If empty, output is placed in the same'
             ' directory as the input file. (default: "processed")',
+    )
+    parser.add_argument(
+        '--keep-ext',
+        action='store_true',
+        help='keep the input file extension in output file names',
     )
     parser.add_argument(
         '--checkpoint',
