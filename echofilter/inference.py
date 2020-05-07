@@ -46,6 +46,7 @@ def inference(
         device=None,
         cache_dir=None,
         keep_ext=False,
+        verbose=0,
     ):
 
     if device is None:
@@ -117,6 +118,8 @@ def inference(
         maybe_tqdm = tqdm
 
     for fname in maybe_tqdm(files):
+        if verbose > 0:
+            print('Processing {}'.format(fname))
         # Check what the full path should be
         if os.path.isfile(fname):
             fname_full = fname
@@ -125,7 +128,16 @@ def inference(
         else:
             raise EnvironmentError('Could not locate file {}'.format(fname))
         # Load the data
-        timestamps, depths, signals = echofilter.raw.loader.transect_loader(fname_full)
+        if verbose >= 2:
+            warn_row_overflow = np.inf
+        elif verbose >= 1:
+            warn_row_overflow = None
+        else:
+            warn_row_overflow = 0
+        timestamps, depths, signals = echofilter.raw.loader.transect_loader(
+            fname_full,
+            warn_row_overflow=warn_row_overflow,
+        )
         data = {
             'timestamps': timestamps,
             'depths': depths,
@@ -165,9 +177,11 @@ def inference(
         if not keep_ext:
             destination = os.path.splitext(destination)[0]
         os.makedirs(os.path.dirname(destination), exist_ok=True)
-        print(destination + '.top.evl')
+        if verbose > 1:
+            print(destination + '.top.evl')
         echofilter.raw.loader.evl_writer(destination + '.top.evl', timestamps, top_depths)
-        print(destination + '.bottom.evl')
+        if verbose > 1:
+            print(destination + '.bottom.evl')
         echofilter.raw.loader.evl_writer(destination + '.bottom.evl', timestamps, bottom_depths)
 
 
@@ -342,8 +356,22 @@ def main():
         default=None,
         help='device to use (default: use first gpu if available, otherwise cpu)',
     )
+    parser.add_argument(
+        '--verbose', '-v',
+        action='count',
+        default=0,
+        help='increase verbosity level',
+    )
+    parser.add_argument(
+        '--quiet', '-q',
+        action='count',
+        default=0,
+        help='decrease verbosity level',
+    )
+    kwargs = vars(parser.parse_args())
+    kwargs['verbose'] -= kwargs.pop('quiet', 0)
 
-    inference(**vars(parser.parse_args()))
+    inference(**kwargs)
 
 
 if __name__ == '__main__':
