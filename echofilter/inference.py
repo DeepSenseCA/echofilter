@@ -305,7 +305,7 @@ def main():
         type=str,
         nargs='+',
         default=[],
-        metavar='FILE',
+        metavar='PATH',
         help=
             'file(s) to process. For each directory given, all csv files'
             ' within that directory and its subdirectories will be processed.'
