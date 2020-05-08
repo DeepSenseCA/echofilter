@@ -230,7 +230,9 @@ def run_inference(
             destination = os.path.join(output_dir, fname)
         if not keep_ext:
             destination = os.path.splitext(destination)[0]
-        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        destination_dir = os.path.dirname(destination)
+        if destination_dir != '':
+            os.makedirs(destination_dir, exist_ok=True)
         if verbose >= 2:
             print('Writing output {}'.format(destination + '.top.evl'))
         echofilter.raw.loader.evl_writer(destination + '.top.evl', timestamps, top_depths)
