@@ -48,6 +48,8 @@ def run_inference(
     row_len_selector='mode',
     crop_depth=None,
     keep_ext=False,
+    skip_existing=False,
+    overwrite_existing=False,
     device=None,
     cache_dir=None,
     verbose=1,
@@ -89,6 +91,13 @@ def run_inference(
         Whether to preserve the file extension in the input file name when
         generating output file name. Default is `False`, removing the
         extension.
+    skip_existing : bool, optional
+        Skip processing files which already have all outputs present. Default
+        is `False`.
+    overwrite_existing : bool, optional
+        Overwrite existing outputs without producing a warning message. If
+        `False`, an error is generated if files would be overwritten.
+        Default is `False`.
     device : str or torch.device or None, optional
         Name of device on which the model will be run. If `None`, the first
         available CUDA GPU is used if any are found, and otherwise the CPU is
@@ -180,9 +189,12 @@ def run_inference(
     else:
         maybe_tqdm = tqdm
 
+    skip_count = 0
+
     for fname in maybe_tqdm(files):
         if verbose >= 2:
             print('Processing {}'.format(fname))
+
         # Check what the full path should be
         if os.path.isabs(fname) and os.path.isfile(fname):
             fname_full = fname
@@ -192,6 +204,35 @@ def run_inference(
             fname_full = fname
         else:
             raise EnvironmentError('Could not locate file {}'.format(fname))
+
+        # Determine where destination should be placed
+        if output_dir is None or output_dir == '':
+            destination = fname_full
+        elif os.path.isabs(fname):
+            destination = os.path.join(output_dir, os.path.split(fname)[1])
+        elif os.path.abspath(fname).startswith(os.path.abspath(os.path.join(data_dir, ''))):
+            destination = os.path.join(
+                output_dir,
+                os.path.abspath(fname)[len(os.path.abspath(os.path.join(data_dir, ''))):],
+            )
+        else:
+            destination = os.path.join(output_dir, fname)
+        if not keep_ext:
+            destination = os.path.splitext(destination)[0]
+        # Check whether to skip processing this file
+        if skip_existing:
+            any_missing = False
+            for name in ('top', 'bottom'):
+                dest_file = '{}.{}.evl'.format(destination, name)
+                if not os.path.isfile(dest_file):
+                    any_missing = True
+                    break
+            if not any_missing:
+                if verbose >= 2:
+                    print('Skipping {}'.format(fname))
+                skip_count += 1
+                continue
+
         # Load the data
         if verbose >= 4:
             warn_row_overflow = np.inf
@@ -213,35 +254,37 @@ def run_inference(
             image_height,
             crop_depth=crop_depth,
         )
+
         # Convert output into lines
         top_depths = output['depths'][echofilter.utils.last_nonzero(output['p_is_above_top'] > 0.5, -1)]
         bottom_depths = output['depths'][echofilter.utils.first_nonzero(output['p_is_below_bottom'] > 0.5, -1)]
+
         # Export evl files
-        if output_dir is None or output_dir == '':
-            destination = fname_full
-        elif os.path.isabs(fname):
-            destination = os.path.join(output_dir, os.path.split(fname)[1])
-        elif os.path.abspath(fname).startswith(os.path.abspath(os.path.join(data_dir, ''))):
-            destination = os.path.join(
-                output_dir,
-                os.path.abspath(fname)[len(os.path.abspath(os.path.join(data_dir, ''))):],
-            )
-        else:
-            destination = os.path.join(output_dir, fname)
-        if not keep_ext:
-            destination = os.path.splitext(destination)[0]
         destination_dir = os.path.dirname(destination)
         if destination_dir != '':
             os.makedirs(destination_dir, exist_ok=True)
-        if verbose >= 2:
-            print('Writing output {}'.format(destination + '.top.evl'))
-        echofilter.raw.loader.evl_writer(destination + '.top.evl', timestamps, top_depths)
-        if verbose >= 2:
-            print('Writing output {}'.format(destination + '.bottom.evl'))
-        echofilter.raw.loader.evl_writer(destination + '.bottom.evl', timestamps, bottom_depths)
+        for name, depths in (('top', top_depths), ('bottom', bottom_depths)):
+            dest_file = '{}.{}.evl'.format(destination, name)
+            if verbose >= 2:
+                print('Writing output {}'.format(dest_file))
+            if os.path.exists(dest_file) and not overwrite_existing:
+                raise EnvironmentError(
+                    'Output {} already exists.\n'
+                    ' Run with overwrite_existing=True (with the command line'
+                    ' interface, use the --force flag) to overwrite existing'
+                    ' outputs.'
+                    .format(dest_file)
+                )
+            echofilter.raw.loader.evl_writer(dest_file, timestamps, depths)
 
     if verbose >= 1:
-        print('Finished processing {} file{}'.format(len(files), '' if len(files) == 1 else 's'))
+        s = 'Finished processing {} file{}'.format(len(files), '' if len(files) == 1 else 's')
+        if skip_count > 0:
+            s += (
+                ' (of these, {} file{} skipped)'
+                .format(skip_count, ' was' if skip_count == 1 else 's were')
+            )
+        print(s)
 
 
 def inference_transect(
@@ -524,6 +567,18 @@ def main():
         type=float,
         default=None,
         help='depth, in metres, at which data should be truncated (default: None)',
+    )
+    parser.add_argument(
+        '--skip-existing', '--skip',
+        dest='skip_existing',
+        action='store_true',
+        help='skip processing files for which all outputs already exist',
+    )
+    parser.add_argument(
+        '--force', '-f',
+        dest='overwrite_existing',
+        action='store_true',
+        help='overwrite existing files without warning',
     )
     parser.add_argument(
         '--device',
