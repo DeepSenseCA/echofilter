@@ -53,6 +53,7 @@ def run_inference(
     device=None,
     cache_dir=None,
     verbose=1,
+    dry_run=False,
 ):
     '''
     Perform inference on input files, and write output lines in evl format.
@@ -109,6 +110,9 @@ def run_inference(
     verbose : int, optional
         Verbosity level. Default is `1`. Set to `0` to disable print
         statements, or elevate to a higher number to increase verbosity.
+    dry_run : bool, optional
+        If `True`, perform a trial run with no changes made. Default is
+        `False`.
     '''
 
     if device is None:
@@ -232,6 +236,11 @@ def run_inference(
                     print('Skipping {}'.format(fname))
                 skip_count += 1
                 continue
+
+        if dry_run:
+            if verbose >= 1:
+                print('Would write to files to {}.SUFFIX'.format(destination))
+            continue
 
         # Load the data
         if verbose >= 4:
@@ -580,6 +589,11 @@ def main():
         dest='overwrite_existing',
         action='store_true',
         help='overwrite existing files without warning',
+    )
+    parser.add_argument(
+        '--dry-run', '-n',
+        action='store_true',
+        help='perform a trial run with no changes made',
     )
     parser.add_argument(
         '--device',
