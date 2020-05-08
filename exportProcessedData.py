@@ -110,7 +110,7 @@ for evFileName in evFileNames:
     print('  opened {}'.format(evFileName))
 
     # basename here is the EV file name, without the last 3 characters (i.e. without the ".EV" extension)
-    basename=evFileName[11:-3])
+    basename=evFileName[11:-3]
 
 
     # Find the right variable
