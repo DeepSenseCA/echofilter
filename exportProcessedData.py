@@ -1,9 +1,9 @@
 #!/usr/bin/env python
+'''
+Python script to export binned stationary data
 
-# python script to export binned stationary data
-
-# Run this after the data has been cleaned/processed to export the binned data
-
+Run this after the data has been cleaned/processed to export the binned data
+'''
 
 # Change this to point to the directory where your survey is.
 # it is assumed there will be a subdirectory called "EV Files", and will run on all .EV files in that directory

@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+'''
+Python script to export the requirements for Scott
 
-# Python script to export the requirements for Scott
-
-# This will export the lines defined just below
-# as well as the raw and cleaned data in csv files, and an image of the raw data
+This will export the lines defined just below as well as the raw and cleaned
+data in csv files, and an image of the raw data.
+'''
 
 
 # Change this to point to the directory where your survey is.
