@@ -3,10 +3,12 @@
 from collections import OrderedDict
 import os
 import datetime
+import pickle
 import pprint
 import shutil
 import sys
 import time
+import urllib
 
 import appdirs
 import numpy as np
@@ -32,7 +34,7 @@ DATA_MEAN = -80.
 DATA_STDEV = 20.
 
 CHECKPOINT_RESOURCES = OrderedDict([
-    ('stationary_effunet_block6.xb.2-1_lc32_se2.ckpt.tar', ('gdrive', '114vL-pAxrn9UDhaNG5HxZwjxNy7WMfW_')),
+    ('stationary_effunet_block6.xb.2-1_lc32_se2.ckpt.tar', {'gdrive': '114vL-pAxrn9UDhaNG5HxZwjxNy7WMfW_'}),
 ])
 DEFAULT_CHECKPOINT = next(iter(CHECKPOINT_RESOURCES))
 
@@ -123,11 +125,24 @@ def run_inference(
         raise EnvironmentError("No checkpoint found at '{}'".format(checkpoint_path))
     if verbose >= 1:
         print("Loading checkpoint '{}'".format(checkpoint_path))
-    if device is None:
-        checkpoint = torch.load(checkpoint_path)
-    else:
+
+    load_args = {}
+    if device is not None:
         # Map model to be loaded to specified single gpu.
-        checkpoint = torch.load(checkpoint_path, map_location=device)
+        load_args = dict(map_location=device)
+    try:
+        checkpoint = torch.load(checkpoint_path, **load_args)
+    except pickle.UnpicklingError:
+        if checkpoint not in CHECKPOINT_RESOURCES or checkpoint == checkpoint_path:
+            # Direct path to checkpoint was given, so we shouldn't delete
+            # the user's file
+            print('Error: Unable to load checkpoint {}'.format(os.path.abspath(checkpoint_path)))
+            raise
+        # Delete the checkpoint and try again, in case it is just a
+        # malformed download (interrupted download, etc)
+        os.remove(checkpoint_path)
+        checkpoint_path = download_checkpoint(checkpoint, cache_dir=cache_dir, verbose=verbose)
+        checkpoint = torch.load(checkpoint_path, **load_args)
 
     if image_height is None:
         image_height = checkpoint.get('sample_shape', (128, 512))[1]
@@ -384,16 +399,32 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
 
     os.makedirs(cache_dir, exist_ok=True)
 
-    type, url_or_id = CHECKPOINT_RESOURCES[checkpoint_name]
+    sources = CHECKPOINT_RESOURCES[checkpoint_name]
+    success = False
+    for key, url_or_id in sources.items():
+        if key == 'gdrive':
+            if verbose > 0:
+                print('Downloading checkpoint {} from GDrive...'.format(checkpoint_name))
+            try:
+                download_file_from_google_drive(url_or_id, cache_dir, filename=checkpoint_name)
+                success = True
+                continue
+            except (pickle.UnpicklingError, urllib.error.URLError):
+                if verbose > 0:
+                    print('\nCould not download checkpoint {} from GDrive!'.format(checkpoint_name))
+        else:
+            if verbose > 0:
+                print('Downloading checkpoint {} from {}...'.format(checkpoint_name, url_or_id))
+            try:
+                download_url(url_or_id, cache_dir, filename=checkpoint_name)
+                success = True
+                continue
+            except (pickle.UnpicklingError, urllib.error.URLError):
+                if verbose > 0:
+                    print('\nCould not download checkpoint {} from {}'.format(checkpoint_name, url_or_id))
 
-    if type == 'gdrive':
-        if verbose > 0:
-            print('Downloading checkpoint {} from GDrive...'.format(checkpoint_name))
-        download_file_from_google_drive(url_or_id, cache_dir, filename=checkpoint_name)
-    else:
-        if verbose > 0:
-            print('Downloading checkpoint {} from {}...'.format(checkpoint_name, url_or_id))
-        download_url(url_or_id, cache_dir, filename=checkpoint_name)
+    if not success:
+        raise OSError('Unable to download {} from {}'.format(checkpoint_name, sources))
 
     if verbose > 0:
         print('Downloaded checkpoint to {}'.format(destination))
