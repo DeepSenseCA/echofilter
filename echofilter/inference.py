@@ -414,10 +414,11 @@ def parse_files_in_folders(files_or_folders, data_dir, extension='csv'):
             raise EnvironmentError('Missing file or directory: {}'.format(path))
         for dirpath, dirnames, filenames in os.walk(folder):
             for filename in filenames:
-                if not os.path.isfile(os.path.join(folder, dirpath, filename)):
+                rel_file = os.path.join(dirpath, filename)
+                if not os.path.isfile(rel_file):
                     continue
                 if extension is None or os.path.splitext(filename)[1][1:] == extension:
-                    yield os.path.join(path, dirpath, filename)
+                    yield rel_file
 
 
 def get_default_cache_dir():
