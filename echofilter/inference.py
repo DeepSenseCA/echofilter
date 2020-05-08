@@ -505,14 +505,15 @@ def main():
             ' within that directory and its subdirectories will be processed.'
     )
     parser.add_argument(
-        '--data-dir',
+        '--data-dir', '-d',
+        dest='data_dir',
         type=str,
         default='.',
         metavar='DIR',
         help='path to directory containing FILE (default: ".")',
     )
     parser.add_argument(
-        '--output-dir',
+        '--output-dir', '-o',
         nargs='?',
         type=str,
         default='',
