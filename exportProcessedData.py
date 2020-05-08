@@ -22,14 +22,14 @@ varname = "Processed data 1"
 # The reference line for the vertical bins.  This shouldn't change for stationary data
 linename = "Nearfield"
 # for mobile data, the reference should be bottom line:
-# linename="Bottom line"
+# linename = "Bottom line"
 
 
 # exclude below this line.  For stationary, it should be "Nearfield".  For mobile, it should be the bottom line
 aboveLine = "Editable entrained air"
 belowLine = "Nearfield"
-# aboveLine="Turbulence line"
-# belowLine="Bottom line"
+# aboveLine = "Turbulence line"
+# belowLine = "Bottom line"
 
 
 # The different types of binning to export
@@ -296,12 +296,16 @@ for evFileName in evFileNames:
         av.Properties.Grid.DepthRangeReferenceLine = refline
 
         # set the grid size
-        # First number 0 = no depth grid ; 1 = use depth grid (ref is surface, depth=0) ; 2 = use ref line
-        # second number = distance between grid lines
+        # First number:
+        #   0 = no depth grid
+        #   1 = use depth grid (ref is surface, depth=0)
+        #   2 = use ref line
+        # Second number:
+        #   distance between grid lines
         av.Properties.Grid.SetDepthRangeGrid(2, binSize[1])
 
         # set the time grid size
-        # first number
+        # First number:
         # 	0 = no time/distance grid;
         # 	1 = time in minutes;
         # 	2 = distance determined by GPS in nmi;
@@ -309,7 +313,7 @@ for evFileName in evFileNames:
         # 	4 = distance in pings;
         # 	5 = distance using GPS in meters;
         # 	6 = distance using vessel log in meters
-        # second number:
+        # Second number:
         # 	distance/time between grid lines (units depend on which number you put in first space)
         # Note: maximum time = 9999 minutes
 
