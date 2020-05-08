@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # python script to export binned stationary data
 
 # Run this after the data has been cleaned/processed to export the binned data

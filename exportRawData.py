@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Python script to export the requirements for Scott
 
 # This will export the lines defined just below
