@@ -191,7 +191,7 @@ def run_inference(
     if len(files) == 1:
         maybe_tqdm = lambda x: x
     else:
-        maybe_tqdm = tqdm
+        maybe_tqdm = lambda x: tqdm(x, desc='Files')
 
     skip_count = 0
 
@@ -262,6 +262,7 @@ def run_inference(
             device,
             image_height,
             crop_depth=crop_depth,
+            verbose=verbose-1,
         )
 
         # Convert output into lines
@@ -305,6 +306,7 @@ def inference_transect(
     image_height,
     crop_depth=None,
     dtype=torch.float,
+    verbose=0,
 ):
     '''
     Run inference on a single transect.
@@ -327,6 +329,8 @@ def inference_transect(
         Maximum depth at which to crop input.
     dtype : torch.dtype, optional
         Datatype to use for model input. Default is `torch.float`.
+    verbose : int, optional
+        Level of verbosity. Default is `1`.
 
     Returns
     -------
@@ -359,8 +363,11 @@ def inference_transect(
 
     # To reduce memory consumption, split into segments whenever the recording
     # interval is longer than normal
+    segments = split_transect(threshold=20, **transect)
+    if verbose >= 1:
+        segments = tqdm(list(segments), desc='Segments')
     outputs = []
-    for segment in split_transect(threshold=20, **transect):
+    for segment in segments:
         # Preprocessing transform
         transform = torchvision.transforms.Compose([
             echofilter.transforms.Normalize(DATA_MEAN, DATA_STDEV),
@@ -377,6 +384,9 @@ def inference_transect(
         output['timestamps'] = segment['timestamps']
         output['depths'] = segment['depths']
         outputs.append(output)
+
+    if verbose >= 1:
+        print()
 
     return join_transect(outputs)
 
