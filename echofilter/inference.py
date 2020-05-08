@@ -184,10 +184,12 @@ def run_inference(
         if verbose >= 2:
             print('Processing {}'.format(fname))
         # Check what the full path should be
-        if os.path.isfile(fname):
+        if os.path.isabs(fname) and os.path.isfile(fname):
             fname_full = fname
         elif os.path.isfile(os.path.join(data_dir, fname)):
             fname_full = os.path.join(data_dir, fname)
+        elif os.path.isfile(fname):
+            fname_full = fname
         else:
             raise EnvironmentError('Could not locate file {}'.format(fname))
         # Load the data
