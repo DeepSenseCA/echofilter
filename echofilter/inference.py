@@ -113,7 +113,7 @@ def run_inference(
     if os.path.isfile(checkpoint):
         checkpoint_path = checkpoint
     elif checkpoint in CHECKPOINT_RESOURCES:
-        checkpoint_path = download_checkpoint(checkpoint, cache_dir=cache_dir, verbose=verbose)
+        checkpoint_path = download_checkpoint(checkpoint, cache_dir=cache_dir)
     else:
         raise ValueError(
             'The checkpoint parameter should either be a path to a file or '
@@ -141,7 +141,7 @@ def run_inference(
         # Delete the checkpoint and try again, in case it is just a
         # malformed download (interrupted download, etc)
         os.remove(checkpoint_path)
-        checkpoint_path = download_checkpoint(checkpoint, cache_dir=cache_dir, verbose=verbose)
+        checkpoint_path = download_checkpoint(checkpoint, cache_dir=cache_dir)
         checkpoint = torch.load(checkpoint_path, **load_args)
 
     if image_height is None:
