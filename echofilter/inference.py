@@ -48,8 +48,9 @@ def run_inference(
     row_len_selector='mode',
     crop_depth=None,
     keep_ext=False,
-    skip_existing=False,
     overwrite_existing=False,
+    skip_existing=False,
+    skip_incompatible_csv=False,
     device=None,
     cache_dir=None,
     verbose=1,
@@ -92,13 +93,16 @@ def run_inference(
         Whether to preserve the file extension in the input file name when
         generating output file name. Default is `False`, removing the
         extension.
-    skip_existing : bool, optional
-        Skip processing files which already have all outputs present. Default
-        is `False`.
     overwrite_existing : bool, optional
         Overwrite existing outputs without producing a warning message. If
         `False`, an error is generated if files would be overwritten.
         Default is `False`.
+    skip_existing : bool, optional
+        Skip processing files which already have all outputs present. Default
+        is `False`.
+    skip_incompatible_csv : bool, optional
+        Skip processing CSV files which do not seem to contain an exported
+        echoview transect. If `False`, an error is raised. Default is `False`.
     device : str or torch.device or None, optional
         Name of device on which the model will be run. If `None`, the first
         available CUDA GPU is used if any are found, and otherwise the CPU is
@@ -184,6 +188,7 @@ def run_inference(
     # Put model in evaluation mode
     model.eval()
 
+    files_input = files
     files = list(parse_files_in_folders(files, data_dir))
     if verbose >= 1:
         print('Processing {} file{}'.format(len(files), '' if len(files) == 1 else 's'))
@@ -194,6 +199,7 @@ def run_inference(
         maybe_tqdm = lambda x: tqdm(x, desc='Files')
 
     skip_count = 0
+    incompatible_count = 0
 
     for fname in maybe_tqdm(files):
         if verbose >= 2:
@@ -249,11 +255,20 @@ def run_inference(
             warn_row_overflow = None
         else:
             warn_row_overflow = 0
-        timestamps, depths, signals = echofilter.raw.loader.transect_loader(
-            fname_full,
-            warn_row_overflow=warn_row_overflow,
-            row_len_selector=row_len_selector,
-        )
+        try:
+            timestamps, depths, signals = echofilter.raw.loader.transect_loader(
+                fname_full,
+                warn_row_overflow=warn_row_overflow,
+                row_len_selector=row_len_selector,
+            )
+        except KeyError:
+            if skip_incompatible_csv and fname not in files_input:
+                if verbose >= 2:
+                    print('Skipping incompatible file {}'.format(fname))
+                incompatible_count += 1
+                continue
+            print('CSV file {} could not be loaded.'.format(fname))
+            raise
         output = inference_transect(
             model,
             timestamps,
@@ -288,12 +303,19 @@ def run_inference(
             echofilter.raw.loader.evl_writer(dest_file, timestamps, depths)
 
     if verbose >= 1:
-        s = 'Finished processing {} file{}'.format(len(files), '' if len(files) == 1 else 's')
-        if skip_count > 0:
+        s = 'Finished processing {} file{}.'.format(len(files), '' if len(files) == 1 else 's')
+        skip_total = skip_count + incompatible_count
+        if skip_total > 0:
             s += (
-                ' (of these, {} file{} skipped)'
-                .format(skip_count, ' was' if skip_count == 1 else 's were')
+                ' Of these, {} file{} skipped: {} already processed, {} incompatible.'
+                .format(
+                    skip_total,
+                    ' was' if skip_total == 1 else 's were',
+                    skip_count,
+                    incompatible_count
+                )
             )
+        incompatible_count
         print(s)
 
 
@@ -590,16 +612,22 @@ def main():
         help='depth, in metres, at which data should be truncated (default: None)',
     )
     parser.add_argument(
+        '--force', '-f',
+        dest='overwrite_existing',
+        action='store_true',
+        help='overwrite existing files without warning',
+    )
+    parser.add_argument(
         '--skip-existing', '--skip',
         dest='skip_existing',
         action='store_true',
         help='skip processing files for which all outputs already exist',
     )
     parser.add_argument(
-        '--force', '-f',
-        dest='overwrite_existing',
+        '--skip-incompatible-csv', '--skip-incompatible',
+        dest='skip_incompatible_csv',
         action='store_true',
-        help='overwrite existing files without warning',
+        help='skip incompatible CSV files without raising an error',
     )
     parser.add_argument(
         '--dry-run', '-n',
