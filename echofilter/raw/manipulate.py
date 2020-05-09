@@ -597,7 +597,7 @@ def load_decomposed_transect_mask(
     return transect
 
 
-def split_transect(timestamps=None, threshold=50, percentile=50, **transect):
+def split_transect(timestamps=None, threshold=20, percentile=97.5, **transect):
     '''
     Splits a transect into segments each containing contiguous recordings.
 
@@ -611,10 +611,10 @@ def split_transect(timestamps=None, threshold=50, percentile=50, **transect):
         Threshold for splitting timestamps into segments. Any timepoints
         further apart than `threshold` times the `percentile` percentile of the
         difference between timepoints will be split apart into new segments.
-        Default is `50`.
+        Default is `20`.
     percentile : float, optional
         The percentile at which to sample the timestamp intervals to establish
-        a baseline typical interval. Default is `50` (the median sample).
+        a baseline typical interval. Default is `97.5`.
     **kwargs
         Arbitrary additional transect variables, which will be split into
         segments as appropriate in accordance with `timestamps`.
