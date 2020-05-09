@@ -597,7 +597,7 @@ def load_decomposed_transect_mask(
     return transect
 
 
-def split_transect(timestamps=None, threshold=50, **transect):
+def split_transect(timestamps=None, threshold=50, percentile=50, **transect):
     '''
     Splits a transect into segments each containing contiguous recordings.
 
@@ -609,8 +609,12 @@ def split_transect(timestamps=None, threshold=50, **transect):
         occassional gaps.
     threshold : int, optional
         Threshold for splitting timestamps into segments. Any timepoints
-        further apart than `threshold` times the median difference between
-        timepoints will be split apart into new segments. Default is `50`.
+        further apart than `threshold` times the `percentile` percentile of the
+        difference between timepoints will be split apart into new segments.
+        Default is `50`.
+    percentile : float, optional
+        The percentile at which to sample the timestamp intervals to establish
+        a baseline typical interval. Default is `50` (the median sample).
     **kwargs
         Arbitrary additional transect variables, which will be split into
         segments as appropriate in accordance with `timestamps`.
@@ -626,7 +630,7 @@ def split_transect(timestamps=None, threshold=50, **transect):
         raise ValueError('The `timestamps` argument is required.')
 
     dt = np.diff(timestamps)
-    break_indices = np.where(dt > np.median(dt) * threshold)[0]
+    break_indices = np.where(dt > np.percentile(dt, percentile) * threshold)[0]
     if len(break_indices) > 0:
         break_indices += 1
 
