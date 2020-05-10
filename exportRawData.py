@@ -33,15 +33,15 @@ evApp = win32com.client.Dispatch("EchoviewCom.EvApplication")
 os.chdir(basedir)
 
 
+# Path to input directory
 evDir = os.path.join(basedir, "EV Files")
 if not os.path.isdir(evDir):
-    print("Error: cannot find evDir: " + evDir)
+    raise EnvironmentError("Cannot find evDir: {}".format(evDir))
 
-
-# export directory
+# Path to output directory
 exDir = os.path.join(basedir, "evExports")
 if not os.path.isdir(exDir):
-    print("Error: cannot find export dir: {}".format(exDir))
+    raise EnvironmentError("Cannot find exDir: {}".format(exDir))
 
 # find all EV files in this survey
 
