@@ -45,7 +45,7 @@ if not os.path.isdir(exDir):
 
 # find all EV files in this survey
 
-evFileNames = [f for f in os.listdir(evDir) if f.endswith(".EV")]
+evFileNames = [f for f in os.listdir(evDir) if os.path.splitext(f)[1].lower() == ".ev"]
 
 
 for evFileName in evFileNames:
@@ -56,7 +56,7 @@ for evFileName in evFileNames:
     print("  opened {}".format(evFileName))
 
     # basename here is the EV file name, without the last 3 characters (i.e. without the ".EV" extension)
-    basename = evFileName[:-3]
+    basename = os.path.splitext(evFileName)[0]
 
     # Find the right variable
     av = evFile.Variables.FindByName(vname).AsVariableAcoustic()
