@@ -264,7 +264,7 @@ if not os.path.isdir(binDir):
 
 # find all EV files in this survey
 
-evFileNames = [f for f in os.listdir(evDir) if f.endswith(".EV")]
+evFileNames = [f for f in os.listdir(evDir) if os.path.splitext(f)[1].lower() == ".ev"]
 
 
 for evFileName in evFileNames:
