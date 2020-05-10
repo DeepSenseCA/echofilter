@@ -116,9 +116,9 @@ def transect_loader(
         of times to display the warnings before they are supressed. If this
         is `True`, the number of outputs is unlimited. If `None`, the
         maximum number of underflow and overflow warnings differ: if
-        `expand_for_overflow`, the overflow always produces a message and the
-        underflow messages stop at 2; otherwise the values are reversed.
-        Default is `None`.
+        `row_len_selector` is `'init'` or `'min'`, underflow always produces a
+        message and the overflow messages stop at 2; otherwise the values are
+        reversed. Default is `None`.
     row_len_selector : {'init', 'min', 'max', 'median', 'mode'}, optional
         The method used to determine which row length (number of depth samples)
         to use. Default is `'mode'`, the most common row length across all

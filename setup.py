@@ -13,23 +13,42 @@ def read(fname):
         return f.read()
 
 
-install_requires = read('requirements.txt').splitlines()
+def process_requirements(requirements):
+    '''Parse requirements, handling git repositories'''
+    EGG_MARK = '#egg='
+    required = []
+    dependency_links = []
+    for i_req, req in enumerate(requirements):
+        if req.startswith('-e git:') or req.startswith('-e git+') or \
+                req.startswith('git:') or req.startswith('git+'):
+            if not EGG_MARK in req:
+                raise ValueError(
+                    'Dependency to a git repository should have the format:\n'
+                    'git+ssh://git@github.com/org/repo@ref#egg=package\n'
+                    'But line {} contained:\n{}'
+                    .format(i_req, req)
+                )
+            package_name = req[req.find(EGG_MARK) + len(EGG_MARK):]
+            required.append(package_name)
+            dependency_links.append(req)
+        else:
+            required.append(req)
+    return required, dependency_links
+
+
+def process_requirements_file(fname):
+    '''Parse requirements from a given filename.'''
+    return process_requirements(read(fname).splitlines())
+
+
+install_requires, dependency_links = process_requirements_file('requirements.txt')
 
 extras_require = {}
-
-# Dev dependencies
-try:
-    extras_require['dev'] = read('requirements-dev.txt').splitlines()
-except IOError:
-    # doesn't exist
-    pass
-
-# Documentation dependencies
-try:
-    extras_require['docs'] = read('requirements-docs.txt').splitlines()
-except IOError:
-    # doesn't exist
-    pass
+for tag in ('dev', 'docs', 'train', 'plots'):
+    extras_require[tag], extra_dep_links = process_requirements_file(
+        'requirements-{}.txt'.format(tag)
+    )
+    dependency_links += extra_dep_links
 
 
 # If there are any extras, add a catch-all case that includes everything.
@@ -147,6 +166,7 @@ setup(
 
     install_requires=install_requires,
     extras_require=extras_require,
+    dependency_links=dependency_links,
 
     # Metadata to display on PyPI
     author=meta['author'],
@@ -165,6 +185,14 @@ setup(
         'Programming Language :: Python :: 3',
     ],
     # Could also include keywords, download_url, project_urls, etc.
+
+    entry_points={
+        'console_scripts': [
+            'echofilter=echofilter.__main__:main',
+            'echofilter-train=echofilter.train:main',
+            'echofilter-generate-shards=echofilter.generate_shards:main',
+        ],
+    },
 
     # Custom commands
     cmdclass={

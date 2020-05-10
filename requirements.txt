@@ -1,13 +1,8 @@
-apex
 numpy
-scipy
 pandas
-pillow
 scikit-image
-tensorboard
+scipy
 torch
 torchvision
+torchutils @ git+https://github.com/scottclowe/pytorch-utils#egg=torchutils
 tqdm
-git+https://github.com/scottclowe/pytorch-utils
-git+https://github.com/davidtvs/pytorch-lr-finder.git@1d1e3e7170db3d784ac7e268a63fa8a077880b50
-git+https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer.git@ea591d7138fd586626e2176041be5f71cd9fff77

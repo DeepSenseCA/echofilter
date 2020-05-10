@@ -2,14 +2,17 @@
 
 from collections import OrderedDict
 import copy
-import os
-import shutil
 import datetime
+import os
+import pprint
+import shutil
+import sys
 import time
 
-import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import ranger
 import torch
 import torch.nn
 import torch.optim
@@ -18,7 +21,6 @@ from torch.utils.tensorboard import SummaryWriter
 import torchvision.transforms
 from torchutils.random import seed_all
 from torchutils.utils import count_parameters
-import ranger
 try:
     import apex
 except ImportError:
@@ -67,7 +69,7 @@ PLOT_TRANSECTS = {
 }
 
 
-def main(
+def train(
         data_dir='/data/dsforce/surveyExports',
         dataset_name='mobile',
         sample_shape=(128, 512),
@@ -261,7 +263,7 @@ def main(
         kernel_size=kernel_size,
     )
     print()
-    print(model_parameters)
+    pprint.pprint(model_parameters)
     print()
 
     model = Echofilter(
@@ -383,7 +385,7 @@ def main(
         loader_train.dataset.initialise_datapoints()
 
         # train for one epoch
-        loss_tr, meters_tr, (ex_input_tr, ex_data_tr, ex_output_tr), (batch_time, data_time) = train(
+        loss_tr, meters_tr, (ex_input_tr, ex_data_tr, ex_output_tr), (batch_time, data_time) = train_epoch(
             loader_train, model, criterion, optimizer, device, epoch, print_freq=print_freq,
             schedule_data=schedule_data, use_mixed_precision=use_mixed_precision,
         )
@@ -590,6 +592,7 @@ def main(
 
         checkpoint = {
             'model_parameters': model_parameters,
+            'sample_shape': sample_shape,
             'epoch': epoch,
             'state_dict': model.state_dict(),
             'best_loss': best_loss_val,
@@ -620,7 +623,7 @@ def main(
     writer.close()
 
 
-def train(
+def train_epoch(
     loader, model, criterion, optimizer, device, epoch, dtype=torch.float,
     print_freq=10, schedule_data=None, use_mixed_precision=False
 ):
@@ -971,12 +974,23 @@ def meters_to_csv(meters, is_best, dirname='.', filename='meters.csv'):
         shutil.copyfile(os.path.join(dirname, filename), os.path.join(dirname, 'model_best.meters.csv'))
 
 
-if __name__ == '__main__':
-
+def main():
     import argparse
 
+    prog = os.path.split(sys.argv[0])[1]
+    if prog == '__main__.py' or prog == '__main__':
+        prog = os.path.split(__file__)[1]
+    parser = argparse.ArgumentParser(
+        prog=prog,
+        description='Echofilter training',
+    )
+    parser.add_argument(
+        '--version',
+        action='version',
+        version='%(prog)s {version}'.format(version=echofilter.__version__)
+    )
+
     # Data parameters
-    parser = argparse.ArgumentParser(description='Echofilter training')
     parser.add_argument(
         '--data-dir',
         type=str,
@@ -1085,7 +1099,8 @@ if __name__ == '__main__':
         help='expansion within inverse residual blocks (default: 6.)',
     )
     parser.add_argument(
-        '--se-reduction',
+        '--se-reduction', '--se',
+        dest='se_reduction',
         type=float,
         default=4.,
         help='reduction within squeeze-and-excite blocks (default: 4.)',
@@ -1240,8 +1255,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '--overall-loss-weight',
         type=float,
-        default=1.,
-        help='weighting for overall loss term, set to 0 to disable (default: 1.0)',
+        default=0.,
+        help='weighting for overall loss term (default: 0.)',
     )
 
     # Use seaborn to set matplotlib plotting defaults
@@ -1258,4 +1273,8 @@ if __name__ == '__main__':
     print(kwargs)
     print()
 
-    main(**kwargs)
+    train(**kwargs)
+
+
+if __name__ == '__main__':
+    main()

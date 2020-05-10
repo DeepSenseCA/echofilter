@@ -1,8 +1,8 @@
-name = 'echofilter'  # See https://www.python.org/dev/peps/pep-0008/
+name = 'echofilter'
 path = name.lower().replace("-", "_").replace(" ", "_")
 version = '0.1.dev0'  # https://python.org/dev/peps/pep-0440 https://semver.org
-author = 'DeepSense'
-author_email = ''
-description = ''  # One-liner
-url = ''  # your project homepage
+author = 'Scott C. Lowe'
+author_email = 'scott.code.lowe@gmail.com'
+description = 'Remove echosounder noise by identifying the ocean floor and entrained air at the ocean surface.'
+url = 'https://github.com/DeepSenseCA/echofilter'
 license = 'Closed Source'  # See https://choosealicense.com
