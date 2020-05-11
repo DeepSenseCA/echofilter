@@ -245,7 +245,7 @@ def run_inference(
                     break
             if not any_missing:
                 if verbose >= 2:
-                    print('Skipping {}'.format(fname))
+                    print('  Skipping {}'.format(fname))
                 skip_count += 1
                 continue
 
@@ -269,7 +269,7 @@ def run_inference(
             if not skip_incompatible:
                 raise EnvironmentError(error_str)
             if verbose >= 2:
-                print('Skipping incompatible file {}'.format(fname))
+                print('  Skipping incompatible file {}'.format(fname))
             incompatible_count += 1
             continue
 
@@ -297,12 +297,12 @@ def run_inference(
                 # If CSV file is already cached, no need to re-export it
                 export_to_csv = False
 
-            if export_to_csv:
-                if dry_run:
-                    if verbose >= 1:
-                        print('Would export {} as CSV file {}'.format(fname_full, csv_fname))
-                    continue
-
+            if not export_to_csv:
+                pass
+            elif dry_run:
+                if verbose >= 1:
+                    print('  Would export {} as CSV file {}'.format(fname_full, csv_fname))
+            else:
                 # Import ev2csv now. We delay this import so Linux users
                 # without pywin32 can run on CSV files.
                 from echofilter.ev2csv import ev2csv
@@ -312,7 +312,7 @@ def run_inference(
 
             if dry_run:
                 if verbose >= 1:
-                    print('Would write to files to {}.SUFFIX'.format(destination))
+                    print('  Would write files to {}.SUFFIX'.format(destination))
                 continue
 
             # Load the data
@@ -331,7 +331,7 @@ def run_inference(
             except KeyError:
                 if skip_incompatible and fname not in files_input:
                     if verbose >= 2:
-                        print('Skipping incompatible file {}'.format(fname))
+                        print('  Skipping incompatible file {}'.format(fname))
                     incompatible_count += 1
                     continue
                 print('CSV file {} could not be loaded.'.format(fname))
@@ -380,14 +380,16 @@ def run_inference(
         skip_total = skip_count + incompatible_count
         if skip_total > 0:
             s += (
-                ' Of these, {} file{} skipped: {} already processed, {} incompatible.'
+                ' Of these, {} file{} skipped: {} already processed'
                 .format(
                     skip_total,
                     ' was' if skip_total == 1 else 's were',
                     skip_count,
-                    incompatible_count
                 )
             )
+            if not dry_run:
+                s += ', {} incompatible.'.format(incompatible_count)
+            s += '.'
         print(s)
 
 
