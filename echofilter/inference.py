@@ -193,7 +193,7 @@ def run_inference(
     if verbose >= 1:
         print('Processing {} file{}'.format(len(files), '' if len(files) == 1 else 's'))
 
-    if len(files) == 1:
+    if len(files) == 1 or verbose <= 0:
         maybe_tqdm = lambda x: x
     else:
         maybe_tqdm = lambda x: tqdm(x, desc='Files')
