@@ -303,7 +303,11 @@ def run_inference(
             echofilter.raw.loader.evl_writer(dest_file, timestamps, depths)
 
     if verbose >= 1:
-        s = 'Finished processing {} file{}.'.format(len(files), '' if len(files) == 1 else 's')
+        s = 'Finished {}processing {} file{}.'.format(
+            'simulating ' if dry_run else '',
+            len(files),
+            '' if len(files) == 1 else 's',
+        )
         skip_total = skip_count + incompatible_count
         if skip_total > 0:
             s += (
