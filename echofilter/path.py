@@ -17,8 +17,9 @@ def parse_files_in_folders(files_or_folders, data_dir, extension):
         Root directory within which elements of `files_or_folders` may
         be found.
     extension : str
-        Extension which files within directories must bear to be included.
-        Explicitly given files are always used.
+        Extension which files within directories must bear to be included,
+        without leading `'.'`, for instance `'.csv'`. Note that explicitly
+        given files are always used.
 
     Yields
     ------
