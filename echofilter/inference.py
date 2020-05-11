@@ -608,13 +608,16 @@ def main():
         metavar='DIR',
         help='path to directory containing FILE (default: ".")',
     )
+    default_extensions = ['csv']
+    if check_if_windows():
+        default_extensions.append('ev')
     parser.add_argument(
         '--extension', '-x',
         dest='extensions',
         type=str,
         nargs='+',
-        default=("csv", ),
-        help='file extensions to process (default: "csv")',
+        default=default_extensions,
+        help='file extensions to process (default: {})'.format(default_extensions),
     )
     parser.add_argument(
         '--output-dir', '-o',
