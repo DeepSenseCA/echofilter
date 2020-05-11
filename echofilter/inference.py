@@ -7,6 +7,7 @@ import pickle
 import pprint
 import shutil
 import sys
+import tempfile
 import time
 import urllib
 
@@ -50,12 +51,15 @@ def run_inference(
     row_len_selector='mode',
     crop_depth_min=None,
     crop_depth_max=None,
+    extensions='csv',
     keep_ext=False,
     overwrite_existing=False,
     skip_existing=False,
-    skip_incompatible_csv=False,
+    skip_incompatible=False,
     device=None,
     cache_dir=None,
+    cache_csv=None,
+    csv_suffix='.csv',
     verbose=1,
     dry_run=False,
 ):
@@ -94,7 +98,10 @@ def run_inference(
         minimum depth.
     crop_depth_max : float or None, optional
         Maxmimum depth to include in input. If `None` (default), there is no
-        maximum depth.
+        maximum depths.
+    extensions : iterable or str, optional
+        File extensions to detect when running on a directory. Default is
+        `'csv'`.
     keep_ext : bool, optional
         Whether to preserve the file extension in the input file name when
         generating output file name. Default is `False`, removing the
@@ -106,7 +113,7 @@ def run_inference(
     skip_existing : bool, optional
         Skip processing files which already have all outputs present. Default
         is `False`.
-    skip_incompatible_csv : bool, optional
+    skip_incompatible : bool, optional
         Skip processing CSV files which do not seem to contain an exported
         echoview transect. If `False`, an error is raised. Default is `False`.
     device : str or torch.device or None, optional
@@ -117,6 +124,15 @@ def run_inference(
         Path to directory where downloaded checkpoint files should be cached.
         If `None` (default), an OS-appropriate application-specific default
         cache directory is used.
+    cache_csv : str or None, optional
+        Path to directory where CSV files generated from EV inputs should be
+        cached. If `None` (default), EV files which are exported to CSV files
+        are temporary files, deleted after this program has completed. If
+        `cache_csv=''`, the CSV files are cached in the same directory as the
+        input EV files.
+    csv_suffix : str, optional
+        Suffix used for cached CSV files which are exported from EV files.
+        Default is `'.csv'` (only the file extension is changed).
     verbose : int, optional
         Verbosity level. Default is `1`. Set to `0` to disable print
         statements, or elevate to a higher number to increase verbosity.
@@ -195,7 +211,7 @@ def run_inference(
     model.eval()
 
     files_input = files
-    files = list(echofilter.path.parse_files_in_folders(files, data_dir, 'csv'))
+    files = list(echofilter.path.parse_files_in_folders(files, data_dir, extensions))
     if verbose >= 1:
         print('Processing {} file{}'.format(len(files), '' if len(files) == 1 else 's'))
 
@@ -233,32 +249,94 @@ def run_inference(
                 skip_count += 1
                 continue
 
-        if dry_run:
-            if verbose >= 1:
-                print('Would write to files to {}.SUFFIX'.format(destination))
+        # Determine whether we need to run ev2csv on this file
+        ext = os.path.splitext(fname)[1]
+        if len(ext) > 0:
+            ext = ext[1:].lower()
+        if ext == 'csv':
+            export_to_csv = False
+        elif ext == 'ev':
+            export_to_csv = True
+        elif len(extensions) == 1 and 'csv' in extensions:
+            export_to_csv = False
+        elif len(extensions) == 1 and 'ev' in extensions:
+            export_to_csv = True
+        else:
+            error_str = (
+                'Unsure how to process file {} with unrecognised extension {}'
+                .format(fname, ext)
+            )
+            if not skip_incompatible:
+                raise EnvironmentError(error_str)
+            if verbose >= 2:
+                print('Skipping incompatible file {}'.format(fname))
+            incompatible_count += 1
             continue
 
-        # Load the data
-        if verbose >= 4:
-            warn_row_overflow = np.inf
-        elif verbose >= 3:
-            warn_row_overflow = None
-        else:
-            warn_row_overflow = 0
-        try:
-            timestamps, depths, signals = echofilter.raw.loader.transect_loader(
-                fname_full,
-                warn_row_overflow=warn_row_overflow,
-                row_len_selector=row_len_selector,
-            )
-        except KeyError:
-            if skip_incompatible_csv and fname not in files_input:
-                if verbose >= 2:
-                    print('Skipping incompatible file {}'.format(fname))
-                incompatible_count += 1
+        # Make a temporary directory in case we are not caching generated csvs
+        # Directory and all its contents are deleted when we leave this context
+        with tempfile.TemporaryDirectory() as tmpdirname:
+
+            # Convert ev file to csv, if necessary
+            ev2csv_dir = cache_csv
+            if ev2csv_dir is None:
+                ev2csv_dir = tmpdirname
+
+            if not export_to_csv:
+                csv_fname = fname_full
+            else:
+                # Determine where exported CSV file should be placed
+                csv_fname = echofilter.path.determine_destination(
+                    fname, fname_full, data_dir, ev2csv_dir
+                )
+                if not keep_ext:
+                    csv_fname = os.path.splitext(csv_fname)[0]
+                csv_fname += csv_suffix
+
+            if os.path.isfile(csv_fname):
+                # If CSV file is already cached, no need to re-export it
+                export_to_csv = False
+
+            if export_to_csv:
+                if dry_run:
+                    if verbose >= 1:
+                        print('Would export {} as CSV file {}'.format(fname_full, csv_fname))
+                    continue
+
+                # Import ev2csv now. We delay this import so Linux users
+                # without pywin32 can run on CSV files.
+                from echofilter.ev2csv import ev2csv
+
+                # Export the CSV file
+                ev2csv(fname_full, csv_fname, verbose=verbose-1)
+
+            if dry_run:
+                if verbose >= 1:
+                    print('Would write to files to {}.SUFFIX'.format(destination))
                 continue
-            print('CSV file {} could not be loaded.'.format(fname))
-            raise
+
+            # Load the data
+            if verbose >= 4:
+                warn_row_overflow = np.inf
+            elif verbose >= 3:
+                warn_row_overflow = None
+            else:
+                warn_row_overflow = 0
+            try:
+                timestamps, depths, signals = echofilter.raw.loader.transect_loader(
+                    csv_fname,
+                    warn_row_overflow=warn_row_overflow,
+                    row_len_selector=row_len_selector,
+                )
+            except KeyError:
+                if skip_incompatible and fname not in files_input:
+                    if verbose >= 2:
+                        print('Skipping incompatible file {}'.format(fname))
+                    incompatible_count += 1
+                    continue
+                print('CSV file {} could not be loaded.'.format(fname))
+                raise
+
         output = inference_transect(
             model,
             timestamps,
@@ -485,6 +563,18 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     return destination
 
 
+def check_if_windows():
+    '''
+    Check if the operating system is Windows.
+
+    Returns
+    -------
+    bool
+        Whether the OS is Windows.
+    '''
+    return sys.platform.startswith('win')
+
+
 def main():
     import argparse
 
@@ -519,6 +609,14 @@ def main():
         help='path to directory containing FILE (default: ".")',
     )
     parser.add_argument(
+        '--extension', '-x',
+        dest='extensions',
+        type=str,
+        nargs='+',
+        default=("csv", ),
+        help='file extensions to process (default: "csv")',
+    )
+    parser.add_argument(
         '--output-dir', '-o',
         nargs='?',
         type=str,
@@ -551,6 +649,27 @@ def main():
         help=
             'path to checkpoint cache directory (default: "{}")'
             .format(DEFAULT_CACHE_DIR),
+    )
+    parser.add_argument(
+        '--cache-csv',
+        nargs='?',
+        type=str,
+        default=None,
+        const='',
+        metavar='DIR',
+        help=
+            'path to directory where CSV files generated from EV inputs should'
+            ' be cached. If an empty string is given, exported CSV files will'
+            ' be placed in the same directory as the input EV file.'
+            ' (default: do not cache)'
+    )
+    parser.add_argument(
+        '--csv-suffix',
+        type=str,
+        default='.csv',
+        help=
+            'suffix used for cached CSV files which are exported from EV files'
+            ' (default: ".csv")'
     )
     parser.add_argument(
         '--image-height', '--height',
@@ -600,10 +719,10 @@ def main():
         help='skip processing files for which all outputs already exist',
     )
     parser.add_argument(
-        '--skip-incompatible-csv', '--skip-incompatible',
-        dest='skip_incompatible_csv',
+        '--skip-incompatible',
+        dest='skip_incompatible',
         action='store_true',
-        help='skip incompatible CSV files without raising an error',
+        help='skip incompatible files without raising an error',
     )
     parser.add_argument(
         '--dry-run', '-n',
