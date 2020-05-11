@@ -34,6 +34,7 @@ DATA_MEAN = -80.
 DATA_STDEV = 20.
 
 CHECKPOINT_RESOURCES = OrderedDict([
+    ('stationary_effunet_block6.xb.2-1_lc32_se2_v2.ckpt.tar', {'gdrive': '1Rgr6y7SYEYrAq6tSF7tjqbKoZthKpMCb'}),
     ('stationary_effunet_block6.xb.2-1_lc32_se2.ckpt.tar', {'gdrive': '114vL-pAxrn9UDhaNG5HxZwjxNy7WMfW_'}),
 ])
 DEFAULT_CHECKPOINT = next(iter(CHECKPOINT_RESOURCES))
