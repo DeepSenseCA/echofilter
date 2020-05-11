@@ -207,29 +207,13 @@ def run_inference(
             print('Processing {}'.format(fname))
 
         # Check what the full path should be
-        if os.path.isabs(fname) and os.path.isfile(fname):
-            fname_full = fname
-        elif os.path.isfile(os.path.join(data_dir, fname)):
-            fname_full = os.path.join(data_dir, fname)
-        elif os.path.isfile(fname):
-            fname_full = fname
-        else:
-            raise EnvironmentError('Could not locate file {}'.format(fname))
+        fname_full = echofilter.path.determine_file_path(fname, data_dir)
 
         # Determine where destination should be placed
-        if output_dir is None or output_dir == '':
-            destination = fname_full
-        elif os.path.isabs(fname):
-            destination = os.path.join(output_dir, os.path.split(fname)[1])
-        elif os.path.abspath(fname).startswith(os.path.join(os.path.abspath(data_dir), '')):
-            destination = os.path.join(
-                output_dir,
-                os.path.abspath(fname)[len(os.path.join(os.path.abspath(data_dir), '')):],
-            )
-        else:
-            destination = os.path.join(output_dir, fname)
+        destination = echofilter.path.determine_destination(fname, fname_full, data_dir, output_dir)
         if not keep_ext:
             destination = os.path.splitext(destination)[0]
+
         # Check whether to skip processing this file
         if skip_existing:
             any_missing = False

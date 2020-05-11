@@ -43,3 +43,73 @@ def parse_files_in_folders(files_or_folders, data_dir, extension):
                     continue
                 if extension is None or os.path.splitext(filename)[1][1:] == extension:
                     yield rel_file
+
+
+def determine_file_path(fname, data_dir):
+    '''
+    Determine the path to use to an input file.
+
+    Parameters
+    ----------
+    fname : str
+        Path to an input file. Either an absolute path, or a path relative to
+        to `data_dir`, or a path relative to the working directory.
+    data_dir : str
+        Path to a directory where the file bearing name `fname` is expected to
+        be located.
+
+    Returns
+    -------
+    str
+        Path to where file can be found, either absolute or relative.
+    '''
+    # Check what the full path should be
+    if os.path.isabs(fname) and os.path.isfile(fname):
+        fname_full = fname
+    elif os.path.isfile(os.path.join(data_dir, fname)):
+        fname_full = os.path.join(data_dir, fname)
+    elif os.path.isfile(fname):
+        fname_full = fname
+    else:
+        raise EnvironmentError('Could not locate file {}'.format(fname))
+
+    return fname_full
+
+
+def determine_destination(fname, fname_full, data_dir, output_dir):
+    '''
+    Determine where destination should be placed for a file, preserving subtree
+    paths.
+
+    Parameters
+    ----------
+    fname : str
+        Original input path.
+    fname_full : str
+        Path to file, either absolute or relative; possibly containing
+        `data_dir`.
+    data_dir : str
+        Path to a directory where the file bearing name `fname` is expected to
+        be located.
+    output_dir : str
+        Path to root output directory.
+
+    Returns
+    -------
+    str
+        Path to where file can be found, either absolute or relative.
+    '''
+    # Determine where destination should be placed
+    if output_dir is None or output_dir == '':
+        destination = fname_full
+    elif os.path.isabs(fname):
+        destination = os.path.join(output_dir, os.path.split(fname)[1])
+    elif os.path.abspath(fname).startswith(os.path.join(os.path.abspath(data_dir), '')):
+        destination = os.path.join(
+            output_dir,
+            os.path.abspath(fname)[len(os.path.join(os.path.abspath(data_dir), '')):],
+        )
+    else:
+        destination = os.path.join(output_dir, fname)
+
+    return destination
