@@ -3,6 +3,19 @@ Path utilities.
 '''
 
 import os
+import sys
+
+
+def check_if_windows():
+    '''
+    Check if the operating system is Windows.
+
+    Returns
+    -------
+    bool
+        Whether the OS is Windows.
+    '''
+    return sys.platform.startswith('win')
 
 
 def parse_files_in_folders(files_or_folders, data_dir, extension):

@@ -5,11 +5,24 @@ Export raw EV files in CSV format.
 
 import os
 import sys
+import warnings
 
 from tqdm.auto import tqdm
-import win32com.client
 
 import echofilter.path
+
+
+# Before trying to import win32com, provide a warning for non-Windows users
+if not echofilter.path.check_if_windows():
+    print()
+    warnings.warn(
+        "ev2csv requires the EchoView application, which is only available on"
+        " Windows operating systems.",
+        category=RuntimeWarning
+    )
+    print()
+
+import win32com.client
 
 
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"

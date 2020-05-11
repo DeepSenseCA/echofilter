@@ -565,18 +565,6 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     return destination
 
 
-def check_if_windows():
-    '''
-    Check if the operating system is Windows.
-
-    Returns
-    -------
-    bool
-        Whether the OS is Windows.
-    '''
-    return sys.platform.startswith('win')
-
-
 def main():
     import argparse
 
@@ -611,7 +599,7 @@ def main():
         help='path to directory containing FILE (default: ".")',
     )
     default_extensions = ['csv']
-    if check_if_windows():
+    if echofilter.path.check_if_windows():
         default_extensions.append('ev')
     parser.add_argument(
         '--extension', '-x',
