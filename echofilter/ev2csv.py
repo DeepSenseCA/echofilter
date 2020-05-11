@@ -205,6 +205,7 @@ def ev2csv(
     # Export the raw file
     if verbose >= 1:
         print("  Writing output {}".format(destination))
+    os.makedirs(os.path.dirname(destination), exist_ok=True)
     av.ExportData(destination, -1, -1)
 
     # Close the file we opened in EchoView
