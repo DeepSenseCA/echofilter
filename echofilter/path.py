@@ -27,6 +27,8 @@ def parse_files_in_folders(files_or_folders, data_dir, extension):
         Paths to explicitly given files and files within directories with
         extension `extension`.
     '''
+    if extension is not None:
+        extension = extension.lower()
     for path in files_or_folders:
         if os.path.isfile(path) or os.path.isfile(os.path.join(data_dir, path)):
             yield path
@@ -42,7 +44,7 @@ def parse_files_in_folders(files_or_folders, data_dir, extension):
                 rel_file = os.path.join(dirpath, filename)
                 if not os.path.isfile(rel_file):
                     continue
-                if extension is None or os.path.splitext(filename)[1][1:] == extension:
+                if extension is None or os.path.splitext(filename)[1][1:].lower() == extension:
                     yield rel_file
 
 
