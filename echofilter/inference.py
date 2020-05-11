@@ -315,7 +315,6 @@ def run_inference(
                     incompatible_count
                 )
             )
-        incompatible_count
         print(s)
 
 
