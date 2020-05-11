@@ -44,7 +44,8 @@ def parse_files_in_folders(files_or_folders, data_dir, extension):
                 rel_file = os.path.join(dirpath, filename)
                 if not os.path.isfile(rel_file):
                     continue
-                if extension is None or os.path.splitext(filename)[1][1:].lower() == extension:
+                ext = os.path.splitext(filename)[1]
+                if extensions is None or (len(ext) > 0 and ext[1:].lower() == extension):
                     yield rel_file
 
 
