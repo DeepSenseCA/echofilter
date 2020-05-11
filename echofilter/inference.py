@@ -46,7 +46,8 @@ def run_inference(
     output_dir='',
     image_height=None,
     row_len_selector='mode',
-    crop_depth=None,
+    crop_depth_min=None,
+    crop_depth_max=None,
     keep_ext=False,
     overwrite_existing=False,
     skip_existing=False,
@@ -86,9 +87,12 @@ def run_inference(
         Method used to handle input csv files with different number of Sv
         values across time (i.e. a non-rectangular input). Default is `'mode'`.
         See `echofilter.raw.loader.transect_loader` for options.
-    crop_depth : float or None, optional
+    crop_depth_min : float or None, optional
+        Minimum depth to include in input. If `None` (default), there is no
+        minimum depth.
+    crop_depth_max : float or None, optional
         Maxmimum depth to include in input. If `None` (default), there is no
-        maximum and all depths are used.
+        maximum depth.
     keep_ext : bool, optional
         Whether to preserve the file extension in the input file name when
         generating output file name. Default is `False`, removing the
@@ -276,7 +280,8 @@ def run_inference(
             signals,
             device,
             image_height,
-            crop_depth=crop_depth,
+            crop_depth_min=crop_depth_min,
+            crop_depth_max=crop_depth_max,
             verbose=verbose-1,
         )
 
@@ -326,7 +331,8 @@ def inference_transect(
     signals,
     device,
     image_height,
-    crop_depth=None,
+    crop_depth_min=None,
+    crop_depth_max=None,
     dtype=torch.float,
     verbose=0,
 ):
@@ -347,8 +353,12 @@ def inference_transect(
         `(len(timestamps), len(depths))`.
     image_height : int
         Height to resize echogram before passing through model.
-    crop_depth : float or None, optional
-        Maximum depth at which to crop input.
+    crop_depth_min : float or None, optional
+        Minimum depth to include in input. If `None` (default), there is no
+        minimum depth.
+    crop_depth_max : float or None, optional
+        Maxmimum depth to include in input. If `None` (default), there is no
+        maximum depth.
     dtype : torch.dtype, optional
         Datatype to use for model input. Default is `torch.float`.
     verbose : int, optional
@@ -368,9 +378,14 @@ def inference_transect(
         'depths': depths,
         'signals': signals,
     }
-    if crop_depth is not None:
-        # Apply depth crop
-        depth_crop_mask = transect['depths'] <= crop_depth
+    if crop_depth_min is not None:
+        # Apply minimum depth crop
+        depth_crop_mask = transect['depths'] >= crop_depth_min
+        transect['depths'] = transect['depths'][depth_crop_mask]
+        transect['signals'] = transect['signals'][:, depth_crop_mask]
+    if crop_depth_max is not None:
+        # Apply maximum depth crop
+        depth_crop_mask = transect['depths'] <= crop_depth_max
         transect['depths'] = transect['depths'][depth_crop_mask]
         transect['signals'] = transect['signals'][:, depth_crop_mask]
 
@@ -606,10 +621,22 @@ def main():
         help='how to handle inputs with differing number of samples across time (default: "mode")',
     )
     parser.add_argument(
-        '--crop-depth',
+        '--crop-depth-min',
         type=float,
         default=None,
-        help='depth, in metres, at which data should be truncated (default: None)',
+        help=
+            'shallowest depth, in metres, to analyse after. Data will be'
+            ' truncated at this depth with shallower data removed.'
+            ' (default: None, do not truncate)',
+    )
+    parser.add_argument(
+        '--crop-depth-max',
+        type=float,
+        default=None,
+        help=
+            'deepest depth, in metres, to analyse after. Data will be'
+            ' truncated at this depth with deeper data removed.'
+            ' (default: None, do not truncate)',
     )
     parser.add_argument(
         '--force', '-f',
