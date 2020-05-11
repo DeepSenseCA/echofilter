@@ -22,6 +22,7 @@ from torchutils.utils import count_parameters
 from torchutils.device import cuda_is_really_available
 from tqdm.auto import tqdm
 
+import echofilter.path
 import echofilter.raw
 from echofilter.raw.manipulate import join_transect, split_transect
 import echofilter.transforms
@@ -194,11 +195,11 @@ def run_inference(
     model.eval()
 
     files_input = files
-    files = list(parse_files_in_folders(files, data_dir))
+    files = list(echofilter.path.parse_files_in_folders(files, data_dir, 'csv'))
     if verbose >= 1:
         print('Processing {} file{}'.format(len(files), '' if len(files) == 1 else 's'))
 
-    if len(files) == 1:
+    if len(files) == 1 or verbose <= 0:
         maybe_tqdm = lambda x: x
     else:
         maybe_tqdm = lambda x: tqdm(x, desc='Files')
@@ -211,29 +212,13 @@ def run_inference(
             print('Processing {}'.format(fname))
 
         # Check what the full path should be
-        if os.path.isabs(fname) and os.path.isfile(fname):
-            fname_full = fname
-        elif os.path.isfile(os.path.join(data_dir, fname)):
-            fname_full = os.path.join(data_dir, fname)
-        elif os.path.isfile(fname):
-            fname_full = fname
-        else:
-            raise EnvironmentError('Could not locate file {}'.format(fname))
+        fname_full = echofilter.path.determine_file_path(fname, data_dir)
 
         # Determine where destination should be placed
-        if output_dir is None or output_dir == '':
-            destination = fname_full
-        elif os.path.isabs(fname):
-            destination = os.path.join(output_dir, os.path.split(fname)[1])
-        elif os.path.abspath(fname).startswith(os.path.join(os.path.abspath(data_dir), '')):
-            destination = os.path.join(
-                output_dir,
-                os.path.abspath(fname)[len(os.path.join(os.path.abspath(data_dir), '')):],
-            )
-        else:
-            destination = os.path.join(output_dir, fname)
+        destination = echofilter.path.determine_destination(fname, fname_full, data_dir, output_dir)
         if not keep_ext:
             destination = os.path.splitext(destination)[0]
+
         # Check whether to skip processing this file
         if skip_existing:
             any_missing = False
@@ -309,7 +294,11 @@ def run_inference(
             echofilter.raw.loader.evl_writer(dest_file, timestamps, depths)
 
     if verbose >= 1:
-        s = 'Finished processing {} file{}.'.format(len(files), '' if len(files) == 1 else 's')
+        s = 'Finished {}processing {} file{}.'.format(
+            'simulating ' if dry_run else '',
+            len(files),
+            '' if len(files) == 1 else 's',
+        )
         skip_total = skip_count + incompatible_count
         if skip_total > 0:
             s += (
@@ -321,7 +310,6 @@ def run_inference(
                     incompatible_count
                 )
             )
-        incompatible_count
         print(s)
 
 
@@ -427,46 +415,6 @@ def inference_transect(
         print()
 
     return join_transect(outputs)
-
-
-def parse_files_in_folders(files_or_folders, data_dir, extension='csv'):
-    '''
-    Walk through folders and find suitable files.
-
-    Parameters
-    ----------
-    files_or_folders : iterable
-        List of files and folders.
-    data_dir : str
-        Root directory within which elements of `files_or_folders` may
-        be found.
-    extension : str, optional
-        Extension which files within directories must bear to be included.
-        Explicitly given files are always used. Default is `'csv'`.
-
-    Yields
-    ------
-    str
-        Paths to explicitly given files and files within directories with
-        extension `extension`.
-    '''
-    for path in files_or_folders:
-        if os.path.isfile(path) or os.path.isfile(os.path.join(data_dir, path)):
-            yield path
-            continue
-        elif os.path.isdir(path):
-            folder = path
-        elif os.path.isdir(os.path.join(data_dir, path)):
-            folder = os.path.join(data_dir, path)
-        else:
-            raise EnvironmentError('Missing file or directory: {}'.format(path))
-        for dirpath, dirnames, filenames in os.walk(folder):
-            for filename in filenames:
-                rel_file = os.path.join(dirpath, filename)
-                if not os.path.isfile(rel_file):
-                    continue
-                if extension is None or os.path.splitext(filename)[1][1:] == extension:
-                    yield rel_file
 
 
 def get_default_cache_dir():
