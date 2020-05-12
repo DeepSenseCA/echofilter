@@ -191,6 +191,7 @@ setup(
             'echofilter=echofilter.__main__:main',
             'echofilter-train=echofilter.train:main',
             'echofilter-generate-shards=echofilter.generate_shards:main',
+            'ev2csv=echofilter.ev2csv:main',
         ],
     },
 

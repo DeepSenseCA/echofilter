@@ -1,5 +1,6 @@
 numpy
 pandas
+pywin32; platform_system=="Windows"
 scikit-image
 scipy
 torch
