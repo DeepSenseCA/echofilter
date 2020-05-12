@@ -1,6 +1,6 @@
 name = 'echofilter'
 path = name.lower().replace("-", "_").replace(" ", "_")
-version = '0.1.dev0'  # https://python.org/dev/peps/pep-0440 https://semver.org
+version = '0.1.0'
 author = 'Scott C. Lowe'
 author_email = 'scott.code.lowe@gmail.com'
 description = 'Remove echosounder noise by identifying the ocean floor and entrained air at the ocean surface.'

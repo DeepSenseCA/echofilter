@@ -374,7 +374,7 @@ def evl_writer(fname, timestamps, depths, status=1):
     For more details on the format specification, see:
     https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm#Line_definition_file_format
     '''
-    with open(fname, 'w+') as hf:
+    with open(fname, 'w+', encoding="utf-8") as hf:
         # Write header
         print('﻿EVBD 3 10.0.270.37090', file=hf)
         n_row = len(depths)
