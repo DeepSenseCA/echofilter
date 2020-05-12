@@ -96,7 +96,7 @@ def run_ev2csv(
     # Open EchoView connection
     ev_app = win32com.client.Dispatch("EchoviewCom.EvApplication")
 
-    files = echofilter.path.parse_files_in_folders(files, data_dir, "ev")
+    files = list(echofilter.path.parse_files_in_folders(files, data_dir, "ev"))
     if verbose >= 1:
         print('Processing {} file{}'.format(len(files), '' if len(files) == 1 else 's'))
 
