@@ -40,7 +40,7 @@ def parse_files_in_folders(files_or_folders, data_dir, extension):
         Paths to explicitly given files and files within directories with
         extension `extension`.
     '''
-    if extension is not None or not isinstance(extension, str):
+    if extension is None or not isinstance(extension, str):
         extensions = extension
     else:
         extensions = {extension}
