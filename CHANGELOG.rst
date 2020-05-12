@@ -16,7 +16,20 @@ Security.
 Unreleased
 ----------
 
-`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.0...master>`__.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.1...master>`__.
+
+
+Version `0.1.1 <https://github.com/DeepSenseCA/echofilter/tree/0.1.1>`__
+------------------------------------------------------------------------
+
+.. _v0.1.1 Fixed:
+
+Fixed
+~~~~~
+
+-   Padding in echofilter.modules.pathing.FlexibleConcat2d when only one dim size doesn't match.
+    (`#64 <https://github.com/DeepSenseCA/echofilter/pull/64>`__)
+
 
 
 Version `0.1.0 <https://github.com/DeepSenseCA/echofilter/tree/0.1.0>`__
