@@ -94,7 +94,8 @@ def run_ev2csv(
         suffix = "_Sv_raw.csv"
 
     # Open EchoView connection
-    ev_app = win32com.client.Dispatch("EchoviewCom.EvApplication")
+    if not dry_run:
+        ev_app = win32com.client.Dispatch("EchoviewCom.EvApplication")
 
     files = list(echofilter.path.parse_files_in_folders(files, data_dir, "ev"))
     if verbose >= 1:
@@ -169,7 +170,8 @@ def run_ev2csv(
         print(s)
 
     # Close the EchoView application
-    ev_app.Quit()
+    if not dry_run:
+        ev_app.Quit()
 
     return output_files
 
