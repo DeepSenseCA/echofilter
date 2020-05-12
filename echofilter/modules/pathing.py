@@ -62,7 +62,7 @@ class FlexibleConcat2d(nn.Module):
         diffY = torch.tensor([x2.shape[-2] - x1.shape[-2]])
         diffX = torch.tensor([x2.shape[-1] - x1.shape[-1]])
 
-        if diffX != 0 and diffY != 0:
+        if diffX != 0 or diffY != 0:
             x1 = F.pad(
                 x1,
                 [diffX // 2, diffX - diffX // 2, diffY // 2, diffY - diffY // 2],
