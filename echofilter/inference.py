@@ -98,7 +98,7 @@ def run_inference(
         minimum depth.
     crop_depth_max : float or None, optional
         Maxmimum depth to include in input. If `None` (default), there is no
-        maximum depths.
+        maximum depth.
     extensions : iterable or str, optional
         File extensions to detect when running on a directory. Default is
         `'csv'`.
