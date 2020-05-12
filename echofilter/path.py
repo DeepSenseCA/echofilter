@@ -3,6 +3,19 @@ Path utilities.
 '''
 
 import os
+import sys
+
+
+def check_if_windows():
+    '''
+    Check if the operating system is Windows.
+
+    Returns
+    -------
+    bool
+        Whether the OS is Windows.
+    '''
+    return sys.platform.startswith('win')
 
 
 def parse_files_in_folders(files_or_folders, data_dir, extension):
@@ -16,10 +29,10 @@ def parse_files_in_folders(files_or_folders, data_dir, extension):
     data_dir : str
         Root directory within which elements of `files_or_folders` may
         be found.
-    extension : str
-        Extension which files within directories must bear to be included,
-        without leading `'.'`, for instance `'.csv'`. Note that explicitly
-        given files are always used.
+    extension : str or Collection
+        Extension (or list of extensions) which files within directories must
+        bear to be included, without leading `'.'`, for instance `'.csv'`.
+        Note that explicitly given files are always used.
 
     Yields
     ------
@@ -27,8 +40,12 @@ def parse_files_in_folders(files_or_folders, data_dir, extension):
         Paths to explicitly given files and files within directories with
         extension `extension`.
     '''
-    if extension is not None:
-        extension = extension.lower()
+    if extension is not None or not isinstance(extension, str):
+        extensions = extension
+    else:
+        extensions = {extension}
+    if extensions is not None:
+        extensions = {ext.lower() for ext in extensions}
     for path in files_or_folders:
         if os.path.isfile(path) or os.path.isfile(os.path.join(data_dir, path)):
             yield path
@@ -44,7 +61,8 @@ def parse_files_in_folders(files_or_folders, data_dir, extension):
                 rel_file = os.path.join(dirpath, filename)
                 if not os.path.isfile(rel_file):
                     continue
-                if extension is None or os.path.splitext(filename)[1][1:].lower() == extension:
+                ext = os.path.splitext(filename)[1]
+                if extensions is None or (len(ext) > 0 and ext[1:].lower() in extensions):
                     yield rel_file
 
 
