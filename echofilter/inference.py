@@ -23,6 +23,7 @@ from torchutils.utils import count_parameters
 from torchutils.device import cuda_is_really_available
 from tqdm.auto import tqdm
 
+import echofilter.ev
 import echofilter.path
 import echofilter.raw
 from echofilter.raw.manipulate import join_transect, split_transect
@@ -56,6 +57,8 @@ def run_inference(
     overwrite_existing=False,
     skip_existing=False,
     skip_incompatible=False,
+    minimize_echoview=False,
+    hide_echoview="new",
     device=None,
     cache_dir=None,
     cache_csv=None,
@@ -116,6 +119,16 @@ def run_inference(
     skip_incompatible : bool, optional
         Skip processing CSV files which do not seem to contain an exported
         echoview transect. If `False`, an error is raised. Default is `False`.
+    minimize_echoview : bool, optional
+        If `True`, the Echoview window being used will be minimized while this
+        function is running. Default is `False`.
+    hide_echoview : {"never", "new", "always"}, optional
+        Whether to hide the Echoview window entirely while the code runs.
+        If `hide_echoview="new"`, the application is only hidden if it
+        was created by this function, and not if it was already running.
+        If `hide_echoview="always"`, the application is hidden even if it was
+        already running. In the latter case, the window will be revealed again
+        when this function is completed. Default is `"new"`.
     device : str or torch.device or None, optional
         Name of device on which the model will be run. If `None`, the first
         available CUDA GPU is used if any are found, and otherwise the CPU is
@@ -215,6 +228,26 @@ def run_inference(
     if verbose >= 1:
         print('Processing {} file{}'.format(len(files), '' if len(files) == 1 else 's'))
 
+    if len(extensions) == 1 and 'ev' in extensions:
+        do_open = True
+    else:
+        do_open = False
+        for file in files:
+            if os.path.splitext(file)[1].lower() == '.ev':
+                do_open = True
+                break
+
+    if dry_run:
+        if verbose >= 3:
+            print(
+                'Echoview application would{} be opened {}.'
+                .format(
+                    '' if do_open else ' not',
+                    'to convert EV files to CSV' if do_open else '(no EV files to process)',
+                )
+            )
+        do_open = False
+
     if len(files) == 1 or verbose <= 0:
         maybe_tqdm = lambda x: x
     else:
@@ -223,153 +256,159 @@ def run_inference(
     skip_count = 0
     incompatible_count = 0
 
-    for fname in maybe_tqdm(files):
-        if verbose >= 2:
-            print('Processing {}'.format(fname))
-
-        # Check what the full path should be
-        fname_full = echofilter.path.determine_file_path(fname, data_dir)
-
-        # Determine where destination should be placed
-        destination = echofilter.path.determine_destination(fname, fname_full, data_dir, output_dir)
-        if not keep_ext:
-            destination = os.path.splitext(destination)[0]
-
-        # Check whether to skip processing this file
-        if skip_existing:
-            any_missing = False
-            for name in ('top', 'bottom'):
-                dest_file = '{}.{}.evl'.format(destination, name)
-                if not os.path.isfile(dest_file):
-                    any_missing = True
-                    break
-            if not any_missing:
-                if verbose >= 2:
-                    print('  Skipping {}'.format(fname))
-                skip_count += 1
-                continue
-
-        # Determine whether we need to run ev2csv on this file
-        ext = os.path.splitext(fname)[1]
-        if len(ext) > 0:
-            ext = ext[1:].lower()
-        if ext == 'csv':
-            export_to_csv = False
-        elif ext == 'ev':
-            export_to_csv = True
-        elif len(extensions) == 1 and 'csv' in extensions:
-            export_to_csv = False
-        elif len(extensions) == 1 and 'ev' in extensions:
-            export_to_csv = True
-        else:
-            error_str = (
-                'Unsure how to process file {} with unrecognised extension {}'
-                .format(fname, ext)
-            )
-            if not skip_incompatible:
-                raise EnvironmentError(error_str)
+    # Open EchoView connection
+    with echofilter.ev.maybe_open_echoview(
+        do_open=do_open,
+        minimize=minimize_echoview,
+        hide=hide_echoview,
+    ) as ev_app:
+        for fname in maybe_tqdm(files):
             if verbose >= 2:
-                print('  Skipping incompatible file {}'.format(fname))
-            incompatible_count += 1
-            continue
+                print('Processing {}'.format(fname))
 
-        # Make a temporary directory in case we are not caching generated csvs
-        # Directory and all its contents are deleted when we leave this context
-        with tempfile.TemporaryDirectory() as tmpdirname:
+            # Check what the full path should be
+            fname_full = echofilter.path.determine_file_path(fname, data_dir)
 
-            # Convert ev file to csv, if necessary
-            ev2csv_dir = cache_csv
-            if ev2csv_dir is None:
-                ev2csv_dir = tmpdirname
+            # Determine where destination should be placed
+            destination = echofilter.path.determine_destination(fname, fname_full, data_dir, output_dir)
+            if not keep_ext:
+                destination = os.path.splitext(destination)[0]
 
-            if not export_to_csv:
-                csv_fname = fname_full
-            else:
-                # Determine where exported CSV file should be placed
-                csv_fname = echofilter.path.determine_destination(
-                    fname, fname_full, data_dir, ev2csv_dir
-                )
-                if not keep_ext:
-                    csv_fname = os.path.splitext(csv_fname)[0]
-                csv_fname += csv_suffix
-
-            if os.path.isfile(csv_fname):
-                # If CSV file is already cached, no need to re-export it
-                export_to_csv = False
-
-            if not export_to_csv:
-                pass
-            elif dry_run:
-                if verbose >= 1:
-                    print('  Would export {} as CSV file {}'.format(fname_full, csv_fname))
-            else:
-                # Import ev2csv now. We delay this import so Linux users
-                # without pywin32 can run on CSV files.
-                from echofilter.ev2csv import ev2csv
-
-                # Export the CSV file
-                ev2csv(fname_full, csv_fname, verbose=verbose-1)
-
-            if dry_run:
-                if verbose >= 1:
-                    print('  Would write files to {}.SUFFIX'.format(destination))
-                continue
-
-            # Load the data
-            if verbose >= 4:
-                warn_row_overflow = np.inf
-            elif verbose >= 3:
-                warn_row_overflow = None
-            else:
-                warn_row_overflow = 0
-            try:
-                timestamps, depths, signals = echofilter.raw.loader.transect_loader(
-                    csv_fname,
-                    warn_row_overflow=warn_row_overflow,
-                    row_len_selector=row_len_selector,
-                )
-            except KeyError:
-                if skip_incompatible and fname not in files_input:
+            # Check whether to skip processing this file
+            if skip_existing:
+                any_missing = False
+                for name in ('top', 'bottom'):
+                    dest_file = '{}.{}.evl'.format(destination, name)
+                    if not os.path.isfile(dest_file):
+                        any_missing = True
+                        break
+                if not any_missing:
                     if verbose >= 2:
-                        print('  Skipping incompatible file {}'.format(fname))
-                    incompatible_count += 1
+                        print('  Skipping {}'.format(fname))
+                    skip_count += 1
                     continue
-                print('CSV file {} could not be loaded.'.format(fname))
-                raise
 
-        output = inference_transect(
-            model,
-            timestamps,
-            depths,
-            signals,
-            device,
-            image_height,
-            crop_depth_min=crop_depth_min,
-            crop_depth_max=crop_depth_max,
-            verbose=verbose-1,
-        )
-
-        # Convert output into lines
-        top_depths = output['depths'][echofilter.utils.last_nonzero(output['p_is_above_top'] > 0.5, -1)]
-        bottom_depths = output['depths'][echofilter.utils.first_nonzero(output['p_is_below_bottom'] > 0.5, -1)]
-
-        # Export evl files
-        destination_dir = os.path.dirname(destination)
-        if destination_dir != '':
-            os.makedirs(destination_dir, exist_ok=True)
-        for name, depths in (('top', top_depths), ('bottom', bottom_depths)):
-            dest_file = '{}.{}.evl'.format(destination, name)
-            if verbose >= 2:
-                print('Writing output {}'.format(dest_file))
-            if os.path.exists(dest_file) and not overwrite_existing:
-                raise EnvironmentError(
-                    'Output {} already exists.\n'
-                    ' Run with overwrite_existing=True (with the command line'
-                    ' interface, use the --force flag) to overwrite existing'
-                    ' outputs.'
-                    .format(dest_file)
+            # Determine whether we need to run ev2csv on this file
+            ext = os.path.splitext(fname)[1]
+            if len(ext) > 0:
+                ext = ext[1:].lower()
+            if ext == 'csv':
+                export_to_csv = False
+            elif ext == 'ev':
+                export_to_csv = True
+            elif len(extensions) == 1 and 'csv' in extensions:
+                export_to_csv = False
+            elif len(extensions) == 1 and 'ev' in extensions:
+                export_to_csv = True
+            else:
+                error_str = (
+                    'Unsure how to process file {} with unrecognised extension {}'
+                    .format(fname, ext)
                 )
-            echofilter.raw.loader.evl_writer(dest_file, timestamps, depths)
+                if not skip_incompatible:
+                    raise EnvironmentError(error_str)
+                if verbose >= 2:
+                    print('  Skipping incompatible file {}'.format(fname))
+                incompatible_count += 1
+                continue
+
+            # Make a temporary directory in case we are not caching generated csvs
+            # Directory and all its contents are deleted when we leave this context
+            with tempfile.TemporaryDirectory() as tmpdirname:
+
+                # Convert ev file to csv, if necessary
+                ev2csv_dir = cache_csv
+                if ev2csv_dir is None:
+                    ev2csv_dir = tmpdirname
+
+                if not export_to_csv:
+                    csv_fname = fname_full
+                else:
+                    # Determine where exported CSV file should be placed
+                    csv_fname = echofilter.path.determine_destination(
+                        fname, fname_full, data_dir, ev2csv_dir
+                    )
+                    if not keep_ext:
+                        csv_fname = os.path.splitext(csv_fname)[0]
+                    csv_fname += csv_suffix
+
+                if os.path.isfile(csv_fname):
+                    # If CSV file is already cached, no need to re-export it
+                    export_to_csv = False
+
+                if not export_to_csv:
+                    pass
+                elif dry_run:
+                    if verbose >= 1:
+                        print('  Would export {} as CSV file {}'.format(fname_full, csv_fname))
+                else:
+                    # Import ev2csv now. We delay this import so Linux users
+                    # without pywin32 can run on CSV files.
+                    from echofilter.ev2csv import ev2csv
+
+                    # Export the CSV file
+                    ev2csv(fname_full, csv_fname, ev_app=ev_app, verbose=verbose-1)
+
+                if dry_run:
+                    if verbose >= 1:
+                        print('  Would write files to {}.SUFFIX'.format(destination))
+                    continue
+
+                # Load the data
+                if verbose >= 4:
+                    warn_row_overflow = np.inf
+                elif verbose >= 3:
+                    warn_row_overflow = None
+                else:
+                    warn_row_overflow = 0
+                try:
+                    timestamps, depths, signals = echofilter.raw.loader.transect_loader(
+                        csv_fname,
+                        warn_row_overflow=warn_row_overflow,
+                        row_len_selector=row_len_selector,
+                    )
+                except KeyError:
+                    if skip_incompatible and fname not in files_input:
+                        if verbose >= 2:
+                            print('  Skipping incompatible file {}'.format(fname))
+                        incompatible_count += 1
+                        continue
+                    print('CSV file {} could not be loaded.'.format(fname))
+                    raise
+
+            output = inference_transect(
+                model,
+                timestamps,
+                depths,
+                signals,
+                device,
+                image_height,
+                crop_depth_min=crop_depth_min,
+                crop_depth_max=crop_depth_max,
+                verbose=verbose-1,
+            )
+
+            # Convert output into lines
+            top_depths = output['depths'][echofilter.utils.last_nonzero(output['p_is_above_top'] > 0.5, -1)]
+            bottom_depths = output['depths'][echofilter.utils.first_nonzero(output['p_is_below_bottom'] > 0.5, -1)]
+
+            # Export evl files
+            destination_dir = os.path.dirname(destination)
+            if destination_dir != '':
+                os.makedirs(destination_dir, exist_ok=True)
+            for name, depths in (('top', top_depths), ('bottom', bottom_depths)):
+                dest_file = '{}.{}.evl'.format(destination, name)
+                if verbose >= 2:
+                    print('Writing output {}'.format(dest_file))
+                if os.path.exists(dest_file) and not overwrite_existing:
+                    raise EnvironmentError(
+                        'Output {} already exists.\n'
+                        ' Run with overwrite_existing=True (with the command line'
+                        ' interface, use the --force flag) to overwrite existing'
+                        ' outputs.'
+                        .format(dest_file)
+                    )
+                echofilter.raw.loader.evl_writer(dest_file, timestamps, depths)
 
     if verbose >= 1:
         s = 'Finished {}processing {} file{}.'.format(
@@ -716,6 +755,35 @@ def main():
         help='skip incompatible files without raising an error',
     )
     parser.add_argument(
+        "--minimize-echoview",
+        dest="minimize_echoview",
+        action="store_true",
+        help="minimize the Echoview window while this code runs",
+    )
+    parser.add_argument(
+        "--show-echoview",
+        dest="hide_echoview",
+        action="store_const",
+        const="never",
+        default=None,
+        help="don't hide an Echoview window created to run this code",
+    )
+    parser.add_argument(
+        "--hide-echoview",
+        dest="hide_echoview",
+        action="store_const",
+        const="new",
+        help="hide Echoview window, but only if it was not already open (default behaviour)",
+    )
+    parser.add_argument(
+        "--always-hide-echoview",
+        "--always-hide",
+        dest="hide_echoview",
+        action="store_const",
+        const="always",
+        help="hide the Echoview window while this code runs, even if it was already open",
+    )
+    parser.add_argument(
         '--dry-run', '-n',
         action='store_true',
         help='perform a trial run with no changes made',
@@ -740,6 +808,9 @@ def main():
     )
     kwargs = vars(parser.parse_args())
     kwargs['verbose'] -= kwargs.pop('quiet', 0)
+
+    if kwargs["hide_echoview"] is None:
+        kwargs["hide_echoview"] = "never" if kwargs["minimize_echoview"] else "new"
 
     run_inference(**kwargs)
 
