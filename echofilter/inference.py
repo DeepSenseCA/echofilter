@@ -347,6 +347,8 @@ def run_inference(
                     from echofilter.ev2csv import ev2csv
 
                     # Export the CSV file
+                    fname_full = os.path.abspath(fname_full)
+                    csv_fname = os.path.abspath(csv_fname)
                     ev2csv(fname_full, csv_fname, ev_app=ev_app, verbose=verbose-1)
 
                 if dry_run:
