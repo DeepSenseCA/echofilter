@@ -210,7 +210,11 @@ def ev2csv(
 
     if verbose >= 1:
         print("  Opening {} in EchoView".format(input))
-        
+
+    # Ensure input and destination are absolute paths
+    input = os.path.abspath(input)
+    destination = os.path.abspath(destination)
+
     # Open the EV file
     with echofilter.ev.open_ev_file(input, ev_app) as ev_file:
 
