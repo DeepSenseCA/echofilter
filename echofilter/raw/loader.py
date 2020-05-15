@@ -494,7 +494,7 @@ def remove_trailing_slash(s):
     str
         Same as `s`, but without trailing forward slashes.
     '''
-    while s[-1] == '/':
+    while s[-1] == '/' or s[-1] == os.path.sep:
         s = s[:-1]
     return s
 
