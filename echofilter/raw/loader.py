@@ -381,9 +381,15 @@ def evl_writer(fname, timestamps, depths, status=1):
         print(n_row, file=hf)
         # Write each row
         for i_row, (timestamp, depth) in enumerate(zip(timestamps, depths)):
+            # Datetime must be in the format CCYYMMDD HHmmSSssss
+            # where ssss = 0.1 milliseconds.
+            # We have to manually determine the number of "0.1 milliseconds"
+            # from the microsecond component.
+            dt = datetime.datetime.fromtimestamp(timestamp)
             print(
-                '{}  {} {} '.format(
-                    datetime.datetime.fromtimestamp(timestamp).strftime('%Y%m%d %H%M%S%f'),
+                '{}{:04d}  {} {} '.format(
+                    dt.strftime('%Y%m%d %H%M%S'),
+                    round(dt.microsecond / 100),
                     depth,
                     0 if i_row == n_row - 1 else status,
                 ),
