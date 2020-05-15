@@ -1,6 +1,6 @@
 name = 'echofilter'
 path = name.lower().replace("-", "_").replace(" ", "_")
-version = '0.1.1'
+version = '0.1.2'
 author = 'Scott C. Lowe'
 author_email = 'scott.code.lowe@gmail.com'
 description = 'Remove echosounder noise by identifying the ocean floor and entrained air at the ocean surface.'
