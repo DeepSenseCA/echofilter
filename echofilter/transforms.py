@@ -122,26 +122,65 @@ class Rescale(object):
 
 class Normalize(object):
     '''
-    Normalize mean and standard deviation of image.
+    Normalize offset and scaling of image (mean and standard deviation).
 
     Note that changes are made inplace.
 
     Parameters
     ----------
-    mean : float
-        Expected sample pixel mean.
-    stdev : float
-        Expected sample standard deviation of pixel intensities.
+    center : {'mean', 'median'} or float
+        If a float, a pre-computed centroid measure of the distribution of
+        samples, such as the pixel mean. If a string, a method to use to
+        determine the center value.
+    deviation : {'stdev', 'mad', 'iqr', 'idr', 'i7r'} or float
+        If a float, a pre-computed deviation measure of the distribution of
+        samples. If a string, a method to use to determine the deviation.
+    robust2stdev : bool, optional
+        Whether to convert robust measures to estimates of the standard
+        deviation. Default is `True`.
     '''
 
-    def __init__(self, mean, stdev):
-        self.mean = mean
-        self.stdev = stdev
+    def __init__(self, center, deviation, robust2stdev=True):
+        self.center = center
+        self.deviation = deviation
+        self.robust2stdev = robust2stdev
 
     def __call__(self, sample):
 
-        sample['signals'] -= self.mean
-        sample['signals'] /= self.stdev
+        if not isinstance(self.center, str):
+            center = self.center
+        elif self.center.lower() == 'mean':
+            center = np.nanmean(sample['signals'])
+        elif self.center.lower() == 'median':
+            center = np.nanmedian(sample['signals'])
+        else:
+            raise ValueError('Unrecognised center method: {}'.format(self.center))
+
+        if not isinstance(self.deviation, str):
+            deviation = self.deviation
+        elif self.deviation.lower() in {'std', 'stdev'}:
+            deviation = np.nanstd(sample['signals'])
+        elif self.deviation.lower() == 'mad':
+            deviation = np.nanmedian(np.abs(sample['signals'] - np.nanmedian(sample['signals'])))
+            if self.robust2stdev:
+                deviation *= 1.4826
+        elif self.deviation.lower() == 'iqr':
+            deviation = np.diff(np.nanpercentile(sample['signals'], [25, 75]))[0]
+            if self.robust2stdev:
+                deviation /= 1.35
+        elif self.deviation.lower() == 'idr':
+            deviation = np.diff(np.nanpercentile(sample['signals'], [10, 90]))[0]
+            if self.robust2stdev:
+                deviation /= 2.56
+        elif self.deviation.lower() == 'i7r':
+            deviation = np.diff(np.nanpercentile(sample['signals'], [7, 93]))[0]
+            if self.robust2stdev:
+                deviation /= 3.
+        else:
+            raise ValueError('Unrecognised deviation method: {}'.format(self.deviation))
+
+        sample['signals'] -= center
+        sample['signals'] /= deviation
 
         return sample
 
