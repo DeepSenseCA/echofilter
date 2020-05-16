@@ -42,12 +42,15 @@ CHECKPOINT_RESOURCES = OrderedDict([
 ])
 DEFAULT_CHECKPOINT = next(iter(CHECKPOINT_RESOURCES))
 
+DEFAULT_VARNAME = "Fileset1: Sv pings T1"
+
 
 def run_inference(
     files,
     data_dir='.',
     checkpoint=None,
     output_dir='',
+    variable_name=DEFAULT_VARNAME,
     image_height=None,
     row_len_selector='mode',
     crop_depth_min=None,
@@ -87,6 +90,9 @@ def run_inference(
         are written to the same directory as each input file. Otherwise, they
         are written to `output_dir`, preserving their path relative to
         `data_dir` if relative paths were used. Default is `''`.
+    variable_name : str, optional
+        Name of the EchoView acoustic variable to load from EV files. Default
+        is `'Fileset1: Sv pings T1'`.
     image_height : int or None, optional
         Height in pixels of input to model. The data loaded from the csv will
         be resized to this height (the width of the image is unchanged).
@@ -349,7 +355,13 @@ def run_inference(
                     # Export the CSV file
                     fname_full = os.path.abspath(fname_full)
                     csv_fname = os.path.abspath(csv_fname)
-                    ev2csv(fname_full, csv_fname, ev_app=ev_app, verbose=verbose-1)
+                    ev2csv(
+                        fname_full,
+                        csv_fname,
+                        variable_name=variable_name,
+                        ev_app=ev_app,
+                        verbose=verbose-1,
+                    )
 
                 if dry_run:
                     if verbose >= 1:
@@ -663,6 +675,17 @@ def main():
         '--keep-ext',
         action='store_true',
         help='keep the input file extension in output file names',
+    )
+    parser.add_argument(
+        "--variable-name",
+        "--vn",
+        dest="variable_name",
+        type=str,
+        default=DEFAULT_VARNAME,
+        help="Name of the EchoView acoustic variable to load from EV files."
+        " Default is {}.".format(
+            DEFAULT_VARNAME
+        ),
     )
     parser.add_argument(
         '--checkpoint',
