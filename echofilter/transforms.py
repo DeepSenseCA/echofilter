@@ -128,7 +128,7 @@ class Normalize(object):
 
     Parameters
     ----------
-    center : {'mean', 'median'} or float
+    center : {'mean', 'median', 'pc10'} or float
         If a float, a pre-computed centroid measure of the distribution of
         samples, such as the pixel mean. If a string, a method to use to
         determine the center value.
@@ -153,6 +153,8 @@ class Normalize(object):
             center = np.nanmean(sample['signals'])
         elif self.center.lower() == 'median':
             center = np.nanmedian(sample['signals'])
+        elif self.center.lower() == 'pc10':
+            center = np.nanpercentile(sample['signals'], 10)
         else:
             raise ValueError('Unrecognised center method: {}'.format(self.center))
 
