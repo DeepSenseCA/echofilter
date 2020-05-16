@@ -33,9 +33,6 @@ from echofilter.unet import UNet
 from echofilter.wrapper import Echofilter
 
 
-DATA_MEAN = -80.
-DATA_STDEV = 20.
-
 CHECKPOINT_RESOURCES = OrderedDict([
     ('stationary_effunet_block6.xb.2-1_lc32_se2_v2.ckpt.tar', {'gdrive': '1Rgr6y7SYEYrAq6tSF7tjqbKoZthKpMCb'}),
     ('stationary_effunet_block6.xb.2-1_lc32_se2.ckpt.tar', {'gdrive': '114vL-pAxrn9UDhaNG5HxZwjxNy7WMfW_'}),
@@ -210,6 +207,9 @@ def run_inference(
 
     if image_height is None:
         image_height = checkpoint.get('sample_shape', (128, 512))[1]
+
+    data_center = checkpoint.get('data_center', -80.)
+    data_deviation = checkpoint.get('data_deviation', 20.)
 
     if verbose >= 2:
         print('Constructing U-Net model, with arguments:')
@@ -406,6 +406,8 @@ def run_inference(
                 facing=facing,
                 crop_depth_min=crop_depth_min,
                 crop_depth_max=crop_depth_max,
+                data_center=data_center,
+                data_deviation=data_deviation,
                 verbose=verbose-1,
             )
 
@@ -463,6 +465,8 @@ def inference_transect(
     facing="auto",
     crop_depth_min=None,
     crop_depth_max=None,
+    data_center=-80.,
+    data_deviation=20.,
     dtype=torch.float,
     verbose=0,
 ):
@@ -494,6 +498,13 @@ def inference_transect(
     crop_depth_max : float or None, optional
         Maxmimum depth to include in input. If `None` (default), there is no
         maximum depth.
+    data_center : float, optional
+        Center point to use, which will be subtracted from the Sv signals
+        (i.e. the overall sample mean). Default is `-80.`.
+    data_deviation : float, optional
+        Deviation to use to normalise the Sv signals in divisive manner
+        (i.e. the overall sample standard deviation). Default is `20`.
+        Default is `20.`.
     dtype : torch.dtype, optional
         Datatype to use for model input. Default is `torch.float`.
     verbose : int, optional
@@ -552,7 +563,7 @@ def inference_transect(
     for segment in segments:
         # Preprocessing transform
         transform = torchvision.transforms.Compose([
-            echofilter.transforms.Normalize(DATA_MEAN, DATA_STDEV),
+            echofilter.transforms.Normalize(data_center, data_deviation),
             echofilter.transforms.ReplaceNan(-3),
             echofilter.transforms.Rescale(
                 (segment['signals'].shape[0], image_height),
