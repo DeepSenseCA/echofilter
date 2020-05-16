@@ -278,6 +278,15 @@ def main():
         ' directory as the input file. (default: "")',
     )
     parser.add_argument(
+        "--output-suffix",
+        "--suffix",
+        dest="suffix",
+        type=str,
+        default=None,
+        help='Output filename suffix. Default is "_Sv_raw.csv", or'
+        ' ".Sv_raw.csv" --keep_ext is used',
+    )
+    parser.add_argument(
         "--variable-name",
         "--vn",
         dest="variable_name",
