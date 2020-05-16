@@ -16,7 +16,30 @@ Security.
 Unreleased
 ----------
 
-`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.2...master>`__.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.3...master>`__.
+
+
+Version `0.1.3 <https://github.com/DeepSenseCA/echofilter/tree/0.1.3>`__
+------------------------------------------------------------------------
+
+.. _v0.1.3 Fixed:
+
+Fixed
+~~~~~
+
+-   EVL writer needs to output time to nearest 0.1ms.
+    (`#72 <https://github.com/DeepSenseCA/echofilter/pull/72>`__)
+
+.. _v0.1.3 Added:
+
+Added
+~~~~~
+
+-   Add ``--suffix`` argument to the command line interface of ``ev2csv``.
+    (`#71 <https://github.com/DeepSenseCA/echofilter/pull/71>`__)
+-   Add ``--variable-name`` argument to ``inference.py`` (the main command line interface).
+    (`#74 <https://github.com/DeepSenseCA/echofilter/pull/74>`__)
+
 
 
 Version `0.1.2 <https://github.com/DeepSenseCA/echofilter/tree/0.1.2>`__
