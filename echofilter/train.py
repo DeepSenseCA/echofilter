@@ -631,6 +631,8 @@ def train(
             'best_loss': best_loss_val,
             'optimizer': optimizer.state_dict(),
             'meters': meters_val,
+            'data_center': DATA_MEAN,
+            'data_deviation': DATA_STDEV,
         }
         if use_mixed_precision:
             checkpoint['amp'] = apex.amp.state_dict()
