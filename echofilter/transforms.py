@@ -76,6 +76,7 @@ class Rescale(object):
         for key in _fields_2d:
             if key not in sample:
                 continue
+            _dtype = sample[key].dtype
             sample[key] = skimage.transform.resize(
                 np.asarray(sample[key]).astype(np.float),
                 self.output_size,
@@ -83,28 +84,33 @@ class Rescale(object):
                 clip=False,
                 preserve_range=False,
             )
+            sample[key] = sample[key].astype(_dtype)
 
         # 1D arrays (column-like)
         for key in _fields_1d_timelike:
             if key not in sample:
                 continue
             _kind = 'linear' if key == 'timestamps' else kind
+            _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
                 np.arange(len(sample[key])),
                 sample[key],
                 kind=_kind,
             )(np.linspace(0, len(sample[key]) - 1, self.output_size[0]))
+            sample[key] = sample[key].astype(_dtype)
 
         # 1D arrays (row-like)
         for key in _fields_1d_depthlike:
             if key not in sample:
                 continue
             _kind = 'linear' if key == 'depths' else kind
+            _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
                 np.arange(len(sample[key])),
                 sample[key],
                 kind=_kind,
             )(np.linspace(0, len(sample[key]) - 1, self.output_size[1]))
+            sample[key] = sample[key].astype(_dtype)
 
         return sample
 
