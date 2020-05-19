@@ -519,6 +519,11 @@ def inference_transect(
     if is_upward_facing:
         transect['depths'] = transect['depths'][::-1].copy()
         transect['signals'] = transect['signals'][:, ::-1].copy()
+        if verbose >= 1:
+            print(
+                'Data was autodetected as upward facing, and was flipped'
+                ' vertically before being input into the model.'
+            )
 
     # To reduce memory consumption, split into segments whenever the recording
     # interval is longer than normal
