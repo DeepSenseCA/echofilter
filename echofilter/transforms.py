@@ -3,6 +3,7 @@ import os
 import random
 
 import numpy as np
+import scipy.interpolate
 import skimage.transform
 
 
@@ -33,9 +34,27 @@ class Rescale(object):
     output_size : tuple or int
         Desired output size. If tuple, output is matched to output_size. If
         int, output is square.
+    order : int or None, optional
+        Order of the interpolation, for both image and vector elements.
+        For images-like components, the interpolation is 2d.
+        The following values are supported:
+
+        - 0: Nearest-neighbor
+        - 1: Linear (default)
+        - 2: Quadratic
+        - 3: Cubic
+
+        If `None`, the order is randomly selected from these values.
     '''
 
-    def __init__(self, output_size):
+    order2kind = {
+        0: 'nearest',
+        1: 'linear',
+        2: 'quadratic',
+        3: 'cubic',
+    }
+
+    def __init__(self, output_size, order=1):
         if isinstance(output_size, int):
             output_size = (output_size, output_size)
         elif isinstance(output_size, collections.Sequence):
@@ -43,36 +62,49 @@ class Rescale(object):
         else:
             raise ValueError('Output size must be an int or a tuple.')
         self.output_size = output_size
+        self.order = order
 
     def __call__(self, sample):
 
+        order = self.order
+        if order is None:
+            order = np.random.randint(4)
+
+        kind = self.order2kind[order]
+
         # 2D arrays (image-like)
         for key in _fields_2d:
-            if key in sample:
-                sample[key] = skimage.transform.resize(
-                    np.asarray(sample[key]).astype(np.float),
-                    self.output_size,
-                    clip=False,
-                    preserve_range=False,
-                )
+            if key not in sample:
+                continue
+            sample[key] = skimage.transform.resize(
+                np.asarray(sample[key]).astype(np.float),
+                self.output_size,
+                order=order,
+                clip=False,
+                preserve_range=False,
+            )
 
         # 1D arrays (column-like)
         for key in _fields_1d_timelike:
-            if key in sample:
-                sample[key] = np.interp(
-                    np.linspace(0, len(sample[key]) - 1, self.output_size[0]),
-                    np.linspace(0, len(sample[key]) - 1, len(sample[key])),
-                    sample[key],
-                )
+            if key not in sample:
+                continue
+            _kind = 'linear' if key == 'timestamps' else kind
+            sample[key] = scipy.interpolate.interp1d(
+                np.arange(len(sample[key])),
+                sample[key],
+                kind=_kind,
+            )(np.linspace(0, len(sample[key]) - 1, self.output_size[0]))
 
         # 1D arrays (row-like)
         for key in _fields_1d_depthlike:
-            if key in sample:
-                sample[key] = np.interp(
-                    np.linspace(0, len(sample[key]) - 1, self.output_size[1]),
-                    np.linspace(0, len(sample[key]) - 1, len(sample[key])),
-                    sample[key],
-                )
+            if key not in sample:
+                continue
+            _kind = 'linear' if key == 'depths' else kind
+            sample[key] = scipy.interpolate.interp1d(
+                np.arange(len(sample[key])),
+                sample[key],
+                kind=_kind,
+            )(np.linspace(0, len(sample[key]) - 1, self.output_size[1]))
 
         return sample
 

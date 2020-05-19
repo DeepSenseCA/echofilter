@@ -554,7 +554,10 @@ def inference_transect(
         transform = torchvision.transforms.Compose([
             echofilter.transforms.Normalize(DATA_MEAN, DATA_STDEV),
             echofilter.transforms.ReplaceNan(-3),
-            echofilter.transforms.Rescale((segment['signals'].shape[0], image_height)),
+            echofilter.transforms.Rescale(
+                (segment['signals'].shape[0], image_height),
+                order=1,
+            ),
         ])
         segment = transform(segment)
         input = torch.tensor(segment['signals']).unsqueeze(0).unsqueeze(0)
