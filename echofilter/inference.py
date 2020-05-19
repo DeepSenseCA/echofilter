@@ -52,6 +52,7 @@ def run_inference(
     output_dir='',
     variable_name=DEFAULT_VARNAME,
     image_height=None,
+    facing="auto",
     row_len_selector='mode',
     crop_depth_min=None,
     crop_depth_max=None,
@@ -98,6 +99,11 @@ def run_inference(
         be resized to this height (the width of the image is unchanged).
         If `None` (default), the height matches that used when the model was
         trained.
+    facing : {"downward", "upward", "auto"}, optional
+        Orientation in which the echosounder is facing. Default is `"auto"`,
+        in which case the orientation is determined from the ordering of the
+        depth values in the data (increasing = `"upward"`,
+        decreasing = `"downward"`).
     row_len_selector : str, optional
         Method used to handle input csv files with different number of Sv
         values across time (i.e. a non-rectangular input). Default is `'mode'`.
@@ -397,6 +403,7 @@ def run_inference(
                 signals,
                 device,
                 image_height,
+                facing=facing,
                 crop_depth_min=crop_depth_min,
                 crop_depth_max=crop_depth_max,
                 verbose=verbose-1,
@@ -453,6 +460,7 @@ def inference_transect(
     signals,
     device,
     image_height,
+    facing="auto",
     crop_depth_min=None,
     crop_depth_max=None,
     dtype=torch.float,
@@ -475,6 +483,11 @@ def inference_transect(
         `(len(timestamps), len(depths))`.
     image_height : int
         Height to resize echogram before passing through model.
+    facing : {"downward", "upward", "auto"}, optional
+        Orientation in which the echosounder is facing. Default is `"auto"`,
+        in which case the orientation is determined from the ordering of the
+        depth values in the data (increasing = `"upward"`,
+        decreasing = `"downward"`).
     crop_depth_min : float or None, optional
         Minimum depth to include in input. If `None` (default), there is no
         minimum depth.
@@ -492,6 +505,7 @@ def inference_transect(
         Dictionary with fields as output by `echofilter.wrapper.Echofilter`,
         plus `timestamps` and `depths`.
     '''
+    facing = facing.lower()
     timestamps = np.asarray(timestamps)
     depths = np.asarray(depths)
     signals = np.asarray(signals)
@@ -516,14 +530,18 @@ def inference_transect(
     is_upward_facing = (transect['depths'][-1] < transect['depths'][0])
     # Ensure depth is always increasing (which corresponds to descending from
     # the air down the water column)
-    if is_upward_facing:
+    if facing[:2] == "up" or (facing == "auto" and is_upward_facing):
         transect['depths'] = transect['depths'][::-1].copy()
         transect['signals'] = transect['signals'][:, ::-1].copy()
-        if verbose >= 1:
+        if facing == "auto" and verbose >= 1:
             print(
                 'Data was autodetected as upward facing, and was flipped'
                 ' vertically before being input into the model.'
             )
+    elif facing[:4] != "down" and facing[:4] != "auto":
+        raise ValueError('facing should be one of "downward", "upward", and "auto"')
+    elif facing[:4] == "down" and is_upward_facing:
+        print('Warning: facing = "{}" was provided, but data appears to be upward facing'.format(facing))
 
     # To reduce memory consumption, split into segments whenever the recording
     # interval is longer than normal
@@ -740,6 +758,13 @@ def main():
             'input image height, in pixels. The echogram will be resized to'
             ' have this height, and its width will be kept. (default: same'
             ' as using during training)',
+    )
+    parser.add_argument(
+        '--facing',
+        type=str,
+        choices=['downward', 'upward', 'auto'],
+        default='auto',
+        help='orientation of echosounder (default: "auto")',
     )
     parser.add_argument(
         '--row-len-selector',
