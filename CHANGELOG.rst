@@ -16,7 +16,21 @@ Security.
 Unreleased
 ----------
 
-`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.3...master>`__.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.4...master>`__.
+
+
+Version `0.1.4 <https://github.com/DeepSenseCA/echofilter/tree/0.1.4>`__
+------------------------------------------------------------------------
+
+.. _v0.1.4 Added:
+
+Added
+~~~~~
+
+-   Add ability to set orientation of echosounder with ``--facing`` argument
+    (`#77 <https://github.com/DeepSenseCA/echofilter/pull/77>`__).
+    The orientation is shown to the user if it was automatically detected as upward-facing
+    (`#76 <https://github.com/DeepSenseCA/echofilter/pull/76>`__).
 
 
 Version `0.1.3 <https://github.com/DeepSenseCA/echofilter/tree/0.1.3>`__
