@@ -1,6 +1,7 @@
 import collections
 import os
 import random
+import warnings
 
 import numpy as np
 import scipy.interpolate
@@ -77,13 +78,15 @@ class Rescale(object):
             if key not in sample:
                 continue
             _dtype = sample[key].dtype
-            sample[key] = skimage.transform.resize(
-                np.asarray(sample[key]).astype(np.float),
-                self.output_size,
-                order=order,
-                clip=False,
-                preserve_range=False,
-            )
+            with warnings.catch_warnings():
+                warnings.filterwarnings('ignore', 'Bi-quadratic interpolation behavior has changed')
+                sample[key] = skimage.transform.resize(
+                    np.asarray(sample[key]).astype(np.float),
+                    self.output_size,
+                    order=order,
+                    clip=False,
+                    preserve_range=False,
+                )
             sample[key] = sample[key].astype(_dtype)
 
         # 1D arrays (column-like)
