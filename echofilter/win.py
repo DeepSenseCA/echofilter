@@ -12,9 +12,6 @@ import win32com.client
 import win32gui
 
 
-ECHOVIEW_COM_NAME = "EchoviewCom.EvApplication"
-
-
 class WindowManager:
     """
     Encapsulates calls to window management using the Windows api.
