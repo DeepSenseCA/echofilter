@@ -66,6 +66,8 @@ DATA_DEVIATION = 16.5
 CENTER_METHOD = 'pc10'
 DEVIATION_METHOD = 'idr'
 
+NAN_VALUE = -3
+
 # Transects to plot for debugging
 PLOT_TRANSECTS = {
     'mobile': [
@@ -165,13 +167,13 @@ def train(
     train_transform_post = torchvision.transforms.Compose([
         echofilter.transforms.Normalize(DATA_CENTER, DATA_DEVIATION),
         echofilter.transforms.ColorJitter(0.5, 0.3),
-        echofilter.transforms.ReplaceNan(-3),
+        echofilter.transforms.ReplaceNan(NAN_VALUE),
         echofilter.transforms.Rescale(sample_shape, order=None),
     ])
     val_transform = torchvision.transforms.Compose([
         echofilter.transforms.OptimalCropDepth(),
         echofilter.transforms.Normalize(DATA_CENTER, DATA_DEVIATION),
-        echofilter.transforms.ReplaceNan(-3),
+        echofilter.transforms.ReplaceNan(NAN_VALUE),
         echofilter.transforms.Rescale(sample_shape, order=1),
     ])
 
@@ -648,6 +650,7 @@ def train(
             'data_deviation': DATA_DEVIATION,
             'center_method': CENTER_METHOD,
             'deviation_method': DEVIATION_METHOD,
+            'nan_value': NAN_VALUE,
         }
         if use_mixed_precision:
             checkpoint['amp'] = apex.amp.state_dict()
@@ -928,7 +931,7 @@ def generate_from_transect(model, transect, sample_shape, crop_depth, device, dt
     # Apply transforms
     transform = torchvision.transforms.Compose([
         echofilter.transforms.Normalize(DATA_CENTER, DATA_DEVIATION),
-        echofilter.transforms.ReplaceNan(-3),
+        echofilter.transforms.ReplaceNan(NAN_VALUE),
         echofilter.transforms.Rescale((data['signals'].shape[0], sample_shape[1])),
     ])
     data = transform(data)

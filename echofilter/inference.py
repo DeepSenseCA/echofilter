@@ -220,6 +220,7 @@ def run_inference(
     else:
         center_param = checkpoint.get('center_method', 'mean')
         deviation_param = checkpoint.get('deviation_method', 'stdev')
+    nan_value = checkpoint.get('nan_value', -3)
 
     if verbose >= 2:
         print('Constructing U-Net model, with arguments:')
@@ -418,6 +419,7 @@ def run_inference(
                 crop_depth_max=crop_depth_max,
                 data_center=center_param,
                 data_deviation=deviation_param,
+                nan_value=nan_value,
                 verbose=verbose-1,
             )
 
@@ -477,6 +479,7 @@ def inference_transect(
     crop_depth_max=None,
     data_center='mean',
     data_deviation='stdev',
+    nan_value=-3,
     dtype=torch.float,
     verbose=0,
 ):
@@ -520,6 +523,8 @@ def inference_transect(
         If `data_deviation` is a string, it specifies the method to use to
         determine the center value from the distribution of intensities seen
         in this sample transect. Default is `'stdev'`.
+    nan_value : float, optional
+        Placeholder value to replace NaNs with. Default is `-3`.
     dtype : torch.dtype, optional
         Datatype to use for model input. Default is `torch.float`.
     verbose : int, optional
@@ -581,7 +586,7 @@ def inference_transect(
     for segment in segments:
         # Preprocessing transform
         transform = torchvision.transforms.Compose([
-            echofilter.transforms.ReplaceNan(-3),
+            echofilter.transforms.ReplaceNan(nan_value),
             echofilter.transforms.Rescale(
                 (segment['signals'].shape[0], image_height),
                 order=1,
