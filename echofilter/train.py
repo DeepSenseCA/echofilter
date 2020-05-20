@@ -66,7 +66,7 @@ DATA_DEVIATION = 16.5
 CENTER_METHOD = 'pc10'
 DEVIATION_METHOD = 'idr'
 
-NAN_VALUE = -3
+NAN_VALUE = -1
 
 # Transects to plot for debugging
 PLOT_TRANSECTS = {
