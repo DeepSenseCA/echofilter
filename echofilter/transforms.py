@@ -94,6 +94,8 @@ class Rescale(object):
             if key not in sample:
                 continue
             _kind = 'linear' if key == 'timestamps' else kind
+            if key in {'is_passive', 'is_removed'} and order > 1:
+                _kind = 'linear'
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
                 np.arange(len(sample[key])),
