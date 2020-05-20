@@ -15,7 +15,7 @@ import win32gui
 class WindowManager:
     """
     Encapsulates calls to window management using the Windows api.
-    
+
     Notes
     -----
     Based on: https://stackoverflow.com/a/2091530 and https://stackoverflow.com/a/4440622
@@ -78,7 +78,7 @@ def opencom(
 ):
     """
     Open a connection to an application with a COM object.
-    
+
     The application may or may not be open before this context begins. If it
     was not already open, the application is closed when leaving the context.
 
