@@ -45,7 +45,7 @@ class Rescale(object):
         - 2: Quadratic
         - 3: Cubic
 
-        If `None`, the order is randomly selected from these values.
+        If `None`, the order is randomly selected as either `0` or `1`.
     '''
 
     order2kind = {
@@ -69,7 +69,7 @@ class Rescale(object):
 
         order = self.order
         if order is None:
-            order = np.random.randint(4)
+            order = np.random.randint(1)
 
         kind = self.order2kind[order]
 
