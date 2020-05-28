@@ -3,6 +3,7 @@ Echoview interface management.
 """
 
 from contextlib import contextmanager
+import os
 import warnings
 
 
@@ -81,8 +82,19 @@ def open_ev_file(filename, app=None):
         COM interface is created. If that requires opening a new instance
         of Echoview, it is hidden while the file is in use.
     """
+    if not os.path.isfile(filename):
+        raise EnvironmentError("Missing file: {}".format(filename))
     with maybe_open_echoview(app, hide="new") as app:
         ev_file = app.OpenFile(filename)
+        if ev_file is None or ev_file is "None" or ev_file is "NoneValue":
+            raise EnvironmentError(
+                "Could not open file '{}'."
+                " It appears that you already have a file open in echoview."
+                " Please close echoview before running echofilter."
+                " You can re-open echoview once echofilter is running and"
+                " continue your work without distrupting echofilter."
+                .format(filename)
+            )
         try:
             yield ev_file
         finally:
