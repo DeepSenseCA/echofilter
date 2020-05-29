@@ -301,7 +301,6 @@ def fixup_lines(
         d_top=None,
         t_bot=None,
         d_bot=None,
-        return_passive_boundaries=False,
     ):
     '''
     Extend existing top/bottom lines based on masked target Sv output.
@@ -325,9 +324,6 @@ def fixup_lines(
         Sampling times for existing bottom line.
     d_bot : array_like, optional
         Depth of existing bottom line.
-    return_passive_boundaries : bool, optional
-        Whether to return `passive_starts` and `passive_ends`. Default is
-        `False`.
 
     Returns
     -------
@@ -410,18 +406,6 @@ def fixup_lines(
     else:
         d_bot_new[all_removed] = np.nan
 
-    # Convert this into start and end points for later use(?)
-    # removal_starts, removal_ends = find_nonzero_region_boundaries(all_removed)
-
-    # For passive data, we set the target to be NaN as a placeholder.
-    # A working target can be set downstream.
-    passive_starts, passive_ends = find_passive_data(signals_raw)
-    for start, end in zip(passive_starts, passive_ends):
-        d_top_new[start:end] = np.nan
-        d_bot_new[start:end] = np.nan
-
-    if return_passive_boundaries:
-        return d_top_new, d_bot_new, passive_starts, passive_ends
     return d_top_new, d_bot_new
 
 
@@ -531,7 +515,7 @@ def load_decomposed_transect_mask(
         t_surf = d_surf = None
 
     # Generate new lines from mask
-    d_top_new, d_bot_new, passive_starts, passive_ends = fixup_lines(
+    d_top_new, d_bot_new = fixup_lines(
         ts_raw,
         depths_raw,
         signals_raw,
@@ -540,8 +524,8 @@ def load_decomposed_transect_mask(
         d_top=d_top,
         t_bot=t_bot,
         d_bot=d_bot,
-        return_passive_boundaries=True,
     )
+    passive_starts, passive_ends = find_passive_data(signals_raw)
     # Determine whether each timestamps is for a period of passive recording
     is_passive = np.zeros(ts_raw.shape, dtype=bool)
     for pass_start, pass_end in zip(passive_starts, passive_ends):
