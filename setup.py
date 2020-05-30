@@ -44,7 +44,7 @@ def process_requirements_file(fname):
 install_requires, dependency_links = process_requirements_file('requirements.txt')
 
 extras_require = {}
-for tag in ('dev', 'docs', 'train', 'plots'):
+for tag in ('dev', 'docs', 'test', 'train', 'plots'):
     extras_require[tag], extra_dep_links = process_requirements_file(
         'requirements-{}.txt'.format(tag)
     )
