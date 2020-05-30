@@ -79,10 +79,11 @@ def write_transect_shards(dirname, transect, max_depth=100., shard_len=128):
         Path to output directory.
     transect : dict
         Observed values for the transect. Should already be segmented.
-    max_depth : float, optional
+    max_depth : float or None, optional
         The maximum depth to include in the saved shard. Data corresponding
         to deeper locations is omitted to save on load time and memory when
-        the shard is loaded. Default is `100`.
+        the shard is loaded. If `None`, no cropping is applied.
+        Default is `100`.
     shard_len : int, optional
         Number of timestamp samples to include in each shard. Default is `128`.
 
@@ -109,10 +110,11 @@ def write_transect_shards(dirname, transect, max_depth=100., shard_len=128):
     '''
 
     # Remove depths which are too deep for us to care about
-    depth_mask = transect['depths'] <= max_depth
-    transect['depths'] = transect['depths'][depth_mask]
-    transect['Sv'] = transect['Sv'][:, depth_mask]
-    transect['mask'] = transect['mask'][:, depth_mask]
+    if max_depth is not None:
+        depth_mask = transect['depths'] <= max_depth
+        transect['depths'] = transect['depths'][depth_mask]
+        transect['Sv'] = transect['Sv'][:, depth_mask]
+        transect['mask'] = transect['mask'][:, depth_mask]
 
     # Reduce floating point precision for some variables
     for key in ('Sv', 'top', 'bottom'):
