@@ -127,7 +127,7 @@ def find_passive_data(signals, n_depth_use=38, threshold=25., deviation=None):
     return np.array(indices_passive_start), np.array(indices_passive_end)
 
 
-def make_lines_from_mask(mask, depths=None, max_gap_squash=2.):
+def make_lines_from_mask(mask, depths=None, max_gap_squash=1.):
     '''
     Determines top and bottom lines for a mask array.
 
@@ -143,7 +143,7 @@ def make_lines_from_mask(mask, depths=None, max_gap_squash=2.):
         monotonically increasing or monotonically decreasing. Default is the
         index of `mask`, `arange(mask.shape[1])`.
     max_gap_squash : float, optional
-        Maximum gap to merge together, in metres. Default is `2.`.
+        Maximum gap to merge together, in metres. Default is `1.`.
 
     Returns
     -------
