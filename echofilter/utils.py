@@ -66,6 +66,41 @@ def last_nonzero(arr, axis, invalid_val=-1):
     return np.where(mask.any(axis=axis), val, invalid_val)
 
 
+def get_indicator_onoffsets(indicator):
+    """
+    Find the onsets and offsets of nonzero entries in an indicator.
+
+    Parameters
+    ----------
+    indicator : 1d numpy.ndarray
+        Input vector, which is sometimes zero and sometimes nonzero.
+
+    Returns
+    -------
+    onsets : list
+        Onset indices, where each entry is the start of a sequence of nonzero
+        values in the input `indicator`.
+    offsets : list
+        Offset indices, where each entry is the last in a sequence of nonzero
+        values in the input `indicator`, such that
+        `indicator[onsets[i] : offsets[i] + 1] != 0`.
+    """
+    indices = np.nonzero(indicator)[0]
+
+    if len(indices) == 0:
+        return [], []
+
+    onsets = [indices[0]]
+    offsets = []
+    breaks = np.nonzero(indices[1:] - indices[:-1] > 1)[0]
+    for break_idx in breaks:
+        offsets.append(indices[break_idx])
+        onsets.append(indices[break_idx + 1])
+    offsets.append(indices[-1])
+
+    return onsets, offsets
+
+
 def get_current_lr(optimizer):
     '''
     Get the learning rate of an optimizer.

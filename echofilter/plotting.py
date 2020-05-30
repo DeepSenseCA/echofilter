@@ -79,18 +79,11 @@ def plot_indicator_hatch(indicator, xx=None, ymin=None, ymax=None, hatch='//', c
     if ymax is None:
         ymax = ylim[1]
 
-    indices = np.nonzero(indicator)[0]
+    r_starts, r_ends = utils.get_indicator_onoffsets(indicator)
 
-    if len(indices) == 0:
+    if len(r_starts) == 0:
         return
 
-    r_starts = [indices[0]]
-    r_ends = []
-    breaks = np.nonzero(indices[1:] - indices[:-1] > 1)[0]
-    for break_idx in breaks:
-        r_ends.append(indices[break_idx])
-        r_starts.append(indices[break_idx + 1])
-    r_ends.append(indices[-1])
     for r_start, r_end in zip(r_starts, r_ends):
         plt.fill_between(
             xx[[r_start, r_end]],
