@@ -578,11 +578,28 @@ def load_decomposed_transect_mask(
     d_bot = tidy_up_line(t_bot, d_bot)
     d_surf = tidy_up_line(t_surf, d_surf)
 
+    # Make a mask indicating left-over patches. This is 0 everywhere,
+    # except 1s wherever pixels in the overall mask are removed for
+    # reasons not explained by the top and bottom lines, and is_passive and
+    # is_removed indicators.
+    mask_patches = 1 - mask
+    mask_patches[is_passive] = 0
+    mask_patches[is_removed] = 0
+    mask_patches_og = mask_patches.copy()
+    ddepths = np.broadcast_to(depths_raw, signals_raw.shape)
+    mask_patches[ddepths < np.expand_dims(d_top_new, -1)] = 0
+    mask_patches[ddepths > np.expand_dims(d_bot_new, -1)] = 0
+    mask_patches_og[ddepths < np.expand_dims(d_top, -1)] = 0
+    mask_patches_og[ddepths > np.expand_dims(d_bot, -1)] = 0
+
+    # Collate transect as a dictionary
     transect = {}
     transect['timestamps'] = ts_raw
     transect['depths'] = depths_raw
     transect['Sv'] = signals_raw
     transect['mask'] = mask
+    transect['mask_patches'] = mask_patches
+    transect['mask_patches-original'] = mask_patches_og
     transect['top'] = d_top_new
     transect['bottom'] = d_bot_new
     transect['surface'] = d_surf

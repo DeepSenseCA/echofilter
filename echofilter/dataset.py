@@ -175,19 +175,9 @@ class TransectDataset(torch.utils.data.Dataset):
         sample['mask'][sample['mask_top'] > 0.5] = 0
         sample['mask'][sample['mask_bot'] > 0.5] = 0
 
-        # Make a mask indicating left-over patches. This is 0 everywhere,
-        # except 1s whereever pixels in the overall mask are removed for
-        # reasons not explained by the top and bottom lines, and is_passive and
-        # is_removed indicators.
-        sample['mask_patches'] = 1 - sample['mask']
-        sample['mask_patches'][sample['is_passive'] > 0.5] = 0
-        sample['mask_patches'][sample['is_removed'] > 0.5] = 0
-
-        sample['mask_patches-original'] = sample['mask_patches'].copy()
+        # Convert mask patches into floating point arrays
         for suffix in ('', '-original'):
-            sample['mask_patches' + suffix][sample['mask_top' + suffix] > 0.5] = 0
-            sample['mask_patches' + suffix][sample['mask_bot' + suffix] > 0.5] = 0
-            sample['mask_patches' + suffix] = np.single(sample['mask_patches' + suffix])
+            sample['mask_patches' + suffix] = sample['mask_patches' + suffix].astype(np.float32)
 
         if self.transform_post is not None:
             sample = self.transform_post(sample)
