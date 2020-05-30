@@ -9,6 +9,7 @@ import warnings
 import numpy as np
 
 from . import loader
+from .. import utils
 
 
 ROOT_DATA_DIR = loader.ROOT_DATA_DIR
@@ -542,7 +543,20 @@ def load_decomposed_transect_mask(
         mask[ddepths > np.expand_dims(d_bot_new, -1)] = 0
         mask[is_passive] = 0
     allnan = np.all(np.isnan(signals_mskd), axis=1)
-    is_removed = allnan & ~is_passive
+
+    # Timestamp is entirely removed if everything is nan and it isn't passive
+    is_removed_raw = allnan & ~is_passive
+    # But we don't want to include removed segments which are marked as
+    # removed just because the lines crossed each other.
+    r_starts_raw, r_ends_raw = utils.get_indicator_onoffsets(is_removed_raw)
+    r_starts = []
+    r_ends = []
+    is_removed = np.zeros_like(is_removed_raw)
+    for r_start, r_end in zip(r_starts_raw, r_ends_raw):
+        if not np.all(d_top_new[r_start : r_end + 1] <= d_bot_new[r_start : r_end + 1]):
+            r_starts.append(r_start)
+            r_ends.append(r_end)
+            is_removed[r_start : r_end + 1] = 1
 
     # Determine whether depths are ascending or descending
     is_upward_facing = (depths_raw[-1] < depths_raw[0])
