@@ -181,6 +181,17 @@ def train(
     print('Found {:3d} train sample paths'.format(len(train_paths)))
     print('Found {:3d} val sample paths'.format(len(val_paths)))
 
+    dataset_args = {}
+    if dataset_name == "mobile":
+        dataset_args["remove_nearfield"] = False
+        dataset_args["remove_offset_top"] = 0
+        dataset_args["remove_offset_bottom"] = 1.
+    elif dataset_name == "MinasPassage":
+        dataset_args["remove_nearfield"] = True
+        dataset_args["nearfield_distance"] = 1.7
+        dataset_args["remove_offset_top"] = 0
+        dataset_args["remove_offset_bottom"] = 0
+
     dataset_train = echofilter.dataset.TransectDataset(
         train_paths,
         window_len=int(1.5 * sample_shape[0]),
@@ -189,6 +200,7 @@ def train(
         use_dynamic_offsets=True,
         transform_pre=train_transform_pre,
         transform_post=train_transform_post,
+        **dataset_args
     )
     dataset_val = echofilter.dataset.TransectDataset(
         val_paths,
@@ -197,6 +209,7 @@ def train(
         num_windows_per_transect=None,
         use_dynamic_offsets=False,
         transform_post=val_transform,
+        **dataset_args
     )
     dataset_augval = echofilter.dataset.TransectDataset(
         val_paths,
@@ -206,6 +219,7 @@ def train(
         use_dynamic_offsets=False,
         transform_pre=train_transform_pre,
         transform_post=train_transform_post,
+        **dataset_args
     )
     print('Train dataset has {:4d} samples'.format(len(dataset_train)))
     print('Val   dataset has {:4d} samples'.format(len(dataset_val)))

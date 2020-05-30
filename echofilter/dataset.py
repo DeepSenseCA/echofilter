@@ -19,6 +19,11 @@ class TransectDataset(torch.utils.data.Dataset):
             use_dynamic_offsets=True,
             transform_pre=None,
             transform_post=None,
+            remove_nearfield=True,
+            nearfield_distance=1.7,
+            nearfield_visible_dist=0.5,
+            remove_offset_top=0,
+            remove_offset_bottom=0,
             ):
         '''
         TransectDataset
@@ -49,6 +54,26 @@ class TransectDataset(torch.utils.data.Dataset):
         transform_post : callable
             Operations to perform to the dictionary containing a single sample.
             These are performed after generating the masks. Default is `None`.
+        remove_nearfield : bool, optional
+            Whether to remove top and bottom lines affected by nearfield
+            removal. If `True` (default), targets for the line near to the
+            sounder (bottom if upward facing, top otherwise) which are closer
+            than or equal to a distance of `nearfield_distance` become reduced
+            to `nearfield_visible_dist`.
+        nearfield_distance : float, optional
+            Nearfield distance in metres. Regions closer than the nearfield
+            may have been masked out from the dataset, but their effect will
+            be removed from the targets if `remove_nearfield=True`.
+            Default is `1.7`.
+        nearfield_visible_dist : float, optional
+            The distance at which the effect of being to close to the sounder
+            is obvious to the naked eye. Default is `0.5`.
+        remove_offset_top : float, optional
+            Line offset built in to the top line. If given, this will be
+            removed from the samples within the dataset. Default is `0`.
+        remove_offset_bottom : float, optional
+            Line offset built in to the bottom line. If given, this will be
+            removed from the samples within the dataset. Default is `0`.
         '''
         super(TransectDataset, self).__init__()
         self.transect_paths = transect_paths
@@ -58,6 +83,11 @@ class TransectDataset(torch.utils.data.Dataset):
         self.use_dynamic_offsets = use_dynamic_offsets
         self.transform_pre = transform_pre
         self.transform_post = transform_post
+        self.remove_nearfield = remove_nearfield
+        self.nearfield_distance = nearfield_distance
+        self.nearfield_visible_dist = nearfield_visible_dist
+        self.remove_offset_top = remove_offset_top
+        self.remove_offset_bottom = remove_offset_bottom
         self.initialise_datapoints()
 
     def initialise_datapoints(self):
@@ -122,26 +152,39 @@ class TransectDataset(torch.utils.data.Dataset):
             for k in ['depths', 'signals', 'mask']:
                 sample[k] = np.flip(sample[k], -1).copy()
 
-        # Handle missing top and bottom lines during passive segments
         if sample['is_upward_facing']:
-            passive_top_val = np.min(sample['depths'])
-            with warnings.catch_warnings():
-                warnings.filterwarnings('ignore', 'All-NaN (slice|axis) encountered')
-                passive_bot_val = np.nanmax(sample['d_bot'])
-            if np.isnan(passive_bot_val):
-                passive_bot_val = np.max(sample['depths']) - 1.69
+            min_top_depth = np.min(sample['depths'])
+            max_bot_depth = np.max(sample['depths']) - self.nearfield_visible_dist
         else:
-            with warnings.catch_warnings():
-                warnings.filterwarnings('ignore', 'All-NaN (slice|axis) encountered')
-                passive_top_val = np.nanmin(sample['d_top'])
-            if np.isnan(passive_top_val):
-                passive_top_val = 0.966
-            passive_bot_val = np.max(sample['depths'])
-        sample['d_top'][np.isnan(sample['d_top'])] = passive_top_val
-        sample['d_bot'][np.isnan(sample['d_bot'])] = passive_bot_val
+            min_top_depth = 0.966
+            max_bot_depth = np.max(sample['depths'])
+
+        if self.remove_nearfield:
+            depth_intv = np.abs(sample['depths'][-1] - sample['depths'][-2])
+            if sample['is_upward_facing']:
+                nearfield_threshold = (
+                    np.max(sample['depths']) - depth_intv / 5 - self.nearfield_distance * 1.001
+                )
+                was_in_nearfield = sample['d_bot'] >= nearfield_threshold
+                sample['d_bot'][was_in_nearfield] = max_bot_depth
+            else:
+                was_in_nearfield = sample['d_top'] <= self.nearfield_distance
+                sample['d_top'][was_in_nearfield] = min_top_depth
+        else:
+            was_in_nearfield = np.zeros_like(sample["is_removed"], dtype="bool")
+
+        if self.remove_offset_top:
+            sample['d_top'][~was_in_nearfield] -= self.remove_offset_top
+            sample['d_top-original'][~was_in_nearfield] -= self.remove_offset_top
+        if self.remove_offset_bottom:
+            sample['d_bot'][~was_in_nearfield] += self.remove_offset_bottom
+            sample['d_bot-original'][~was_in_nearfield] += self.remove_offset_bottom
+
         sample['d_surf'][np.isnan(sample['d_surf'])] = np.min(sample['depths'])
-        sample['d_top-original'][np.isnan(sample['d_top-original'])] = passive_top_val
-        sample['d_bot-original'][np.isnan(sample['d_bot-original'])] = passive_bot_val
+        sample['d_top'][np.isnan(sample['d_top'])] = min_top_depth
+        sample['d_bot'][np.isnan(sample['d_bot'])] = max_bot_depth
+        sample['d_top-original'][np.isnan(sample['d_top-original'])] = min_top_depth
+        sample['d_bot-original'][np.isnan(sample['d_bot-original'])] = max_bot_depth
 
         if self.transform_pre is not None:
             sample = self.transform_pre(sample)
