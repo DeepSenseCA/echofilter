@@ -122,8 +122,6 @@ class TransectDataset(torch.utils.data.Dataset):
             for k in ['depths', 'signals', 'mask']:
                 sample[k] = np.flip(sample[k], -1).copy()
 
-        # Change dtype to float
-        sample['mask'] = sample['mask'].astype(np.float)
         # Handle missing top and bottom lines during passive segments
         if sample['is_upward_facing']:
             passive_top_val = np.min(sample['depths'])
@@ -152,7 +150,6 @@ class TransectDataset(torch.utils.data.Dataset):
         depth_crop_mask = sample['depths'] <= self.crop_depth
         sample['depths'] = sample['depths'][depth_crop_mask]
         sample['signals'] = sample['signals'][:, depth_crop_mask]
-        sample['mask'] = sample['mask'][:, depth_crop_mask]
 
         # Convert lines to masks and relative lines
         ddepths = np.broadcast_to(sample['depths'], sample['signals'].shape)
@@ -169,11 +166,14 @@ class TransectDataset(torch.utils.data.Dataset):
         for key in ['d_top', 'd_bot', 'd_surf', 'd_top-original', 'd_bot-original']:
             sample['r' + key[1:]] = sample[key] / depth_range
 
-        # Ensure mask is masked out everywhere we know it should be
+        # Create mask corresponding to the aggregate of all elements we need
+        # masked in/out
+        sample['mask'] = np.ones_like(sample['signals'])
         sample['mask'][sample['is_passive'] > 0.5] = 0
         sample['mask'][sample['is_removed'] > 0.5] = 0
         sample['mask'][sample['mask_top'] > 0.5] = 0
         sample['mask'][sample['mask_bot'] > 0.5] = 0
+        sample['mask'][sample['mask_patches']] = 0
 
         # Convert mask patches into floating point arrays
         for suffix in ('', '-original'):
