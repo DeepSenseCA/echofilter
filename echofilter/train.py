@@ -78,14 +78,14 @@ def train(
         resume='',
         log_name=None,
         log_name_append=None,
-        n_block=4,
-        latent_channels=64,
-        expansion_factor=2,
+        n_block=6,
+        latent_channels=32,
+        expansion_factor=1,
         expand_only_on_down=False,
-        blocks_per_downsample=1,
-        blocks_before_first_downsample=1,
+        blocks_per_downsample=(2, 1),
+        blocks_before_first_downsample=(2, 1),
         always_include_skip_connection=True,
-        deepest_inner='identity',
+        deepest_inner="horizontal_block",
         intrablock_expansion=6,
         se_reduction=4,
         downsampling_modes='max',
@@ -97,21 +97,21 @@ def train(
         use_mixed_precision=None,
         amp_opt='O1',
         device='cuda',
-        n_worker=4,
-        batch_size=64,
-        n_epoch=10,
+        n_worker=8,
+        batch_size=16,
+        n_epoch=20,
         seed=None,
-        print_freq=10,
-        optimizer='adamw',
+        print_freq=50,
+        optimizer="rangerva",
         schedule='constant',
         lr=0.1,
         momentum=0.9,
         base_momentum=None,
         weight_decay=1e-5,
-        warmup_pct=0.3,
-        warmdown_pct=0.75,
+        warmup_pct=0.2,
+        warmdown_pct=0.7,
         anneal_strategy='cos',
-        overall_loss_weight=1.,
+        overall_loss_weight=0.,
     ):
 
     seed_all(seed)
@@ -1064,20 +1064,22 @@ def main():
         '--nblock', '--num-blocks',
         dest='n_block',
         type=int,
-        default=4,
-        help='number of blocks down and up in the UNet (default: 4)',
+        default=6,
+        help="number of blocks down and up in the UNet (default: 6)",
     )
     parser.add_argument(
         '--latent-channels',
         type=int,
-        default=64,
-        help='number of initial/final latent channels to use in the model (default: 64)',
+        default=32,
+        help="number of initial/final latent channels to use in the model (default: 32)",
     )
     parser.add_argument(
         '--expansion-factor',
         type=float,
-        default=2.,
-        help='expansion for number of channels as model becomes deeper (default: 2.)',
+        default=1.,
+        help=
+            "expansion for number of channels as model becomes deeper"
+            " (default: 1., constant number of channels)",
     )
     parser.add_argument(
         '--expand-only-on-down',
@@ -1088,15 +1090,19 @@ def main():
         '--blocks-per-downsample',
         nargs='+',
         type=int,
-        default=(1, ),
-        help='for each dim, number of blocks between downsample steps (default: 1)',
+        default=(2, 1),
+        help=
+            "for each dim (time, depth), number of blocks between downsample"
+            " steps (default: [2, 1])",
     )
     parser.add_argument(
         '--blocks-before-first-downsample',
         nargs='+',
         type=int,
-        default=(1, ),
-        help='for each dim, number of blocks before first downsample step (default: 1)',
+        default=(2, 1),
+        help=
+            "for each dim (time, depth), number of blocks before first"
+            " downsample step (default: [2, 1])",
     )
     parser.add_argument(
         '--only-skip-connection-on-downsample',
@@ -1107,8 +1113,10 @@ def main():
     parser.add_argument(
         '--deepest-inner',
         type=str,
-        default='identity',
-        help='layer to include at the deepest point of the UNet (default: "identity")',
+        default="horizontal_block",
+        help=
+            "layer to include at the deepest point of the UNet"
+            ' (default: "horizontal_block"). Set to "identity" to disable.',
     )
     parser.add_argument(
         '--intrablock-expansion',
@@ -1187,28 +1195,28 @@ def main():
         '-j', '--workers',
         dest='n_worker',
         type=int,
-        default=4,
+        default=8,
         metavar='N',
-        help='number of data loading workers (default: 4)',
+        help="number of data loading workers (default: 8)",
     )
     parser.add_argument(
         '-p', '--print-freq',
         type=int,
-        default=10,
-        help='print frequency (default: 10)',
+        default=50,
+        help="print frequency (default: 50)",
     )
     parser.add_argument(
         '-b', '--batch-size',
         type=int,
-        default=64,
-        help='mini-batch size (default: 64)',
+        default=16,
+        help="mini-batch size (default: 16)",
     )
     parser.add_argument(
         '--epochs',
         dest='n_epoch',
         type=int,
         default=20,
-        help='number of total epochs to run',
+        help="number of total epochs to run (default: 20)",
     )
     parser.add_argument(
         '--seed',
@@ -1222,8 +1230,8 @@ def main():
         '--optim', '--optimiser', '--optimizer',
         dest='optimizer',
         type=str,
-        default='adamw',
-        help='optimizer name (default: "adamw")',
+        default="rangerva",
+        help='optimizer name (default: "rangerva")',
     )
     parser.add_argument(
         '--schedule',
@@ -1237,7 +1245,7 @@ def main():
         type=float,
         default=0.1,
         metavar='LR',
-        help='initial learning rate',
+        help="initial learning rate (default: 0.1)",
     )
     parser.add_argument(
         '--momentum',
@@ -1261,18 +1269,18 @@ def main():
     parser.add_argument(
         '--warmup-pct',
         type=float,
-        default=0.3,
+        default=0.2,
         help=
-            'fraction of training to spend warming up LR; only used for'
-            ' OneCycle MesaOneCycle schedules (default: 0.3)',
+            "fraction of training to spend warming up LR; only used for"
+            " OneCycle MesaOneCycle schedules (default: 0.2)",
     )
     parser.add_argument(
         '--warmdown-pct',
         type=float,
-        default=0.75,
+        default=0.7,
         help=
-            'fraction of training before warming down LR; only used for'
-            ' MesaOneCycle schedule (default: 0.75)',
+            "fraction of training before warming down LR; only used for"
+            " MesaOneCycle schedule (default: 0.7)",
     )
     parser.add_argument(
         '--anneal-strategy',
