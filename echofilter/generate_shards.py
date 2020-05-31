@@ -175,7 +175,7 @@ def main():
     parser.add_argument(
         '--max_depth',
         type=float,
-        default=100.,
+        default=None,
         help='maximum depth to include in sharded data',
     )
     parser.add_argument(
