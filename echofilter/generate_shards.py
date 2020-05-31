@@ -77,7 +77,7 @@ def generate_shards(
         Name of the partition to process (`'train'`, `'validate'`, `'test'`,
         etc).
     dataset : str
-        Name of the dataset to process (`'mobile'`, `'stationary'`, etc).
+        Name of the dataset to process (`'mobile'`, `'MinasPassage'`, etc).
     partitioning_version : str, optional
         Name of the partition version to use process. Default is `'firstpass'`.
     progress_bar : bool, optional

@@ -61,11 +61,11 @@ PLOT_TRANSECTS = {
         'mobile/Survey16/Survey16_GR4_N5W_E',
         'mobile/Survey17/Survey17_GR4_N5W_E',
     ],
-    'stationary': [
-        'stationary/december2017/evExports/december2017_D20180213-T115216_D20180213-T172216',
-        'stationary/march2018/evExports/march2018_D20180513-T195216_D20180514-T012216',
-        'stationary/september2018/evExports/september2018_D20181027-T202217_D20181028-T015217',
-        'stationary/september2018/evExports/september2018_D20181107-T122220_D20181107-T175217',
+    'MinasPassage': [
+        'MinasPassage/december2017/evExports/december2017_D20180213-T115216_D20180213-T172216',
+        'MinasPassage/march2018/evExports/march2018_D20180513-T195216_D20180514-T012216',
+        'MinasPassage/september2018/evExports/september2018_D20181027-T202217_D20181028-T015217',
+        'MinasPassage/september2018/evExports/september2018_D20181107-T122220_D20181107-T175217',
     ]
 }
 

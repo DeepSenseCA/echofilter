@@ -430,7 +430,7 @@ def load_decomposed_transect_mask(
     sample_path : str
         Path to sample, without extension. The raw data should be located at
         `sample_path + '_Sv_raw.csv'`.
-    dataset : {'mobile', 'stationary', ''}, optional
+    dataset : {'mobile', 'MinasPassage', ''}, optional
         Name of dataset. Used to check integrity of the data loaded against
         what is expected for that dataset. Default is `''`, which has no
         dataset-specific expectations.
@@ -514,7 +514,7 @@ def load_decomposed_transect_mask(
 
     if os.path.isfile(fname_surf):
         t_surf, d_surf = loader.evl_loader(fname_surf)
-    elif dataset == 'stationary':
+    elif dataset == "MinasPassage" or "GrandPassage" in dataset:
         raise ValueError(
             'Expected {} to exist when dateset is {}.'
             .format(fname_surf, dataset)
