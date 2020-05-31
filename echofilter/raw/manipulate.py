@@ -79,7 +79,9 @@ def find_passive_data(signals, n_depth_use=38, threshold=25., deviation=None):
     if len(indices_possible_end) > 0:
         indices_possible_end += 1
 
-    if len(indices_possible_start) == 0 or indices_possible_end[0] < indices_possible_start[0]:
+    if len(indices_possible_end) > 0 and (
+        len(indices_possible_start) == 0 or indices_possible_end[0] < indices_possible_start[0]
+    ):
         indices_passive_start.append(0)
         current_index = indices_possible_end[0]
         indices_passive_end.append(current_index)
