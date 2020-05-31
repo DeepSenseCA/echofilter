@@ -386,7 +386,7 @@ def fixup_lines(
     # provided. If they weren't, interpolate to fill the holes (if there is
     # something to interpolate).
     all_removed = ~np.any(mask, axis=1)
-    everything_removed = ~np.any(all_removed)
+    everything_removed = np.all(all_removed)
     if d_top is not None:
         d_top_new[all_removed] = d_top[all_removed]
     elif ~everything_removed:
