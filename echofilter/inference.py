@@ -656,6 +656,7 @@ def main():
     )
     parser.add_argument(
         '--version',
+        "-V",
         action='version',
         version='%(prog)s {version}'.format(version=echofilter.__version__)
     )
