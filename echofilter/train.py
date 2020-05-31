@@ -74,7 +74,7 @@ def train(
         data_dir='/data/dsforce/surveyExports',
         dataset_name='mobile',
         sample_shape=(128, 512),
-        crop_depth=70,
+        crop_depth=None,
         resume='',
         log_name=None,
         log_name_append=None,
@@ -1034,8 +1034,8 @@ def main():
     parser.add_argument(
         '--crop-depth',
         type=float,
-        default=70,
-        help='depth, in metres, at which data should be truncated (default: 70)',
+        default=None,
+        help="depth, in metres, at which data should be truncated (default: None)",
     )
     parser.add_argument(
         '--resume',

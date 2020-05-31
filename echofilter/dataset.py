@@ -14,7 +14,7 @@ class TransectDataset(torch.utils.data.Dataset):
             self,
             transect_paths,
             window_len=128,
-            crop_depth=70,
+            crop_depth=None,
             num_windows_per_transect=0,
             use_dynamic_offsets=True,
             transform_pre=None,
@@ -31,7 +31,7 @@ class TransectDataset(torch.utils.data.Dataset):
             Width (number of timestamps) to load. Default is `128`.
         crop_depth : float
             Maximum depth to include, in metres. Deeper data will be cropped
-            away. Default is `70`.
+            away. Default is `None`.
         num_windows_per_transect : int
             Number of windows to extract for each transect. Start indices for
             the windows will be equally spaced across the total width of the
