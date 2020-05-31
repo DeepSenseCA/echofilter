@@ -879,9 +879,10 @@ def generate_from_transect(model, transect, sample_shape, crop_depth, device, dt
     data = copy.deepcopy(transect)
 
     # Apply depth crop
-    depth_crop_mask = data['depths'] <= crop_depth
-    data['depths'] = data['depths'][depth_crop_mask]
-    data['signals'] = data['signals'][:, depth_crop_mask]
+    if crop_depth is not None:
+        depth_crop_mask = data['depths'] <= crop_depth
+        data['depths'] = data['depths'][depth_crop_mask]
+        data['signals'] = data['signals'][:, depth_crop_mask]
 
     # Configure data to match what the model expects to see
     # Ensure depth is always increasing (which corresponds to descending from

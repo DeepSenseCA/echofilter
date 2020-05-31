@@ -147,9 +147,10 @@ class TransectDataset(torch.utils.data.Dataset):
             sample = self.transform_pre(sample)
 
         # Apply depth crop
-        depth_crop_mask = sample['depths'] <= self.crop_depth
-        sample['depths'] = sample['depths'][depth_crop_mask]
-        sample['signals'] = sample['signals'][:, depth_crop_mask]
+        if self.crop_depth is not None:
+            depth_crop_mask = sample['depths'] <= self.crop_depth
+            sample['depths'] = sample['depths'][depth_crop_mask]
+            sample['signals'] = sample['signals'][:, depth_crop_mask]
 
         # Convert lines to masks and relative lines
         ddepths = np.broadcast_to(sample['depths'], sample['signals'].shape)
