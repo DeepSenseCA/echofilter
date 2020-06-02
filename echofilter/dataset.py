@@ -167,18 +167,23 @@ class TransectDataset(torch.utils.data.Dataset):
                 )
                 was_in_nearfield = sample['d_bot'] >= nearfield_threshold
                 sample['d_bot'][was_in_nearfield] = max_bot_depth
+                was_in_nearfield_og = sample["d_bot-original"] >= nearfield_threshold
+                sample["d_bot-original"][was_in_nearfield_og] = max_bot_depth
             else:
                 was_in_nearfield = sample['d_top'] <= self.nearfield_distance
                 sample['d_top'][was_in_nearfield] = min_top_depth
+                was_in_nearfield_og = sample['d_top-original'] <= self.nearfield_distance
+                sample['d_top-original'][was_in_nearfield_og] = min_top_depth
         else:
             was_in_nearfield = np.zeros_like(sample["is_removed"], dtype="bool")
+            was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
 
         if self.remove_offset_top:
             sample['d_top'][~was_in_nearfield] -= self.remove_offset_top
-            sample['d_top-original'][~was_in_nearfield] -= self.remove_offset_top
+            sample['d_top-original'][~was_in_nearfield_og] -= self.remove_offset_top
         if self.remove_offset_bottom:
             sample['d_bot'][~was_in_nearfield] += self.remove_offset_bottom
-            sample['d_bot-original'][~was_in_nearfield] += self.remove_offset_bottom
+            sample['d_bot-original'][~was_in_nearfield_og] += self.remove_offset_bottom
 
         sample['d_surf'][np.isnan(sample['d_surf'])] = np.min(sample['depths'])
         sample['d_top'][np.isnan(sample['d_top'])] = min_top_depth
