@@ -601,10 +601,10 @@ def load_decomposed_transect_mask(
     mask_patches[is_removed] = 0
     mask_patches_og = mask_patches.copy()
     ddepths = np.broadcast_to(depths_raw, signals_raw.shape)
-    mask_patches[ddepths < np.expand_dims(d_top_new, -1)] = 0
-    mask_patches[ddepths > np.expand_dims(d_bot_new, -1)] = 0
-    mask_patches_og[ddepths < np.expand_dims(d_top, -1)] = 0
-    mask_patches_og[ddepths > np.expand_dims(d_bot, -1)] = 0
+    mask_patches[ddepths <= np.expand_dims(d_top_new, -1)] = 0
+    mask_patches[ddepths >= np.expand_dims(d_bot_new, -1)] = 0
+    mask_patches_og[ddepths <= np.expand_dims(d_top, -1)] = 0
+    mask_patches_og[ddepths >= np.expand_dims(d_bot, -1)] = 0
 
     # Collate transect as a dictionary
     transect = {}
