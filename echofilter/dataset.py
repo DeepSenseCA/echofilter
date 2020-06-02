@@ -172,8 +172,7 @@ class TransectDataset(torch.utils.data.Dataset):
             else:
                 was_in_nearfield = sample['d_top'] <= self.nearfield_distance
                 sample['d_top'][was_in_nearfield] = min_top_depth
-                was_in_nearfield_og = sample['d_top-original'] <= self.nearfield_distance
-                sample['d_top-original'][was_in_nearfield_og] = min_top_depth
+                was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
         else:
             was_in_nearfield = np.zeros_like(sample["is_removed"], dtype="bool")
             was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
