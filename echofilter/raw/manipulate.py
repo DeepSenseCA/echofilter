@@ -596,7 +596,7 @@ def load_decomposed_transect_mask(
     # except 1s wherever pixels in the overall mask are removed for
     # reasons not explained by the top and bottom lines, and is_passive and
     # is_removed indicators.
-    mask_patches = 1 - mask
+    mask_patches = ~mask
     mask_patches[is_passive] = 0
     mask_patches[is_removed] = 0
     mask_patches_og = mask_patches.copy()
