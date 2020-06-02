@@ -153,6 +153,10 @@ class TransectDataset(torch.utils.data.Dataset):
             for k in ['depths', 'signals', 'mask']:
                 sample[k] = np.flip(sample[k], -1).copy()
 
+        # Convert mask patches into floating point arrays
+        for suffix in ("", "-original"):
+            sample["mask_patches" + suffix] = sample["mask_patches" + suffix].astype(np.float32)
+
         if sample['is_upward_facing']:
             min_top_depth = np.min(sample['depths'])
             max_bot_depth = np.max(sample['depths']) - self.nearfield_visible_dist
@@ -191,11 +195,49 @@ class TransectDataset(torch.utils.data.Dataset):
             was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
 
         if self.remove_offset_top:
-            sample['d_top'][~was_in_nearfield] -= self.remove_offset_top
-            sample['d_top-original'][~was_in_nearfield_og] -= self.remove_offset_top
+            # Check the mask beforehand
+            _ddepths = np.broadcast_to(sample["depths"], sample["signals"].shape)
+            _in_mask = _ddepths < np.expand_dims(sample["d_top"], -1)
+            _in_mask_og = _ddepths < np.expand_dims(sample["d_top-original"], -1)
+            # Shift lines up higher (less deep)
+            sample["d_top"][~was_in_nearfield] -= self.remove_offset_top
+            sample["d_top-original"][~was_in_nearfield_og] -= self.remove_offset_top
+            # Extend mask_patches where necessary
+            _fx_mask = _ddepths < np.expand_dims(sample["d_top"], -1)
+            _df_mask = (_in_mask - _fx_mask) > 0
+            is_close_patch = np.any(_df_mask[:, :-1] * sample["mask_patches"][:, 1:], -1)
+            sample["mask_patches"][is_close_patch, :] += _df_mask[is_close_patch, :]
+            # ... and extend og mask patches too
+            _fx_mask_og = _ddepths < np.expand_dims(sample["d_top-original"], -1)
+            _df_mask = (_in_mask_og - _fx_mask_og) > 0
+            is_close_patch = np.any(_df_mask[:, :-1] * sample["mask_patches-original"][:, 1:], -1)
+            sample["mask_patches-original"][is_close_patch, :] += _df_mask[is_close_patch, :]
+
         if self.remove_offset_bottom:
-            sample['d_bot'][~was_in_nearfield] += self.remove_offset_bottom
-            sample['d_bot-original'][~was_in_nearfield_og] += self.remove_offset_bottom
+            # Check the mask beforehand
+            _ddepths = np.broadcast_to(sample["depths"], sample["signals"].shape)
+            _in_mask = _ddepths > np.expand_dims(sample["d_bot"], -1)
+            _in_mask_og = _ddepths > np.expand_dims(sample["d_bot-original"], -1)
+            # Shift lines down lower (more deep)
+            sample["d_bot"][~was_in_nearfield] += self.remove_offset_bottom
+            sample["d_bot-original"][~was_in_nearfield_og] += self.remove_offset_bottom
+            # Extend mask_patches where necessary
+            _fx_mask = _ddepths > np.expand_dims(sample["d_bot"], -1)
+            _df_mask = (_in_mask - _fx_mask) > 0
+            is_close_patch = np.any(_df_mask[:, 1:] * sample["mask_patches"][:, :-1], -1)
+            sample["mask_patches"][is_close_patch, :] += _df_mask[is_close_patch, :]
+            # ... and extend og mask patches too
+            _fx_mask_og = _ddepths > np.expand_dims(sample["d_bot-original"], -1)
+            _df_mask = (_in_mask_og - _fx_mask_og) > 0
+            is_close_patch = np.any(_df_mask[:, 1:] * sample["mask_patches-original"][:, :-1], -1)
+            sample["mask_patches-original"][is_close_patch, :] += _df_mask[is_close_patch, :]
+
+        if self.remove_offset_top or self.remove_offset_bottom:
+            # Change any 2s in the mask to be 1s
+            for suffix in ("", "-original"):
+                sample["mask_patches" + suffix] = (
+                    sample["mask_patches" + suffix] > 0.5
+                ).astype(np.float32)
 
         sample['d_surf'][np.isnan(sample['d_surf'])] = np.min(sample['depths'])
         sample['d_top'][np.isnan(sample['d_top'])] = min_top_depth
@@ -234,11 +276,7 @@ class TransectDataset(torch.utils.data.Dataset):
         sample['mask'][sample['is_removed'] > 0.5] = 0
         sample['mask'][sample['mask_top'] > 0.5] = 0
         sample['mask'][sample['mask_bot'] > 0.5] = 0
-        sample['mask'][sample['mask_patches']] = 0
-
-        # Convert mask patches into floating point arrays
-        for suffix in ('', '-original'):
-            sample['mask_patches' + suffix] = sample['mask_patches' + suffix].astype(np.float32)
+        sample['mask'][sample['mask_patches'] > 0.5] = 0
 
         if self.transform_post is not None:
             sample = self.transform_post(sample)
