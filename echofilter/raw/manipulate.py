@@ -605,6 +605,18 @@ def load_decomposed_transect_mask(
     mask_patches[ddepths >= np.expand_dims(d_bot_new, -1)] = 0
     mask_patches_og[ddepths <= np.expand_dims(d_top, -1)] = 0
     mask_patches_og[ddepths >= np.expand_dims(d_bot, -1)] = 0
+    # Remove trivial mask patches. If the pixel above and below are both empty,
+    # delete a mask with a height of only one-pixel.
+    mask_patches[~(
+        np.concatenate((mask_patches[:, 2:], np.ones((mask_patches.shape[0], 2), dtype="bool")), axis=-1)
+        |
+        np.concatenate((np.ones((mask_patches.shape[0], 2), dtype="bool"), mask_patches[:, :-2]), axis=-1)
+    )] = 0
+    mask_patches_og[~(
+        np.concatenate((mask_patches_og[:, 2:], np.ones((mask_patches_og.shape[0], 2), dtype="bool")), axis=-1)
+        |
+        np.concatenate((np.ones((mask_patches_og.shape[0], 2), dtype="bool"), mask_patches_og[:, :-2]), axis=-1)
+    )] = 0
 
     # Collate transect as a dictionary
     transect = {}
