@@ -69,6 +69,8 @@ PLOT_TRANSECTS = {
     ]
 }
 
+DEFAULT_CROP_DEPTH_PLOTS = 70
+
 
 def train(
         data_dir='/data/dsforce/surveyExports',
@@ -589,7 +591,7 @@ def train(
                     model,
                     os.path.join(data_dir + '_sharded', transect_name),
                     sample_shape=sample_shape,
-                    crop_depth=crop_depth,
+                    crop_depth=DEFAULT_CROP_DEPTH_PLOTS if crop_depth is None else crop_depth,
                     device=device,
                     dtype=torch.float,
                 )
