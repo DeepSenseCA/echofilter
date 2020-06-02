@@ -31,7 +31,7 @@ def rint(x, minval=None):
     return x
 
 
-def first_nonzero(arr, axis, invalid_val=-1):
+def first_nonzero(arr, axis=-1, invalid_val=-1):
     '''
     Find the index of the first non-zero element in an array.
 
@@ -39,8 +39,8 @@ def first_nonzero(arr, axis, invalid_val=-1):
     ----------
     arr : numpy.ndarray
         Array to search.
-    axis : int
-        Axis along which to search for a non-zero element.
+    axis : int, optional
+        Axis along which to search for a non-zero element. Default is `-1`.
     invalid_val : any, optional
         Value to return if all elements are zero. Default is `-1`.
     '''
@@ -48,7 +48,7 @@ def first_nonzero(arr, axis, invalid_val=-1):
     return np.where(mask.any(axis=axis), mask.argmax(axis=axis), invalid_val)
 
 
-def last_nonzero(arr, axis, invalid_val=-1):
+def last_nonzero(arr, axis=-1, invalid_val=-1):
     '''
     Find the index of the last non-zero element in an array.
 
@@ -56,8 +56,8 @@ def last_nonzero(arr, axis, invalid_val=-1):
     ----------
     arr : numpy.ndarray
         Array to search.
-    axis : int
-        Axis along which to search for a non-zero element.
+    axis : int, optional
+        Axis along which to search for a non-zero element. Default is `-1`.
     invalid_val : any, optional
         Value to return if all elements are zero. Default is `-1`.
     '''
