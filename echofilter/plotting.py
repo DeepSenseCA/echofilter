@@ -287,6 +287,7 @@ def plot_transect(
             transect['mask_patches'],
             hatch='\\\\',
             color=removed_color,
+            border=True,
         )
 
     plt.tick_params(reset=True, color=(.2, .2, .2))
@@ -370,6 +371,7 @@ def plot_transect_predictions(transect, prediction, linewidth=1, cmap=None):
             prediction['p_is_patch'] > 0.5,
             hatch='//',
             color='w',
+            border=True,
         )
     # Make sure y-axis is inverted (lowest depth at the top)
     ensure_axes_inverted(dir='y')
