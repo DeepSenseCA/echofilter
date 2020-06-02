@@ -213,7 +213,7 @@ def train(
     )
     dataset_augval = echofilter.dataset.TransectDataset(
         val_paths,
-        window_len=sample_shape[0],
+        window_len=int(1.5 * sample_shape[0]),
         crop_depth=crop_depth,
         num_windows_per_transect=None,
         use_dynamic_offsets=False,
