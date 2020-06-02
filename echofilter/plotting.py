@@ -96,7 +96,7 @@ def plot_indicator_hatch(indicator, xx=None, ymin=None, ymax=None, hatch='//', c
         )
 
 
-def plot_mask_hatch(*args, hatch='//', color='k'):
+def plot_mask_hatch(*args, hatch='//', color='k', border=False):
     '''
     Plot hatching according to a mask shape.
 
@@ -118,6 +118,8 @@ def plot_mask_hatch(*args, hatch='//', color='k'):
         The hatching pattern to apply. Default is '//'.
     color : color, optional
         The color of the hatch. Default is black.
+    border : bool, optional
+        Whether to include border around hatch. Default is `False`.
     '''
     args = list(args)
     args[-1] = args[-1] > 0
@@ -140,8 +142,9 @@ def plot_mask_hatch(*args, hatch='//', color='k'):
     # Doing this also colors in the box around each level.
     # We can remove the colored line around the levels by setting the
     # linewidth to 0.
-    for collection in cs.collections:
-        collection.set_linewidth(0.)
+    if not border:
+        for collection in cs.collections:
+            collection.set_linewidth(0.)
 
 
 def plot_transect(
