@@ -560,7 +560,7 @@ def load_decomposed_transect_mask(
     r_ends = []
     is_removed = np.zeros_like(is_removed_raw)
     for r_start, r_end in zip(r_starts_raw, r_ends_raw):
-        if not np.all(d_top_new[r_start : r_end + 1] <= d_bot_new[r_start : r_end + 1]):
+        if not np.all(d_top_new[r_start : r_end + 1] >= d_bot_new[r_start : r_end + 1]):
             r_starts.append(r_start)
             r_ends.append(r_end)
             is_removed[r_start : r_end + 1] = 1
