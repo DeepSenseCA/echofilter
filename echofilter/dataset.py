@@ -204,12 +204,12 @@ class TransectDataset(torch.utils.data.Dataset):
             sample["d_top-original"][~was_in_nearfield_og] -= self.remove_offset_top
             # Extend mask_patches where necessary
             _fx_mask = _ddepths < np.expand_dims(sample["d_top"], -1)
-            _df_mask = (_in_mask - _fx_mask) > 0
+            _df_mask = _in_mask * (_in_mask ^ _fx_mask)
             is_close_patch = np.any(_df_mask[:, :-1] * sample["mask_patches"][:, 1:], -1)
             sample["mask_patches"][is_close_patch, :] += _df_mask[is_close_patch, :]
             # ... and extend og mask patches too
             _fx_mask_og = _ddepths < np.expand_dims(sample["d_top-original"], -1)
-            _df_mask = (_in_mask_og - _fx_mask_og) > 0
+            _df_mask = _in_mask_og * (_in_mask_og ^ _fx_mask_og)
             is_close_patch = np.any(_df_mask[:, :-1] * sample["mask_patches-original"][:, 1:], -1)
             sample["mask_patches-original"][is_close_patch, :] += _df_mask[is_close_patch, :]
 
@@ -223,12 +223,12 @@ class TransectDataset(torch.utils.data.Dataset):
             sample["d_bot-original"][~was_in_nearfield_og] += self.remove_offset_bottom
             # Extend mask_patches where necessary
             _fx_mask = _ddepths > np.expand_dims(sample["d_bot"], -1)
-            _df_mask = (_in_mask - _fx_mask) > 0
+            _df_mask = _in_mask * (_in_mask ^ _fx_mask)
             is_close_patch = np.any(_df_mask[:, 1:] * sample["mask_patches"][:, :-1], -1)
             sample["mask_patches"][is_close_patch, :] += _df_mask[is_close_patch, :]
             # ... and extend og mask patches too
             _fx_mask_og = _ddepths > np.expand_dims(sample["d_bot-original"], -1)
-            _df_mask = (_in_mask_og - _fx_mask_og) > 0
+            _df_mask = _in_mask_og * (_in_mask_og ^ _fx_mask_og)
             is_close_patch = np.any(_df_mask[:, 1:] * sample["mask_patches-original"][:, :-1], -1)
             sample["mask_patches-original"][is_close_patch, :] += _df_mask[is_close_patch, :]
 
