@@ -574,6 +574,13 @@ def load_decomposed_transect_mask(
         signals_raw = signals_raw[:, ::-1].copy()
         mask = mask[:, ::-1].copy()
 
+    # Offset by a small amount to catch pixels on the edge of the line
+    depth_intv = abs(depths_raw[1] - depths_raw[0])
+    if d_top is not None:
+        d_top += depth_intv / 4
+    if d_bot is not None:
+        d_bot -= depth_intv / 4
+
     def tidy_up_line(t, d):
         if d is None:
             d = np.nan * np.ones_like(ts_raw)
