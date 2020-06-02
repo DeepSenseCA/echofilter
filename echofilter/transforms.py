@@ -173,7 +173,7 @@ class RandomStretchDepth(object):
         Expected gap between actual ocean floor and target bottom line.
     '''
 
-    def __init__(self, max_factor, expected_bottom_gap=1):
+    def __init__(self, max_factor, expected_bottom_gap=0):
         self.max_factor = max_factor
         self.expected_bottom_gap = expected_bottom_gap
 
