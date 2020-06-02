@@ -146,7 +146,7 @@ def plot_mask_hatch(*args, hatch='//', color='k'):
 
 def plot_transect(
     transect,
-    signal_type='Sv',
+    signal_type=None,
     x_scale='index',
     show_regions=True,
     top_color=TOP_COLOR,
@@ -164,9 +164,9 @@ def plot_transect(
     transect : dict
         Transect values.
     signal_type : str, optional
-        The signal to plot as a heatmap. Default is `'Sv'`. If this is
-        `'Sv_masked'`, the mask (given by `transect['mask']`) is used to
-        mask `'transect['Sv']` before plotting.
+        The signal to plot as a heatmap. Default is `"Sv"` if present, or
+        "signals" if not. If this is `"Sv_masked"`, the mask (given by
+        `transect["mask"]`) is used to mask `'transect["Sv"]` before plotting.
     x_scale : {'index', 'timestamp' 'time'}, optional
         Scaling for x-axis. If `'timestamp'`, the number of seconds since the
         Unix epoch is shown; if `'time'`, the amount of time in seconds since
@@ -199,6 +199,40 @@ def plot_transect(
     else:
         removed_color = REMOVED_COLOR
 
+    if signal_type is not None:
+        pass
+    elif "Sv" in transect:
+        signal_type = "Sv"
+    elif "signals" in transect:
+        signal_type = "signals"
+    else:
+        raise ValueError(
+            "No signal key found in transect. Available keys were: {}"
+            .format(transect.keys())
+        )
+
+    top_key = None
+    for k in ("top", "d_top"):
+        if k in transect:
+            top_key = k
+            break
+    if top_key is None:
+        raise ValueError(
+            "No top line depths key found in transect. Available keys were: {}"
+            .format(transect.keys())
+        )
+
+    bot_key = None
+    for k in ("bottom", "d_bot", "bot"):
+        if k in transect:
+            bot_key = k
+            break
+    if bot_key is None:
+        raise ValueError(
+            "No bottom line depths key found in transect. Available keys were: {}"
+            .format(transect.keys())
+        )
+
     if x_scale == 'index':
         tt = np.arange(transect['timestamps'].shape[0])
         xlabel = 'Sample index'
@@ -223,8 +257,8 @@ def plot_transect(
     )
     if cmap is not None:
         plt.set_cmap(cmap)
-    plt.plot(tt, transect['top'], top_color, linewidth=linewidth)
-    plt.plot(tt, transect['bottom'], bot_color, linewidth=linewidth)
+    plt.plot(tt, transect[top_key], top_color, linewidth=linewidth)
+    plt.plot(tt, transect[bot_key], bot_color, linewidth=linewidth)
 
     if show_regions:
         plot_indicator_hatch(
