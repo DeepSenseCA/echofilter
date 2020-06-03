@@ -189,11 +189,11 @@ class TransectDataset(torch.utils.data.Dataset):
                 was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
                 # Extend mask_patches where necessary
                 idx_search = echofilter.utils.first_nonzero(sample["depths"] > self.nearfield_distance, invalid_val=0)
-                idx_fillfr = echofilter.utils.last_nonzero(sample["depths"] < min_top_depth, invalid_val=0)
-                is_close_patch = np.any(sample["mask_patches"][:, idx_fillfr:idx_search + 1], -1)
-                sample["mask_patches"][is_close_patch, idx_fillfr:idx_search + 1] = 1
-                is_close_patch = np.any(sample["mask_patches-ntob"][:, idx_fillfr:idx_search + 1], -1)
-                sample["mask_patches-ntob"][is_close_patch, idx_fillfr:idx_search + 1] = 1
+                idx_fillfr = echofilter.utils.last_nonzero(sample["depths"] < min_top_depth, invalid_val=-1)
+                is_close_patch = np.any(sample["mask_patches"][:, idx_fillfr + 1 : idx_search + 1], -1)
+                sample["mask_patches"][is_close_patch, idx_fillfr + 1 : idx_search + 1] = 1
+                is_close_patch = np.any(sample["mask_patches-ntob"][:, idx_fillfr + 1 : idx_search + 1], -1)
+                sample["mask_patches-ntob"][is_close_patch, idx_fillfr + 1 : idx_search + 1] = 1
         else:
             was_in_nearfield = np.zeros_like(sample["is_removed"], dtype="bool")
             was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
