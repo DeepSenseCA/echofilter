@@ -600,11 +600,14 @@ def load_decomposed_transect_mask(
     mask_patches[is_passive] = 0
     mask_patches[is_removed] = 0
     mask_patches_og = mask_patches.copy()
+    mask_patches_ntob = mask_patches.copy()
     ddepths = np.broadcast_to(depths_raw, signals_raw.shape)
     mask_patches[ddepths <= np.expand_dims(d_top_new, -1)] = 0
     mask_patches[ddepths >= np.expand_dims(d_bot_new, -1)] = 0
     mask_patches_og[ddepths <= np.expand_dims(d_top, -1)] = 0
     mask_patches_og[ddepths >= np.expand_dims(d_bot, -1)] = 0
+    mask_patches_ntob[ddepths <= np.expand_dims(d_top_new, -1)] = 0
+    mask_patches_ntob[ddepths >= np.expand_dims(d_bot, -1)] = 0
     # Remove trivial mask patches. If the pixel above and below are both empty,
     # delete a mask with a height of only one-pixel.
     mask_patches[~(
@@ -617,6 +620,11 @@ def load_decomposed_transect_mask(
         |
         np.concatenate((np.ones((mask_patches_og.shape[0], 2), dtype="bool"), mask_patches_og[:, :-2]), axis=-1)
     )] = 0
+    mask_patches_ntob[~(
+        np.concatenate((mask_patches_ntob[:, 2:], np.ones((mask_patches_ntob.shape[0], 2), dtype="bool")), axis=-1)
+        |
+        np.concatenate((np.ones((mask_patches_ntob.shape[0], 2), dtype="bool"), mask_patches_ntob[:, :-2]), axis=-1)
+    )] = 0
 
     # Collate transect as a dictionary
     transect = {}
@@ -626,6 +634,7 @@ def load_decomposed_transect_mask(
     transect['mask'] = mask
     transect['mask_patches'] = mask_patches
     transect['mask_patches-original'] = mask_patches_og
+    transect['mask_patches-ntob'] = mask_patches_ntob
     transect['top'] = d_top_new
     transect['bottom'] = d_bot_new
     transect['surface'] = d_surf

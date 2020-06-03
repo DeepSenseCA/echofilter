@@ -11,7 +11,7 @@ _fields_2d = (
     'mask_top', 'mask_bot',
     'mask_top-original', 'mask_bot-original',
     'mask_surf',
-    'mask_patches', 'mask_patches-original',
+    'mask_patches', 'mask_patches-original', 'mask_patches-ntob',
 )
 _fields_1d_timelike = (
     'timestamps',

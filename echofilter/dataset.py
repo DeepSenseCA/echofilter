@@ -154,7 +154,7 @@ class TransectDataset(torch.utils.data.Dataset):
                 sample[k] = np.flip(sample[k], -1).copy()
 
         # Convert mask patches into floating point arrays
-        for suffix in ("", "-original"):
+        for suffix in ("", "-original", "-ntob"):
             sample["mask_patches" + suffix] = sample["mask_patches" + suffix].astype(np.float32)
 
         if sample['is_upward_facing']:
@@ -179,6 +179,8 @@ class TransectDataset(torch.utils.data.Dataset):
                 idx_fillto = echofilter.utils.first_nonzero(sample["depths"] > max_bot_depth)
                 is_close_patch = np.any(sample["mask_patches"][:, idx_search:idx_fillto], -1)
                 sample["mask_patches"][is_close_patch, idx_search:idx_fillto] = 1
+                is_close_patch = np.any(sample["mask_patches-ntob"][:, idx_search:idx_fillto], -1)
+                sample["mask_patches-ntob"][is_close_patch, idx_search:idx_fillto] = 1
                 is_close_patch_og = sample["mask_patches-original"][:, idx_search] > 0
                 sample["mask_patches-original"][is_close_patch_og, idx_search:idx_fillto] = 1
             else:
@@ -190,6 +192,8 @@ class TransectDataset(torch.utils.data.Dataset):
                 idx_fillfr = echofilter.utils.last_nonzero(sample["depths"] < min_top_depth, invalid_val=0)
                 is_close_patch = np.any(sample["mask_patches"][:, idx_fillfr:idx_search + 1], -1)
                 sample["mask_patches"][is_close_patch, idx_fillfr:idx_search + 1] = 1
+                is_close_patch = np.any(sample["mask_patches-ntob"][:, idx_fillfr:idx_search + 1], -1)
+                sample["mask_patches-ntob"][is_close_patch, idx_fillfr:idx_search + 1] = 1
         else:
             was_in_nearfield = np.zeros_like(sample["is_removed"], dtype="bool")
             was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
@@ -207,6 +211,8 @@ class TransectDataset(torch.utils.data.Dataset):
             _df_mask = _in_mask * (_in_mask ^ _fx_mask)
             is_close_patch = np.any(_df_mask[:, :-1] * sample["mask_patches"][:, 1:], -1)
             sample["mask_patches"][is_close_patch, :] += _df_mask[is_close_patch, :]
+            # ... and extend ntob mask patches too
+            sample["mask_patches-ntob"][is_close_patch, :] += _df_mask[is_close_patch, :]
             # ... and extend og mask patches too
             _fx_mask_og = _ddepths < np.expand_dims(sample["d_top-original"], -1)
             _df_mask = _in_mask_og * (_in_mask_og ^ _fx_mask_og)
@@ -231,10 +237,12 @@ class TransectDataset(torch.utils.data.Dataset):
             _df_mask = _in_mask_og * (_in_mask_og ^ _fx_mask_og)
             is_close_patch = np.any(_df_mask[:, 1:] * sample["mask_patches-original"][:, :-1], -1)
             sample["mask_patches-original"][is_close_patch, :] += _df_mask[is_close_patch, :]
+            # ... and extend ntob mask patches too
+            sample["mask_patches-ntob"][is_close_patch, :] += _df_mask[is_close_patch, :]
 
         if self.remove_offset_top or self.remove_offset_bottom:
             # Change any 2s in the mask to be 1s
-            for suffix in ("", "-original"):
+            for suffix in ("", "-original", "-ntob"):
                 sample["mask_patches" + suffix] = (
                     sample["mask_patches" + suffix] > 0.5
                 ).astype(np.float32)
