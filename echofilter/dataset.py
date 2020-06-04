@@ -157,6 +157,8 @@ class TransectDataset(torch.utils.data.Dataset):
         for suffix in ("", "-original", "-ntob"):
             sample["mask_patches" + suffix] = sample["mask_patches" + suffix].astype(np.float32)
 
+        sample['depths'] = sample['depths'].astype(np.float32)
+
         if sample['is_upward_facing']:
             min_top_depth = np.min(sample['depths'])
             max_bot_depth = np.max(sample['depths']) - self.nearfield_visible_dist

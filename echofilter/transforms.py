@@ -155,45 +155,6 @@ class RandomReflection(object):
         return sample
 
 
-class RandomStretchDepth(object):
-    '''
-    Rescale a set of images in a sample to a given size.
-
-    Note that this transform doesn't change images, just the `depth`, `d_top`,
-    and `d_bot`.
-    Note that changes are made inplace.
-
-    Parameters
-    ----------
-    max_factor : float
-        Maximum stretch factor. A number between `[1, 1 + max_factor]` will be
-        generated, and the depth will either be divided or multiplied by the
-        generated stretch factor.
-    expected_bottom_gap : float
-        Expected gap between actual ocean floor and target bottom line.
-    '''
-
-    def __init__(self, max_factor, expected_bottom_gap=0):
-        self.max_factor = max_factor
-        self.expected_bottom_gap = expected_bottom_gap
-
-    def __call__(self, sample):
-
-        factor = random.uniform(1.0, 1.0 + self.max_factor)
-
-        if random.random() > 0.5:
-            factor = 1. / factor
-
-        if not sample['is_upward_facing']:
-            sample['d_bot'] += self.expected_bottom_gap
-        for key in ('depths', 'd_top', 'd_bot', 'd_top-original', 'd_bot-original', 'd_surf'):
-            sample[key] *= factor
-        if not sample['is_upward_facing']:
-            sample['d_bot'] -= self.expected_bottom_gap
-
-        return sample
-
-
 class RandomCropWidth(object):
     '''
     Randomly crop a sample in the width dimension.
@@ -227,40 +188,249 @@ class RandomCropWidth(object):
         return sample
 
 
-class RandomCropTop(object):
-    '''
-    Randomly crop the top off a sample.
+def optimal_crop_depth(transect):
+    """
+    Crop a sample depthwise to contain only the space between highest surface
+    and deepest seafloor.
 
     Parameters
     ----------
-    max_crop_fraction : float, optional
-        Maximum amount of material to crop away, as a fraction of the total
-        height. The crop depth will be sampled uniformly from the range
-        of shallowest measure to shallowest point on the top line
-        (assuming this is not deepr than the `max_crop_fraction`).
-        If `None` (default), the crop is unlimited.
-    '''
+    transect : dict
+        Transect dictionary.
+    """
+    shallowest_depth = np.min(transect["depths"])
+    if transect["is_upward_facing"]:
+        for key in ("d_surf", "surface"):
+            if key not in transect:
+                continue
+            surf_options = transect[key][transect[key] > shallowest_depth]
+            if len(surf_options) > 0:
+                shallowest_depth = np.min(surf_options)
+                break
 
-    def __init__(self, max_crop_fraction=None):
-        self.max_crop_fraction = max_crop_fraction
+    deepest_depth = np.max(transect["depths"])
+    if not transect["is_upward_facing"]:
+        for key in ("d_bot-original", "d_bot", "bottom-original", "bottom"):
+            if key not in transect:
+                continue
+            deepest_depth = np.max(transect[key])
+            break
+
+    depth_mask = (shallowest_depth <= transect["depths"]) & (transect["depths"] <= deepest_depth)
+
+    for key in _fields_1d_depthlike:
+        if key in transect:
+            transect[key] = transect[key][depth_mask]
+
+    for key in _fields_2d:
+        if key in transect:
+            transect[key] = transect[key][:, depth_mask]
+
+    return transect
+
+
+class OptimalCropDepth(object):
+    """
+    A transform which crops a sample depthwise to contain only the space
+    between highest surface and deepest seafloor.
+    """
+    def __call__(self, sample):
+        return optimal_crop_depth(sample)
+
+
+class RandomCropDepth(object):
+    """
+    Randomly crop a sample depthwise.
+
+    Parameters
+    ----------
+    p_crop_is_none : float, optional
+        Probability of not doing any crop.
+        Default is `0.1`.
+    p_crop_is_optimal : float, optional
+        Probability of doing an "optimal" crop, running `optimal_crop_depth`.
+        Default is `0.1`.
+    p_crop_is_close : float, optional
+        Probability of doing crop which is zoomed in and close to the "optimal"
+        crop, running `optimal_crop_depth`. Default is `0.4`.
+        If neither no crop, optimal, nor close-to-optimal crop is selected,
+        the crop is randomly sized over the full extent of the range of depths.
+    p_nearfield_side_crop : float, optional
+        Probability that the nearfield side is cropped.
+        Default is `0.5`.
+    fraction_close : float, optional
+        Fraction by which crop is increased/decreased in either direction when
+        doing a close to optimal crop.
+        Default is `0.25`.
+    """
+    def __init__(
+        self,
+        p_crop_is_none=.1,
+        p_crop_is_optimal=.1,
+        p_crop_is_close=.4,
+        p_nearfield_side_crop=.5,
+        fraction_close=0.25,
+    ):
+        self.p_crop_is_none = p_crop_is_none
+        self.p_crop_is_optimal = p_crop_is_optimal
+        self.p_crop_is_close = p_crop_is_close
+        self.p_nearfield_side_crop = p_nearfield_side_crop
+        self.fraction_close = fraction_close
 
     def __call__(self, sample):
 
-        shallowest_measure = sample['depths'][0]
-        shallowest_line = np.nanmin(sample['d_top'])
-        if self.max_crop_fraction is None:
-            deepest_crop = shallowest_line
-        else:
-            max_crop_depth = (
-                sample['depths'][0] +
-                (sample['depths'][-1] - sample['depths'][0]) * self.max_crop_fraction
-            )
-            deepest_crop = np.minimum(shallowest_line, max_crop_depth)
+        p = random.random()
 
-        crop_depth = random.uniform(shallowest_measure, deepest_crop)
+        # Possibility of doing no crop at all
+        p -= self.p_crop_is_none
+        if p < 0:
+            return sample
+
+        # Possibility of doing an optimal crop
+        p -= self.p_crop_is_optimal
+        if p < 0:
+            return optimal_crop_depth(sample)
+
+        depth_intv = abs(sample["depths"][1] - sample["depths"][0])
+
+        lim_top_shallowest = np.min(sample["depths"])
+        lim_top_deepest = max(lim_top_shallowest, np.min(sample["d_bot"]) - depth_intv)
+        lim_bot_shallowest = max(np.max(sample["d_top"]), np.min(sample["d_bot"]))
+        lim_bot_deepest = np.max(sample["depths"])
+
+        if sample["is_upward_facing"]:
+            surf_options = sample["d_surf"][sample["d_surf"] > lim_top_shallowest]
+            if len(surf_options) == 0:
+                opt_top_depth = lim_top_shallowest
+            else:
+                opt_top_depth = max(lim_top_shallowest, np.min(surf_options))
+            opt_bot_depth = lim_bot_deepest
+        else:
+            opt_top_depth = lim_top_shallowest
+            opt_bot_depth = np.max(sample["d_bot-original"])
+
+        depth_range = abs(opt_bot_depth - opt_top_depth)
+        close_dist_grow = self.fraction_close * depth_range
+        close_dist_shrink = depth_range * self.fraction_close / (1 + self.fraction_close)
+
+        close_top_shallowest = max(lim_top_shallowest, opt_top_depth - close_dist_grow)
+        close_top_deepest = min(
+            lim_top_deepest,
+            opt_top_depth + close_dist_shrink,
+            np.percentile(sample["d_top"], 25),
+        )
+        if sample["is_upward_facing"]:
+            close_bot_shallowest = max(
+                lim_bot_shallowest,
+                opt_bot_depth - close_dist_shrink,
+            )
+        else:
+            close_bot_shallowest = max(
+                lim_bot_shallowest,
+                opt_bot_depth - close_dist_shrink,
+                np.percentile(sample["d_bot"], 50),
+            )
+        close_bot_deepest = min(lim_bot_deepest, opt_bot_depth + close_dist_grow)
+
+        if (
+            close_top_shallowest > close_top_deepest or
+            close_bot_shallowest > close_bot_deepest or
+            close_top_deepest >= close_bot_shallowest
+        ):
+            raise ValueError(
+                "Nonsensical depth limits:\n"
+                "  opt_top_depth        = {:7.3f}\n"
+                "  opt_bot_depth        = {:7.3f}\n"
+                "  close_top_shallowest = {:7.3f}\n"
+                "  close_top_deepest    = {:7.3f}\n"
+                "  close_bot_shallowest = {:7.3f}\n"
+                "  close_bot_deepest    = {:7.3f}\n"
+                .format(
+                    opt_top_depth,
+                    opt_bot_depth,
+                    close_top_shallowest,
+                    close_top_deepest,
+                    close_bot_shallowest,
+                    close_bot_deepest,
+                )
+            )
+
+        rand_top_shallowest = lim_top_shallowest
+        rand_top_deepest = min(
+            lim_top_deepest,
+            max(np.percentile(sample["d_top"], 50), opt_top_depth + close_dist_shrink),
+        )
+        if sample["is_upward_facing"]:
+            rand_bot_shallowest = close_bot_shallowest
+        else:
+            rand_bot_shallowest = max(
+                lim_bot_shallowest,
+                np.percentile(sample["d_bot-original"], 50),
+            )
+        rand_bot_deepest = lim_bot_deepest
+
+        if (
+            rand_top_shallowest > rand_top_deepest or
+            rand_bot_shallowest > rand_bot_deepest or
+            rand_top_deepest >= rand_bot_shallowest
+        ):
+            raise ValueError(
+                "Nonsensical depth limits:\n"
+                "  opt_top_depth       = {:7.3f}\n"
+                "  opt_bot_depth       = {:7.3f}\n"
+                "  rand_top_shallowest = {:7.3f}\n"
+                "  rand_top_deepest    = {:7.3f}\n"
+                "  rand_bot_shallowest = {:7.3f}\n"
+                "  rand_bot_deepest    = {:7.3f}\n"
+                .format(
+                    opt_top_depth,
+                    opt_bot_depth,
+                    rand_top_shallowest,
+                    rand_top_deepest,
+                    rand_bot_shallowest,
+                    rand_bot_deepest,
+                )
+            )
+
+        # Select whether to do a close or fully random crop
+        if p < self.p_crop_is_close:
+            # Close crop
+            close_crop = True
+            top_shallowest = close_top_shallowest
+            top_deepest = close_top_deepest
+            bot_shallowest = close_bot_shallowest
+            bot_deepest = close_bot_deepest
+            # Select limits of depth range. Equally likely to expand or contract
+            # in each direction.
+            if random.random() < 0.5:
+                shallowest_depth = random.uniform(top_shallowest, opt_top_depth)
+            else:
+                shallowest_depth = random.uniform(opt_top_depth, top_deepest)
+
+            if random.random() < 0.5:
+                deepest_depth = random.uniform(bot_shallowest, opt_bot_depth)
+            else:
+                deepest_depth = random.uniform(opt_bot_depth, bot_deepest)
+        else:
+            # Random crop
+            close_crop = False
+            top_shallowest = rand_top_shallowest
+            top_deepest = rand_top_deepest
+            bot_shallowest = rand_bot_shallowest
+            bot_deepest = rand_bot_deepest
+            # Select limits of depth range. Either randomly select uniformly
+            # across the whole range, or not.
+            if sample["is_upward_facing"] or random.random() < self.p_nearfield_side_crop:
+                shallowest_depth = random.uniform(top_shallowest, top_deepest)
+            else:
+                shallowest_depth = opt_top_depth
+            if not sample["is_upward_facing"] or random.random() < self.p_nearfield_side_crop:
+                deepest_depth = random.uniform(bot_shallowest, bot_deepest)
+            else:
+                deepest_depth = opt_bot_depth
 
         # Crop data
-        depth_crop_mask = sample['depths'] >= crop_depth
+        depth_crop_mask = (shallowest_depth <= sample["depths"]) & (sample["depths"] <= deepest_depth)
 
         for key in _fields_1d_depthlike:
             if key in sample:
