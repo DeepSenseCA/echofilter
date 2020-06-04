@@ -207,8 +207,8 @@ class TransectDataset(torch.utils.data.Dataset):
             _in_mask = _ddepths < np.expand_dims(sample["d_top"], -1)
             _in_mask_og = _ddepths < np.expand_dims(sample["d_top-original"], -1)
             # Shift lines up higher (less deep)
-            sample["d_top"][~was_in_nearfield] -= self.remove_offset_top
-            sample["d_top-original"][~was_in_nearfield_og] -= self.remove_offset_top
+            sample["d_top"][(~was_in_nearfield) | sample['is_upward_facing']] -= self.remove_offset_top
+            sample["d_top-original"][(~was_in_nearfield_og) | sample['is_upward_facing']] -= self.remove_offset_top
             # Extend mask_patches where necessary
             _fx_mask = _ddepths < np.expand_dims(sample["d_top"], -1)
             _df_mask = _in_mask * (_in_mask ^ _fx_mask)
@@ -228,8 +228,8 @@ class TransectDataset(torch.utils.data.Dataset):
             _in_mask = _ddepths > np.expand_dims(sample["d_bot"], -1)
             _in_mask_og = _ddepths > np.expand_dims(sample["d_bot-original"], -1)
             # Shift lines down lower (more deep)
-            sample["d_bot"][~was_in_nearfield] += self.remove_offset_bottom
-            sample["d_bot-original"][~was_in_nearfield_og] += self.remove_offset_bottom
+            sample["d_bot"][(~was_in_nearfield) | ~sample['is_upward_facing']] += self.remove_offset_bottom
+            sample["d_bot-original"][(~was_in_nearfield_og) | sample['is_upward_facing']] += self.remove_offset_bottom
             # Extend mask_patches where necessary
             _fx_mask = _ddepths > np.expand_dims(sample["d_bot"], -1)
             _df_mask = _in_mask * (_in_mask ^ _fx_mask)
