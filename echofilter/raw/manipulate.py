@@ -180,17 +180,17 @@ def make_lines_from_mask(mask, depths=None, max_gap_squash=1.):
         mask[li] = 0
 
     # Check which depths were removed for each timestamp
-    removed_depths = np.tile(depths, (mask.shape[0], 1)).astype('float')
-    removed_depths[~mask] = np.nan
+    nonremoved_depths = np.tile(depths, (mask.shape[0], 1)).astype('float')
+    nonremoved_depths[~mask] = np.nan
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', 'All-NaN (slice|axis) encountered')
-        # Top line is the smallest removed depth at each timepoint.
+        # Top line is the smallest non-removed depth at each timepoint.
         # We offset by depth_intv / 2 to get a depth in between the last kept
         # value at the top and the first removed value.
-        d_top = np.nanmin(removed_depths, axis=1) - depth_intv / 2
-        # Bottom line is the largest removed depth at each timepoint,
+        d_top = np.nanmin(nonremoved_depths, axis=1) - depth_intv / 2
+        # Bottom line is the largest non-removed depth at each timepoint,
         # offset similarly.
-        d_bot = np.nanmax(removed_depths, axis=1) + depth_intv / 2
+        d_bot = np.nanmax(nonremoved_depths, axis=1) + depth_intv / 2
 
     return d_top, d_bot
 
