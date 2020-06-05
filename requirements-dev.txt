@@ -1,1 +1,3 @@
+black
 nbstripout
+pre-commit
