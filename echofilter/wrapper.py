@@ -128,7 +128,7 @@ class EchofilterLoss(_Loss):
         removed_segment=1.0,
         passive=1.0,
         patch=1.0,
-        overall=1.0,
+        overall=0.0,
     ):
         super(EchofilterLoss, self).__init__(None, None, reduction)
         self.top_mask = top_mask
