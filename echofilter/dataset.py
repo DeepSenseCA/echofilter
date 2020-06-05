@@ -135,7 +135,7 @@ class TransectDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         transect_pth, center_idx = self.datapoints[index]
         # Load data from shards
-        sample = echofilter.shardloader.load_transect_from_shards_abs(
+        sample = shardloader.load_transect_from_shards_abs(
             transect_pth,
             center_idx - int(self.window_len / 2),
             center_idx - int(self.window_len / 2) + self.window_len,
@@ -187,12 +187,8 @@ class TransectDataset(torch.utils.data.Dataset):
                 was_in_nearfield_og = sample["d_bot-original"] >= nearfield_threshold
                 sample["d_bot-original"][was_in_nearfield_og] = max_bot_depth
                 # Extend/contract mask_patches where necessary
-                idx_search = echofilter.utils.last_nonzero(
-                    sample["depths"] < nearfield_threshold
-                )
-                idx_fillto = echofilter.utils.first_nonzero(
-                    sample["depths"] > max_bot_depth
-                )
+                idx_search = utils.last_nonzero(sample["depths"] < nearfield_threshold)
+                idx_fillto = utils.first_nonzero(sample["depths"] > max_bot_depth)
                 is_close_patch = np.any(
                     sample["mask_patches"][:, idx_search:idx_fillto], -1
                 )
@@ -206,10 +202,10 @@ class TransectDataset(torch.utils.data.Dataset):
                 sample["d_top"][was_in_nearfield] = min_top_depth
                 was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
                 # Extend/contract mask_patches where necessary
-                idx_search = echofilter.utils.first_nonzero(
+                idx_search = utils.first_nonzero(
                     sample["depths"] > self.nearfield_distance, invalid_val=0
                 )
-                idx_fillfr = echofilter.utils.last_nonzero(
+                idx_fillfr = utils.last_nonzero(
                     sample["depths"] < min_top_depth, invalid_val=-1
                 )
                 is_close_patch = np.any(
