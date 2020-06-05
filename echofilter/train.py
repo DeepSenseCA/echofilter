@@ -282,7 +282,7 @@ def train(
     )
     model_parameters = dict(
         in_channels=1,
-        out_channels=5,
+        out_channels=10,
         initial_channels=latent_channels,
         bottleneck_channels=latent_channels,
         n_block=n_block,

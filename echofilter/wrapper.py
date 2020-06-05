@@ -11,12 +11,13 @@ from .utils import TensorDict
 
 
 class Echofilter(nn.Module):
-    def __init__(self, model, top="boundary", bottom="boundary"):
+    def __init__(self, model, top="boundary", bottom="boundary", surface="boundary"):
         super(Echofilter, self).__init__()
         self.model = model
         self.params = {
             "top": top,
             "bottom": bottom,
+            "surface": surface,
         }
 
     def forward(self, x):
@@ -94,6 +95,113 @@ class Echofilter(nn.Module):
 
         outputs["logit_is_patch"] = logits[:, i]
         outputs["p_is_patch"] = torch.sigmoid(outputs["logit_is_patch"])
+        i += 1
+
+        if self.params["surface"] == "mask":
+            outputs["logit_is_above_surface"] = logits[:, i]
+            outputs["p_is_above_surface"] = torch.sigmoid(
+                outputs["logit_is_above_surface"]
+            )
+            outputs["p_is_below_surface"] = 1 - outputs["p_is_above_surface"]
+            i += 1
+        elif self.params["surface"] == "boundary":
+            outputs["logit_is_boundary_surface"] = logits[:, i]
+            outputs["p_is_boundary_surface"] = F.softmax(
+                outputs["logit_is_boundary_surface"], dim=-1
+            )
+            outputs["p_is_above_surface"] = torch.flip(
+                torch.cumsum(
+                    torch.flip(outputs["p_is_boundary_surface"], dims=(-1,)), dim=-1
+                ),
+                dims=(-1,),
+            )
+            outputs["p_is_below_surface"] = torch.cumsum(
+                outputs["p_is_boundary_surface"], dim=-1
+            )
+            # Due to floating point precision, max value can exceed 1.
+            # Fix this by clipping the values to the appropriate range.
+            outputs["p_is_above_surface"].clamp_(0, 1)
+            outputs["p_is_below_surface"].clamp_(0, 1)
+            i += 1
+        else:
+            raise ValueError(
+                'Unsupported "surface" parameter: {}'.format(self.params["surface"])
+            )
+
+        if self.params["top"] == "mask":
+            outputs["logit_is_above_top-original"] = logits[:, i]
+            outputs["p_is_above_top-original"] = torch.sigmoid(
+                outputs["logit_is_above_top-original"]
+            )
+            outputs["p_is_below_top-original"] = 1 - outputs["p_is_above_top-original"]
+            i += 1
+        elif self.params["top"] == "boundary":
+            outputs["logit_is_boundary_top-original"] = logits[:, i]
+            outputs["p_is_boundary_top-original"] = F.softmax(
+                outputs["logit_is_boundary_top-original"], dim=-1
+            )
+            outputs["p_is_above_top-original"] = torch.flip(
+                torch.cumsum(
+                    torch.flip(outputs["p_is_boundary_top-original"], dims=(-1,)),
+                    dim=-1,
+                ),
+                dims=(-1,),
+            )
+            outputs["p_is_below_top-original"] = torch.cumsum(
+                outputs["p_is_boundary_top-original"], dim=-1
+            )
+            # Due to floating point precision, max value can exceed 1.
+            # Fix this by clipping the values to the appropriate range.
+            outputs["p_is_above_top-original"].clamp_(0, 1)
+            outputs["p_is_below_top-original"].clamp_(0, 1)
+            i += 1
+        else:
+            raise ValueError(
+                'Unsupported "top" parameter: {}'.format(self.params["top"])
+            )
+
+        if self.params["bottom"] == "mask":
+            outputs["logit_is_below_bottom-original"] = logits[:, i]
+            outputs["p_is_below_bottom-original"] = torch.sigmoid(
+                outputs["logit_is_below_bottom-original"]
+            )
+            outputs["p_is_above_bottom-original"] = (
+                1 - outputs["p_is_below_bottom-original"]
+            )
+            i += 1
+        elif self.params["bottom"] == "boundary":
+            outputs["logit_is_boundary_bottom-original"] = logits[:, i]
+            outputs["p_is_boundary_bottom-original"] = F.softmax(
+                outputs["logit_is_boundary_bottom-original"], dim=-1
+            )
+            outputs["p_is_below_bottom-original"] = torch.cumsum(
+                outputs["p_is_boundary_bottom-original"], dim=-1
+            )
+            outputs["p_is_above_bottom-original"] = torch.flip(
+                torch.cumsum(
+                    torch.flip(outputs["p_is_boundary_bottom-original"], dims=(-1,)),
+                    dim=-1,
+                ),
+                dims=(-1,),
+            )
+            # Due to floating point precision, max value can exceed 1.
+            # Fix this by clipping the values to the appropriate range.
+            outputs["p_is_below_bottom-original"].clamp_(0, 1)
+            outputs["p_is_above_bottom-original"].clamp_(0, 1)
+            i += 1
+        else:
+            raise ValueError(
+                'Unsupported "bottom" parameter: {}'.format(self.params["bottom"])
+            )
+
+        outputs["logit_is_patch-original"] = logits[:, i]
+        outputs["p_is_patch-original"] = torch.sigmoid(
+            outputs["logit_is_patch-original"]
+        )
+        i += 1
+
+        outputs["logit_is_patch-ntob"] = logits[:, i]
+        outputs["p_is_patch-ntob"] = torch.sigmoid(outputs["logit_is_patch-ntob"])
         i += 1
 
         outputs["p_keep_pixel"] = (
