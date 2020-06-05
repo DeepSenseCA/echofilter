@@ -103,31 +103,35 @@ class MesaOneCycleLR(OneCycleLR):
     .. _Super-Convergence\: Very Fast Training of Neural Networks Using Large Learning Rates:
         https://arxiv.org/abs/1708.07120
     """
-    def __init__(self,
-                 optimizer,
-                 max_lr,
-                 total_steps=None,
-                 pct_start=0.25,
-                 pct_end=0.75,
-                 **kwargs):
+
+    def __init__(
+        self,
+        optimizer,
+        max_lr,
+        total_steps=None,
+        pct_start=0.25,
+        pct_end=0.75,
+        **kwargs
+    ):
 
         # Validate pct_start
         if not isinstance(pct_start, float) or pct_start < 0 or pct_start > 1:
-            raise ValueError("Expected pct_start to be a float between 0 and 1, but got {}".format(pct_start))
+            raise ValueError(
+                "Expected pct_start to be a float between 0 and 1, but got {}".format(
+                    pct_start
+                )
+            )
 
         # Validate pct_end
         if pct_end < pct_start or pct_end > 1 or not isinstance(pct_start, float):
             raise ValueError(
-                "Expected pct_end to be a float between pct_start={} and 1, but got {}"
-                .format(pct_start, pct_end)
+                "Expected pct_end to be a float between pct_start={} and 1, but got {}".format(
+                    pct_start, pct_end
+                )
             )
 
         super(MesaOneCycleLR, self).__init__(
-            optimizer,
-            max_lr,
-            total_steps=total_steps,
-            pct_start=pct_start,
-            **kwargs
+            optimizer, max_lr, total_steps=total_steps, pct_start=pct_start, **kwargs
         )
 
         self.step_size_up = float(pct_start * self.total_steps) - 1
@@ -136,39 +140,57 @@ class MesaOneCycleLR(OneCycleLR):
 
     def get_lr(self):
         if not self._get_lr_called_within_step:
-            warnings.warn("To get the last learning rate computed by the scheduler, "
-                          "please use `get_last_lr()`.", DeprecationWarning)
+            warnings.warn(
+                "To get the last learning rate computed by the scheduler, "
+                "please use `get_last_lr()`.",
+                DeprecationWarning,
+            )
 
         lrs = []
         step_num = self.last_epoch
 
         if step_num > self.total_steps:
-            raise ValueError("Tried to step {} times. The specified number of total steps is {}"
-                             .format(step_num + 1, self.total_steps))
+            raise ValueError(
+                "Tried to step {} times. The specified number of total steps is {}".format(
+                    step_num + 1, self.total_steps
+                )
+            )
 
         for group in self.optimizer.param_groups:
             if step_num <= self.step_size_up:
-                computed_lr = self.anneal_func(group['initial_lr'], group['max_lr'], step_num / self.step_size_up)
+                computed_lr = self.anneal_func(
+                    group["initial_lr"], group["max_lr"], step_num / self.step_size_up
+                )
                 if self.cycle_momentum:
-                    computed_momentum = self.anneal_func(group['max_momentum'], group['base_momentum'],
-                                                         step_num / self.step_size_up)
+                    computed_momentum = self.anneal_func(
+                        group["max_momentum"],
+                        group["base_momentum"],
+                        step_num / self.step_size_up,
+                    )
             elif step_num <= self.step_size_down_start:
-                computed_lr = group['max_lr']
+                computed_lr = group["max_lr"]
                 if self.cycle_momentum:
-                    computed_momentum = group['base_momentum']
+                    computed_momentum = group["base_momentum"]
             else:
                 down_step_num = step_num - self.step_size_down_start
-                computed_lr = self.anneal_func(group['max_lr'], group['min_lr'], down_step_num / self.step_size_down)
+                computed_lr = self.anneal_func(
+                    group["max_lr"],
+                    group["min_lr"],
+                    down_step_num / self.step_size_down,
+                )
                 if self.cycle_momentum:
-                    computed_momentum = self.anneal_func(group['base_momentum'], group['max_momentum'],
-                                                         down_step_num / self.step_size_down)
+                    computed_momentum = self.anneal_func(
+                        group["base_momentum"],
+                        group["max_momentum"],
+                        down_step_num / self.step_size_down,
+                    )
 
             lrs.append(computed_lr)
             if self.cycle_momentum:
                 if self.use_beta1:
-                    _, beta2 = group['betas']
-                    group['betas'] = (computed_momentum, beta2)
+                    _, beta2 = group["betas"]
+                    group["betas"] = (computed_momentum, beta2)
                 else:
-                    group['momentum'] = computed_momentum
+                    group["momentum"] = computed_momentum
 
         return lrs

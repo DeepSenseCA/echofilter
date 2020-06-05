@@ -33,10 +33,18 @@ from echofilter.unet import UNet
 from echofilter.wrapper import Echofilter
 
 
-CHECKPOINT_RESOURCES = OrderedDict([
-    ('stationary_effunet_block6.xb.2-1_lc32_se2_v2.ckpt.tar', {'gdrive': '1Rgr6y7SYEYrAq6tSF7tjqbKoZthKpMCb'}),
-    ('stationary_effunet_block6.xb.2-1_lc32_se2.ckpt.tar', {'gdrive': '114vL-pAxrn9UDhaNG5HxZwjxNy7WMfW_'}),
-])
+CHECKPOINT_RESOURCES = OrderedDict(
+    [
+        (
+            "stationary_effunet_block6.xb.2-1_lc32_se2_v2.ckpt.tar",
+            {"gdrive": "1Rgr6y7SYEYrAq6tSF7tjqbKoZthKpMCb"},
+        ),
+        (
+            "stationary_effunet_block6.xb.2-1_lc32_se2.ckpt.tar",
+            {"gdrive": "114vL-pAxrn9UDhaNG5HxZwjxNy7WMfW_"},
+        ),
+    ]
+)
 DEFAULT_CHECKPOINT = next(iter(CHECKPOINT_RESOURCES))
 
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
@@ -44,17 +52,17 @@ DEFAULT_VARNAME = "Fileset1: Sv pings T1"
 
 def run_inference(
     files,
-    data_dir='.',
+    data_dir=".",
     checkpoint=None,
-    output_dir='',
+    output_dir="",
     variable_name=DEFAULT_VARNAME,
     image_height=None,
     facing="auto",
-    row_len_selector='mode',
+    row_len_selector="mode",
     crop_depth_min=None,
     crop_depth_max=None,
     use_training_standardization=False,
-    extensions='csv',
+    extensions="csv",
     keep_ext=False,
     overwrite_existing=False,
     skip_existing=False,
@@ -64,11 +72,11 @@ def run_inference(
     device=None,
     cache_dir=None,
     cache_csv=None,
-    csv_suffix='.csv',
+    csv_suffix=".csv",
     verbose=1,
     dry_run=False,
 ):
-    '''
+    """
     Perform inference on input files, and write output lines in evl format.
 
     Parameters
@@ -167,10 +175,10 @@ def run_inference(
     dry_run : bool, optional
         If `True`, perform a trial run with no changes made. Default is
         `False`.
-    '''
+    """
 
     if device is None:
-        device = 'cuda' if cuda_is_really_available() else 'cpu'
+        device = "cuda" if cuda_is_really_available() else "cpu"
     device = torch.device(device)
 
     if checkpoint is None:
@@ -183,9 +191,10 @@ def run_inference(
         checkpoint_path = download_checkpoint(checkpoint, cache_dir=cache_dir)
     else:
         raise ValueError(
-            'The checkpoint parameter should either be a path to a file or '
-            'one of \n{},\nbut {} was provided.'
-            .format(list(CHECKPOINT_RESOURCES.keys()), checkpoint)
+            "The checkpoint parameter should either be a path to a file or "
+            "one of \n{},\nbut {} was provided.".format(
+                list(CHECKPOINT_RESOURCES.keys()), checkpoint
+            )
         )
 
     if not os.path.isfile(checkpoint_path):
@@ -203,7 +212,11 @@ def run_inference(
         if checkpoint not in CHECKPOINT_RESOURCES or checkpoint == checkpoint_path:
             # Direct path to checkpoint was given, so we shouldn't delete
             # the user's file
-            print('Error: Unable to load checkpoint {}'.format(os.path.abspath(checkpoint_path)))
+            print(
+                "Error: Unable to load checkpoint {}".format(
+                    os.path.abspath(checkpoint_path)
+                )
+            )
             raise
         # Delete the checkpoint and try again, in case it is just a
         # malformed download (interrupted download, etc)
@@ -212,34 +225,34 @@ def run_inference(
         checkpoint = torch.load(checkpoint_path, **load_args)
 
     if image_height is None:
-        image_height = checkpoint.get('sample_shape', (128, 512))[1]
+        image_height = checkpoint.get("sample_shape", (128, 512))[1]
 
     if use_training_standardization:
-        center_param = checkpoint.get('data_center', -80.)
-        deviation_param = checkpoint.get('data_deviation', 20.)
+        center_param = checkpoint.get("data_center", -80.0)
+        deviation_param = checkpoint.get("data_deviation", 20.0)
     else:
-        center_param = checkpoint.get('center_method', 'mean')
-        deviation_param = checkpoint.get('deviation_method', 'stdev')
-    nan_value = checkpoint.get('nan_value', -3)
+        center_param = checkpoint.get("center_method", "mean")
+        deviation_param = checkpoint.get("deviation_method", "stdev")
+    nan_value = checkpoint.get("nan_value", -3)
 
     if verbose >= 2:
-        print('Constructing U-Net model, with arguments:')
-        pprint.pprint(checkpoint['model_parameters'])
+        print("Constructing U-Net model, with arguments:")
+        pprint.pprint(checkpoint["model_parameters"])
     model = Echofilter(
-        UNet(**checkpoint['model_parameters']),
-        top='boundary',
-        bottom='boundary',
+        UNet(**checkpoint["model_parameters"]), top="boundary", bottom="boundary",
     )
     if verbose >= 1:
         print(
-            'Built model with {} trainable parameters'
-            .format(count_parameters(model, only_trainable=True))
+            "Built model with {} trainable parameters".format(
+                count_parameters(model, only_trainable=True)
+            )
         )
-    model.load_state_dict(checkpoint['state_dict'])
+    model.load_state_dict(checkpoint["state_dict"])
     if verbose >= 1:
         print(
-            "Loaded checkpoint state from '{}' (epoch {})"
-            .format(checkpoint_path, checkpoint['epoch'])
+            "Loaded checkpoint state from '{}' (epoch {})".format(
+                checkpoint_path, checkpoint["epoch"]
+            )
         )
     # Ensure model is on correct device
     model.to(device)
@@ -249,24 +262,25 @@ def run_inference(
     files_input = files
     files = list(echofilter.path.parse_files_in_folders(files, data_dir, extensions))
     if verbose >= 1:
-        print('Processing {} file{}'.format(len(files), '' if len(files) == 1 else 's'))
+        print("Processing {} file{}".format(len(files), "" if len(files) == 1 else "s"))
 
-    if len(extensions) == 1 and 'ev' in extensions:
+    if len(extensions) == 1 and "ev" in extensions:
         do_open = True
     else:
         do_open = False
         for file in files:
-            if os.path.splitext(file)[1].lower() == '.ev':
+            if os.path.splitext(file)[1].lower() == ".ev":
                 do_open = True
                 break
 
     if dry_run:
         if verbose >= 3:
             print(
-                'Echoview application would{} be opened {}.'
-                .format(
-                    '' if do_open else ' not',
-                    'to convert EV files to CSV' if do_open else '(no EV files to process)',
+                "Echoview application would{} be opened {}.".format(
+                    "" if do_open else " not",
+                    "to convert EV files to CSV"
+                    if do_open
+                    else "(no EV files to process)",
                 )
             )
         do_open = False
@@ -274,40 +288,40 @@ def run_inference(
     if len(files) == 1 or verbose <= 0:
         maybe_tqdm = lambda x: x
     else:
-        maybe_tqdm = lambda x: tqdm(x, desc='Files')
+        maybe_tqdm = lambda x: tqdm(x, desc="Files")
 
     skip_count = 0
     incompatible_count = 0
 
     # Open EchoView connection
     with echofilter.ev.maybe_open_echoview(
-        do_open=do_open,
-        minimize=minimize_echoview,
-        hide=hide_echoview,
+        do_open=do_open, minimize=minimize_echoview, hide=hide_echoview,
     ) as ev_app:
         for fname in maybe_tqdm(files):
             if verbose >= 2:
-                print('Processing {}'.format(fname))
+                print("Processing {}".format(fname))
 
             # Check what the full path should be
             fname_full = echofilter.path.determine_file_path(fname, data_dir)
 
             # Determine where destination should be placed
-            destination = echofilter.path.determine_destination(fname, fname_full, data_dir, output_dir)
+            destination = echofilter.path.determine_destination(
+                fname, fname_full, data_dir, output_dir
+            )
             if not keep_ext:
                 destination = os.path.splitext(destination)[0]
 
             # Check whether to skip processing this file
             if skip_existing:
                 any_missing = False
-                for name in ('top', 'bottom'):
-                    dest_file = '{}.{}.evl'.format(destination, name)
+                for name in ("top", "bottom"):
+                    dest_file = "{}.{}.evl".format(destination, name)
                     if not os.path.isfile(dest_file):
                         any_missing = True
                         break
                 if not any_missing:
                     if verbose >= 2:
-                        print('  Skipping {}'.format(fname))
+                        print("  Skipping {}".format(fname))
                     skip_count += 1
                     continue
 
@@ -315,23 +329,22 @@ def run_inference(
             ext = os.path.splitext(fname)[1]
             if len(ext) > 0:
                 ext = ext[1:].lower()
-            if ext == 'csv':
+            if ext == "csv":
                 export_to_csv = False
-            elif ext == 'ev':
+            elif ext == "ev":
                 export_to_csv = True
-            elif len(extensions) == 1 and 'csv' in extensions:
+            elif len(extensions) == 1 and "csv" in extensions:
                 export_to_csv = False
-            elif len(extensions) == 1 and 'ev' in extensions:
+            elif len(extensions) == 1 and "ev" in extensions:
                 export_to_csv = True
             else:
-                error_str = (
-                    'Unsure how to process file {} with unrecognised extension {}'
-                    .format(fname, ext)
+                error_str = "Unsure how to process file {} with unrecognised extension {}".format(
+                    fname, ext
                 )
                 if not skip_incompatible:
                     raise EnvironmentError(error_str)
                 if verbose >= 2:
-                    print('  Skipping incompatible file {}'.format(fname))
+                    print("  Skipping incompatible file {}".format(fname))
                 incompatible_count += 1
                 continue
 
@@ -363,7 +376,11 @@ def run_inference(
                     pass
                 elif dry_run:
                     if verbose >= 1:
-                        print('  Would export {} as CSV file {}'.format(fname_full, csv_fname))
+                        print(
+                            "  Would export {} as CSV file {}".format(
+                                fname_full, csv_fname
+                            )
+                        )
                 else:
                     # Import ev2csv now. We delay this import so Linux users
                     # without pywin32 can run on CSV files.
@@ -377,12 +394,12 @@ def run_inference(
                         csv_fname,
                         variable_name=variable_name,
                         ev_app=ev_app,
-                        verbose=verbose-1,
+                        verbose=verbose - 1,
                     )
 
                 if dry_run:
                     if verbose >= 1:
-                        print('  Would write files to {}.SUFFIX'.format(destination))
+                        print("  Would write files to {}.SUFFIX".format(destination))
                     continue
 
                 # Load the data
@@ -401,10 +418,10 @@ def run_inference(
                 except KeyError:
                     if skip_incompatible and fname not in files_input:
                         if verbose >= 2:
-                            print('  Skipping incompatible file {}'.format(fname))
+                            print("  Skipping incompatible file {}".format(fname))
                         incompatible_count += 1
                         continue
-                    print('CSV file {} could not be loaded.'.format(fname))
+                    print("CSV file {} could not be loaded.".format(fname))
                     raise
 
             output = inference_transect(
@@ -420,50 +437,48 @@ def run_inference(
                 data_center=center_param,
                 data_deviation=deviation_param,
                 nan_value=nan_value,
-                verbose=verbose-1,
+                verbose=verbose - 1,
             )
 
             # Convert output into lines
-            top_depths = output['depths'][echofilter.utils.last_nonzero(output['p_is_above_top'] > 0.5, -1)]
-            bottom_depths = output['depths'][echofilter.utils.first_nonzero(output['p_is_below_bottom'] > 0.5, -1)]
+            top_depths = output["depths"][
+                echofilter.utils.last_nonzero(output["p_is_above_top"] > 0.5, -1)
+            ]
+            bottom_depths = output["depths"][
+                echofilter.utils.first_nonzero(output["p_is_below_bottom"] > 0.5, -1)
+            ]
 
             # Export evl files
             destination_dir = os.path.dirname(destination)
-            if destination_dir != '':
+            if destination_dir != "":
                 os.makedirs(destination_dir, exist_ok=True)
-            for name, depths in (('top', top_depths), ('bottom', bottom_depths)):
-                dest_file = '{}.{}.evl'.format(destination, name)
+            for name, depths in (("top", top_depths), ("bottom", bottom_depths)):
+                dest_file = "{}.{}.evl".format(destination, name)
                 if verbose >= 2:
-                    print('Writing output {}'.format(dest_file))
+                    print("Writing output {}".format(dest_file))
                 if os.path.exists(dest_file) and not overwrite_existing:
                     raise EnvironmentError(
-                        'Output {} already exists.\n'
-                        ' Run with overwrite_existing=True (with the command line'
-                        ' interface, use the --force flag) to overwrite existing'
-                        ' outputs.'
-                        .format(dest_file)
+                        "Output {} already exists.\n"
+                        " Run with overwrite_existing=True (with the command line"
+                        " interface, use the --force flag) to overwrite existing"
+                        " outputs.".format(dest_file)
                     )
                 echofilter.raw.loader.evl_writer(dest_file, timestamps, depths)
 
     if verbose >= 1:
-        s = 'Finished {}processing {} file{}.'.format(
-            'simulating ' if dry_run else '',
+        s = "Finished {}processing {} file{}.".format(
+            "simulating " if dry_run else "",
             len(files),
-            '' if len(files) == 1 else 's',
+            "" if len(files) == 1 else "s",
         )
         skip_total = skip_count + incompatible_count
         if skip_total > 0:
-            s += (
-                ' Of these, {} file{} skipped: {} already processed'
-                .format(
-                    skip_total,
-                    ' was' if skip_total == 1 else 's were',
-                    skip_count,
-                )
+            s += " Of these, {} file{} skipped: {} already processed".format(
+                skip_total, " was" if skip_total == 1 else "s were", skip_count,
             )
             if not dry_run:
-                s += ', {} incompatible.'.format(incompatible_count)
-            s += '.'
+                s += ", {} incompatible.".format(incompatible_count)
+            s += "."
         print(s)
 
 
@@ -477,13 +492,13 @@ def inference_transect(
     facing="auto",
     crop_depth_min=None,
     crop_depth_max=None,
-    data_center='mean',
-    data_deviation='stdev',
+    data_center="mean",
+    data_deviation="stdev",
     nan_value=-3,
     dtype=torch.float,
     verbose=0,
 ):
-    '''
+    """
     Run inference on a single transect.
 
     Parameters
@@ -535,72 +550,77 @@ def inference_transect(
     dict
         Dictionary with fields as output by `echofilter.wrapper.Echofilter`,
         plus `timestamps` and `depths`.
-    '''
+    """
     facing = facing.lower()
     timestamps = np.asarray(timestamps)
     depths = np.asarray(depths)
     signals = np.asarray(signals)
     transect = {
-        'timestamps': timestamps,
-        'depths': depths,
-        'signals': signals,
+        "timestamps": timestamps,
+        "depths": depths,
+        "signals": signals,
     }
     if crop_depth_min is not None:
         # Apply minimum depth crop
-        depth_crop_mask = transect['depths'] >= crop_depth_min
-        transect['depths'] = transect['depths'][depth_crop_mask]
-        transect['signals'] = transect['signals'][:, depth_crop_mask]
+        depth_crop_mask = transect["depths"] >= crop_depth_min
+        transect["depths"] = transect["depths"][depth_crop_mask]
+        transect["signals"] = transect["signals"][:, depth_crop_mask]
     if crop_depth_max is not None:
         # Apply maximum depth crop
-        depth_crop_mask = transect['depths'] <= crop_depth_max
-        transect['depths'] = transect['depths'][depth_crop_mask]
-        transect['signals'] = transect['signals'][:, depth_crop_mask]
+        depth_crop_mask = transect["depths"] <= crop_depth_max
+        transect["depths"] = transect["depths"][depth_crop_mask]
+        transect["signals"] = transect["signals"][:, depth_crop_mask]
 
     # Standardize data distribution
     transect = echofilter.transforms.Normalize(data_center, data_deviation)(transect)
 
     # Configure data to match what the model expects to see
     # Determine whether depths are ascending or descending
-    is_upward_facing = (transect['depths'][-1] < transect['depths'][0])
+    is_upward_facing = transect["depths"][-1] < transect["depths"][0]
     # Ensure depth is always increasing (which corresponds to descending from
     # the air down the water column)
     if facing[:2] == "up" or (facing == "auto" and is_upward_facing):
-        transect['depths'] = transect['depths'][::-1].copy()
-        transect['signals'] = transect['signals'][:, ::-1].copy()
+        transect["depths"] = transect["depths"][::-1].copy()
+        transect["signals"] = transect["signals"][:, ::-1].copy()
         if facing == "auto" and verbose >= 1:
             print(
-                'Data was autodetected as upward facing, and was flipped'
-                ' vertically before being input into the model.'
+                "Data was autodetected as upward facing, and was flipped"
+                " vertically before being input into the model."
             )
     elif facing[:4] != "down" and facing[:4] != "auto":
         raise ValueError('facing should be one of "downward", "upward", and "auto"')
     elif facing[:4] == "down" and is_upward_facing:
-        print('Warning: facing = "{}" was provided, but data appears to be upward facing'.format(facing))
+        print(
+            'Warning: facing = "{}" was provided, but data appears to be upward facing'.format(
+                facing
+            )
+        )
 
     # To reduce memory consumption, split into segments whenever the recording
     # interval is longer than normal
     segments = split_transect(**transect)
     if verbose >= 1:
-        segments = tqdm(list(segments), desc='Segments')
+        segments = tqdm(list(segments), desc="Segments")
     outputs = []
     for segment in segments:
         # Preprocessing transform
-        transform = torchvision.transforms.Compose([
-            echofilter.transforms.ReplaceNan(nan_value),
-            echofilter.transforms.Rescale(
-                (segment['signals'].shape[0], image_height),
-                order=1,
-            ),
-        ])
+        transform = torchvision.transforms.Compose(
+            [
+                echofilter.transforms.ReplaceNan(nan_value),
+                echofilter.transforms.Rescale(
+                    (segment["signals"].shape[0], image_height), order=1,
+                ),
+            ]
+        )
         segment = transform(segment)
-        input = torch.tensor(segment['signals']).unsqueeze(0).unsqueeze(0)
+        input = torch.tensor(segment["signals"]).unsqueeze(0).unsqueeze(0)
         input = input.to(device, dtype)
         # Put data through model
         with torch.no_grad():
             output = model(input)
             output = {k: v.squeeze(0).cpu().numpy() for k, v in output.items()}
-        output['timestamps'] = segment['timestamps']
-        output['depths'] = segment['depths']
+        output["timestamps"] = segment["timestamps"]
+        output["depths"] = segment["depths"]
         outputs.append(output)
 
     if verbose >= 1:
@@ -610,12 +630,12 @@ def inference_transect(
 
 
 def get_default_cache_dir():
-    '''Determine the default cache directory.'''
-    return appdirs.user_cache_dir('echofilter', 'DeepSense')
+    """Determine the default cache directory."""
+    return appdirs.user_cache_dir("echofilter", "DeepSense")
 
 
 def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
-    '''
+    """
     Download a checkpoint if it isn't already cached.
 
     Parameters
@@ -633,7 +653,7 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     -------
     str
         Path to downloaded checkpoint file.
-    '''
+    """
     if cache_dir is None:
         cache_dir = get_default_cache_dir()
 
@@ -647,32 +667,48 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     sources = CHECKPOINT_RESOURCES[checkpoint_name]
     success = False
     for key, url_or_id in sources.items():
-        if key == 'gdrive':
+        if key == "gdrive":
             if verbose > 0:
-                print('Downloading checkpoint {} from GDrive...'.format(checkpoint_name))
+                print(
+                    "Downloading checkpoint {} from GDrive...".format(checkpoint_name)
+                )
             try:
-                download_file_from_google_drive(url_or_id, cache_dir, filename=checkpoint_name)
+                download_file_from_google_drive(
+                    url_or_id, cache_dir, filename=checkpoint_name
+                )
                 success = True
                 continue
             except (pickle.UnpicklingError, urllib.error.URLError):
                 if verbose > 0:
-                    print('\nCould not download checkpoint {} from GDrive!'.format(checkpoint_name))
+                    print(
+                        "\nCould not download checkpoint {} from GDrive!".format(
+                            checkpoint_name
+                        )
+                    )
         else:
             if verbose > 0:
-                print('Downloading checkpoint {} from {}...'.format(checkpoint_name, url_or_id))
+                print(
+                    "Downloading checkpoint {} from {}...".format(
+                        checkpoint_name, url_or_id
+                    )
+                )
             try:
                 download_url(url_or_id, cache_dir, filename=checkpoint_name)
                 success = True
                 continue
             except (pickle.UnpicklingError, urllib.error.URLError):
                 if verbose > 0:
-                    print('\nCould not download checkpoint {} from {}'.format(checkpoint_name, url_or_id))
+                    print(
+                        "\nCould not download checkpoint {} from {}".format(
+                            checkpoint_name, url_or_id
+                        )
+                    )
 
     if not success:
-        raise OSError('Unable to download {} from {}'.format(checkpoint_name, sources))
+        raise OSError("Unable to download {} from {}".format(checkpoint_name, sources))
 
     if verbose > 0:
-        print('Downloaded checkpoint to {}'.format(destination))
+        print("Downloaded checkpoint to {}".format(destination))
 
     return destination
 
@@ -681,60 +717,60 @@ def main():
     import argparse
 
     prog = os.path.split(sys.argv[0])[1]
-    if prog == '__main__.py':
-        prog = 'echofilter'
+    if prog == "__main__.py":
+        prog = "echofilter"
     parser = argparse.ArgumentParser(
-        prog=prog,
-        description=echofilter.__meta__.description,
+        prog=prog, description=echofilter.__meta__.description,
     )
     parser.add_argument(
-        '--version',
+        "--version",
         "-V",
-        action='version',
-        version='%(prog)s {version}'.format(version=echofilter.__version__)
+        action="version",
+        version="%(prog)s {version}".format(version=echofilter.__version__),
     )
     parser.add_argument(
-        'files',
+        "files",
         type=str,
-        nargs='+',
+        nargs="+",
         default=[],
-        metavar='PATH',
-        help=
-            'file(s) to process. For each directory given, all csv files'
-            ' within that directory and its subdirectories will be processed.'
+        metavar="PATH",
+        help="file(s) to process. For each directory given, all csv files"
+        " within that directory and its subdirectories will be processed.",
     )
     parser.add_argument(
-        '--data-dir', '-d',
-        dest='data_dir',
+        "--data-dir",
+        "-d",
+        dest="data_dir",
         type=str,
-        default='.',
-        metavar='DIR',
+        default=".",
+        metavar="DIR",
         help='path to directory containing FILE (default: ".")',
     )
-    default_extensions = ['csv']
+    default_extensions = ["csv"]
     if echofilter.path.check_if_windows():
-        default_extensions.append('ev')
+        default_extensions.append("ev")
     parser.add_argument(
-        '--extension', '-x',
-        dest='extensions',
+        "--extension",
+        "-x",
+        dest="extensions",
         type=str,
-        nargs='+',
+        nargs="+",
         default=default_extensions,
-        help='file extensions to process (default: {})'.format(default_extensions),
+        help="file extensions to process (default: {})".format(default_extensions),
     )
     parser.add_argument(
-        '--output-dir', '-o',
+        "--output-dir",
+        "-o",
         type=str,
-        default='',
-        metavar='DIR',
-        help=
-            'path to output directory. If empty, output is placed in the same'
-            ' directory as the input file. (default: "")',
+        default="",
+        metavar="DIR",
+        help="path to output directory. If empty, output is placed in the same"
+        ' directory as the input file. (default: "")',
     )
     parser.add_argument(
-        '--keep-ext',
-        action='store_true',
-        help='keep the input file extension in output file names',
+        "--keep-ext",
+        action="store_true",
+        help="keep the input file extension in output file names",
     )
     parser.add_argument(
         "--variable-name",
@@ -743,116 +779,110 @@ def main():
         type=str,
         default=DEFAULT_VARNAME,
         help="Name of the EchoView acoustic variable to load from EV files."
-        " Default is {}.".format(
-            DEFAULT_VARNAME
-        ),
+        " Default is {}.".format(DEFAULT_VARNAME),
     )
     parser.add_argument(
-        '--checkpoint',
+        "--checkpoint",
         type=str,
         default=DEFAULT_CHECKPOINT,
-        metavar='PATH',
-        help=
-            'path to checkpoint to load, or name of checkpoint available to'
-            ' download (default: "{}")'.format(DEFAULT_CHECKPOINT),
+        metavar="PATH",
+        help="path to checkpoint to load, or name of checkpoint available to"
+        ' download (default: "{}")'.format(DEFAULT_CHECKPOINT),
     )
     DEFAULT_CACHE_DIR = get_default_cache_dir()
     parser.add_argument(
-        '--cache-dir',
+        "--cache-dir",
         type=str,
         default=DEFAULT_CACHE_DIR,
-        help=
-            'path to checkpoint cache directory (default: "{}")'
-            .format(DEFAULT_CACHE_DIR),
+        help='path to checkpoint cache directory (default: "{}")'.format(
+            DEFAULT_CACHE_DIR
+        ),
     )
     parser.add_argument(
-        '--cache-csv',
-        nargs='?',
+        "--cache-csv",
+        nargs="?",
         type=str,
         default=None,
-        const='',
-        metavar='DIR',
-        help=
-            'path to directory where CSV files generated from EV inputs should'
-            ' be cached. If an empty string is given, exported CSV files will'
-            ' be placed in the same directory as the input EV file.'
-            ' (default: do not cache)'
+        const="",
+        metavar="DIR",
+        help="path to directory where CSV files generated from EV inputs should"
+        " be cached. If an empty string is given, exported CSV files will"
+        " be placed in the same directory as the input EV file."
+        " (default: do not cache)",
     )
     parser.add_argument(
-        '--csv-suffix',
+        "--csv-suffix",
         type=str,
-        default='.csv',
-        help=
-            'suffix used for cached CSV files which are exported from EV files'
-            ' (default: ".csv")'
+        default=".csv",
+        help="suffix used for cached CSV files which are exported from EV files"
+        ' (default: ".csv")',
     )
     parser.add_argument(
-        '--training-standardization',
-        dest='use_training_standardization',
-        action='store_true',
-        help=
-            'scale the Sv intensities using the values used for training,'
-            ' instead of values derived from the current sample',
+        "--training-standardization",
+        dest="use_training_standardization",
+        action="store_true",
+        help="scale the Sv intensities using the values used for training,"
+        " instead of values derived from the current sample",
     )
     parser.add_argument(
-        '--image-height', '--height',
-        dest='image_height',
+        "--image-height",
+        "--height",
+        dest="image_height",
         type=float,
         default=None,
-        help=
-            'input image height, in pixels. The echogram will be resized to'
-            ' have this height, and its width will be kept. (default: same'
-            ' as using during training)',
+        help="input image height, in pixels. The echogram will be resized to"
+        " have this height, and its width will be kept. (default: same"
+        " as using during training)",
     )
     parser.add_argument(
-        '--facing',
+        "--facing",
         type=str,
-        choices=['downward', 'upward', 'auto'],
-        default='auto',
+        choices=["downward", "upward", "auto"],
+        default="auto",
         help='orientation of echosounder (default: "auto")',
     )
     parser.add_argument(
-        '--row-len-selector',
+        "--row-len-selector",
         type=str,
-        choices=['init', 'min', 'max', 'median', 'mode'],
-        default='mode',
+        choices=["init", "min", "max", "median", "mode"],
+        default="mode",
         help='how to handle inputs with differing number of samples across time (default: "mode")',
     )
     parser.add_argument(
-        '--crop-depth-min',
+        "--crop-depth-min",
         type=float,
         default=None,
-        help=
-            'shallowest depth, in metres, to analyse after. Data will be'
-            ' truncated at this depth with shallower data removed.'
-            ' (default: None, do not truncate)',
+        help="shallowest depth, in metres, to analyse after. Data will be"
+        " truncated at this depth with shallower data removed."
+        " (default: None, do not truncate)",
     )
     parser.add_argument(
-        '--crop-depth-max',
+        "--crop-depth-max",
         type=float,
         default=None,
-        help=
-            'deepest depth, in metres, to analyse after. Data will be'
-            ' truncated at this depth with deeper data removed.'
-            ' (default: None, do not truncate)',
+        help="deepest depth, in metres, to analyse after. Data will be"
+        " truncated at this depth with deeper data removed."
+        " (default: None, do not truncate)",
     )
     parser.add_argument(
-        '--force', '-f',
-        dest='overwrite_existing',
-        action='store_true',
-        help='overwrite existing files without warning',
+        "--force",
+        "-f",
+        dest="overwrite_existing",
+        action="store_true",
+        help="overwrite existing files without warning",
     )
     parser.add_argument(
-        '--skip-existing', '--skip',
-        dest='skip_existing',
-        action='store_true',
-        help='skip processing files for which all outputs already exist',
+        "--skip-existing",
+        "--skip",
+        dest="skip_existing",
+        action="store_true",
+        help="skip processing files for which all outputs already exist",
     )
     parser.add_argument(
-        '--skip-incompatible',
-        dest='skip_incompatible',
-        action='store_true',
-        help='skip incompatible files without raising an error',
+        "--skip-incompatible",
+        dest="skip_incompatible",
+        action="store_true",
+        help="skip incompatible files without raising an error",
     )
     parser.add_argument(
         "--minimize-echoview",
@@ -884,30 +914,33 @@ def main():
         help="hide the Echoview window while this code runs, even if it was already open",
     )
     parser.add_argument(
-        '--dry-run', '-n',
-        action='store_true',
-        help='perform a trial run with no changes made',
+        "--dry-run",
+        "-n",
+        action="store_true",
+        help="perform a trial run with no changes made",
     )
     parser.add_argument(
-        '--device',
+        "--device",
         type=str,
         default=None,
-        help='device to use (default: use first gpu if available, otherwise cpu)',
+        help="device to use (default: use first gpu if available, otherwise cpu)",
     )
     parser.add_argument(
-        '--verbose', '-v',
-        action='count',
+        "--verbose",
+        "-v",
+        action="count",
         default=1,
-        help='increase verbosity, print more progress details',
+        help="increase verbosity, print more progress details",
     )
     parser.add_argument(
-        '--quiet', '-q',
-        action='count',
+        "--quiet",
+        "-q",
+        action="count",
         default=0,
-        help='decrease verbosity, print fewer progress details',
+        help="decrease verbosity, print fewer progress details",
     )
     kwargs = vars(parser.parse_args())
-    kwargs['verbose'] -= kwargs.pop('quiet', 0)
+    kwargs["verbose"] -= kwargs.pop("quiet", 0)
 
     if kwargs["hide_echoview"] is None:
         kwargs["hide_echoview"] = "never" if kwargs["minimize_echoview"] else "new"
@@ -915,5 +948,5 @@ def main():
     run_inference(**kwargs)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

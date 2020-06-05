@@ -1,6 +1,6 @@
-'''
+"""
 U-Net model.
-'''
+"""
 
 import functools
 
@@ -15,29 +15,31 @@ class Down(nn.Module):
     Downscaling layer, downsampling by a factor of two in one or more dimensions.
     """
 
-    def __init__(self, mode='max', compress_dims=True):
+    def __init__(self, mode="max", compress_dims=True):
         super(Down, self).__init__()
 
         compress_dims = modules.utils._pair(compress_dims)
-        kernel_sizes = modules.utils._pair(2 if compress_dim else 1 for compress_dim in compress_dims)
+        kernel_sizes = modules.utils._pair(
+            2 if compress_dim else 1 for compress_dim in compress_dims
+        )
 
-        if mode == 'max':
+        if mode == "max":
             self.pool = nn.MaxPool2d(kernel_sizes)
-        elif mode == 'avg':
+        elif mode == "avg":
             self.pool = nn.AvgPool2d(kernel_sizes)
         else:
-            raise ValueError('Unsupported pooling method: {}'.format(mode))
+            raise ValueError("Unsupported pooling method: {}".format(mode))
 
     def forward(self, x):
         return self.pool(x)
 
 
 class Up(nn.Module):
-    '''
+    """
     Upscaling layer, upsampling by a factor of two in one or more dimensions.
-    '''
+    """
 
-    def __init__(self, in_channels=None, up_dims=True, mode='bilinear'):
+    def __init__(self, in_channels=None, up_dims=True, mode="bilinear"):
         super(Up, self).__init__()
 
         up_dims = modules.utils._pair(up_dims)
@@ -46,24 +48,26 @@ class Up(nn.Module):
         # If conv mode, use a transposed convolution to increase the size
         # Otherwise, use one of the nn.Upsample modes:
         # {'nearest', 'linear', 'bilinear', 'bicubic'}
-        if 'conv' in mode:
+        if "conv" in mode:
             if in_channels is None:
                 raise ValueError(
-                    'Number of channels must be provided if upscaling with '
-                    'transposed convolution.'
+                    "Number of channels must be provided if upscaling with "
+                    "transposed convolution."
                 )
             self.up = nn.ConvTranspose2d(
                 in_channels, in_channels, kernel_size=kernel_sizes, stride=kernel_sizes,
             )
         else:
-            self.up = nn.Upsample(scale_factor=kernel_sizes, mode=mode, align_corners=True)
+            self.up = nn.Upsample(
+                scale_factor=kernel_sizes, mode=mode, align_corners=True
+            )
 
     def forward(self, x):
         return self.up(x)
 
 
 class UNetBlock(nn.Module):
-    '''
+    """
     Create a (cascading set of) UNet block(s).
 
     Each block performs the steps:
@@ -133,7 +137,8 @@ class UNetBlock(nn.Module):
     -----
     This class is defined recursively, and will instantiate itself as its own
     child until the number of blocks has been satisfied.
-    '''
+    """
+
     def __init__(
         self,
         in_channels,
@@ -144,9 +149,9 @@ class UNetBlock(nn.Module):
         blocks_per_downsample=1,
         blocks_before_first_downsample=0,
         always_include_skip_connection=True,
-        deepest_inner='identity',
-        downsampling_modes='max',
-        upsampling_modes='bilinear',
+        deepest_inner="identity",
+        downsampling_modes="max",
+        upsampling_modes="bilinear",
         _i_block=0,
         _i_down=0,
     ):
@@ -154,7 +159,9 @@ class UNetBlock(nn.Module):
 
         # Ensure these variables are a tuple of length two
         blocks_per_downsample = modules.utils._pair(blocks_per_downsample)
-        blocks_before_first_downsample = modules.utils._pair(blocks_before_first_downsample)
+        blocks_before_first_downsample = modules.utils._pair(
+            blocks_before_first_downsample
+        )
 
         # Check which downsampling and upsampling mode we are using for this
         # layer (may be the same for every layer)
@@ -192,21 +199,16 @@ class UNetBlock(nn.Module):
         stride = 1
         if not compress_any_dims:
             self.down = nn.Identity()
-        elif downsampling_mode == 'stride':
+        elif downsampling_mode == "stride":
             self.down = nn.Identity()
-            stride = tuple(
-                2 if compress_dim else 1
-                for compress_dim in compress_dims
-            )
+            stride = tuple(2 if compress_dim else 1 for compress_dim in compress_dims)
         else:
             self.down = Down(mode=downsampling_mode, compress_dims=compress_dims)
 
         # First horizontal block. It might begin with a downsampling stride,
         # and might increase the number of channels.
         self.horizontal_block_a = horizontal_block_factory(
-            in_channels,
-            out_channels,
-            stride=stride,
+            in_channels, out_channels, stride=stride,
         )
 
         # In the sequence, the inner step comes next. But we will define it
@@ -217,7 +219,9 @@ class UNetBlock(nn.Module):
         if not compress_any_dims:
             self.up = nn.Identity()
         else:
-            self.up = Up(in_channels=out_channels, up_dims=compress_dims, mode=upsampling_mode)
+            self.up = Up(
+                in_channels=out_channels, up_dims=compress_dims, mode=upsampling_mode
+            )
 
         if compress_any_dims or always_include_skip_connection:
             # Concatenation step
@@ -230,10 +234,7 @@ class UNetBlock(nn.Module):
 
         # Second horizontal block. Takes both the skip connection and the
         # upsampled data as its input.
-        self.horizontal_block_b = horizontal_block_factory(
-            b_in_channels,
-            in_channels,
-        )
+        self.horizontal_block_b = horizontal_block_factory(b_in_channels, in_channels,)
 
         if _i_block + 1 < n_block:
             # Recurse deeper! Call this class again, but with the
@@ -253,19 +254,18 @@ class UNetBlock(nn.Module):
                 _i_block=_i_block + 1,
                 _i_down=_i_down + compress_any_dims,
             )
-        elif hasattr(deepest_inner, '__call__'):
+        elif hasattr(deepest_inner, "__call__"):
             self.nested = deepest_inner
-        elif deepest_inner is None or deepest_inner.lower() == 'identity':
+        elif deepest_inner is None or deepest_inner.lower() == "identity":
             # End recursion, by doing nothing for the inner loop.
             self.nested = nn.Identity()
-        elif deepest_inner == 'horizontal_block':
+        elif deepest_inner == "horizontal_block":
             # End recursion, by doing an extra regular block.
-            self.nested = horizontal_block_factory(
-                out_channels,
-                out_channels,
-            )
+            self.nested = horizontal_block_factory(out_channels, out_channels,)
         else:
-            raise ValueError('Unsupported deepest_inner value: {}'.format(deepest_inner))
+            raise ValueError(
+                "Unsupported deepest_inner value: {}".format(deepest_inner)
+            )
 
     def forward(self, input):
         x = self.down(input)
@@ -279,7 +279,7 @@ class UNetBlock(nn.Module):
 
 
 class UNet(nn.Module):
-    '''
+    """
     UNet model.
 
     Parameters
@@ -351,7 +351,8 @@ class UNet(nn.Module):
         Name of the activation function to use. Default is `'InplaceReLU'`.
     kernel_size : int, optional
         Size of convolution kernel to use. Default is `5`.
-    '''
+    """
+
     def __init__(
         self,
         in_channels,
@@ -364,14 +365,14 @@ class UNet(nn.Module):
         blocks_per_downsample=1,
         blocks_before_first_downsample=1,
         always_include_skip_connection=True,
-        deepest_inner='identity',
+        deepest_inner="identity",
         intrablock_expansion=6,
         se_reduction=4,
-        downsampling_modes='max',
-        upsampling_modes='bilinear',
+        downsampling_modes="max",
+        upsampling_modes="bilinear",
         depthwise_separable_conv=True,
         residual=True,
-        actfn='InplaceReLU',
+        actfn="InplaceReLU",
         kernel_size=5,
     ):
         super(UNet, self).__init__()
@@ -379,12 +380,14 @@ class UNet(nn.Module):
         if bottleneck_channels is None:
             bottleneck_channels = initial_channels
 
-        blocks_before_first_downsample = modules.utils._pair(blocks_before_first_downsample)
+        blocks_before_first_downsample = modules.utils._pair(
+            blocks_before_first_downsample
+        )
 
         if any(b < 1 for b in blocks_before_first_downsample):
             raise ValueError(
-                'An initial block is hard coded. Number of blocks before first'
-                ' downsample must be at least 1.'
+                "An initial block is hard coded. Number of blocks before first"
+                " downsample must be at least 1."
             )
 
         self.in_channels = in_channels
@@ -408,9 +411,7 @@ class UNet(nn.Module):
             actfn_factory(),
         )
         self.first_block = horizontal_block_factory(
-            bottleneck_channels,
-            bottleneck_channels,
-            expansion=1,
+            bottleneck_channels, bottleneck_channels, expansion=1,
         )
         self.main_blocks = UNetBlock(
             bottleneck_channels,
@@ -419,7 +420,9 @@ class UNet(nn.Module):
             block_expansion_factor=unet_expansion_factor,
             expand_only_on_down=expand_only_on_down,
             blocks_per_downsample=blocks_per_downsample,
-            blocks_before_first_downsample=tuple(b - 1 for b in blocks_before_first_downsample),
+            blocks_before_first_downsample=tuple(
+                b - 1 for b in blocks_before_first_downsample
+            ),
             always_include_skip_connection=always_include_skip_connection,
             deepest_inner=deepest_inner,
             downsampling_modes=downsampling_modes,

@@ -3,7 +3,7 @@ import torch
 
 def _binarise_and_reshape(arg, threshold=0.5, ndim=None):
     # Binarise mask
-    arg = (arg > threshold)
+    arg = arg > threshold
     # Reshape so pixels are vectorised by batch
     if ndim is None:
         shape = [arg.shape[0], -1]
@@ -14,7 +14,7 @@ def _binarise_and_reshape(arg, threshold=0.5, ndim=None):
     return arg
 
 
-def mask_active_fraction(input, threshold=0.5, ndim=None, reduction='mean'):
+def mask_active_fraction(input, threshold=0.5, ndim=None, reduction="mean"):
     # Binarise and reshape mask
     input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
 
@@ -22,21 +22,21 @@ def mask_active_fraction(input, threshold=0.5, ndim=None, reduction='mean'):
     output = input.sum(-1).float() / input.size(-1)
 
     # Apply reduction
-    if reduction == 'none':
+    if reduction == "none":
         return output
-    elif reduction == 'mean':
+    elif reduction == "mean":
         return output.mean()
-    elif reduction == 'sum':
+    elif reduction == "sum":
         return output.sum()
     else:
-        raise ValueError('Unsupported reduction value: {}'.format(reduction))
+        raise ValueError("Unsupported reduction value: {}".format(reduction))
 
 
 def mask_active_fraction_with_logits(input, *args, **kwargs):
     return mask_active_fraction(torch.sigmoid(input), *args, **kwargs)
 
 
-def mask_accuracy(input, target, threshold=0.5, ndim=None, reduction='mean'):
+def mask_accuracy(input, target, threshold=0.5, ndim=None, reduction="mean"):
     # Binarise and reshape masks
     input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
     target = _binarise_and_reshape(target, threshold=threshold, ndim=ndim)
@@ -47,21 +47,21 @@ def mask_accuracy(input, target, threshold=0.5, ndim=None, reduction='mean'):
     output = hits.float() / count
 
     # Apply reduction
-    if reduction == 'none':
+    if reduction == "none":
         return output
-    elif reduction == 'mean':
+    elif reduction == "mean":
         return output.mean()
-    elif reduction == 'sum':
+    elif reduction == "sum":
         return output.sum()
     else:
-        raise ValueError('Unsupported reduction value: {}'.format(reduction))
+        raise ValueError("Unsupported reduction value: {}".format(reduction))
 
 
 def mask_accuracy_with_logits(input, *args, **kwargs):
     return mask_accuracy(torch.sigmoid(input), *args, **kwargs)
 
 
-def mask_precision(input, target, threshold=0.5, ndim=None, reduction='mean'):
+def mask_precision(input, target, threshold=0.5, ndim=None, reduction="mean"):
     # Binarise and reshape masks
     input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
     target = _binarise_and_reshape(target, threshold=threshold, ndim=ndim)
@@ -74,21 +74,21 @@ def mask_precision(input, target, threshold=0.5, ndim=None, reduction='mean'):
     output[predicted_p == 0] = 0.5
 
     # Apply reduction
-    if reduction == 'none':
+    if reduction == "none":
         return output
-    elif reduction == 'mean':
+    elif reduction == "mean":
         return output.mean()
-    elif reduction == 'sum':
+    elif reduction == "sum":
         return output.sum()
     else:
-        raise ValueError('Unsupported reduction value: {}'.format(reduction))
+        raise ValueError("Unsupported reduction value: {}".format(reduction))
 
 
 def mask_precision_with_logits(input, *args, **kwargs):
     return mask_precision(torch.sigmoid(input), *args, **kwargs)
 
 
-def mask_recall(input, target, threshold=0.5, ndim=None, reduction='mean'):
+def mask_recall(input, target, threshold=0.5, ndim=None, reduction="mean"):
     # Binarise and reshape masks
     input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
     target = _binarise_and_reshape(target, threshold=threshold, ndim=ndim)
@@ -101,44 +101,44 @@ def mask_recall(input, target, threshold=0.5, ndim=None, reduction='mean'):
     output[ground_truth_p == 0] = 1
 
     # Apply reduction
-    if reduction == 'none':
+    if reduction == "none":
         return output
-    elif reduction == 'mean':
+    elif reduction == "mean":
         return output.mean()
-    elif reduction == 'sum':
+    elif reduction == "sum":
         return output.sum()
     else:
-        raise ValueError('Unsupported reduction value: {}'.format(reduction))
+        raise ValueError("Unsupported reduction value: {}".format(reduction))
 
 
 def mask_recall_with_logits(input, *args, **kwargs):
     return mask_recall(torch.sigmoid(input), *args, **kwargs)
 
 
-def mask_f1_score(input, target, reduction='mean', **kwargs):
-    precision = mask_precision(input, target, reduction='none', **kwargs)
-    recall = mask_recall(input, target, reduction='none', **kwargs)
+def mask_f1_score(input, target, reduction="mean", **kwargs):
+    precision = mask_precision(input, target, reduction="none", **kwargs)
+    recall = mask_recall(input, target, reduction="none", **kwargs)
     sum_pr = precision + recall
     output = 2 * precision * recall / sum_pr
     # Handle division by 0: If both precision and recall are 0, f1 is 0 too.
     output[sum_pr == 0] = 0
 
     # Apply reduction
-    if reduction == 'none':
+    if reduction == "none":
         return output
-    elif reduction == 'mean':
+    elif reduction == "mean":
         return output.mean()
-    elif reduction == 'sum':
+    elif reduction == "sum":
         return output.sum()
     else:
-        raise ValueError('Unsupported reduction value: {}'.format(reduction))
+        raise ValueError("Unsupported reduction value: {}".format(reduction))
 
 
 def mask_f1_score_with_logits(input, *args, **kwargs):
     return mask_f1_score(torch.sigmoid(input), *args, **kwargs)
 
 
-def mask_jaccard_index(input, target, threshold=0.5, ndim=None, reduction='mean'):
+def mask_jaccard_index(input, target, threshold=0.5, ndim=None, reduction="mean"):
     # Binarise and reshape masks
     input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
     target = _binarise_and_reshape(target, threshold=threshold, ndim=ndim)
@@ -154,14 +154,14 @@ def mask_jaccard_index(input, target, threshold=0.5, ndim=None, reduction='mean'
     output[union == 0] = 1
 
     # Apply reduction
-    if reduction == 'none':
+    if reduction == "none":
         return output
-    elif reduction == 'mean':
+    elif reduction == "mean":
         return output.mean()
-    elif reduction == 'sum':
+    elif reduction == "sum":
         return output.sum()
     else:
-        raise ValueError('Unsupported reduction value: {}'.format(reduction))
+        raise ValueError("Unsupported reduction value: {}".format(reduction))
 
 
 def mask_jaccard_index_with_logits(input, *args, **kwargs):

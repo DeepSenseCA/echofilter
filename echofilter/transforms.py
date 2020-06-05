@@ -9,25 +9,38 @@ import skimage.transform
 
 
 _fields_2d = (
-    'signals', 'mask',
-    'mask_top', 'mask_bot',
-    'mask_top-original', 'mask_bot-original',
-    'mask_surf',
-    'mask_patches', 'mask_patches-original', 'mask_patches-ntob',
+    "signals",
+    "mask",
+    "mask_top",
+    "mask_bot",
+    "mask_top-original",
+    "mask_bot-original",
+    "mask_surf",
+    "mask_patches",
+    "mask_patches-original",
+    "mask_patches-ntob",
 )
 _fields_1d_timelike = (
-    'timestamps',
-    'd_top', 'd_bot', 'r_top', 'r_bot',
-    'd_top-original', 'd_bot-original', 'r_top-original', 'r_bot-original',
-    'd_surf', 'r_surf',
-    'is_passive', 'is_removed',
+    "timestamps",
+    "d_top",
+    "d_bot",
+    "r_top",
+    "r_bot",
+    "d_top-original",
+    "d_bot-original",
+    "r_top-original",
+    "r_bot-original",
+    "d_surf",
+    "r_surf",
+    "is_passive",
+    "is_removed",
 )
-_fields_1d_depthlike = ('depths', )
-_fields_0d = ('is_upward_facing', )
+_fields_1d_depthlike = ("depths",)
+_fields_0d = ("is_upward_facing",)
 
 
 class Rescale(object):
-    '''
+    """
     Rescale the image(s) in a sample to a given size.
 
     Parameters
@@ -46,13 +59,13 @@ class Rescale(object):
         - 3: Cubic
 
         If `None`, the order is randomly selected as either `0` or `1`.
-    '''
+    """
 
     order2kind = {
-        0: 'nearest',
-        1: 'linear',
-        2: 'quadratic',
-        3: 'cubic',
+        0: "nearest",
+        1: "linear",
+        2: "quadratic",
+        3: "cubic",
     }
 
     def __init__(self, output_size, order=1):
@@ -61,7 +74,7 @@ class Rescale(object):
         elif isinstance(output_size, collections.Sequence):
             output_size = tuple(output_size)
         else:
-            raise ValueError('Output size must be an int or a tuple.')
+            raise ValueError("Output size must be an int or a tuple.")
         self.output_size = output_size
         self.order = order
 
@@ -79,7 +92,9 @@ class Rescale(object):
                 continue
             _dtype = sample[key].dtype
             with warnings.catch_warnings():
-                warnings.filterwarnings('ignore', 'Bi-quadratic interpolation behavior has changed')
+                warnings.filterwarnings(
+                    "ignore", "Bi-quadratic interpolation behavior has changed"
+                )
                 sample[key] = skimage.transform.resize(
                     np.asarray(sample[key]).astype(np.float),
                     self.output_size,
@@ -93,14 +108,12 @@ class Rescale(object):
         for key in _fields_1d_timelike:
             if key not in sample:
                 continue
-            _kind = 'linear' if key == 'timestamps' else kind
-            if key in {'is_passive', 'is_removed'} and order > 1:
-                _kind = 'linear'
+            _kind = "linear" if key == "timestamps" else kind
+            if key in {"is_passive", "is_removed"} and order > 1:
+                _kind = "linear"
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
-                np.arange(len(sample[key])),
-                sample[key],
-                kind=_kind,
+                np.arange(len(sample[key])), sample[key], kind=_kind,
             )(np.linspace(0, len(sample[key]) - 1, self.output_size[0]))
             sample[key] = sample[key].astype(_dtype)
 
@@ -108,12 +121,10 @@ class Rescale(object):
         for key in _fields_1d_depthlike:
             if key not in sample:
                 continue
-            _kind = 'linear' if key == 'depths' else kind
+            _kind = "linear" if key == "depths" else kind
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
-                np.arange(len(sample[key])),
-                sample[key],
-                kind=_kind,
+                np.arange(len(sample[key])), sample[key], kind=_kind,
             )(np.linspace(0, len(sample[key]) - 1, self.output_size[1]))
             sample[key] = sample[key].astype(_dtype)
 
@@ -121,7 +132,7 @@ class Rescale(object):
 
 
 class Normalize(object):
-    '''
+    """
     Normalize offset and scaling of image (mean and standard deviation).
 
     Note that changes are made inplace.
@@ -138,7 +149,7 @@ class Normalize(object):
     robust2stdev : bool, optional
         Whether to convert robust measures to estimates of the standard
         deviation. Default is `True`.
-    '''
+    """
 
     def __init__(self, center, deviation, robust2stdev=True):
         self.center = center
@@ -149,53 +160,55 @@ class Normalize(object):
 
         if not isinstance(self.center, str):
             center = self.center
-        elif self.center.lower() == 'mean':
-            center = np.nanmean(sample['signals'])
-        elif self.center.lower() == 'median':
-            center = np.nanmedian(sample['signals'])
-        elif self.center.lower() == 'pc10':
-            center = np.nanpercentile(sample['signals'], 10)
+        elif self.center.lower() == "mean":
+            center = np.nanmean(sample["signals"])
+        elif self.center.lower() == "median":
+            center = np.nanmedian(sample["signals"])
+        elif self.center.lower() == "pc10":
+            center = np.nanpercentile(sample["signals"], 10)
         else:
-            raise ValueError('Unrecognised center method: {}'.format(self.center))
+            raise ValueError("Unrecognised center method: {}".format(self.center))
 
         if not isinstance(self.deviation, str):
             deviation = self.deviation
-        elif self.deviation.lower() in {'std', 'stdev'}:
-            deviation = np.nanstd(sample['signals'])
-        elif self.deviation.lower() == 'mad':
-            deviation = np.nanmedian(np.abs(sample['signals'] - np.nanmedian(sample['signals'])))
+        elif self.deviation.lower() in {"std", "stdev"}:
+            deviation = np.nanstd(sample["signals"])
+        elif self.deviation.lower() == "mad":
+            deviation = np.nanmedian(
+                np.abs(sample["signals"] - np.nanmedian(sample["signals"]))
+            )
             if self.robust2stdev:
                 deviation *= 1.4826
-        elif self.deviation.lower() == 'iqr':
-            deviation = np.diff(np.nanpercentile(sample['signals'], [25, 75]))[0]
+        elif self.deviation.lower() == "iqr":
+            deviation = np.diff(np.nanpercentile(sample["signals"], [25, 75]))[0]
             if self.robust2stdev:
                 deviation /= 1.35
-        elif self.deviation.lower() == 'idr':
-            deviation = np.diff(np.nanpercentile(sample['signals'], [10, 90]))[0]
+        elif self.deviation.lower() == "idr":
+            deviation = np.diff(np.nanpercentile(sample["signals"], [10, 90]))[0]
             if self.robust2stdev:
                 deviation /= 2.56
-        elif self.deviation.lower() == 'i7r':
-            deviation = np.diff(np.nanpercentile(sample['signals'], [7, 93]))[0]
+        elif self.deviation.lower() == "i7r":
+            deviation = np.diff(np.nanpercentile(sample["signals"], [7, 93]))[0]
             if self.robust2stdev:
-                deviation /= 3.
+                deviation /= 3.0
         else:
-            raise ValueError('Unrecognised deviation method: {}'.format(self.deviation))
+            raise ValueError("Unrecognised deviation method: {}".format(self.deviation))
 
-        sample['signals'] -= center
-        sample['signals'] /= deviation
+        sample["signals"] -= center
+        sample["signals"] /= deviation
 
         return sample
 
 
 class ReplaceNan(object):
-    '''
+    """
     Replace NaNs with a finite float value.
 
     Parameters
     ----------
     nan_val : float, optional
         Value to replace NaNs with. Default is `0.0`.
-    '''
+    """
 
     def __init__(self, nan_val=0.0):
         self.nan_val = nan_val
@@ -204,13 +217,13 @@ class ReplaceNan(object):
 
         # Can't use np.nan_to_num to assign nan to a specific value if
         # numpy version <= 1.17.
-        sample['signals'][np.isnan(sample['signals'])] = self.nan_val
+        sample["signals"][np.isnan(sample["signals"])] = self.nan_val
 
         return sample
 
 
 class RandomReflection(object):
-    '''
+    """
     Randomly reflect a sample.
 
     Parameters
@@ -219,7 +232,7 @@ class RandomReflection(object):
         Axis to reflect. Default is 0.
     p : float, optional
         Probability of reflection. Default is 0.5.
-    '''
+    """
 
     def __init__(self, axis=0, p=0.5):
         self.axis = axis
@@ -240,7 +253,7 @@ class RandomReflection(object):
 
 
 class RandomCropWidth(object):
-    '''
+    """
     Randomly crop a sample in the width dimension.
 
     Parameters
@@ -249,16 +262,16 @@ class RandomCropWidth(object):
         Maximum amount of material to crop away, as a fraction of the total
         width. The `crop_fraction` will be sampled uniformly from the range
         `[0, max_crop_fraction]`. The crop is always centred.
-    '''
+    """
 
     def __init__(self, max_crop_fraction):
         self.max_crop_fraction = max_crop_fraction
 
     def __call__(self, sample):
 
-        width = sample['signals'].shape[0]
+        width = sample["signals"].shape[0]
 
-        crop_fraction = random.uniform(0., self.max_crop_fraction)
+        crop_fraction = random.uniform(0.0, self.max_crop_fraction)
         crop_amount = crop_fraction * width
 
         lft = int(crop_amount / 2)
@@ -303,7 +316,9 @@ def optimal_crop_depth(transect):
     if shallowest_depth >= deepest_depth:
         return transect
 
-    depth_mask = (shallowest_depth <= transect["depths"]) & (transect["depths"] <= deepest_depth)
+    depth_mask = (shallowest_depth <= transect["depths"]) & (
+        transect["depths"] <= deepest_depth
+    )
 
     for key in _fields_1d_depthlike:
         if key in transect:
@@ -321,6 +336,7 @@ class OptimalCropDepth(object):
     A transform which crops a sample depthwise to contain only the space
     between highest surface and deepest seafloor.
     """
+
     def __call__(self, sample):
         return optimal_crop_depth(sample)
 
@@ -350,12 +366,13 @@ class RandomCropDepth(object):
         doing a close to optimal crop.
         Default is `0.25`.
     """
+
     def __init__(
         self,
-        p_crop_is_none=.1,
-        p_crop_is_optimal=.1,
-        p_crop_is_close=.4,
-        p_nearfield_side_crop=.5,
+        p_crop_is_none=0.1,
+        p_crop_is_optimal=0.1,
+        p_crop_is_close=0.4,
+        p_nearfield_side_crop=0.5,
         fraction_close=0.25,
     ):
         self.p_crop_is_none = p_crop_is_none
@@ -398,7 +415,9 @@ class RandomCropDepth(object):
 
         depth_range = abs(opt_bot_depth - opt_top_depth)
         close_dist_grow = self.fraction_close * depth_range
-        close_dist_shrink = depth_range * self.fraction_close / (1 + self.fraction_close)
+        close_dist_shrink = (
+            depth_range * self.fraction_close / (1 + self.fraction_close)
+        )
 
         close_top_shallowest = max(lim_top_shallowest, opt_top_depth - close_dist_grow)
         close_top_deepest = min(
@@ -408,8 +427,7 @@ class RandomCropDepth(object):
         )
         if sample["is_upward_facing"]:
             close_bot_shallowest = max(
-                lim_bot_shallowest,
-                opt_bot_depth - close_dist_shrink,
+                lim_bot_shallowest, opt_bot_depth - close_dist_shrink,
             )
         else:
             close_bot_shallowest = max(
@@ -420,9 +438,9 @@ class RandomCropDepth(object):
         close_bot_deepest = min(lim_bot_deepest, opt_bot_depth + close_dist_grow)
 
         if (
-            close_top_shallowest > close_top_deepest or
-            close_bot_shallowest > close_bot_deepest or
-            close_top_deepest >= close_bot_shallowest
+            close_top_shallowest > close_top_deepest
+            or close_bot_shallowest > close_bot_deepest
+            or close_top_deepest >= close_bot_shallowest
         ):
             raise ValueError(
                 "Nonsensical depth limits:\n"
@@ -431,8 +449,7 @@ class RandomCropDepth(object):
                 "  close_top_shallowest = {:7.3f}\n"
                 "  close_top_deepest    = {:7.3f}\n"
                 "  close_bot_shallowest = {:7.3f}\n"
-                "  close_bot_deepest    = {:7.3f}\n"
-                .format(
+                "  close_bot_deepest    = {:7.3f}\n".format(
                     opt_top_depth,
                     opt_bot_depth,
                     close_top_shallowest,
@@ -451,15 +468,14 @@ class RandomCropDepth(object):
             rand_bot_shallowest = close_bot_shallowest
         else:
             rand_bot_shallowest = max(
-                lim_bot_shallowest,
-                np.percentile(sample["d_bot-original"], 50),
+                lim_bot_shallowest, np.percentile(sample["d_bot-original"], 50),
             )
         rand_bot_deepest = lim_bot_deepest
 
         if (
-            rand_top_shallowest > rand_top_deepest or
-            rand_bot_shallowest > rand_bot_deepest or
-            rand_top_deepest >= rand_bot_shallowest
+            rand_top_shallowest > rand_top_deepest
+            or rand_bot_shallowest > rand_bot_deepest
+            or rand_top_deepest >= rand_bot_shallowest
         ):
             raise ValueError(
                 "Nonsensical depth limits:\n"
@@ -468,8 +484,7 @@ class RandomCropDepth(object):
                 "  rand_top_shallowest = {:7.3f}\n"
                 "  rand_top_deepest    = {:7.3f}\n"
                 "  rand_bot_shallowest = {:7.3f}\n"
-                "  rand_bot_deepest    = {:7.3f}\n"
-                .format(
+                "  rand_bot_deepest    = {:7.3f}\n".format(
                     opt_top_depth,
                     opt_bot_depth,
                     rand_top_shallowest,
@@ -507,17 +522,25 @@ class RandomCropDepth(object):
             bot_deepest = rand_bot_deepest
             # Select limits of depth range. Either randomly select uniformly
             # across the whole range, or not.
-            if sample["is_upward_facing"] or random.random() < self.p_nearfield_side_crop:
+            if (
+                sample["is_upward_facing"]
+                or random.random() < self.p_nearfield_side_crop
+            ):
                 shallowest_depth = random.uniform(top_shallowest, top_deepest)
             else:
                 shallowest_depth = opt_top_depth
-            if not sample["is_upward_facing"] or random.random() < self.p_nearfield_side_crop:
+            if (
+                not sample["is_upward_facing"]
+                or random.random() < self.p_nearfield_side_crop
+            ):
                 deepest_depth = random.uniform(bot_shallowest, bot_deepest)
             else:
                 deepest_depth = opt_bot_depth
 
         # Crop data
-        depth_crop_mask = (shallowest_depth <= sample["depths"]) & (sample["depths"] <= deepest_depth)
+        depth_crop_mask = (shallowest_depth <= sample["depths"]) & (
+            sample["depths"] <= deepest_depth
+        )
 
         for key in _fields_1d_depthlike:
             if key in sample:
@@ -531,7 +554,7 @@ class RandomCropDepth(object):
 
 
 class ColorJitter(object):
-    '''
+    """
     Randomly change the brightness and contrast of a normalized image.
 
     Note that changes are made inplace.
@@ -546,21 +569,26 @@ class ColorJitter(object):
         How much to jitter contrast. `contrast_factor` is chosen uniformly from
         `[max(0, 1 - contrast), 1 + contrast]` or the given `[min, max]`.
         Should be non negative numbers.
-    '''
+    """
+
     def __init__(self, brightness=0, contrast=0):
         self.brightness = self._check_input(
             brightness,
-            'brightness',
+            "brightness",
             center=0,
-            bound=(float('-inf'), float('inf')),
+            bound=(float("-inf"), float("inf")),
             clip_first_on_zero=False,
         )
-        self.contrast = self._check_input(contrast, 'contrast')
+        self.contrast = self._check_input(contrast, "contrast")
 
-    def _check_input(self, value, name, center=1, bound=(0, float('inf')), clip_first_on_zero=True):
+    def _check_input(
+        self, value, name, center=1, bound=(0, float("inf")), clip_first_on_zero=True
+    ):
         if isinstance(value, (float, int)):
             if value < 0:
-                raise ValueError("If {} is a single number, it must be non negative.".format(name))
+                raise ValueError(
+                    "If {} is a single number, it must be non negative.".format(name)
+                )
             value = [center - value, center + value]
             if clip_first_on_zero:
                 value[0] = max(value[0], 0)
@@ -568,7 +596,11 @@ class ColorJitter(object):
             if not bound[0] <= value[0] <= value[1] <= bound[1]:
                 raise ValueError("{} values should be between {}".format(name, bound))
         else:
-            raise TypeError("{} should be a single number or a list/tuple with length 2.".format(name))
+            raise TypeError(
+                "{} should be a single number or a list/tuple with length 2.".format(
+                    name
+                )
+            )
 
         if value[0] == value[1] == center:
             value = None
@@ -579,16 +611,18 @@ class ColorJitter(object):
         for i_op in range(2):
             op_num = (init_op + i_op) % 2
             if op_num == 0 and self.brightness is not None:
-                brightness_factor = random.uniform(self.brightness[0], self.brightness[1])
-                sample['signals'] += brightness_factor
+                brightness_factor = random.uniform(
+                    self.brightness[0], self.brightness[1]
+                )
+                sample["signals"] += brightness_factor
             elif op_num == 1 and self.contrast is not None:
                 contrast_factor = random.uniform(self.contrast[0], self.contrast[1])
-                sample['signals'] *= contrast_factor
+                sample["signals"] *= contrast_factor
         return sample
 
     def __repr__(self):
-        format_string = self.__class__.__name__ + '('
-        format_string += 'brightness={0}'.format(self.brightness)
-        format_string += ', contrast={0})'.format(self.contrast)
-        format_string += ')'
+        format_string = self.__class__.__name__ + "("
+        format_string += "brightness={0}".format(self.brightness)
+        format_string += ", contrast={0})".format(self.contrast)
+        format_string += ")"
         return format_string

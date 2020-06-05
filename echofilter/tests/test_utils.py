@@ -1,6 +1,6 @@
-'''
+"""
 Tests for utils.py.
-'''
+"""
 
 import numpy as np
 
@@ -12,6 +12,7 @@ class test_get_indicator_onoffsets(BaseTestCase):
     """
     Tests for the get_indicator_onoffsets function.
     """
+
     def test_empty(self):
         """Test with empty numpy array."""
         self.assertEqual(utils.get_indicator_onoffsets(np.array([])), ([], []))

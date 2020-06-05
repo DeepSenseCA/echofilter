@@ -19,7 +19,7 @@ if not echofilter.path.check_if_windows():
     warnings.warn(
         "ev2csv requires the EchoView application, which is only available on"
         " Windows operating systems.",
-        category=RuntimeWarning
+        category=RuntimeWarning,
     )
     print()
 
@@ -106,7 +106,7 @@ def run_ev2csv(
 
     files = list(echofilter.path.parse_files_in_folders(files, data_dir, "ev"))
     if verbose >= 1:
-        print('Processing {} file{}'.format(len(files), '' if len(files) == 1 else 's'))
+        print("Processing {} file{}".format(len(files), "" if len(files) == 1 else "s"))
 
     if len(files) == 1 or verbose <= 0:
         maybe_tqdm = lambda x: x
@@ -118,9 +118,7 @@ def run_ev2csv(
 
     # Open EchoView connection
     with echofilter.ev.maybe_open_echoview(
-        do_open=not dry_run,
-        minimize=minimize_echoview,
-        hide=hide_echoview,
+        do_open=not dry_run, minimize=minimize_echoview, hide=hide_echoview,
     ) as ev_app:
         for fname in maybe_tqdm(files):
             if verbose >= 2:

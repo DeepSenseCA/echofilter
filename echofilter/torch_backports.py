@@ -1,4 +1,4 @@
-'''
+"""
 This contains functions copied from newer versions of pytorch than v1.2.0,
 which is the latest version currently available from IBM compiled for ppc64
 architectures.
@@ -74,7 +74,7 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
-'''
+"""
 
 import types
 import math
@@ -97,27 +97,30 @@ class _LRScheduler(object):
 
         # Attach optimizer
         if not isinstance(optimizer, Optimizer):
-            raise TypeError('{} is not an Optimizer'.format(
-                type(optimizer).__name__))
+            raise TypeError("{} is not an Optimizer".format(type(optimizer).__name__))
         self.optimizer = optimizer
 
         # Initialize epoch and base learning rates
         if last_epoch == -1:
             for group in optimizer.param_groups:
-                group.setdefault('initial_lr', group['lr'])
+                group.setdefault("initial_lr", group["lr"])
         else:
             for i, group in enumerate(optimizer.param_groups):
-                if 'initial_lr' not in group:
-                    raise KeyError("param 'initial_lr' is not specified "
-                                   "in param_groups[{}] when resuming an optimizer".format(i))
-        self.base_lrs = list(map(lambda group: group['initial_lr'], optimizer.param_groups))
+                if "initial_lr" not in group:
+                    raise KeyError(
+                        "param 'initial_lr' is not specified "
+                        "in param_groups[{}] when resuming an optimizer".format(i)
+                    )
+        self.base_lrs = list(
+            map(lambda group: group["initial_lr"], optimizer.param_groups)
+        )
         self.last_epoch = last_epoch
 
         # Following https://github.com/pytorch/pytorch/issues/20124
         # We would like to ensure that `lr_scheduler.step()` is called after
         # `optimizer.step()`
         def with_counter(method):
-            if getattr(method, '_with_counter', False):
+            if getattr(method, "_with_counter", False):
                 # `optimizer.step()` has already been replaced, return.
                 return method
 
@@ -153,7 +156,9 @@ class _LRScheduler(object):
         It contains an entry for every variable in self.__dict__ which
         is not the optimizer.
         """
-        return {key: value for key, value in self.__dict__.items() if key != 'optimizer'}
+        return {
+            key: value for key, value in self.__dict__.items() if key != "optimizer"
+        }
 
     def load_state_dict(self, state_dict):
         """Loads the schedulers state.
@@ -178,23 +183,28 @@ class _LRScheduler(object):
         # https://github.com/pytorch/pytorch/issues/20124
         if self._step_count == 1:
             if not hasattr(self.optimizer.step, "_with_counter"):
-                warnings.warn("Seems like `optimizer.step()` has been overridden after learning rate scheduler "
-                              "initialization. Please, make sure to call `optimizer.step()` before "
-                              "`lr_scheduler.step()`. See more details at "
-                              "https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate", UserWarning)
+                warnings.warn(
+                    "Seems like `optimizer.step()` has been overridden after learning rate scheduler "
+                    "initialization. Please, make sure to call `optimizer.step()` before "
+                    "`lr_scheduler.step()`. See more details at "
+                    "https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate",
+                    UserWarning,
+                )
 
             # Just check if there were two first lr_scheduler.step() calls before optimizer.step()
             elif self.optimizer._step_count < 1:
-                warnings.warn("Detected call of `lr_scheduler.step()` before `optimizer.step()`. "
-                              "In PyTorch 1.1.0 and later, you should call them in the opposite order: "
-                              "`optimizer.step()` before `lr_scheduler.step()`.  Failure to do this "
-                              "will result in PyTorch skipping the first value of the learning rate schedule. "
-                              "See more details at "
-                              "https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate", UserWarning)
+                warnings.warn(
+                    "Detected call of `lr_scheduler.step()` before `optimizer.step()`. "
+                    "In PyTorch 1.1.0 and later, you should call them in the opposite order: "
+                    "`optimizer.step()` before `lr_scheduler.step()`.  Failure to do this "
+                    "will result in PyTorch skipping the first value of the learning rate schedule. "
+                    "See more details at "
+                    "https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate",
+                    UserWarning,
+                )
         self._step_count += 1
 
         class _enable_get_lr_call:
-
             def __init__(self, o):
                 self.o = o
 
@@ -219,9 +229,9 @@ class _LRScheduler(object):
                     values = self.get_lr()
 
         for param_group, lr in zip(self.optimizer.param_groups, values):
-            param_group['lr'] = lr
+            param_group["lr"] = lr
 
-        self._last_lr = [group['lr'] for group in self.optimizer.param_groups]
+        self._last_lr = [group["lr"] for group in self.optimizer.param_groups]
 
 
 class OneCycleLR(_LRScheduler):
@@ -317,80 +327,109 @@ class OneCycleLR(_LRScheduler):
     .. _Super-Convergence\: Very Fast Training of Neural Networks Using Large Learning Rates:
         https://arxiv.org/abs/1708.07120
     """
-    def __init__(self,
-                 optimizer,
-                 max_lr,
-                 total_steps=None,
-                 epochs=None,
-                 steps_per_epoch=None,
-                 pct_start=0.3,
-                 anneal_strategy='cos',
-                 cycle_momentum=True,
-                 base_momentum=0.85,
-                 max_momentum=0.95,
-                 div_factor=25.,
-                 final_div_factor=1e4,
-                 last_epoch=-1):
+
+    def __init__(
+        self,
+        optimizer,
+        max_lr,
+        total_steps=None,
+        epochs=None,
+        steps_per_epoch=None,
+        pct_start=0.3,
+        anneal_strategy="cos",
+        cycle_momentum=True,
+        base_momentum=0.85,
+        max_momentum=0.95,
+        div_factor=25.0,
+        final_div_factor=1e4,
+        last_epoch=-1,
+    ):
 
         # Validate optimizer
         if not isinstance(optimizer, Optimizer):
-            raise TypeError('{} is not an Optimizer'.format(
-                type(optimizer).__name__))
+            raise TypeError("{} is not an Optimizer".format(type(optimizer).__name__))
         self.optimizer = optimizer
 
         # Validate total_steps
         if total_steps is None and epochs is None and steps_per_epoch is None:
-            raise ValueError("You must define either total_steps OR (epochs AND steps_per_epoch)")
+            raise ValueError(
+                "You must define either total_steps OR (epochs AND steps_per_epoch)"
+            )
         elif total_steps is not None:
             if total_steps <= 0 or not isinstance(total_steps, int):
-                raise ValueError("Expected non-negative integer total_steps, but got {}".format(total_steps))
+                raise ValueError(
+                    "Expected non-negative integer total_steps, but got {}".format(
+                        total_steps
+                    )
+                )
             self.total_steps = total_steps
         else:
             if epochs <= 0 or not isinstance(epochs, int):
-                raise ValueError("Expected non-negative integer epochs, but got {}".format(epochs))
+                raise ValueError(
+                    "Expected non-negative integer epochs, but got {}".format(epochs)
+                )
             if steps_per_epoch <= 0 or not isinstance(steps_per_epoch, int):
-                raise ValueError("Expected non-negative integer steps_per_epoch, but got {}".format(steps_per_epoch))
+                raise ValueError(
+                    "Expected non-negative integer steps_per_epoch, but got {}".format(
+                        steps_per_epoch
+                    )
+                )
             self.total_steps = epochs * steps_per_epoch
         self.step_size_up = float(pct_start * self.total_steps) - 1
         self.step_size_down = float(self.total_steps - self.step_size_up) - 1
 
         # Validate pct_start
         if pct_start < 0 or pct_start > 1 or not isinstance(pct_start, float):
-            raise ValueError("Expected float between 0 and 1 pct_start, but got {}".format(pct_start))
+            raise ValueError(
+                "Expected float between 0 and 1 pct_start, but got {}".format(pct_start)
+            )
 
         # Validate anneal_strategy
-        if anneal_strategy not in ['cos', 'linear']:
-            raise ValueError("anneal_strategy must by one of 'cos' or 'linear', instead got {}".format(anneal_strategy))
-        elif anneal_strategy == 'cos':
+        if anneal_strategy not in ["cos", "linear"]:
+            raise ValueError(
+                "anneal_strategy must by one of 'cos' or 'linear', instead got {}".format(
+                    anneal_strategy
+                )
+            )
+        elif anneal_strategy == "cos":
             self.anneal_func = self._annealing_cos
-        elif anneal_strategy == 'linear':
+        elif anneal_strategy == "linear":
             self.anneal_func = self._annealing_linear
 
         # Initialize learning rate variables
-        max_lrs = self._format_param('max_lr', self.optimizer, max_lr)
+        max_lrs = self._format_param("max_lr", self.optimizer, max_lr)
         if last_epoch == -1:
             for idx, group in enumerate(self.optimizer.param_groups):
-                group['initial_lr'] = max_lrs[idx] / div_factor
-                group['max_lr'] = max_lrs[idx]
-                group['min_lr'] = group['initial_lr'] / final_div_factor
+                group["initial_lr"] = max_lrs[idx] / div_factor
+                group["max_lr"] = max_lrs[idx]
+                group["min_lr"] = group["initial_lr"] / final_div_factor
 
         # Initialize momentum variables
         self.cycle_momentum = cycle_momentum
         if self.cycle_momentum:
-            if 'momentum' not in self.optimizer.defaults and 'betas' not in self.optimizer.defaults:
-                raise ValueError('optimizer must support momentum with `cycle_momentum` option enabled')
-            self.use_beta1 = 'betas' in self.optimizer.defaults
-            max_momentums = self._format_param('max_momentum', optimizer, max_momentum)
-            base_momentums = self._format_param('base_momentum', optimizer, base_momentum)
+            if (
+                "momentum" not in self.optimizer.defaults
+                and "betas" not in self.optimizer.defaults
+            ):
+                raise ValueError(
+                    "optimizer must support momentum with `cycle_momentum` option enabled"
+                )
+            self.use_beta1 = "betas" in self.optimizer.defaults
+            max_momentums = self._format_param("max_momentum", optimizer, max_momentum)
+            base_momentums = self._format_param(
+                "base_momentum", optimizer, base_momentum
+            )
             if last_epoch == -1:
-                for m_momentum, b_momentum, group in zip(max_momentums, base_momentums, optimizer.param_groups):
+                for m_momentum, b_momentum, group in zip(
+                    max_momentums, base_momentums, optimizer.param_groups
+                ):
                     if self.use_beta1:
-                        _, beta2 = group['betas']
-                        group['betas'] = (m_momentum, beta2)
+                        _, beta2 = group["betas"]
+                        group["betas"] = (m_momentum, beta2)
                     else:
-                        group['momentum'] = m_momentum
-                    group['max_momentum'] = m_momentum
-                    group['base_momentum'] = b_momentum
+                        group["momentum"] = m_momentum
+                    group["max_momentum"] = m_momentum
+                    group["base_momentum"] = b_momentum
 
         super(OneCycleLR, self).__init__(optimizer, last_epoch)
 
@@ -398,8 +437,11 @@ class OneCycleLR(_LRScheduler):
         """Return correctly formatted lr/momentum for each param group."""
         if isinstance(param, (list, tuple)):
             if len(param) != len(optimizer.param_groups):
-                raise ValueError("expected {} values for {}, got {}".format(
-                    len(optimizer.param_groups), name, len(param)))
+                raise ValueError(
+                    "expected {} values for {}, got {}".format(
+                        len(optimizer.param_groups), name, len(param)
+                    )
+                )
             return param
         else:
             return [param] * len(optimizer.param_groups)
@@ -415,35 +457,53 @@ class OneCycleLR(_LRScheduler):
 
     def get_lr(self):
         if not self._get_lr_called_within_step:
-            warnings.warn("To get the last learning rate computed by the scheduler, "
-                          "please use `get_last_lr()`.", DeprecationWarning)
+            warnings.warn(
+                "To get the last learning rate computed by the scheduler, "
+                "please use `get_last_lr()`.",
+                DeprecationWarning,
+            )
 
         lrs = []
         step_num = self.last_epoch
 
         if step_num > self.total_steps:
-            raise ValueError("Tried to step {} times. The specified number of total steps is {}"
-                             .format(step_num + 1, self.total_steps))
+            raise ValueError(
+                "Tried to step {} times. The specified number of total steps is {}".format(
+                    step_num + 1, self.total_steps
+                )
+            )
 
         for group in self.optimizer.param_groups:
             if step_num <= self.step_size_up:
-                computed_lr = self.anneal_func(group['initial_lr'], group['max_lr'], step_num / self.step_size_up)
+                computed_lr = self.anneal_func(
+                    group["initial_lr"], group["max_lr"], step_num / self.step_size_up
+                )
                 if self.cycle_momentum:
-                    computed_momentum = self.anneal_func(group['max_momentum'], group['base_momentum'],
-                                                         step_num / self.step_size_up)
+                    computed_momentum = self.anneal_func(
+                        group["max_momentum"],
+                        group["base_momentum"],
+                        step_num / self.step_size_up,
+                    )
             else:
                 down_step_num = step_num - self.step_size_up
-                computed_lr = self.anneal_func(group['max_lr'], group['min_lr'], down_step_num / self.step_size_down)
+                computed_lr = self.anneal_func(
+                    group["max_lr"],
+                    group["min_lr"],
+                    down_step_num / self.step_size_down,
+                )
                 if self.cycle_momentum:
-                    computed_momentum = self.anneal_func(group['base_momentum'], group['max_momentum'],
-                                                         down_step_num / self.step_size_down)
+                    computed_momentum = self.anneal_func(
+                        group["base_momentum"],
+                        group["max_momentum"],
+                        down_step_num / self.step_size_down,
+                    )
 
             lrs.append(computed_lr)
             if self.cycle_momentum:
                 if self.use_beta1:
-                    _, beta2 = group['betas']
-                    group['betas'] = (computed_momentum, beta2)
+                    _, beta2 = group["betas"]
+                    group["betas"] = (computed_momentum, beta2)
                 else:
-                    group['momentum'] = computed_momentum
+                    group["momentum"] = computed_momentum
 
         return lrs

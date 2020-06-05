@@ -10,23 +10,22 @@ from . import utils
 
 
 class TransectDataset(torch.utils.data.Dataset):
-
     def __init__(
-            self,
-            transect_paths,
-            window_len=128,
-            crop_depth=None,
-            num_windows_per_transect=0,
-            use_dynamic_offsets=True,
-            transform_pre=None,
-            transform_post=None,
-            remove_nearfield=True,
-            nearfield_distance=1.7,
-            nearfield_visible_dist=0.5,
-            remove_offset_top=0,
-            remove_offset_bottom=0,
-            ):
-        '''
+        self,
+        transect_paths,
+        window_len=128,
+        crop_depth=None,
+        num_windows_per_transect=0,
+        use_dynamic_offsets=True,
+        transform_pre=None,
+        transform_post=None,
+        remove_nearfield=True,
+        nearfield_distance=1.7,
+        nearfield_visible_dist=0.5,
+        remove_offset_top=0,
+        remove_offset_bottom=0,
+    ):
+        """
         TransectDataset
 
         Parameters
@@ -75,7 +74,7 @@ class TransectDataset(torch.utils.data.Dataset):
         remove_offset_bottom : float, optional
             Line offset built in to the bottom line. If given, this will be
             removed from the samples within the dataset. Default is `0`.
-        '''
+        """
         super(TransectDataset, self).__init__()
         self.transect_paths = transect_paths
         self.window_len = window_len
@@ -97,11 +96,11 @@ class TransectDataset(torch.utils.data.Dataset):
 
         for transect_path in self.transect_paths:
             # Check how many segments the transect was divided into
-            segments_meta_fname = os.path.join(transect_path, 'n_segment.txt')
+            segments_meta_fname = os.path.join(transect_path, "n_segment.txt")
             if not os.path.isfile(segments_meta_fname):
                 # Silently skip missing transects
                 continue
-            with open(segments_meta_fname, 'r') as f:
+            with open(segments_meta_fname, "r") as f:
                 n_segment = int(f.readline().strip())
 
             # For each segment, specify some samples over its duration
@@ -109,8 +108,8 @@ class TransectDataset(torch.utils.data.Dataset):
                 seg_path = os.path.join(transect_path, str(i_segment))
                 # Lookup the number of rows in the transect
                 # Load the sharding metadata
-                with open(os.path.join(seg_path, 'shard_size.txt'), 'r') as f:
-                    n_timestamps, shard_len = f.readline().strip().split(',')
+                with open(os.path.join(seg_path, "shard_size.txt"), "r") as f:
+                    n_timestamps, shard_len = f.readline().strip().split(",")
                     n_timestamps = int(n_timestamps)
                 # Generate an array for window centers within the transect
                 # - if this is for training, we want to randomise the offsets
@@ -140,69 +139,89 @@ class TransectDataset(torch.utils.data.Dataset):
             transect_pth,
             center_idx - int(self.window_len / 2),
             center_idx - int(self.window_len / 2) + self.window_len,
-            pad_mode='reflect',
+            pad_mode="reflect",
         )
-        sample['d_top'] = sample.pop('top')
-        sample['d_bot'] = sample.pop('bottom')
-        sample['d_surf'] = sample.pop('surface')
-        sample['d_top-original'] = sample.pop('top-original')
-        sample['d_bot-original'] = sample.pop('bottom-original')
-        sample['signals'] = sample.pop('Sv')
-        if (sample['depths'][-1] < sample['depths'][0]):
+        sample["d_top"] = sample.pop("top")
+        sample["d_bot"] = sample.pop("bottom")
+        sample["d_surf"] = sample.pop("surface")
+        sample["d_top-original"] = sample.pop("top-original")
+        sample["d_bot-original"] = sample.pop("bottom-original")
+        sample["signals"] = sample.pop("Sv")
+        if sample["depths"][-1] < sample["depths"][0]:
             # Found some upward-facing data that needs to be reflected
-            for k in ['depths', 'signals', 'mask']:
+            for k in ["depths", "signals", "mask"]:
                 sample[k] = np.flip(sample[k], -1).copy()
 
         # Convert mask patches into floating point arrays
         for suffix in ("", "-original", "-ntob"):
-            sample["mask_patches" + suffix] = sample["mask_patches" + suffix].astype(np.float32)
+            sample["mask_patches" + suffix] = sample["mask_patches" + suffix].astype(
+                np.float32
+            )
 
-        sample['depths'] = sample['depths'].astype(np.float32)
+        sample["depths"] = sample["depths"].astype(np.float32)
 
         # Fix any broken surface lines (these were generated automatically
         # by Echoview and not adjusted by human annotator, so are not
         # guaranteed to be sane.)
-        if np.any(sample['d_surf'] >= sample['d_bot']):
-            sample['d_surf'] = np.min(sample['depths']) * np.ones_like(sample['d_surf'])
-        sample['d_surf'] = np.minimum(sample['d_surf'], sample['d_top'])
+        if np.any(sample["d_surf"] >= sample["d_bot"]):
+            sample["d_surf"] = np.min(sample["depths"]) * np.ones_like(sample["d_surf"])
+        sample["d_surf"] = np.minimum(sample["d_surf"], sample["d_top"])
 
-        if sample['is_upward_facing']:
-            min_top_depth = np.min(sample['depths'])
-            max_bot_depth = np.max(sample['depths']) - self.nearfield_visible_dist
+        if sample["is_upward_facing"]:
+            min_top_depth = np.min(sample["depths"])
+            max_bot_depth = np.max(sample["depths"]) - self.nearfield_visible_dist
         else:
             min_top_depth = 0.966
-            max_bot_depth = np.max(sample['depths'])
+            max_bot_depth = np.max(sample["depths"])
 
         if self.remove_nearfield:
-            depth_intv = np.abs(sample['depths'][-1] - sample['depths'][-2])
-            if sample['is_upward_facing']:
+            depth_intv = np.abs(sample["depths"][-1] - sample["depths"][-2])
+            if sample["is_upward_facing"]:
                 nearfield_threshold = (
-                    np.max(sample['depths']) - depth_intv / 5 - self.nearfield_distance * 1.001
+                    np.max(sample["depths"])
+                    - depth_intv / 5
+                    - self.nearfield_distance * 1.001
                 )
-                was_in_nearfield = sample['d_bot'] >= nearfield_threshold
-                sample['d_bot'][was_in_nearfield] = max_bot_depth
+                was_in_nearfield = sample["d_bot"] >= nearfield_threshold
+                sample["d_bot"][was_in_nearfield] = max_bot_depth
                 was_in_nearfield_og = sample["d_bot-original"] >= nearfield_threshold
                 sample["d_bot-original"][was_in_nearfield_og] = max_bot_depth
                 # Extend/contract mask_patches where necessary
-                idx_search = echofilter.utils.last_nonzero(sample["depths"] < nearfield_threshold)
-                idx_fillto = echofilter.utils.first_nonzero(sample["depths"] > max_bot_depth)
-                is_close_patch = np.any(sample["mask_patches"][:, idx_search:idx_fillto], -1)
+                idx_search = echofilter.utils.last_nonzero(
+                    sample["depths"] < nearfield_threshold
+                )
+                idx_fillto = echofilter.utils.first_nonzero(
+                    sample["depths"] > max_bot_depth
+                )
+                is_close_patch = np.any(
+                    sample["mask_patches"][:, idx_search:idx_fillto], -1
+                )
                 sample["mask_patches"][is_close_patch, idx_search:idx_fillto] = 1
                 is_close_patch_og = sample["mask_patches-original"][:, idx_search] > 0
                 is_close_patch_og = np.expand_dims(is_close_patch_og, -1)
                 sample["mask_patches-original"][:, idx_search:] = is_close_patch_og
                 sample["mask_patches-ntob"][:, idx_search:] = is_close_patch_og
             else:
-                was_in_nearfield = sample['d_top'] <= self.nearfield_distance
-                sample['d_top'][was_in_nearfield] = min_top_depth
+                was_in_nearfield = sample["d_top"] <= self.nearfield_distance
+                sample["d_top"][was_in_nearfield] = min_top_depth
                 was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
                 # Extend/contract mask_patches where necessary
-                idx_search = echofilter.utils.first_nonzero(sample["depths"] > self.nearfield_distance, invalid_val=0)
-                idx_fillfr = echofilter.utils.last_nonzero(sample["depths"] < min_top_depth, invalid_val=-1)
-                is_close_patch = np.any(sample["mask_patches"][:, idx_fillfr + 1 : idx_search + 1], -1)
+                idx_search = echofilter.utils.first_nonzero(
+                    sample["depths"] > self.nearfield_distance, invalid_val=0
+                )
+                idx_fillfr = echofilter.utils.last_nonzero(
+                    sample["depths"] < min_top_depth, invalid_val=-1
+                )
+                is_close_patch = np.any(
+                    sample["mask_patches"][:, idx_fillfr + 1 : idx_search + 1], -1
+                )
                 sample["mask_patches"][is_close_patch, idx_fillfr + 1 : idx_search] = 1
-                is_close_patch = np.any(sample["mask_patches-ntob"][:, idx_fillfr + 1 : idx_search + 1], -1)
-                sample["mask_patches-ntob"][is_close_patch, idx_fillfr + 1 : idx_search] = 1
+                is_close_patch = np.any(
+                    sample["mask_patches-ntob"][:, idx_fillfr + 1 : idx_search + 1], -1
+                )
+                sample["mask_patches-ntob"][
+                    is_close_patch, idx_fillfr + 1 : idx_search
+                ] = 1
                 is_close_patch_og = sample["mask_patches-original"][:, idx_search] > 0
                 is_close_patch_og = np.expand_dims(is_close_patch_og, -1)
                 sample["mask_patches-original"][:, :idx_search] = is_close_patch_og
@@ -216,20 +235,32 @@ class TransectDataset(torch.utils.data.Dataset):
             _in_mask = _ddepths < np.expand_dims(sample["d_top"], -1)
             _in_mask_og = _ddepths < np.expand_dims(sample["d_top-original"], -1)
             # Shift lines up higher (less deep)
-            sample["d_top"][(~was_in_nearfield) | sample['is_upward_facing']] -= self.remove_offset_top
-            sample["d_top-original"][(~was_in_nearfield_og) | sample['is_upward_facing']] -= self.remove_offset_top
+            sample["d_top"][
+                (~was_in_nearfield) | sample["is_upward_facing"]
+            ] -= self.remove_offset_top
+            sample["d_top-original"][
+                (~was_in_nearfield_og) | sample["is_upward_facing"]
+            ] -= self.remove_offset_top
             # Extend mask_patches where necessary
             _fx_mask = _ddepths < np.expand_dims(sample["d_top"], -1)
             _df_mask = _in_mask * (_in_mask ^ _fx_mask)
-            is_close_patch = np.any(_df_mask[:, :-1] * sample["mask_patches"][:, 1:], -1)
+            is_close_patch = np.any(
+                _df_mask[:, :-1] * sample["mask_patches"][:, 1:], -1
+            )
             sample["mask_patches"][is_close_patch, :] += _df_mask[is_close_patch, :]
             # ... and extend ntob mask patches too
-            sample["mask_patches-ntob"][is_close_patch, :] += _df_mask[is_close_patch, :]
+            sample["mask_patches-ntob"][is_close_patch, :] += _df_mask[
+                is_close_patch, :
+            ]
             # ... and extend og mask patches too
             _fx_mask_og = _ddepths < np.expand_dims(sample["d_top-original"], -1)
             _df_mask = _in_mask_og * (_in_mask_og ^ _fx_mask_og)
-            is_close_patch = np.any(_df_mask[:, :-1] * sample["mask_patches-original"][:, 1:], -1)
-            sample["mask_patches-original"][is_close_patch, :] += _df_mask[is_close_patch, :]
+            is_close_patch = np.any(
+                _df_mask[:, :-1] * sample["mask_patches-original"][:, 1:], -1
+            )
+            sample["mask_patches-original"][is_close_patch, :] += _df_mask[
+                is_close_patch, :
+            ]
 
         if self.remove_offset_bottom:
             # Check the mask beforehand
@@ -237,20 +268,32 @@ class TransectDataset(torch.utils.data.Dataset):
             _in_mask = _ddepths > np.expand_dims(sample["d_bot"], -1)
             _in_mask_og = _ddepths > np.expand_dims(sample["d_bot-original"], -1)
             # Shift lines down lower (more deep)
-            sample["d_bot"][(~was_in_nearfield) | ~sample['is_upward_facing']] += self.remove_offset_bottom
-            sample["d_bot-original"][(~was_in_nearfield_og) | sample['is_upward_facing']] += self.remove_offset_bottom
+            sample["d_bot"][
+                (~was_in_nearfield) | ~sample["is_upward_facing"]
+            ] += self.remove_offset_bottom
+            sample["d_bot-original"][
+                (~was_in_nearfield_og) | sample["is_upward_facing"]
+            ] += self.remove_offset_bottom
             # Extend mask_patches where necessary
             _fx_mask = _ddepths > np.expand_dims(sample["d_bot"], -1)
             _df_mask = _in_mask * (_in_mask ^ _fx_mask)
-            is_close_patch = np.any(_df_mask[:, 1:] * sample["mask_patches"][:, :-1], -1)
+            is_close_patch = np.any(
+                _df_mask[:, 1:] * sample["mask_patches"][:, :-1], -1
+            )
             sample["mask_patches"][is_close_patch, :] += _df_mask[is_close_patch, :]
             # ... and extend og mask patches too
             _fx_mask_og = _ddepths > np.expand_dims(sample["d_bot-original"], -1)
             _df_mask = _in_mask_og * (_in_mask_og ^ _fx_mask_og)
-            is_close_patch = np.any(_df_mask[:, 1:] * sample["mask_patches-original"][:, :-1], -1)
-            sample["mask_patches-original"][is_close_patch, :] += _df_mask[is_close_patch, :]
+            is_close_patch = np.any(
+                _df_mask[:, 1:] * sample["mask_patches-original"][:, :-1], -1
+            )
+            sample["mask_patches-original"][is_close_patch, :] += _df_mask[
+                is_close_patch, :
+            ]
             # ... and extend ntob mask patches too
-            sample["mask_patches-ntob"][is_close_patch, :] += _df_mask[is_close_patch, :]
+            sample["mask_patches-ntob"][is_close_patch, :] += _df_mask[
+                is_close_patch, :
+            ]
 
         if self.remove_offset_top or self.remove_offset_bottom:
             # Change any 2s in the mask to be 1s
@@ -259,49 +302,49 @@ class TransectDataset(torch.utils.data.Dataset):
                     sample["mask_patches" + suffix] > 0.5
                 ).astype(np.float32)
 
-        sample['d_surf'][np.isnan(sample['d_surf'])] = np.min(sample['depths'])
-        sample['d_top'][np.isnan(sample['d_top'])] = min_top_depth
-        sample['d_bot'][np.isnan(sample['d_bot'])] = max_bot_depth
-        sample['d_top-original'][np.isnan(sample['d_top-original'])] = min_top_depth
-        sample['d_bot-original'][np.isnan(sample['d_bot-original'])] = max_bot_depth
+        sample["d_surf"][np.isnan(sample["d_surf"])] = np.min(sample["depths"])
+        sample["d_top"][np.isnan(sample["d_top"])] = min_top_depth
+        sample["d_bot"][np.isnan(sample["d_bot"])] = max_bot_depth
+        sample["d_top-original"][np.isnan(sample["d_top-original"])] = min_top_depth
+        sample["d_bot-original"][np.isnan(sample["d_bot-original"])] = max_bot_depth
 
         if self.transform_pre is not None:
             sample = self.transform_pre(sample)
 
         # Apply depth crop
         if self.crop_depth is not None:
-            depth_crop_mask = sample['depths'] <= self.crop_depth
-            sample['depths'] = sample['depths'][depth_crop_mask]
-            sample['signals'] = sample['signals'][:, depth_crop_mask]
+            depth_crop_mask = sample["depths"] <= self.crop_depth
+            sample["depths"] = sample["depths"][depth_crop_mask]
+            sample["signals"] = sample["signals"][:, depth_crop_mask]
 
         # Convert lines to masks and relative lines
-        ddepths = np.broadcast_to(sample['depths'], sample['signals'].shape)
-        for suffix in ['', '-original']:
-            sample['mask_top' + suffix] = np.single(
-                ddepths < np.expand_dims(sample['d_top' + suffix], -1)
+        ddepths = np.broadcast_to(sample["depths"], sample["signals"].shape)
+        for suffix in ["", "-original"]:
+            sample["mask_top" + suffix] = np.single(
+                ddepths < np.expand_dims(sample["d_top" + suffix], -1)
             )
-            sample['mask_bot' + suffix] = np.single(
-                ddepths > np.expand_dims(sample['d_bot' + suffix], -1)
+            sample["mask_bot" + suffix] = np.single(
+                ddepths > np.expand_dims(sample["d_bot" + suffix], -1)
             )
-        sample['mask_surf'] = np.single(ddepths < np.expand_dims(sample['d_surf'], -1))
+        sample["mask_surf"] = np.single(ddepths < np.expand_dims(sample["d_surf"], -1))
 
-        depth_range = abs(sample['depths'][-1] - sample['depths'][0])
-        for key in ['d_top', 'd_bot', 'd_surf', 'd_top-original', 'd_bot-original']:
-            sample['r' + key[1:]] = sample[key] / depth_range
+        depth_range = abs(sample["depths"][-1] - sample["depths"][0])
+        for key in ["d_top", "d_bot", "d_surf", "d_top-original", "d_bot-original"]:
+            sample["r" + key[1:]] = sample[key] / depth_range
 
         # Create mask corresponding to the aggregate of all elements we need
         # masked in/out
-        sample['mask'] = np.ones_like(sample['signals'])
-        sample['mask'][sample['is_passive'] > 0.5] = 0
-        sample['mask'][sample['is_removed'] > 0.5] = 0
-        sample['mask'][sample['mask_top'] > 0.5] = 0
-        sample['mask'][sample['mask_bot'] > 0.5] = 0
-        sample['mask'][sample['mask_patches'] > 0.5] = 0
+        sample["mask"] = np.ones_like(sample["signals"])
+        sample["mask"][sample["is_passive"] > 0.5] = 0
+        sample["mask"][sample["is_removed"] > 0.5] = 0
+        sample["mask"][sample["mask_top"] > 0.5] = 0
+        sample["mask"][sample["mask_bot"] > 0.5] = 0
+        sample["mask"][sample["mask_patches"] > 0.5] = 0
 
         if self.transform_post is not None:
             sample = self.transform_post(sample)
 
-        input = np.expand_dims(sample['signals'], 0).astype(np.float32)
+        input = np.expand_dims(sample["signals"], 0).astype(np.float32)
         return input, sample
 
     def __len__(self):

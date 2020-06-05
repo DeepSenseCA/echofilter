@@ -1,6 +1,6 @@
-'''
+"""
 Blocks of modules.
-'''
+"""
 
 import torch
 from torch import nn
@@ -11,11 +11,11 @@ from .pathing import ResidualConnect
 from .utils import _pair
 
 
-__all__ = ['MBConv', 'SqueezeExcite']
+__all__ = ["MBConv", "SqueezeExcite"]
 
 
 class SqueezeExcite(nn.Module):
-    '''
+    """
     Squeeze and excitation block.
 
     See https://arxiv.org/abs/1709.01507
@@ -31,12 +31,10 @@ class SqueezeExcite(nn.Module):
         An activation class or similar generator. Default is an inplace
         ReLU activation. If this is a string, it is mapped to a generator with
         `activations.str2actfnfactory`.
-    '''
+    """
+
     def __init__(
-        self,
-        in_channels,
-        reduction=4,
-        actfn='InplaceReLU',
+        self, in_channels, reduction=4, actfn="InplaceReLU",
     ):
         super(SqueezeExcite, self).__init__()
 
@@ -60,7 +58,7 @@ class SqueezeExcite(nn.Module):
 
 
 class MBConv(nn.Module):
-    '''
+    """
     MobileNet style inverted residual block.
 
     See https://arxiv.org/abs/1905.11946 and https://arxiv.org/abs/1905.02244.
@@ -93,7 +91,8 @@ class MBConv(nn.Module):
     **conv_args
         Additional arguments, such as kernel_size, stride, and padding, which
         will be passed to the convolution module.
-    '''
+    """
+
     def __init__(
         self,
         in_channels,
@@ -102,7 +101,7 @@ class MBConv(nn.Module):
         se_reduction=4,
         fused=False,
         residual=True,
-        actfn='InplaceReLU',
+        actfn="InplaceReLU",
         bias=False,
         **conv_args
     ):
@@ -132,11 +131,7 @@ class MBConv(nn.Module):
             conv = Conv2dSame(in_channels, expanded_chns, bias=bias, **conv_args)
         else:
             conv = DepthwiseConv2d(expanded_chns, bias=bias, **conv_args)
-        self.conv = nn.Sequential(
-            conv,
-            nn.BatchNorm2d(expanded_chns),
-            actfn_factory(),
-        )
+        self.conv = nn.Sequential(conv, nn.BatchNorm2d(expanded_chns), actfn_factory(),)
 
         if se_reduction:
             self.se = SqueezeExcite(expanded_chns, reduction=se_reduction)
@@ -149,8 +144,8 @@ class MBConv(nn.Module):
         )
 
         if residual:
-            if any([k > 1 for k in _pair(conv_args.get('stride', 1))]):
-                self.skip_pool = nn.AvgPool2d(conv_args['stride'])
+            if any([k > 1 for k in _pair(conv_args.get("stride", 1))]):
+                self.skip_pool = nn.AvgPool2d(conv_args["stride"])
             else:
                 self.skip_pool = nn.Identity()
             self.connector = ResidualConnect(in_channels, out_channels)
@@ -165,7 +160,6 @@ class MBConv(nn.Module):
         return x
 
     def extra_repr(self):
-        return 'residual={residual}, fused={fused}'.format(
-            residual=self.residual,
-            fused=self.fused,
+        return "residual={residual}, fused={fused}".format(
+            residual=self.residual, fused=self.fused,
         )
