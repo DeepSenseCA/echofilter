@@ -33,9 +33,6 @@ from echofilter.unet import UNet
 from echofilter.wrapper import Echofilter
 
 
-DATA_MEAN = -80.
-DATA_STDEV = 20.
-
 CHECKPOINT_RESOURCES = OrderedDict([
     ('stationary_effunet_block6.xb.2-1_lc32_se2_v2.ckpt.tar', {'gdrive': '1Rgr6y7SYEYrAq6tSF7tjqbKoZthKpMCb'}),
     ('stationary_effunet_block6.xb.2-1_lc32_se2.ckpt.tar', {'gdrive': '114vL-pAxrn9UDhaNG5HxZwjxNy7WMfW_'}),
@@ -56,6 +53,7 @@ def run_inference(
     row_len_selector='mode',
     crop_depth_min=None,
     crop_depth_max=None,
+    use_training_standardization=False,
     extensions='csv',
     keep_ext=False,
     overwrite_existing=False,
@@ -114,6 +112,11 @@ def run_inference(
     crop_depth_max : float or None, optional
         Maxmimum depth to include in input. If `None` (default), there is no
         maximum depth.
+    use_training_standardization : bool, optional
+        Whether to use the exact normalization center and deviation values as
+        used during training. If `False` (default), the center and deviation
+        are determined per sample, using the same method methodology as used
+        to determine the center and deviation values for training.
     extensions : iterable or str, optional
         File extensions to detect when running on a directory. Default is
         `'csv'`.
@@ -210,6 +213,14 @@ def run_inference(
 
     if image_height is None:
         image_height = checkpoint.get('sample_shape', (128, 512))[1]
+
+    if use_training_standardization:
+        center_param = checkpoint.get('data_center', -80.)
+        deviation_param = checkpoint.get('data_deviation', 20.)
+    else:
+        center_param = checkpoint.get('center_method', 'mean')
+        deviation_param = checkpoint.get('deviation_method', 'stdev')
+    nan_value = checkpoint.get('nan_value', -3)
 
     if verbose >= 2:
         print('Constructing U-Net model, with arguments:')
@@ -406,6 +417,9 @@ def run_inference(
                 facing=facing,
                 crop_depth_min=crop_depth_min,
                 crop_depth_max=crop_depth_max,
+                data_center=center_param,
+                data_deviation=deviation_param,
+                nan_value=nan_value,
                 verbose=verbose-1,
             )
 
@@ -463,6 +477,9 @@ def inference_transect(
     facing="auto",
     crop_depth_min=None,
     crop_depth_max=None,
+    data_center='mean',
+    data_deviation='stdev',
+    nan_value=-3,
     dtype=torch.float,
     verbose=0,
 ):
@@ -494,6 +511,20 @@ def inference_transect(
     crop_depth_max : float or None, optional
         Maxmimum depth to include in input. If `None` (default), there is no
         maximum depth.
+    data_center : float or str, optional
+        Center point to use, which will be subtracted from the Sv signals
+        (i.e. the overall sample mean).
+        If `data_center` is a string, it specifies the method to use to
+        determine the center value from the distribution of intensities seen
+        in this sample transect. Default is `'mean'`.
+    data_deviation : float or str, optional
+        Deviation to use to normalise the Sv signals in divisive manner
+        (i.e. the overall sample standard deviation).
+        If `data_deviation` is a string, it specifies the method to use to
+        determine the center value from the distribution of intensities seen
+        in this sample transect. Default is `'stdev'`.
+    nan_value : float, optional
+        Placeholder value to replace NaNs with. Default is `-3`.
     dtype : torch.dtype, optional
         Datatype to use for model input. Default is `torch.float`.
     verbose : int, optional
@@ -525,6 +556,9 @@ def inference_transect(
         transect['depths'] = transect['depths'][depth_crop_mask]
         transect['signals'] = transect['signals'][:, depth_crop_mask]
 
+    # Standardize data distribution
+    transect = echofilter.transforms.Normalize(data_center, data_deviation)(transect)
+
     # Configure data to match what the model expects to see
     # Determine whether depths are ascending or descending
     is_upward_facing = (transect['depths'][-1] < transect['depths'][0])
@@ -552,8 +586,7 @@ def inference_transect(
     for segment in segments:
         # Preprocessing transform
         transform = torchvision.transforms.Compose([
-            echofilter.transforms.Normalize(DATA_MEAN, DATA_STDEV),
-            echofilter.transforms.ReplaceNan(-3),
+            echofilter.transforms.ReplaceNan(nan_value),
             echofilter.transforms.Rescale(
                 (segment['signals'].shape[0], image_height),
                 order=1,
@@ -752,6 +785,14 @@ def main():
         help=
             'suffix used for cached CSV files which are exported from EV files'
             ' (default: ".csv")'
+    )
+    parser.add_argument(
+        '--training-standardization',
+        dest='use_training_standardization',
+        action='store_true',
+        help=
+            'scale the Sv intensities using the values used for training,'
+            ' instead of values derived from the current sample',
     )
     parser.add_argument(
         '--image-height', '--height',
