@@ -79,18 +79,11 @@ def plot_indicator_hatch(indicator, xx=None, ymin=None, ymax=None, hatch='//', c
     if ymax is None:
         ymax = ylim[1]
 
-    indices = np.nonzero(indicator)[0]
+    r_starts, r_ends = utils.get_indicator_onoffsets(indicator)
 
-    if len(indices) == 0:
+    if len(r_starts) == 0:
         return
 
-    r_starts = [indices[0]]
-    r_ends = []
-    breaks = np.nonzero(indices[1:] - indices[:-1] > 1)[0]
-    for break_idx in breaks:
-        r_ends.append(indices[break_idx])
-        r_starts.append(indices[break_idx + 1])
-    r_ends.append(indices[-1])
     for r_start, r_end in zip(r_starts, r_ends):
         plt.fill_between(
             xx[[r_start, r_end]],
@@ -103,7 +96,7 @@ def plot_indicator_hatch(indicator, xx=None, ymin=None, ymax=None, hatch='//', c
         )
 
 
-def plot_mask_hatch(*args, hatch='//', color='k'):
+def plot_mask_hatch(*args, hatch='//', color='k', border=False):
     '''
     Plot hatching according to a mask shape.
 
@@ -125,6 +118,8 @@ def plot_mask_hatch(*args, hatch='//', color='k'):
         The hatching pattern to apply. Default is '//'.
     color : color, optional
         The color of the hatch. Default is black.
+    border : bool, optional
+        Whether to include border around hatch. Default is `False`.
     '''
     args = list(args)
     args[-1] = args[-1] > 0
@@ -147,13 +142,14 @@ def plot_mask_hatch(*args, hatch='//', color='k'):
     # Doing this also colors in the box around each level.
     # We can remove the colored line around the levels by setting the
     # linewidth to 0.
-    for collection in cs.collections:
-        collection.set_linewidth(0.)
+    if not border:
+        for collection in cs.collections:
+            collection.set_linewidth(0.)
 
 
 def plot_transect(
     transect,
-    signal_type='Sv',
+    signal_type=None,
     x_scale='index',
     show_regions=True,
     top_color=TOP_COLOR,
@@ -171,9 +167,9 @@ def plot_transect(
     transect : dict
         Transect values.
     signal_type : str, optional
-        The signal to plot as a heatmap. Default is `'Sv'`. If this is
-        `'Sv_masked'`, the mask (given by `transect['mask']`) is used to
-        mask `'transect['Sv']` before plotting.
+        The signal to plot as a heatmap. Default is `"Sv"` if present, or
+        "signals" if not. If this is `"Sv_masked"`, the mask (given by
+        `transect["mask"]`) is used to mask `'transect["Sv"]` before plotting.
     x_scale : {'index', 'timestamp' 'time'}, optional
         Scaling for x-axis. If `'timestamp'`, the number of seconds since the
         Unix epoch is shown; if `'time'`, the amount of time in seconds since
@@ -206,6 +202,40 @@ def plot_transect(
     else:
         removed_color = REMOVED_COLOR
 
+    if signal_type is not None:
+        pass
+    elif "Sv" in transect:
+        signal_type = "Sv"
+    elif "signals" in transect:
+        signal_type = "signals"
+    else:
+        raise ValueError(
+            "No signal key found in transect. Available keys were: {}"
+            .format(transect.keys())
+        )
+
+    top_key = None
+    for k in ("top", "d_top"):
+        if k in transect:
+            top_key = k
+            break
+    if top_key is None:
+        raise ValueError(
+            "No top line depths key found in transect. Available keys were: {}"
+            .format(transect.keys())
+        )
+
+    bot_key = None
+    for k in ("bottom", "d_bot", "bot"):
+        if k in transect:
+            bot_key = k
+            break
+    if bot_key is None:
+        raise ValueError(
+            "No bottom line depths key found in transect. Available keys were: {}"
+            .format(transect.keys())
+        )
+
     if x_scale == 'index':
         tt = np.arange(transect['timestamps'].shape[0])
         xlabel = 'Sample index'
@@ -230,8 +260,8 @@ def plot_transect(
     )
     if cmap is not None:
         plt.set_cmap(cmap)
-    plt.plot(tt, transect['top'], top_color, linewidth=linewidth)
-    plt.plot(tt, transect['bottom'], bot_color, linewidth=linewidth)
+    plt.plot(tt, transect[top_key], top_color, linewidth=linewidth)
+    plt.plot(tt, transect[bot_key], bot_color, linewidth=linewidth)
 
     if show_regions:
         plot_indicator_hatch(
@@ -257,6 +287,7 @@ def plot_transect(
             transect['mask_patches'],
             hatch='\\\\',
             color=removed_color,
+            border=True,
         )
 
     plt.tick_params(reset=True, color=(.2, .2, .2))
@@ -340,6 +371,7 @@ def plot_transect_predictions(transect, prediction, linewidth=1, cmap=None):
             prediction['p_is_patch'] > 0.5,
             hatch='//',
             color='w',
+            border=True,
         )
     # Make sure y-axis is inverted (lowest depth at the top)
     ensure_axes_inverted(dir='y')

@@ -9,6 +9,7 @@ import warnings
 import numpy as np
 
 from . import loader
+from .. import utils
 
 
 ROOT_DATA_DIR = loader.ROOT_DATA_DIR
@@ -78,7 +79,9 @@ def find_passive_data(signals, n_depth_use=38, threshold=25., deviation=None):
     if len(indices_possible_end) > 0:
         indices_possible_end += 1
 
-    if len(indices_possible_start) == 0 or indices_possible_end[0] < indices_possible_start[0]:
+    if len(indices_possible_end) > 0 and (
+        len(indices_possible_start) == 0 or indices_possible_end[0] < indices_possible_start[0]
+    ):
         indices_passive_start.append(0)
         current_index = indices_possible_end[0]
         indices_passive_end.append(current_index)
@@ -126,7 +129,7 @@ def find_passive_data(signals, n_depth_use=38, threshold=25., deviation=None):
     return np.array(indices_passive_start), np.array(indices_passive_end)
 
 
-def make_lines_from_mask(mask, depths=None, max_gap_squash=2.):
+def make_lines_from_mask(mask, depths=None, max_gap_squash=1.):
     '''
     Determines top and bottom lines for a mask array.
 
@@ -142,7 +145,7 @@ def make_lines_from_mask(mask, depths=None, max_gap_squash=2.):
         monotonically increasing or monotonically decreasing. Default is the
         index of `mask`, `arange(mask.shape[1])`.
     max_gap_squash : float, optional
-        Maximum gap to merge together, in metres. Default is `2.`.
+        Maximum gap to merge together, in metres. Default is `1.`.
 
     Returns
     -------
@@ -177,17 +180,17 @@ def make_lines_from_mask(mask, depths=None, max_gap_squash=2.):
         mask[li] = 0
 
     # Check which depths were removed for each timestamp
-    removed_depths = np.tile(depths, (mask.shape[0], 1)).astype('float')
-    removed_depths[~mask] = np.nan
+    nonremoved_depths = np.tile(depths, (mask.shape[0], 1)).astype('float')
+    nonremoved_depths[~mask] = np.nan
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', 'All-NaN (slice|axis) encountered')
-        # Top line is the smallest removed depth at each timepoint.
+        # Top line is the smallest non-removed depth at each timepoint.
         # We offset by depth_intv / 2 to get a depth in between the last kept
         # value at the top and the first removed value.
-        d_top = np.nanmin(removed_depths, axis=1) - depth_intv / 2
-        # Bottom line is the largest removed depth at each timepoint,
+        d_top = np.nanmin(nonremoved_depths, axis=1) - depth_intv / 2
+        # Bottom line is the largest non-removed depth at each timepoint,
         # offset similarly.
-        d_bot = np.nanmax(removed_depths, axis=1) + depth_intv / 2
+        d_bot = np.nanmax(nonremoved_depths, axis=1) + depth_intv / 2
 
     return d_top, d_bot
 
@@ -301,7 +304,6 @@ def fixup_lines(
         d_top=None,
         t_bot=None,
         d_bot=None,
-        return_passive_boundaries=False,
     ):
     '''
     Extend existing top/bottom lines based on masked target Sv output.
@@ -325,9 +327,6 @@ def fixup_lines(
         Sampling times for existing bottom line.
     d_bot : array_like, optional
         Depth of existing bottom line.
-    return_passive_boundaries : bool, optional
-        Whether to return `passive_starts` and `passive_ends`. Default is
-        `False`.
 
     Returns
     -------
@@ -387,8 +386,11 @@ def fixup_lines(
     # provided. If they weren't, interpolate to fill the holes (if there is
     # something to interpolate).
     all_removed = ~np.any(mask, axis=1)
-    everything_removed = ~np.any(all_removed)
-    if d_top is not None:
+    any_all_removed = np.any(all_removed)
+    everything_removed = np.all(all_removed)
+    if not any_all_removed:
+        pass
+    elif d_top is not None:
         d_top_new[all_removed] = d_top[all_removed]
     elif ~everything_removed:
         d_top_new[all_removed] = np.interp(
@@ -399,7 +401,9 @@ def fixup_lines(
     else:
         d_top_new[all_removed] = np.nan
 
-    if d_bot is not None:
+    if not any_all_removed:
+        pass
+    elif d_bot is not None:
         d_bot_new[all_removed] = d_bot[all_removed]
     elif ~everything_removed:
         d_bot_new[all_removed] = np.interp(
@@ -410,18 +414,6 @@ def fixup_lines(
     else:
         d_bot_new[all_removed] = np.nan
 
-    # Convert this into start and end points for later use(?)
-    # removal_starts, removal_ends = find_nonzero_region_boundaries(all_removed)
-
-    # For passive data, we set the target to be NaN as a placeholder.
-    # A working target can be set downstream.
-    passive_starts, passive_ends = find_passive_data(signals_raw)
-    for start, end in zip(passive_starts, passive_ends):
-        d_top_new[start:end] = np.nan
-        d_bot_new[start:end] = np.nan
-
-    if return_passive_boundaries:
-        return d_top_new, d_bot_new, passive_starts, passive_ends
     return d_top_new, d_bot_new
 
 
@@ -438,7 +430,7 @@ def load_decomposed_transect_mask(
     sample_path : str
         Path to sample, without extension. The raw data should be located at
         `sample_path + '_Sv_raw.csv'`.
-    dataset : {'mobile', 'stationary', ''}, optional
+    dataset : {'mobile', 'MinasPassage', ''}, optional
         Name of dataset. Used to check integrity of the data loaded against
         what is expected for that dataset. Default is `''`, which has no
         dataset-specific expectations.
@@ -522,7 +514,7 @@ def load_decomposed_transect_mask(
 
     if os.path.isfile(fname_surf):
         t_surf, d_surf = loader.evl_loader(fname_surf)
-    elif dataset == 'stationary':
+    elif dataset == "MinasPassage" or "GrandPassage" in dataset:
         raise ValueError(
             'Expected {} to exist when dateset is {}.'
             .format(fname_surf, dataset)
@@ -531,7 +523,7 @@ def load_decomposed_transect_mask(
         t_surf = d_surf = None
 
     # Generate new lines from mask
-    d_top_new, d_bot_new, passive_starts, passive_ends = fixup_lines(
+    d_top_new, d_bot_new = fixup_lines(
         ts_raw,
         depths_raw,
         signals_raw,
@@ -540,8 +532,8 @@ def load_decomposed_transect_mask(
         d_top=d_top,
         t_bot=t_bot,
         d_bot=d_bot,
-        return_passive_boundaries=True,
     )
+    passive_starts, passive_ends = find_passive_data(signals_raw)
     # Determine whether each timestamps is for a period of passive recording
     is_passive = np.zeros(ts_raw.shape, dtype=bool)
     for pass_start, pass_end in zip(passive_starts, passive_ends):
@@ -558,7 +550,20 @@ def load_decomposed_transect_mask(
         mask[ddepths > np.expand_dims(d_bot_new, -1)] = 0
         mask[is_passive] = 0
     allnan = np.all(np.isnan(signals_mskd), axis=1)
-    is_removed = allnan & ~is_passive
+
+    # Timestamp is entirely removed if everything is nan and it isn't passive
+    is_removed_raw = allnan & ~is_passive
+    # But we don't want to include removed segments which are marked as
+    # removed just because the lines crossed each other.
+    r_starts_raw, r_ends_raw = utils.get_indicator_onoffsets(is_removed_raw)
+    r_starts = []
+    r_ends = []
+    is_removed = np.zeros_like(is_removed_raw)
+    for r_start, r_end in zip(r_starts_raw, r_ends_raw):
+        if not np.all(d_top_new[r_start : r_end + 1] >= d_bot_new[r_start : r_end + 1]):
+            r_starts.append(r_start)
+            r_ends.append(r_end)
+            is_removed[r_start : r_end + 1] = 1
 
     # Determine whether depths are ascending or descending
     is_upward_facing = (depths_raw[-1] < depths_raw[0])
@@ -568,6 +573,13 @@ def load_decomposed_transect_mask(
         depths_raw = depths_raw[::-1].copy()
         signals_raw = signals_raw[:, ::-1].copy()
         mask = mask[:, ::-1].copy()
+
+    # Offset by a small amount to catch pixels on the edge of the line
+    depth_intv = abs(depths_raw[1] - depths_raw[0])
+    if d_top is not None:
+        d_top += depth_intv / 4
+    if d_bot is not None:
+        d_bot -= depth_intv / 4
 
     def tidy_up_line(t, d):
         if d is None:
@@ -580,11 +592,49 @@ def load_decomposed_transect_mask(
     d_bot = tidy_up_line(t_bot, d_bot)
     d_surf = tidy_up_line(t_surf, d_surf)
 
+    # Make a mask indicating left-over patches. This is 0 everywhere,
+    # except 1s wherever pixels in the overall mask are removed for
+    # reasons not explained by the top and bottom lines, and is_passive and
+    # is_removed indicators.
+    mask_patches = ~mask
+    mask_patches[is_passive] = 0
+    mask_patches[is_removed] = 0
+    mask_patches_og = mask_patches.copy()
+    mask_patches_ntob = mask_patches.copy()
+    ddepths = np.broadcast_to(depths_raw, signals_raw.shape)
+    mask_patches[ddepths <= np.expand_dims(d_top_new, -1)] = 0
+    mask_patches[ddepths >= np.expand_dims(d_bot_new, -1)] = 0
+    mask_patches_og[ddepths <= np.expand_dims(d_top, -1)] = 0
+    mask_patches_og[ddepths >= np.expand_dims(d_bot, -1)] = 0
+    mask_patches_ntob[ddepths <= np.expand_dims(d_top_new, -1)] = 0
+    mask_patches_ntob[ddepths >= np.expand_dims(d_bot, -1)] = 0
+    # Remove trivial mask patches. If the pixel above and below are both empty,
+    # delete a mask with a height of only one-pixel.
+    mask_patches[~(
+        np.concatenate((mask_patches[:, 2:], np.ones((mask_patches.shape[0], 2), dtype="bool")), axis=-1)
+        |
+        np.concatenate((np.ones((mask_patches.shape[0], 2), dtype="bool"), mask_patches[:, :-2]), axis=-1)
+    )] = 0
+    mask_patches_og[~(
+        np.concatenate((mask_patches_og[:, 2:], np.ones((mask_patches_og.shape[0], 2), dtype="bool")), axis=-1)
+        |
+        np.concatenate((np.ones((mask_patches_og.shape[0], 2), dtype="bool"), mask_patches_og[:, :-2]), axis=-1)
+    )] = 0
+    mask_patches_ntob[~(
+        np.concatenate((mask_patches_ntob[:, 2:], np.ones((mask_patches_ntob.shape[0], 2), dtype="bool")), axis=-1)
+        |
+        np.concatenate((np.ones((mask_patches_ntob.shape[0], 2), dtype="bool"), mask_patches_ntob[:, :-2]), axis=-1)
+    )] = 0
+
+    # Collate transect as a dictionary
     transect = {}
     transect['timestamps'] = ts_raw
     transect['depths'] = depths_raw
     transect['Sv'] = signals_raw
     transect['mask'] = mask
+    transect['mask_patches'] = mask_patches
+    transect['mask_patches-original'] = mask_patches_og
+    transect['mask_patches-ntob'] = mask_patches_ntob
     transect['top'] = d_top_new
     transect['bottom'] = d_bot_new
     transect['surface'] = d_surf

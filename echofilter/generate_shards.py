@@ -77,7 +77,7 @@ def generate_shards(
         Name of the partition to process (`'train'`, `'validate'`, `'test'`,
         etc).
     dataset : str
-        Name of the dataset to process (`'mobile'`, `'stationary'`, etc).
+        Name of the dataset to process (`'mobile'`, `'MinasPassage'`, etc).
     partitioning_version : str, optional
         Name of the partition version to use process. Default is `'firstpass'`.
     progress_bar : bool, optional
@@ -167,19 +167,19 @@ def main():
         help='root data directory',
     )
     parser.add_argument(
-        '--partitioning_version',
+        '--partitioning-version',
         type=str,
         default='firstpass',
         help='partitioning version',
     )
     parser.add_argument(
-        '--max_depth',
+        '--max-depth',
         type=float,
-        default=100.,
+        default=None,
         help='maximum depth to include in sharded data',
     )
     parser.add_argument(
-        '--shard_len',
+        '--shard-len',
         type=int,
         default=128,
         help='number of samples in each shard',

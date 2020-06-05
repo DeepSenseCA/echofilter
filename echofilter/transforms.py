@@ -11,7 +11,7 @@ _fields_2d = (
     'mask_top', 'mask_bot',
     'mask_top-original', 'mask_bot-original',
     'mask_surf',
-    'mask_patches', 'mask_patches-original',
+    'mask_patches', 'mask_patches-original', 'mask_patches-ntob',
 )
 _fields_1d_timelike = (
     'timestamps',
@@ -173,7 +173,7 @@ class RandomStretchDepth(object):
         Expected gap between actual ocean floor and target bottom line.
     '''
 
-    def __init__(self, max_factor, expected_bottom_gap=1):
+    def __init__(self, max_factor, expected_bottom_gap=0):
         self.max_factor = max_factor
         self.expected_bottom_gap = expected_bottom_gap
 

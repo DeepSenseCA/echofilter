@@ -61,31 +61,33 @@ PLOT_TRANSECTS = {
         'mobile/Survey16/Survey16_GR4_N5W_E',
         'mobile/Survey17/Survey17_GR4_N5W_E',
     ],
-    'stationary': [
-        'stationary/december2017/evExports/december2017_D20180213-T115216_D20180213-T172216',
-        'stationary/march2018/evExports/march2018_D20180513-T195216_D20180514-T012216',
-        'stationary/september2018/evExports/september2018_D20181027-T202217_D20181028-T015217',
-        'stationary/september2018/evExports/september2018_D20181107-T122220_D20181107-T175217',
+    'MinasPassage': [
+        'MinasPassage/december2017/evExports/december2017_D20180213-T115216_D20180213-T172216',
+        'MinasPassage/march2018/evExports/march2018_D20180513-T195216_D20180514-T012216',
+        'MinasPassage/september2018/evExports/september2018_D20181027-T202217_D20181028-T015217',
+        'MinasPassage/september2018/evExports/september2018_D20181107-T122220_D20181107-T175217',
     ]
 }
+
+DEFAULT_CROP_DEPTH_PLOTS = 70
 
 
 def train(
         data_dir='/data/dsforce/surveyExports',
         dataset_name='mobile',
         sample_shape=(128, 512),
-        crop_depth=70,
+        crop_depth=None,
         resume='',
         log_name=None,
         log_name_append=None,
-        n_block=4,
-        latent_channels=64,
-        expansion_factor=2,
+        n_block=6,
+        latent_channels=32,
+        expansion_factor=1,
         expand_only_on_down=False,
-        blocks_per_downsample=1,
-        blocks_before_first_downsample=1,
+        blocks_per_downsample=(2, 1),
+        blocks_before_first_downsample=(2, 1),
         always_include_skip_connection=True,
-        deepest_inner='identity',
+        deepest_inner="horizontal_block",
         intrablock_expansion=6,
         se_reduction=4,
         downsampling_modes='max',
@@ -97,21 +99,21 @@ def train(
         use_mixed_precision=None,
         amp_opt='O1',
         device='cuda',
-        n_worker=4,
-        batch_size=64,
-        n_epoch=10,
+        n_worker=8,
+        batch_size=16,
+        n_epoch=20,
         seed=None,
-        print_freq=10,
-        optimizer='adamw',
+        print_freq=50,
+        optimizer="rangerva",
         schedule='constant',
         lr=0.1,
         momentum=0.9,
         base_momentum=None,
         weight_decay=1e-5,
-        warmup_pct=0.3,
-        warmdown_pct=0.75,
+        warmup_pct=0.2,
+        warmdown_pct=0.7,
         anneal_strategy='cos',
-        overall_loss_weight=1.,
+        overall_loss_weight=0.,
     ):
 
     seed_all(seed)
@@ -179,6 +181,17 @@ def train(
     print('Found {:3d} train sample paths'.format(len(train_paths)))
     print('Found {:3d} val sample paths'.format(len(val_paths)))
 
+    dataset_args = {}
+    if dataset_name == "mobile":
+        dataset_args["remove_nearfield"] = False
+        dataset_args["remove_offset_top"] = 0
+        dataset_args["remove_offset_bottom"] = 1.
+    elif dataset_name == "MinasPassage":
+        dataset_args["remove_nearfield"] = True
+        dataset_args["nearfield_distance"] = 1.7
+        dataset_args["remove_offset_top"] = 0
+        dataset_args["remove_offset_bottom"] = 0
+
     dataset_train = echofilter.dataset.TransectDataset(
         train_paths,
         window_len=int(1.5 * sample_shape[0]),
@@ -187,6 +200,7 @@ def train(
         use_dynamic_offsets=True,
         transform_pre=train_transform_pre,
         transform_post=train_transform_post,
+        **dataset_args
     )
     dataset_val = echofilter.dataset.TransectDataset(
         val_paths,
@@ -195,15 +209,17 @@ def train(
         num_windows_per_transect=None,
         use_dynamic_offsets=False,
         transform_post=val_transform,
+        **dataset_args
     )
     dataset_augval = echofilter.dataset.TransectDataset(
         val_paths,
-        window_len=sample_shape[0],
+        window_len=int(1.5 * sample_shape[0]),
         crop_depth=crop_depth,
         num_windows_per_transect=None,
         use_dynamic_offsets=False,
         transform_pre=train_transform_pre,
         transform_post=train_transform_post,
+        **dataset_args
     )
     print('Train dataset has {:4d} samples'.format(len(dataset_train)))
     print('Val   dataset has {:4d} samples'.format(len(dataset_val)))
@@ -589,7 +605,7 @@ def train(
                     model,
                     os.path.join(data_dir + '_sharded', transect_name),
                     sample_shape=sample_shape,
-                    crop_depth=crop_depth,
+                    crop_depth=DEFAULT_CROP_DEPTH_PLOTS if crop_depth is None else crop_depth,
                     device=device,
                     dtype=torch.float,
                 )
@@ -879,9 +895,10 @@ def generate_from_transect(model, transect, sample_shape, crop_depth, device, dt
     data = copy.deepcopy(transect)
 
     # Apply depth crop
-    depth_crop_mask = data['depths'] <= crop_depth
-    data['depths'] = data['depths'][depth_crop_mask]
-    data['signals'] = data['signals'][:, depth_crop_mask]
+    if crop_depth is not None:
+        depth_crop_mask = data['depths'] <= crop_depth
+        data['depths'] = data['depths'][depth_crop_mask]
+        data['signals'] = data['signals'][:, depth_crop_mask]
 
     # Configure data to match what the model expects to see
     # Ensure depth is always increasing (which corresponds to descending from
@@ -1033,8 +1050,8 @@ def main():
     parser.add_argument(
         '--crop-depth',
         type=float,
-        default=70,
-        help='depth, in metres, at which data should be truncated (default: 70)',
+        default=None,
+        help="depth, in metres, at which data should be truncated (default: None)",
     )
     parser.add_argument(
         '--resume',
@@ -1063,20 +1080,22 @@ def main():
         '--nblock', '--num-blocks',
         dest='n_block',
         type=int,
-        default=4,
-        help='number of blocks down and up in the UNet (default: 4)',
+        default=6,
+        help="number of blocks down and up in the UNet (default: 6)",
     )
     parser.add_argument(
         '--latent-channels',
         type=int,
-        default=64,
-        help='number of initial/final latent channels to use in the model (default: 64)',
+        default=32,
+        help="number of initial/final latent channels to use in the model (default: 32)",
     )
     parser.add_argument(
         '--expansion-factor',
         type=float,
-        default=2.,
-        help='expansion for number of channels as model becomes deeper (default: 2.)',
+        default=1.,
+        help=
+            "expansion for number of channels as model becomes deeper"
+            " (default: 1., constant number of channels)",
     )
     parser.add_argument(
         '--expand-only-on-down',
@@ -1087,15 +1106,19 @@ def main():
         '--blocks-per-downsample',
         nargs='+',
         type=int,
-        default=(1, ),
-        help='for each dim, number of blocks between downsample steps (default: 1)',
+        default=(2, 1),
+        help=
+            "for each dim (time, depth), number of blocks between downsample"
+            " steps (default: [2, 1])",
     )
     parser.add_argument(
         '--blocks-before-first-downsample',
         nargs='+',
         type=int,
-        default=(1, ),
-        help='for each dim, number of blocks before first downsample step (default: 1)',
+        default=(2, 1),
+        help=
+            "for each dim (time, depth), number of blocks before first"
+            " downsample step (default: [2, 1])",
     )
     parser.add_argument(
         '--only-skip-connection-on-downsample',
@@ -1106,8 +1129,10 @@ def main():
     parser.add_argument(
         '--deepest-inner',
         type=str,
-        default='identity',
-        help='layer to include at the deepest point of the UNet (default: "identity")',
+        default="horizontal_block",
+        help=
+            "layer to include at the deepest point of the UNet"
+            ' (default: "horizontal_block"). Set to "identity" to disable.',
     )
     parser.add_argument(
         '--intrablock-expansion',
@@ -1186,28 +1211,28 @@ def main():
         '-j', '--workers',
         dest='n_worker',
         type=int,
-        default=4,
+        default=8,
         metavar='N',
-        help='number of data loading workers (default: 4)',
+        help="number of data loading workers (default: 8)",
     )
     parser.add_argument(
         '-p', '--print-freq',
         type=int,
-        default=10,
-        help='print frequency (default: 10)',
+        default=50,
+        help="print frequency (default: 50)",
     )
     parser.add_argument(
         '-b', '--batch-size',
         type=int,
-        default=64,
-        help='mini-batch size (default: 64)',
+        default=16,
+        help="mini-batch size (default: 16)",
     )
     parser.add_argument(
         '--epochs',
         dest='n_epoch',
         type=int,
         default=20,
-        help='number of total epochs to run',
+        help="number of total epochs to run (default: 20)",
     )
     parser.add_argument(
         '--seed',
@@ -1221,8 +1246,8 @@ def main():
         '--optim', '--optimiser', '--optimizer',
         dest='optimizer',
         type=str,
-        default='adamw',
-        help='optimizer name (default: "adamw")',
+        default="rangerva",
+        help='optimizer name (default: "rangerva")',
     )
     parser.add_argument(
         '--schedule',
@@ -1236,7 +1261,7 @@ def main():
         type=float,
         default=0.1,
         metavar='LR',
-        help='initial learning rate',
+        help="initial learning rate (default: 0.1)",
     )
     parser.add_argument(
         '--momentum',
@@ -1260,18 +1285,18 @@ def main():
     parser.add_argument(
         '--warmup-pct',
         type=float,
-        default=0.3,
+        default=0.2,
         help=
-            'fraction of training to spend warming up LR; only used for'
-            ' OneCycle MesaOneCycle schedules (default: 0.3)',
+            "fraction of training to spend warming up LR; only used for"
+            " OneCycle MesaOneCycle schedules (default: 0.2)",
     )
     parser.add_argument(
         '--warmdown-pct',
         type=float,
-        default=0.75,
+        default=0.7,
         help=
-            'fraction of training before warming down LR; only used for'
-            ' MesaOneCycle schedule (default: 0.75)',
+            "fraction of training before warming down LR; only used for"
+            " MesaOneCycle schedule (default: 0.7)",
     )
     parser.add_argument(
         '--anneal-strategy',
