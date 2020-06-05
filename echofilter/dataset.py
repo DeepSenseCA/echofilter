@@ -5,8 +5,8 @@ import warnings
 import numpy as np
 import torch.utils.data
 
-import echofilter.shardloader
-import echofilter.utils
+from . import shardloader
+from . import utils
 
 
 class TransectDataset(torch.utils.data.Dataset):
