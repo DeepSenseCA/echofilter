@@ -146,9 +146,8 @@ def train(
     # Augmentations
     train_transform_pre = torchvision.transforms.Compose([
         echofilter.transforms.RandomCropWidth(0.5),
-        echofilter.transforms.RandomStretchDepth(0.5),
+        echofilter.transforms.RandomCropDepth(),
         echofilter.transforms.RandomReflection(),
-        echofilter.transforms.RandomCropTop(0.75),
     ])
     train_transform_post = torchvision.transforms.Compose([
         echofilter.transforms.Normalize(DATA_MEAN, DATA_STDEV),
@@ -157,6 +156,7 @@ def train(
         echofilter.transforms.Rescale(sample_shape),
     ])
     val_transform = torchvision.transforms.Compose([
+        echofilter.transforms.OptimalCropDepth(),
         echofilter.transforms.Normalize(DATA_MEAN, DATA_STDEV),
         echofilter.transforms.ReplaceNan(-3),
         echofilter.transforms.Rescale(sample_shape),
