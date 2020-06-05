@@ -1,6 +1,6 @@
-'''
+"""
 Utilities for pytorch modules.
-'''
+"""
 
 import collections
 from itertools import repeat
@@ -12,7 +12,7 @@ from torch import nn
 from ..utils import rint
 
 
-__all__ = ['same_to_padding', 'init_cnn']
+__all__ = ["same_to_padding", "init_cnn"]
 
 
 def _ntuple(n):
@@ -20,12 +20,14 @@ def _ntuple(n):
         if isinstance(x, container_abcs.Iterable):
             x = tuple(x)
             if len(x) == 0:
-                raise ValueError('Input {} is an empty iterable'.format(x))
+                raise ValueError("Input {} is an empty iterable".format(x))
             if len(x) > 1 or n == 1:
                 return x
             x = x[0]
         return tuple(repeat(x, n))
+
     return parse
+
 
 _single = _ntuple(1)
 _pair = _ntuple(2)
@@ -34,9 +36,9 @@ _quadruple = _ntuple(4)
 
 
 def same_to_padding(kernel_size, stride=1, dilation=1, ndim=None):
-    '''
+    """
     Determines the amount of padding to use for a convolutional layer.
-    '''
+    """
 
     if isinstance(kernel_size, int):
         if kernel_size % 2 == 0:
@@ -58,7 +60,7 @@ def same_to_padding(kernel_size, stride=1, dilation=1, ndim=None):
     elif isinstance(dilation, collections.sequence):
         ndim = len(dilation)
     else:
-        raise ValueError('Wrong argument type. Must be int or iterable.')
+        raise ValueError("Wrong argument type. Must be int or iterable.")
 
     ntuple = _ntuple(ndim)
     kernel_size = ntuple(kernel_size)
@@ -70,7 +72,7 @@ def same_to_padding(kernel_size, stride=1, dilation=1, ndim=None):
 
 
 def init_cnn(m):
-    '''
+    """
     Initialise biases and weights for a CNN layer, using a Kaiming normal
     distribution for the weight and 0 for biases.
 
@@ -80,8 +82,8 @@ def init_cnn(m):
     ----------
     m : torch.nn.Module
         Module
-    '''
-    if getattr(m, 'bias', None) is not None:
+    """
+    if getattr(m, "bias", None) is not None:
         nn.init.constant_(m.bias, 0)
     if isinstance(m, (nn._ConvNd, nn.Linear)):
         nn.init.kaiming_normal_(m.weight)

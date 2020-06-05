@@ -1,9 +1,9 @@
-'''
+"""
 Pytorch activation functions.
 
 Swish and Mish implementations taken from https://github.com/fastai/fastai2
 under the Apache License Version 2.0.
-'''
+"""
 
 import functools
 
@@ -13,19 +13,19 @@ import torch.nn.functional as F
 
 
 __all__ = [
-    'str2actfnfactory',
-    'InplaceReLU',
-    'swish',
-    'Swish',
-    'HardSwish',
-    'mish',
-    'Mish',
-    'HardMish',
+    "str2actfnfactory",
+    "InplaceReLU",
+    "swish",
+    "Swish",
+    "HardSwish",
+    "mish",
+    "Mish",
+    "HardMish",
 ]
 
 
 def str2actfnfactory(actfn_name):
-    '''
+    """
     Maps an activation function name to a factory which generates that
     activation function as a `torch.nn.Module` object.
 
@@ -38,30 +38,27 @@ def str2actfnfactory(actfn_name):
     -------
     callable
         A `torch.nn.Module` subclass generator.
-    '''
+    """
     if hasattr(nn, actfn_name):
         return getattr(nn, actfn_name)
 
     actfn_name_og = actfn_name
-    actfn_name = actfn_name.lower().replace('-', '').replace('_', '')
-    if actfn_name == 'inplacerelu' or actfn_name == 'reluinplace':
+    actfn_name = actfn_name.lower().replace("-", "").replace("_", "")
+    if actfn_name == "inplacerelu" or actfn_name == "reluinplace":
         return InplaceReLU
-    elif actfn_name == 'swish':
+    elif actfn_name == "swish":
         return Swish
-    elif actfn_name == 'hardswish':
+    elif actfn_name == "hardswish":
         return HardSwish
-    elif actfn_name == 'mish':
+    elif actfn_name == "mish":
         return Mish
-    elif actfn_name == 'hardmish':
+    elif actfn_name == "hardmish":
         return HardMish
     else:
-        raise ValueError('Unrecognised activation function: {}'.format(actfn_name_og))
+        raise ValueError("Unrecognised activation function: {}".format(actfn_name_og))
 
 
-InplaceReLU = functools.partial(
-    nn.ReLU,
-    inplace=True,
-)
+InplaceReLU = functools.partial(nn.ReLU, inplace=True,)
 
 
 # Swish
@@ -98,11 +95,12 @@ class Swish(nn.Module):
 
 
 class HardSwish(nn.Module):
-    '''
+    """
     A second-order approximation to the swish activation function.
 
     See https://arxiv.org/abs/1905.02244
-    '''
+    """
+
     def __init__(self, inplace=True):
         super().__init__()
         self.inplace = inplace
@@ -112,7 +110,7 @@ class HardSwish(nn.Module):
         return x * self.relu6(x + 3) / 6
 
     def extra_repr(self):
-        inplace_str = 'inplace=True' if self.inplace else 'inplace=False'
+        inplace_str = "inplace=True" if self.inplace else "inplace=False"
         return inplace_str
 
 
@@ -142,40 +140,42 @@ class MishJitAutoFn(torch.autograd.Function):
 
 
 def mish(x):
-    '''
+    """
     Applies the mish function element-wise:
     mish(x) = x * tanh(softplus(x)) = x * tanh(ln(1 + exp(x)))
 
     See https://arxiv.org/abs/1908.08681
-    '''
+    """
     return MishJitAutoFn.apply(x)
 
 
 class Mish(nn.Module):
-    '''
+    """
     Applies the mish function element-wise:
     mish(x) = x * tanh(softplus(x)) = x * tanh(ln(1 + exp(x)))
 
     See https://arxiv.org/abs/1908.08681
-    '''
+    """
+
     def forward(self, x):
         return MishJitAutoFn.apply(x)
 
 
 class HardMish(nn.Module):
-    '''
+    """
     A second-order approximation to the mish activation function.
 
     Notes
     -----
     https://forums.fast.ai/t/hard-mish-activation-function/59238
-    '''
+    """
+
     def __init__(self, inplace=True):
-        self.relu5 = nn.Hardtanh(0., 5., inplace)
+        self.relu5 = nn.Hardtanh(0.0, 5.0, inplace)
 
     def forward(self, x):
         return x * self.relu5(x + 3) / 5
 
     def extra_repr(self):
-        inplace_str = 'inplace=True' if self.inplace else 'inplace=False'
+        inplace_str = "inplace=True" if self.inplace else "inplace=False"
         return inplace_str

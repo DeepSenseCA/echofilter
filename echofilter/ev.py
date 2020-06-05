@@ -12,10 +12,7 @@ ECHOVIEW_COM_NAME = "EchoviewCom.EvApplication"
 
 @contextmanager
 def maybe_open_echoview(
-    app=None,
-    do_open=True,
-    minimize=False,
-    hide="new",
+    app=None, do_open=True, minimize=False, hide="new",
 ):
     """
     If the current pointer to the Echoview is invalid, open an Echoview window.
@@ -92,8 +89,7 @@ def open_ev_file(filename, app=None):
                 " It appears that you already have a file open in echoview."
                 " Please close echoview before running echofilter."
                 " You can re-open echoview once echofilter is running and"
-                " continue your work without distrupting echofilter."
-                .format(filename)
+                " continue your work without distrupting echofilter.".format(filename)
             )
         try:
             yield ev_file

@@ -1,6 +1,6 @@
-'''
+"""
 Converting raw data into shards, and loading data from shards.
-'''
+"""
 
 import os
 import numpy as np
@@ -13,12 +13,12 @@ ROOT_DATA_DIR = raw.loader.ROOT_DATA_DIR
 
 def segment_and_shard_transect(
     transect_pth,
-    dataset='mobile',
+    dataset="mobile",
     max_depth=None,
     shard_len=128,
-    root_data_dir=ROOT_DATA_DIR
+    root_data_dir=ROOT_DATA_DIR,
 ):
-    '''
+    """
     Creates a sharded copy of a transect, with the transect cut into segments
     based on recording starts/stops. Each segment is split across multiple
     files (shards) for efficient loading.
@@ -44,33 +44,34 @@ def segment_and_shard_transect(
     The segments will be written to the directories
         <root_data_dir>_sharded/<dataset>/transect_path/<segment>/
     For the contents of each directory, see `write_transect_shards`.
-    '''
+    """
     # Define output destination
     root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
-    root_shard_dir = os.path.join(root_data_dir + '_sharded', dataset)
+    root_shard_dir = os.path.join(root_data_dir + "_sharded", dataset)
 
     # Load the data, with mask decomposed into top, bottom, passive,
     # and removed regions.
     transect = raw.manipulate.load_decomposed_transect_mask(
-        os.path.join(root_data_dir, dataset, transect_pth),
-        dataset,
+        os.path.join(root_data_dir, dataset, transect_pth), dataset,
     )
 
     segments = raw.manipulate.split_transect(**transect)
 
     for i_segment, segment in enumerate(segments):
         dirname = os.path.join(root_shard_dir, transect_pth, str(i_segment))
-        write_transect_shards(dirname, segment, max_depth=max_depth, shard_len=shard_len)
+        write_transect_shards(
+            dirname, segment, max_depth=max_depth, shard_len=shard_len
+        )
 
     n_segment = i_segment + 1
 
     # Save segmentation metadata
-    with open(os.path.join(root_shard_dir, transect_pth, 'n_segment.txt'), 'w') as hf:
+    with open(os.path.join(root_shard_dir, transect_pth, "n_segment.txt"), "w") as hf:
         print(str(n_segment), file=hf)
 
 
 def write_transect_shards(dirname, transect, max_depth=None, shard_len=128):
-    '''
+    """
     Creates a sharded copy of a transect, with the transect cut by timestamp
     and split across multiple files.
 
@@ -108,40 +109,39 @@ def write_transect_shards(dirname, transect, max_depth=None, shard_len=128):
         - is_upward_facing.npy
 
       which contain pickled numpy dumps of the matrices for each shard.
-    '''
+    """
 
     # Remove depths which are too deep for us to care about
     if max_depth is not None:
-        depth_mask = transect['depths'] <= max_depth
-        transect['depths'] = transect['depths'][depth_mask]
-        transect['Sv'] = transect['Sv'][:, depth_mask]
-        transect['mask'] = transect['mask'][:, depth_mask]
+        depth_mask = transect["depths"] <= max_depth
+        transect["depths"] = transect["depths"][depth_mask]
+        transect["Sv"] = transect["Sv"][:, depth_mask]
+        transect["mask"] = transect["mask"][:, depth_mask]
 
     # Reduce floating point precision for some variables
-    for key in ('Sv', 'top', 'bottom'):
+    for key in ("Sv", "top", "bottom"):
         transect[key] = np.half(transect[key])
 
     # Ensure is_upward_facing is an array
-    transect['is_upward_facing'] = np.array(transect['is_upward_facing'])
+    transect["is_upward_facing"] = np.array(transect["is_upward_facing"])
 
     # Prep output directory
     os.makedirs(dirname, exist_ok=True)
 
     # Save sharding metadata (total number of datapoints, shard size) to
     # make loading from the shards easier
-    with open(os.path.join(dirname, 'shard_size.txt'), 'w') as hf:
-        print('{},{}'.format(transect['Sv'].shape[0], shard_len), file=hf)
+    with open(os.path.join(dirname, "shard_size.txt"), "w") as hf:
+        print("{},{}".format(transect["Sv"].shape[0], shard_len), file=hf)
 
     # Work out where to split the arrays
-    indices = range(shard_len, transect['Sv'].shape[0], shard_len)
+    indices = range(shard_len, transect["Sv"].shape[0], shard_len)
 
     # Split the transect into shards
     n_shards = len(indices) + 1
     shards = [{} for _ in range(n_shards)]
     for key in transect:
-        if (
-            key in ('depths', 'is_upward_facing') or
-            not hasattr(transect[key], '__len__')
+        if key in ("depths", "is_upward_facing") or not hasattr(
+            transect[key], "__len__"
         ):
             for i_shards in range(n_shards):
                 shards[i_shards][key] = transect[key]
@@ -151,16 +151,16 @@ def write_transect_shards(dirname, transect, max_depth=None, shard_len=128):
 
     for shard in shards:
         if shard.keys() != shards[0].keys():
-            raise ValueError('Inconsistent split lengths')
+            raise ValueError("Inconsistent split lengths")
 
     # Save the data for each of the shards
     for i_shard, shard in enumerate(shards):
-        fname = os.path.join(dirname, '{}.npz'.format(i_shard))
+        fname = os.path.join(dirname, "{}.npz".format(i_shard))
         np.savez_compressed(fname, **shard)
 
 
 def _pad1d(array, pad_width, axis=0, **kwargs):
-    '''
+    """
     Pad an array along a single axis only.
 
     Parameters
@@ -183,9 +183,9 @@ def _pad1d(array, pad_width, axis=0, **kwargs):
     See also
     --------
     numpy.pad
-    '''
+    """
     pads = [(0, 0) for _ in range(array.ndim)]
-    if hasattr(pad_width, '__len__'):
+    if hasattr(pad_width, "__len__"):
         pads[axis] = pad_width
     else:
         pads[axis] = (pad_width, pad_width)
@@ -193,12 +193,9 @@ def _pad1d(array, pad_width, axis=0, **kwargs):
 
 
 def load_transect_from_shards_abs(
-    transect_abs_pth,
-    i1=0,
-    i2=None,
-    pad_mode='edge',
+    transect_abs_pth, i1=0, i2=None, pad_mode="edge",
 ):
-    '''
+    """
     Load transect data from shard files.
 
     Parameters
@@ -254,25 +251,26 @@ def load_transect_from_shards_abs(
                 deepest depth (i.e. the seabed), facing upwards. Otherwise, the
                 recording source is at the shallowest depth (i.e. the surface),
                 facing downwards.
-    '''
+    """
     # Load the sharding metadata
-    with open(os.path.join(transect_abs_pth, 'shard_size.txt'), 'r') as f:
-        n_timestamps, shard_len = f.readline().strip().split(',')
+    with open(os.path.join(transect_abs_pth, "shard_size.txt"), "r") as f:
+        n_timestamps, shard_len = f.readline().strip().split(",")
         n_timestamps = int(n_timestamps)
         shard_len = int(shard_len)
     # Set the default value for i2
-    if i2 is None: i2 = n_timestamps
+    if i2 is None:
+        i2 = n_timestamps
 
     # Sanity check
     if i1 > n_timestamps:
         raise ValueError(
-            'All requested datapoints out of range: {}, {} > {}'
-            .format(i1, i2, n_timestamps)
+            "All requested datapoints out of range: {}, {} > {}".format(
+                i1, i2, n_timestamps
+            )
         )
     if i2 < 0:
         raise ValueError(
-            'All requested datapoints out of range: {}, {} < {}'
-            .format(i1, i2, 0)
+            "All requested datapoints out of range: {}, {} < {}".format(i1, i2, 0)
         )
     # Make indices safe
     i1_ = max(0, i1)
@@ -284,13 +282,13 @@ def load_transect_from_shards_abs(
     transect = {}
 
     shards = [
-        np.load(os.path.join(transect_abs_pth, str(j) + '.npz'), allow_pickle=True)
+        np.load(os.path.join(transect_abs_pth, str(j) + ".npz"), allow_pickle=True)
         for j in range(j1, j2 + 1)
     ]
     # Depths and is_upward_facing should all be the same. Only load one of
     # each of them.
     for key in shards[0].keys():
-        if key in ('depths', 'is_upward_facing'):
+        if key in ("depths", "is_upward_facing"):
             transect[key] = shards[0][key]
         else:
             broad_data = np.concatenate([shard[key] for shard in shards])
@@ -309,12 +307,12 @@ def load_transect_from_shards_rel(
     transect_rel_pth,
     i1=0,
     i2=None,
-    dataset='mobile',
+    dataset="mobile",
     segment=0,
     root_data_dir=ROOT_DATA_DIR,
     **kwargs,
 ):
-    '''
+    """
     Load transect data from shard files.
 
     Parameters
@@ -340,23 +338,17 @@ def load_transect_from_shards_rel(
     Returns
     -------
     See `load_transect_from_shards_abs`.
-    '''
+    """
     root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
-    root_shard_dir = os.path.join(root_data_dir + '_sharded', dataset)
+    root_shard_dir = os.path.join(root_data_dir + "_sharded", dataset)
     dirname = os.path.join(root_shard_dir, transect_rel_pth, str(segment))
-    return load_transect_from_shards_abs(
-        dirname,
-        i1=i1,
-        i2=i2,
-        **kwargs,
-    )
+    return load_transect_from_shards_abs(dirname, i1=i1, i2=i2, **kwargs,)
 
 
 def load_transect_segments_from_shards_abs(
-    transect_abs_pth,
-    segments=None,
+    transect_abs_pth, segments=None,
 ):
-    '''
+    """
     Load transect data from shard files.
 
     Parameters
@@ -369,10 +361,10 @@ def load_transect_segments_from_shards_abs(
     Returns
     -------
     See `load_transect_from_shards_abs`.
-    '''
+    """
     if segments is None:
         # Load the segmentation metadata
-        with open(os.path.join(transect_abs_pth, 'n_segment.txt'), 'r') as f:
+        with open(os.path.join(transect_abs_pth, "n_segment.txt"), "r") as f:
             n_segment = int(f.readline().strip())
         segments = range(n_segment)
 
@@ -387,12 +379,9 @@ def load_transect_segments_from_shards_abs(
 
 
 def load_transect_segments_from_shards_rel(
-    transect_rel_pth,
-    dataset='mobile',
-    segments=None,
-    root_data_dir=ROOT_DATA_DIR,
+    transect_rel_pth, dataset="mobile", segments=None, root_data_dir=ROOT_DATA_DIR,
 ):
-    '''
+    """
     Load transect data from shard files.
 
     Parameters
@@ -411,14 +400,11 @@ def load_transect_segments_from_shards_rel(
     Returns
     -------
     See `load_transect_from_shards_abs`.
-    '''
+    """
     root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
-    root_shard_dir = os.path.join(root_data_dir + '_sharded', dataset)
+    root_shard_dir = os.path.join(root_data_dir + "_sharded", dataset)
     dirname = os.path.join(root_shard_dir, transect_rel_pth)
-    return load_transect_segments_from_shards_abs(
-        dirname,
-        segments=segments,
-    )
+    return load_transect_segments_from_shards_abs(dirname, segments=segments,)
 
 
 # Backwards compatibility

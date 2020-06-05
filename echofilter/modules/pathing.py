@@ -1,6 +1,6 @@
-'''
+"""
 Connectors and pathing modules.
-'''
+"""
 
 import torch
 from torch import nn
@@ -10,10 +10,10 @@ from .conv import PointwiseConv2d
 
 
 class ResidualConnect(nn.Module):
-    '''
+    """
     Joins up a residual connection, with smart mapping for changes in the
     number of channels.
-    '''
+    """
 
     def __init__(self, in_channels, out_channels):
         super(ResidualConnect, self).__init__()
@@ -40,11 +40,12 @@ class ResidualConnect(nn.Module):
 
 
 class FlexibleConcat2d(nn.Module):
-    '''
+    """
     Concatenate two inputs of nearly the same shape.
-    '''
+    """
+
     def forward(self, x1, x2):
-        '''
+        """
         Parameters
         ----------
         x1 : torch.Tensor
@@ -57,7 +58,7 @@ class FlexibleConcat2d(nn.Module):
         torch.Tensor
             Concatenated `x1` (padded if necessary) and `x2`, along
             dimension `1`.
-        '''
+        """
         # input is CHW
         diffY = torch.tensor([x2.shape[-2] - x1.shape[-2]])
         diffX = torch.tensor([x2.shape[-1] - x1.shape[-1]])
@@ -66,7 +67,7 @@ class FlexibleConcat2d(nn.Module):
             x1 = F.pad(
                 x1,
                 [diffX // 2, diffX - diffX // 2, diffY // 2, diffY - diffY // 2],
-                mode='replicate',
+                mode="replicate",
             )
         # if you have padding issues, see
         # https://github.com/HaiyongJiang/U-Net-Pytorch-Unstructured-Buggy/commit/0e854509c2cea854e247a9c615f175f76fbb2e3a

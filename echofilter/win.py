@@ -21,7 +21,7 @@ class WindowManager:
     Based on: https://stackoverflow.com/a/2091530 and https://stackoverflow.com/a/4440622
     """
 
-    def __init__ (self, title=None, class_name=None, title_pattern=None):
+    def __init__(self, title=None, class_name=None, title_pattern=None):
         self.handle = None
         if title is not None:
             self.find_window(class_name=class_name, title=title)
@@ -33,8 +33,9 @@ class WindowManager:
         handle = win32gui.FindWindow(class_name, title)
         if handle == 0:
             raise EnvironmentError(
-                "Couldn't find window with class={}, title={}."
-                .format(class_name, title)
+                "Couldn't find window with class={}, title={}.".format(
+                    class_name, title
+                )
             )
         else:
             self.handle = handle
@@ -50,8 +51,7 @@ class WindowManager:
         win32gui.EnumWindows(self._window_enum_callback, pattern)
         if self.handle is None:
             raise EnvironmentError(
-                "Couldn't find a window with title matching pattern {}."
-                .format(pattern)
+                "Couldn't find a window with title matching pattern {}.".format(pattern)
             )
 
     def set_foreground(self):
@@ -74,7 +74,7 @@ def opencom(
     title=None,
     title_pattern=None,
     minimize=False,
-    hide='never',
+    hide="never",
 ):
     """
     Open a connection to an application with a COM object.
@@ -114,11 +114,10 @@ def opencom(
     win32com.gen_py
         Interface to COM object.
     """
-    HIDE_OPTIONS =  {"never", "new", "always"}
+    HIDE_OPTIONS = {"never", "new", "always"}
     if hide not in HIDE_OPTIONS:
         raise ValueError(
-            "Unsupported hide value: {}. Must be one of {}"
-            .format(hide, HIDE_OPTIONS)
+            "Unsupported hide value: {}. Must be one of {}".format(hide, HIDE_OPTIONS)
         )
 
     make_anew = can_make_anew
@@ -142,16 +141,16 @@ def opencom(
             app.Minimize()
             was_minimized = True
         except:
-            warnings.warn('Could not minimize {} window'.format(com_name))
+            warnings.warn("Could not minimize {} window".format(com_name))
 
     was_hidden = False
-    if hide == 'always' or (hide == 'new' and not existing_session):
+    if hide == "always" or (hide == "new" and not existing_session):
         # Find handle to the app based on the window title, and hide it
         winman = WindowManager()
         if title is None and title_pattern is None:
             raise ValueError(
-                'One of the arguments title or title_pattern must be set in'
-                ' order to hide the window.'
+                "One of the arguments title or title_pattern must be set in"
+                " order to hide the window."
             )
         if title is not None:
             try:
@@ -165,8 +164,9 @@ def opencom(
                 pass
         if winman.handle is None:
             warnings.warn(
-                'Could not hide {} window with title {}'
-                .format(com_name, title if title_pattern is None else title_pattern)
+                "Could not hide {} window with title {}".format(
+                    com_name, title if title_pattern is None else title_pattern
+                )
             )
         else:
             winman.hide()
@@ -177,24 +177,25 @@ def opencom(
     finally:
         # As we leave the context, fix the state of the app to how it was
         # before we started
-        command = ''
+        command = ""
         try:
             if not existing_session:
                 # If we opened it, tell the application to quit
-                command = 'exit'
+                command = "exit"
                 app.Quit()
             else:
                 if was_minimized:
                     # Restore the window from being minimised
-                    command = 'restore'
+                    command = "restore"
                     app.Restore()
                 if was_hidden:
                     # Show the window again
-                    command = 'unhide'
+                    command = "unhide"
                     winman.show()
         except:
             # We'll get an error if the application was already closed, etc
             warnings.warn(
-                'Could not {} the {} window with handle {}.'
-                .format(command, com_name, app)
+                "Could not {} the {} window with handle {}.".format(
+                    command, com_name, app
+                )
             )

@@ -15,12 +15,9 @@ ROOT_DATA_DIR = echofilter.raw.loader.ROOT_DATA_DIR
 
 
 def generate_shard(
-    transect_pth,
-    verbose=False,
-    fail_gracefully=True,
-    **kwargs,
+    transect_pth, verbose=False, fail_gracefully=True, **kwargs,
 ):
-    '''
+    """
     Shard a single transect.
 
     Wrapper around echofilter.shardloader.segment_and_shard_transect which
@@ -39,25 +36,24 @@ def generate_shard(
         any single transect hits an error. Default is `True`.
     *kwargs
         See `echofilter.shardloader.segment_and_shard_transect`.
-    '''
+    """
     if verbose:
-        print('Sharding {}'.format(transect_pth))
+        print("Sharding {}".format(transect_pth))
     try:
         echofilter.shardloader.segment_and_shard_transect(
-            transect_pth,
-            **kwargs,
+            transect_pth, **kwargs,
         )
     except Exception as ex:
         if not fail_gracefully:
             raise ex
-        print('Error sharding {}'.format(transect_pth))
+        print("Error sharding {}".format(transect_pth))
         print("".join(traceback.TracebackException.from_exception(ex).format()))
 
 
 def generate_shards(
     partition,
     dataset,
-    partitioning_version='firstpass',
+    partitioning_version="firstpass",
     progress_bar=False,
     ncores=None,
     verbose=False,
@@ -65,7 +61,7 @@ def generate_shards(
     root_data_dir=ROOT_DATA_DIR,
     **kwargs,
 ):
-    '''
+    """
     Shard all transections in one partition of a dataset.
 
     Wrapper around echofilter.shardloader.segment_and_shard_transect which
@@ -95,7 +91,7 @@ def generate_shards(
         any single transect hits an error. Default is `True`.
     *kwargs
         See `echofilter.shardloader.segment_and_shard_transect`.
-    '''
+    """
     if verbose:
         print('Getting partition list "{}" for "{}"'.format(partition, dataset))
     transect_pths = echofilter.raw.loader.get_partition_list(
@@ -106,11 +102,12 @@ def generate_shards(
         root_data_dir=root_data_dir,
     )
     if verbose:
-        print('Will process {} transects'.format(len(transect_pths)))
+        print("Will process {} transects".format(len(transect_pths)))
         print()
 
     if progress_bar:
         from tqdm.autonotebook import tqdm
+
         maybe_tqdm = lambda x: tqdm(x, total=len(session_paths))
     else:
         maybe_tqdm = lambda x: x
@@ -138,66 +135,52 @@ def main():
     # Create parser
 
     prog = os.path.split(sys.argv[0])[1]
-    if prog == '__main__.py' or prog == '__main__':
+    if prog == "__main__.py" or prog == "__main__":
         prog = os.path.split(__file__)[1]
-    parser = argparse.ArgumentParser(
-        prog=prog,
-        description='Generate dataset shards',
-    )
+    parser = argparse.ArgumentParser(prog=prog, description="Generate dataset shards",)
     parser.add_argument(
-        '--version',
+        "--version",
         "-V",
-        action='version',
-        version='%(prog)s {version}'.format(version=echofilter.__version__)
+        action="version",
+        version="%(prog)s {version}".format(version=echofilter.__version__),
     )
     parser.add_argument(
-        'partition',
-        type=str,
-        help='partition to shard',
+        "partition", type=str, help="partition to shard",
     )
     parser.add_argument(
-        'dataset',
-        type=str,
-        help='dataset to shard',
+        "dataset", type=str, help="dataset to shard",
     )
     parser.add_argument(
-        '--root',
-        dest='root_data_dir',
+        "--root",
+        dest="root_data_dir",
         type=str,
         default=ROOT_DATA_DIR,
-        help='root data directory',
+        help="root data directory",
     )
     parser.add_argument(
-        '--partitioning-version',
+        "--partitioning-version",
         type=str,
-        default='firstpass',
-        help='partitioning version',
+        default="firstpass",
+        help="partitioning version",
     )
     parser.add_argument(
-        '--max-depth',
+        "--max-depth",
         type=float,
         default=None,
-        help='maximum depth to include in sharded data',
+        help="maximum depth to include in sharded data",
     )
     parser.add_argument(
-        '--shard-len',
-        type=int,
-        default=128,
-        help='number of samples in each shard',
+        "--shard-len", type=int, default=128, help="number of samples in each shard",
     )
     parser.add_argument(
-        '--ncores',
+        "--ncores",
         type=int,
         default=None,
-        help=
-            'number of cores to use (default: all). Set to 1 to disable'
-            ' multiprocessing.',
+        help="number of cores to use (default: all). Set to 1 to disable"
+        " multiprocessing.",
     )
     parser.add_argument(
-        '--verbose', '-v',
-        action='count',
-        default=0,
-        help='increase verbosity',
+        "--verbose", "-v", action="count", default=0, help="increase verbosity",
     )
 
     # Parse command line arguments
@@ -210,5 +193,5 @@ def main():
     generate_shards(**vars(args))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

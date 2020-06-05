@@ -1,6 +1,6 @@
-'''
+"""
 General utility functions.
-'''
+"""
 
 import numpy as np
 import torch
@@ -8,7 +8,7 @@ from torch import nn
 
 
 def rint(x, minval=None):
-    '''
+    """
     Rounds and casts as an int, optionally with a floor value.
 
     Parameters
@@ -24,7 +24,7 @@ def rint(x, minval=None):
     int
         The number rounded to the nearest int, and cast as an int. If `minval`
         is set, the max with `minval` is taken.
-    '''
+    """
     x = int(round(x))
     if minval is not None:
         x = max(minval, x)
@@ -32,7 +32,7 @@ def rint(x, minval=None):
 
 
 def first_nonzero(arr, axis=-1, invalid_val=-1):
-    '''
+    """
     Find the index of the first non-zero element in an array.
 
     Parameters
@@ -43,13 +43,13 @@ def first_nonzero(arr, axis=-1, invalid_val=-1):
         Axis along which to search for a non-zero element. Default is `-1`.
     invalid_val : any, optional
         Value to return if all elements are zero. Default is `-1`.
-    '''
-    mask = arr!=0
+    """
+    mask = arr != 0
     return np.where(mask.any(axis=axis), mask.argmax(axis=axis), invalid_val)
 
 
 def last_nonzero(arr, axis=-1, invalid_val=-1):
-    '''
+    """
     Find the index of the last non-zero element in an array.
 
     Parameters
@@ -60,8 +60,8 @@ def last_nonzero(arr, axis=-1, invalid_val=-1):
         Axis along which to search for a non-zero element. Default is `-1`.
     invalid_val : any, optional
         Value to return if all elements are zero. Default is `-1`.
-    '''
-    mask = arr!=0
+    """
+    mask = arr != 0
     val = arr.shape[axis] - np.flip(mask, axis=axis).argmax(axis=axis) - 1
     return np.where(mask.any(axis=axis), val, invalid_val)
 
@@ -102,7 +102,7 @@ def get_indicator_onoffsets(indicator):
 
 
 def get_current_lr(optimizer):
-    '''
+    """
     Get the learning rate of an optimizer.
 
     Parameters
@@ -114,12 +114,12 @@ def get_current_lr(optimizer):
     -------
     float
         The learning rate of the first parameter group.
-    '''
-    return optimizer.param_groups[0]['lr']
+    """
+    return optimizer.param_groups[0]["lr"]
 
 
 def get_current_momentum(optimizer):
-    '''
+    """
     Get the momentum of an optimizer.
 
     Parameters
@@ -133,15 +133,17 @@ def get_current_momentum(optimizer):
     -------
     float
         The momentum of the first parameter group.
-    '''
-    if 'momentum' not in optimizer.defaults and 'betas' not in optimizer.defaults:
-        raise ValueError('optimizer {} does not support momentum'.format(optimizer.__class__))
+    """
+    if "momentum" not in optimizer.defaults and "betas" not in optimizer.defaults:
+        raise ValueError(
+            "optimizer {} does not support momentum".format(optimizer.__class__)
+        )
 
     group = optimizer.param_groups[0]
-    if 'momentum' in group:
-        return group['momentum']
+    if "momentum" in group:
+        return group["momentum"]
     else:
-        return group['betas'][0]
+        return group["betas"][0]
 
 
 class TensorDict(nn.ParameterDict):
@@ -166,6 +168,7 @@ class TensorDict(nn.ParameterDict):
             (string : :class:`~torch.Tensor`) or an iterable of key-value pairs
             of type (string, :class:`~torch.Tensor`)
     """
+
     def __init__(self, tensors=None):
         super(TensorDict, self).__init__(tensors)
 
@@ -179,17 +182,19 @@ class TensorDict(nn.ParameterDict):
                 from this module using the given key
             parameter (Parameter): parameter to be added to the module.
         """
-        if '_parameters' not in self.__dict__:
+        if "_parameters" not in self.__dict__:
             raise AttributeError(
-                "cannot assign parameter before Module.__init__() call")
+                "cannot assign parameter before Module.__init__() call"
+            )
 
         elif not isinstance(key, torch._six.string_classes):
-            raise TypeError("parameter key should be a string. "
-                            "Got {}".format(torch.typekey(key)))
-        elif '.' in key:
-            raise KeyError("parameter key can't contain \".\"")
-        elif key == '':
-            raise KeyError("parameter key can't be empty string \"\"")
+            raise TypeError(
+                "parameter key should be a string. " "Got {}".format(torch.typekey(key))
+            )
+        elif "." in key:
+            raise KeyError('parameter key can\'t contain "."')
+        elif key == "":
+            raise KeyError('parameter key can\'t be empty string ""')
         elif hasattr(self, key) and key not in self._parameters:
             raise KeyError("attribute '{}' already exists".format(key))
 
@@ -212,10 +217,11 @@ class TensorDict(nn.ParameterDict):
     def extra_repr(self):
         child_lines = []
         for k, p in self._parameters.items():
-            size_str = 'x'.join(str(size) for size in p.size())
-            device_str = '' if not p.is_cuda else ' (GPU {})'.format(p.get_device())
-            parastr = '{} containing: [{} of size {}{}]'.format(
-                p.__class__, torch.typename(p.data), size_str, device_str)
-            child_lines.append('  (' + k + '): ' + parastr)
-        tmpstr = '\n'.join(child_lines)
+            size_str = "x".join(str(size) for size in p.size())
+            device_str = "" if not p.is_cuda else " (GPU {})".format(p.get_device())
+            parastr = "{} containing: [{} of size {}{}]".format(
+                p.__class__, torch.typename(p.data), size_str, device_str
+            )
+            child_lines.append("  (" + k + "): " + parastr)
+        tmpstr = "\n".join(child_lines)
         return tmpstr
