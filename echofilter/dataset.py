@@ -162,7 +162,8 @@ class TransectDataset(torch.utils.data.Dataset):
 
         # Fix any broken surface lines (these were generated automatically
         # by Echoview and not adjusted by human annotator, so are not
-        # guaranteed to be sane.)
+        # guaranteed to be sane). In particular, values of -10000.990000
+        # indicate no surface depth given and this occurs during passive data.
         if np.any(sample["d_surf"] >= sample["d_bot"]):
             sample["d_surf"] = np.min(sample["depths"]) * np.ones_like(sample["d_surf"])
         sample["d_surf"] = np.minimum(sample["d_surf"], sample["d_top"])
