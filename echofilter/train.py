@@ -153,13 +153,13 @@ def train(
         echofilter.transforms.Normalize(DATA_MEAN, DATA_STDEV),
         echofilter.transforms.ColorJitter(0.5, 0.3),
         echofilter.transforms.ReplaceNan(-3),
-        echofilter.transforms.Rescale(sample_shape),
+        echofilter.transforms.Rescale(sample_shape, order=None),
     ])
     val_transform = torchvision.transforms.Compose([
         echofilter.transforms.OptimalCropDepth(),
         echofilter.transforms.Normalize(DATA_MEAN, DATA_STDEV),
         echofilter.transforms.ReplaceNan(-3),
-        echofilter.transforms.Rescale(sample_shape),
+        echofilter.transforms.Rescale(sample_shape, order=1),
     ])
 
     train_paths = get_partition_list(
