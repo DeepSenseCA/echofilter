@@ -433,7 +433,7 @@ class RandomCropDepth(object):
             close_bot_shallowest = max(
                 lim_bot_shallowest,
                 opt_bot_depth - close_dist_shrink,
-                np.percentile(sample["d_bot"], 50),
+                np.percentile(sample["d_bot-original"], 50),
             )
         close_bot_deepest = min(lim_bot_deepest, opt_bot_depth + close_dist_grow)
 
