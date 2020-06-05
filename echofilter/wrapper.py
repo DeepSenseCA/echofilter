@@ -237,6 +237,8 @@ class EchofilterLoss(_Loss):
         passive=1.0,
         patch=1.0,
         overall=0.0,
+        surface=1.0,
+        auxillary=1.0,
     ):
         super(EchofilterLoss, self).__init__(None, None, reduction)
         self.top_mask = top_mask
@@ -245,97 +247,125 @@ class EchofilterLoss(_Loss):
         self.passive = passive
         self.patch = patch
         self.overall = overall
+        self.surface = surface
+        self.auxillary = auxillary
 
     def forward(self, input, target):
         loss = 0
 
-        if not self.top_mask:
-            pass
-        elif "logit_is_above_top" in input:
-            loss += self.top_mask * F.binary_cross_entropy_with_logits(
-                input["logit_is_above_top"],
-                target["mask_top"].to(
-                    input["logit_is_above_top"].device,
-                    input["logit_is_above_top"].dtype,
-                ),
-                reduction=self.reduction,
-            )
-        elif "logit_is_boundary_top" in input:
-            X = target["mask_top"]
-            shp = list(X.shape)
-            shp[-1] = 1
-            X = torch.cat(
-                [
-                    torch.ones(shp, dtype=X.dtype, device=X.device),
-                    X,
-                    torch.zeros(shp, dtype=X.dtype, device=X.device),
-                ],
-                dim=-1,
-            )
-            X = X.float()
-            X = X.narrow(-1, 0, X.shape[-1] - 1) - X.narrow(-1, 1, X.shape[-1] - 1)
-            C = torch.argmax(X, dim=-1)
-            Cmax = torch.tensor(
-                [input["logit_is_boundary_top"].shape[-1] - 1],
-                device=C.device,
-                dtype=C.dtype,
-            )
-            C = torch.min(C, Cmax)
-            loss += self.top_mask * F.cross_entropy(
-                input["logit_is_boundary_top"].transpose(-2, -1),
-                C,
-                reduction=self.reduction,
-            )
-        else:
-            loss += self.top_mask * F.binary_cross_entropy(
-                input["p_is_above_top"], target["mask_top"], reduction=self.reduction,
-            )
+        for sfx in ("top", "top-original", "surface"):
+            if sfx == "surface":
+                weight = self.surface
+                target_key = "mask_surf"
+            else:
+                weight = self.top_mask
+                target_key = "mask_" + sfx
+                if sfx != "top":
+                    weight *= self.auxillary
+            if not weight:
+                continue
+            elif "logit_is_above_" + sfx in input:
+                loss += weight * F.binary_cross_entropy_with_logits(
+                    input["logit_is_above_" + sfx],
+                    target[target_key].to(
+                        input["logit_is_above_" + sfx].device,
+                        input["logit_is_above_" + sfx].dtype,
+                    ),
+                    reduction=self.reduction,
+                )
+            elif "logit_is_boundary_" + sfx in input:
+                X = target[target_key]
+                shp = list(X.shape)
+                shp[-1] = 1
+                X = torch.cat(
+                    [
+                        torch.ones(shp, dtype=X.dtype, device=X.device),
+                        X,
+                        torch.zeros(shp, dtype=X.dtype, device=X.device),
+                    ],
+                    dim=-1,
+                )
+                X = X.float()
+                X = X.narrow(-1, 0, X.shape[-1] - 1) - X.narrow(-1, 1, X.shape[-1] - 1)
+                C = torch.argmax(X, dim=-1)
+                Cmax = torch.tensor(
+                    [input["logit_is_boundary_" + sfx].shape[-1] - 1],
+                    device=C.device,
+                    dtype=C.dtype,
+                )
+                C = torch.min(C, Cmax)
+                loss += weight * F.cross_entropy(
+                    input["logit_is_boundary_" + sfx].transpose(-2, -1),
+                    C,
+                    reduction=self.reduction,
+                )
+            else:
+                loss += weight * F.binary_cross_entropy(
+                    input["p_is_above_" + sfx],
+                    target[target_key],
+                    reduction=self.reduction,
+                )
 
-        if not self.bottom_mask:
-            pass
-        elif "logit_is_below_bottom" in input:
-            loss += self.bottom_mask * F.binary_cross_entropy_with_logits(
-                input["logit_is_below_bottom"],
-                target["mask_bot"].to(
-                    input["logit_is_below_bottom"].device,
-                    input["logit_is_below_bottom"].dtype,
-                ),
-                reduction=self.reduction,
-            )
-        elif "logit_is_boundary_bottom" in input:
-            X = target["mask_bot"]
-            shp = list(X.shape)
-            shp[-1] = 1
-            X = torch.cat(
-                [
-                    torch.zeros(shp, dtype=X.dtype, device=X.device),
-                    X,
-                    torch.ones(shp, dtype=X.dtype, device=X.device),
-                ],
-                dim=-1,
-            )
-            X = X.float()
-            X = X.narrow(-1, 0, X.shape[-1] - 1) - X.narrow(-1, 1, X.shape[-1] - 1)
-            C = torch.argmin(X, dim=-1)
-            Cmax = torch.tensor(
-                [input["logit_is_boundary_bottom"].shape[-1] - 1],
-                device=C.device,
-                dtype=C.dtype,
-            )
-            C = torch.min(C, Cmax)
-            loss += self.bottom_mask * F.cross_entropy(
-                input["logit_is_boundary_bottom"].transpose(-2, -1),
-                C,
-                reduction=self.reduction,
-            )
-        else:
-            loss += self.bottom_mask * F.binary_cross_entropy(
-                input["p_is_below_bottom"],
-                target["mask_bot"].to(
-                    input["p_is_below_bottom"].device, input["p_is_below_bottom"].dtype
-                ),
-                reduction=self.reduction,
-            )
+        for sfx in ("", "-original"):
+            weight = 1 if sfx == "" else self.auxillary
+            if not self.bottom_mask:
+                pass
+            elif "logit_is_below_bottom" + sfx in input:
+                loss += (
+                    weight
+                    * self.bottom_mask
+                    * F.binary_cross_entropy_with_logits(
+                        input["logit_is_below_bottom" + sfx],
+                        target["mask_bot" + sfx].to(
+                            input["logit_is_below_bottom" + sfx].device,
+                            input["logit_is_below_bottom" + sfx].dtype,
+                        ),
+                        reduction=self.reduction,
+                    )
+                )
+            elif "logit_is_boundary_bottom" + sfx in input:
+                X = target["mask_bot" + sfx]
+                shp = list(X.shape)
+                shp[-1] = 1
+                X = torch.cat(
+                    [
+                        torch.zeros(shp, dtype=X.dtype, device=X.device),
+                        X,
+                        torch.ones(shp, dtype=X.dtype, device=X.device),
+                    ],
+                    dim=-1,
+                )
+                X = X.float()
+                X = X.narrow(-1, 0, X.shape[-1] - 1) - X.narrow(-1, 1, X.shape[-1] - 1)
+                C = torch.argmin(X, dim=-1)
+                Cmax = torch.tensor(
+                    [input["logit_is_boundary_bottom" + sfx].shape[-1] - 1],
+                    device=C.device,
+                    dtype=C.dtype,
+                )
+                C = torch.min(C, Cmax)
+                loss += (
+                    weight
+                    * self.bottom_mask
+                    * F.cross_entropy(
+                        input["logit_is_boundary_bottom" + sfx].transpose(-2, -1),
+                        C,
+                        reduction=self.reduction,
+                    )
+                )
+            else:
+                loss += (
+                    weight
+                    * self.bottom_mask
+                    * F.binary_cross_entropy(
+                        input["p_is_below_bottom" + sfx],
+                        target["mask_bot" + sfx].to(
+                            input["p_is_below_bottom" + sfx].device,
+                            input["p_is_below_bottom" + sfx].dtype,
+                        ),
+                        reduction=self.reduction,
+                    )
+                )
 
         if self.removed_segment:
             loss += self.removed_segment * F.binary_cross_entropy_with_logits(
@@ -355,11 +385,17 @@ class EchofilterLoss(_Loss):
                 reduction=self.reduction,
             )
 
-        if self.patch:
-            loss += self.patch * F.binary_cross_entropy_with_logits(
-                input["logit_is_patch"],
-                target["mask_patches"].to(
-                    input["logit_is_patch"].device, input["logit_is_patch"].dtype
+        for sfx in ("", "-original", "-ntob"):
+            weight = self.patch
+            if sfx != "":
+                weight *= self.auxillary
+            if not weight:
+                continue
+            loss += weight * F.binary_cross_entropy_with_logits(
+                input["logit_is_patch" + sfx],
+                target["mask_patches" + sfx].to(
+                    input["logit_is_patch" + sfx].device,
+                    input["logit_is_patch" + sfx].dtype,
                 ),
                 reduction=self.reduction,
             )
