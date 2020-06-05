@@ -159,6 +159,13 @@ class TransectDataset(torch.utils.data.Dataset):
 
         sample['depths'] = sample['depths'].astype(np.float32)
 
+        # Fix any broken surface lines (these were generated automatically
+        # by Echoview and not adjusted by human annotator, so are not
+        # guaranteed to be sane.)
+        if np.any(sample['d_surf'] >= sample['d_bot']):
+            sample['d_surf'] = np.min(sample['depths']) * np.ones_like(sample['d_surf'])
+        sample['d_surf'] = np.minimum(sample['d_surf'], sample['d_top'])
+
         if sample['is_upward_facing']:
             min_top_depth = np.min(sample['depths'])
             max_bot_depth = np.max(sample['depths']) - self.nearfield_visible_dist

@@ -216,6 +216,9 @@ def optimal_crop_depth(transect):
             deepest_depth = np.max(transect[key])
             break
 
+    if shallowest_depth >= deepest_depth:
+        return transect
+
     depth_mask = (shallowest_depth <= transect["depths"]) & (transect["depths"] <= deepest_depth)
 
     for key in _fields_1d_depthlike:
