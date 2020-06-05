@@ -11,7 +11,7 @@ from .utils import TensorDict
 
 
 class Echofilter(nn.Module):
-    def __init__(self, model, top="mask", bottom="mask"):
+    def __init__(self, model, top="boundary", bottom="boundary"):
         super(Echofilter, self).__init__()
         self.model = model
         self.params = {
