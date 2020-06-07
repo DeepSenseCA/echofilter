@@ -239,7 +239,10 @@ def run_inference(
         print("Constructing U-Net model, with arguments:")
         pprint.pprint(checkpoint["model_parameters"])
     model = Echofilter(
-        UNet(**checkpoint["model_parameters"]), top="boundary", bottom="boundary",
+        UNet(**checkpoint["model_parameters"]),
+        top="boundary",
+        bottom="boundary",
+        mapping=checkpoint.get("wrapper_mapping", None),
     )
     if verbose >= 1:
         print(

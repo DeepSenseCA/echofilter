@@ -282,7 +282,7 @@ def train(
     )
     model_parameters = dict(
         in_channels=1,
-        out_channels=5,
+        out_channels=10,
         initial_channels=latent_channels,
         bottleneck_channels=latent_channels,
         n_block=n_block,
@@ -718,6 +718,7 @@ def train(
             "center_method": CENTER_METHOD,
             "deviation_method": DEVIATION_METHOD,
             "nan_value": NAN_VALUE,
+            "wrapper_mapping": model.mapping,
         }
         if use_mixed_precision:
             checkpoint["amp"] = apex.amp.state_dict()
