@@ -300,10 +300,13 @@ class TransectDataset(torch.utils.data.Dataset):
                 ).astype(np.float32)
 
         sample["d_surf"][np.isnan(sample["d_surf"])] = np.min(sample["depths"])
-        sample["d_top"][np.isnan(sample["d_top"])] = min_top_depth
-        sample["d_bot"][np.isnan(sample["d_bot"])] = max_bot_depth
-        sample["d_top-original"][np.isnan(sample["d_top-original"])] = min_top_depth
-        sample["d_bot-original"][np.isnan(sample["d_bot-original"])] = max_bot_depth
+        for sfx in ("", "-original"):
+            if sample["is_upward_facing"]:
+                where_nan = np.isnan(sample["d_top" + sfx])
+                sample["d_top" + sfx][where_nan] = sample["d_surf"][where_nan]
+            else:
+                sample["d_top" + sfx][np.isnan(sample["d_top" + sfx])] = min_top_depth
+            sample["d_bot" + sfx][np.isnan(sample["d_bot" + sfx])] = max_bot_depth
 
         if self.transform_pre is not None:
             sample = self.transform_pre(sample)
