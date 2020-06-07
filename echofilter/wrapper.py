@@ -233,21 +233,19 @@ class EchofilterLoss(_Loss):
                 )
 
         for sfx in ("", "-original"):
-            weight = 1 if sfx == "" else self.auxillary
-            if not self.bottom_mask:
-                pass
+            weight = self.bottom_mask
+            if sfx != "":
+                weight *= self.auxillary
+            if not weight:
+                continue
             elif "logit_is_below_bottom" + sfx in input:
-                loss += (
-                    weight
-                    * self.bottom_mask
-                    * F.binary_cross_entropy_with_logits(
-                        input["logit_is_below_bottom" + sfx],
-                        target["mask_bot" + sfx].to(
-                            input["logit_is_below_bottom" + sfx].device,
-                            input["logit_is_below_bottom" + sfx].dtype,
-                        ),
-                        reduction=self.reduction,
-                    )
+                loss += weight * F.binary_cross_entropy_with_logits(
+                    input["logit_is_below_bottom" + sfx],
+                    target["mask_bot" + sfx].to(
+                        input["logit_is_below_bottom" + sfx].device,
+                        input["logit_is_below_bottom" + sfx].dtype,
+                    ),
+                    reduction=self.reduction,
                 )
             elif "logit_is_boundary_bottom" + sfx in input:
                 X = target["mask_bot" + sfx]
@@ -270,27 +268,19 @@ class EchofilterLoss(_Loss):
                     dtype=C.dtype,
                 )
                 C = torch.min(C, Cmax)
-                loss += (
-                    weight
-                    * self.bottom_mask
-                    * F.cross_entropy(
-                        input["logit_is_boundary_bottom" + sfx].transpose(-2, -1),
-                        C,
-                        reduction=self.reduction,
-                    )
+                loss += weight * F.cross_entropy(
+                    input["logit_is_boundary_bottom" + sfx].transpose(-2, -1),
+                    C,
+                    reduction=self.reduction,
                 )
             else:
-                loss += (
-                    weight
-                    * self.bottom_mask
-                    * F.binary_cross_entropy(
-                        input["p_is_below_bottom" + sfx],
-                        target["mask_bot" + sfx].to(
-                            input["p_is_below_bottom" + sfx].device,
-                            input["p_is_below_bottom" + sfx].dtype,
-                        ),
-                        reduction=self.reduction,
-                    )
+                loss += weight * F.binary_cross_entropy(
+                    input["p_is_below_bottom" + sfx],
+                    target["mask_bot" + sfx].to(
+                        input["p_is_below_bottom" + sfx].device,
+                        input["p_is_below_bottom" + sfx].dtype,
+                    ),
+                    reduction=self.reduction,
                 )
 
         if self.removed_segment:
