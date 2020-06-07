@@ -165,8 +165,8 @@ class EchofilterLoss(_Loss):
         overall=0.0,
         surface=1.0,
         auxillary=1.0,
-        ignore_lines_during_passive=False,
-        ignore_lines_during_removed=False,
+        ignore_lines_during_passive=True,
+        ignore_lines_during_removed=True,
     ):
         super(EchofilterLoss, self).__init__(None, None, reduction)
         self.top_mask = top_mask
