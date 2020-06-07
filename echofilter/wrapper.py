@@ -165,6 +165,8 @@ class EchofilterLoss(_Loss):
         overall=0.0,
         surface=1.0,
         auxillary=1.0,
+        ignore_lines_during_passive=True,
+        ignore_lines_during_removed=True,
     ):
         super(EchofilterLoss, self).__init__(None, None, reduction)
         self.top_mask = top_mask
@@ -175,9 +177,34 @@ class EchofilterLoss(_Loss):
         self.overall = overall
         self.surface = surface
         self.auxillary = auxillary
+        self.ignore_lines_during_passive = ignore_lines_during_passive
+        self.ignore_lines_during_removed = ignore_lines_during_removed
 
     def forward(self, input, target):
         loss = 0
+
+        target["is_passive"] = target["is_passive"].to(
+            input["logit_is_passive"].device,
+            input["logit_is_passive"].dtype,
+            non_blocking=True,
+        )
+        target["is_removed"] = target["is_removed"].to(
+            input["logit_is_removed"].device,
+            input["logit_is_removed"].dtype,
+            non_blocking=True,
+        )
+        apply_loss_inclusion = False
+        inner_reduction = self.reduction
+        loss_inclusion_mask = 1
+        if self.ignore_lines_during_passive:
+            apply_loss_inclusion = True
+            inner_reduction = "none"
+            loss_inclusion_mask *= 1 - target["is_passive"]
+        if self.ignore_lines_during_removed:
+            apply_loss_inclusion = True
+            inner_reduction = "none"
+            loss_inclusion_mask *= 1 - target["is_removed"]
+        loss_inclusion_sum = torch.sum(loss_inclusion_mask)
 
         for sfx in ("top", "top-original", "surface"):
             if sfx == "surface":
@@ -191,14 +218,20 @@ class EchofilterLoss(_Loss):
             if not weight:
                 continue
             elif "logit_is_above_" + sfx in input:
-                loss += weight * F.binary_cross_entropy_with_logits(
+                loss_term = F.binary_cross_entropy_with_logits(
                     input["logit_is_above_" + sfx],
                     target[target_key].to(
                         input["logit_is_above_" + sfx].device,
                         input["logit_is_above_" + sfx].dtype,
                     ),
-                    reduction=self.reduction,
+                    reduction=inner_reduction,
                 )
+                if apply_loss_inclusion:
+                    loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
+                    loss_term = torch.sum(loss_term)
+                    if self.reduction == "mean":
+                        loss_term = loss_term / loss_inclusion_sum
+                loss += weight * loss_term
             elif "logit_is_boundary_" + sfx in input:
                 X = target[target_key]
                 shp = list(X.shape)
@@ -220,35 +253,51 @@ class EchofilterLoss(_Loss):
                     dtype=C.dtype,
                 )
                 C = torch.min(C, Cmax)
-                loss += weight * F.cross_entropy(
+                loss_term = F.cross_entropy(
                     input["logit_is_boundary_" + sfx].transpose(-2, -1),
                     C,
-                    reduction=self.reduction,
+                    reduction=inner_reduction,
                 )
+                if apply_loss_inclusion:
+                    loss_term = loss_term * loss_inclusion_mask
+                    loss_term = torch.sum(loss_term)
+                    if self.reduction == "mean":
+                        loss_term = loss_term / loss_inclusion_sum
+                loss += weight * loss_term
             else:
-                loss += weight * F.binary_cross_entropy(
+                loss_term = F.binary_cross_entropy(
                     input["p_is_above_" + sfx],
                     target[target_key],
-                    reduction=self.reduction,
+                    reduction=inner_reduction,
                 )
+                if apply_loss_inclusion:
+                    loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
+                    loss_term = torch.sum(loss_term)
+                    if self.reduction == "mean":
+                        loss_term = loss_term / loss_inclusion_sum
+                loss += weight * loss_term
 
         for sfx in ("", "-original"):
-            weight = 1 if sfx == "" else self.auxillary
-            if not self.bottom_mask:
-                pass
+            weight = self.bottom_mask
+            if sfx != "":
+                weight *= self.auxillary
+            if not weight:
+                continue
             elif "logit_is_below_bottom" + sfx in input:
-                loss += (
-                    weight
-                    * self.bottom_mask
-                    * F.binary_cross_entropy_with_logits(
-                        input["logit_is_below_bottom" + sfx],
-                        target["mask_bot" + sfx].to(
-                            input["logit_is_below_bottom" + sfx].device,
-                            input["logit_is_below_bottom" + sfx].dtype,
-                        ),
-                        reduction=self.reduction,
-                    )
+                loss_term = F.binary_cross_entropy_with_logits(
+                    input["logit_is_below_bottom" + sfx],
+                    target["mask_bot" + sfx].to(
+                        input["logit_is_below_bottom" + sfx].device,
+                        input["logit_is_below_bottom" + sfx].dtype,
+                    ),
+                    reduction=inner_reduction,
                 )
+                if apply_loss_inclusion:
+                    loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
+                    loss_term = torch.sum(loss_term)
+                    if self.reduction == "mean":
+                        loss_term = loss_term / loss_inclusion_sum
+                loss += weight * loss_term
             elif "logit_is_boundary_bottom" + sfx in input:
                 X = target["mask_bot" + sfx]
                 shp = list(X.shape)
@@ -270,28 +319,32 @@ class EchofilterLoss(_Loss):
                     dtype=C.dtype,
                 )
                 C = torch.min(C, Cmax)
-                loss += (
-                    weight
-                    * self.bottom_mask
-                    * F.cross_entropy(
-                        input["logit_is_boundary_bottom" + sfx].transpose(-2, -1),
-                        C,
-                        reduction=self.reduction,
-                    )
+                loss_term = F.cross_entropy(
+                    input["logit_is_boundary_bottom" + sfx].transpose(-2, -1),
+                    C,
+                    reduction=inner_reduction,
                 )
+                if apply_loss_inclusion:
+                    loss_term = loss_term * loss_inclusion_mask
+                    loss_term = torch.sum(loss_term)
+                    if self.reduction == "mean":
+                        loss_term = loss_term / loss_inclusion_sum
+                loss += weight * loss_term
             else:
-                loss += (
-                    weight
-                    * self.bottom_mask
-                    * F.binary_cross_entropy(
-                        input["p_is_below_bottom" + sfx],
-                        target["mask_bot" + sfx].to(
-                            input["p_is_below_bottom" + sfx].device,
-                            input["p_is_below_bottom" + sfx].dtype,
-                        ),
-                        reduction=self.reduction,
-                    )
+                loss_term = F.binary_cross_entropy(
+                    input["p_is_below_bottom" + sfx],
+                    target["mask_bot" + sfx].to(
+                        input["p_is_below_bottom" + sfx].device,
+                        input["p_is_below_bottom" + sfx].dtype,
+                    ),
+                    reduction=inner_reduction,
                 )
+                if apply_loss_inclusion:
+                    loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
+                    loss_term = torch.sum(loss_term)
+                    if self.reduction == "mean":
+                        loss_term = loss_term / loss_inclusion_sum
+                loss += weight * loss_term
 
         if self.removed_segment:
             loss += self.removed_segment * F.binary_cross_entropy_with_logits(
