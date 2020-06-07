@@ -164,7 +164,7 @@ class EchofilterLoss(_Loss):
         patch=1.0,
         overall=0.0,
         surface=1.0,
-        auxillary=1.0,
+        auxiliary=1.0,
         ignore_lines_during_passive=True,
         ignore_lines_during_removed=True,
     ):
@@ -176,7 +176,7 @@ class EchofilterLoss(_Loss):
         self.patch = patch
         self.overall = overall
         self.surface = surface
-        self.auxillary = auxillary
+        self.auxiliary = auxiliary
         self.ignore_lines_during_passive = ignore_lines_during_passive
         self.ignore_lines_during_removed = ignore_lines_during_removed
 
@@ -214,7 +214,7 @@ class EchofilterLoss(_Loss):
                 weight = self.top_mask
                 target_key = "mask_" + sfx
                 if sfx != "top":
-                    weight *= self.auxillary
+                    weight *= self.auxiliary
             if not weight:
                 continue
             elif "logit_is_above_" + sfx in input:
@@ -280,7 +280,7 @@ class EchofilterLoss(_Loss):
         for sfx in ("", "-original"):
             weight = self.bottom_mask
             if sfx != "":
-                weight *= self.auxillary
+                weight *= self.auxiliary
             if not weight:
                 continue
             elif "logit_is_below_bottom" + sfx in input:
@@ -367,7 +367,7 @@ class EchofilterLoss(_Loss):
         for sfx in ("", "-original", "-ntob"):
             weight = self.patch
             if sfx != "":
-                weight *= self.auxillary
+                weight *= self.auxiliary
             if not weight:
                 continue
             loss += weight * F.binary_cross_entropy_with_logits(
