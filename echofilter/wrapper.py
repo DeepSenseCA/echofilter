@@ -166,6 +166,7 @@ class EchofilterLoss(_Loss):
         surface=1.0,
         auxillary=1.0,
         ignore_lines_during_passive=False,
+        ignore_lines_during_removed=False,
     ):
         super(EchofilterLoss, self).__init__(None, None, reduction)
         self.top_mask = top_mask
@@ -177,6 +178,7 @@ class EchofilterLoss(_Loss):
         self.surface = surface
         self.auxillary = auxillary
         self.ignore_lines_during_passive = ignore_lines_during_passive
+        self.ignore_lines_during_removed = ignore_lines_during_removed
 
     def forward(self, input, target):
         loss = 0
@@ -186,7 +188,23 @@ class EchofilterLoss(_Loss):
             input["logit_is_passive"].dtype,
             non_blocking=True,
         )
-        inner_reduction = "none" if self.ignore_lines_during_passive else self.reduction
+        target["is_removed"] = target["is_removed"].to(
+            input["logit_is_removed"].device,
+            input["logit_is_removed"].dtype,
+            non_blocking=True,
+        )
+        apply_loss_inclusion = False
+        inner_reduction = self.reduction
+        loss_inclusion_mask = 1
+        if self.ignore_lines_during_passive:
+            apply_loss_inclusion = True
+            inner_reduction = "none"
+            loss_inclusion_mask *= 1 - target["is_passive"]
+        if self.ignore_lines_during_removed:
+            apply_loss_inclusion = True
+            inner_reduction = "none"
+            loss_inclusion_mask *= 1 - target["is_removed"]
+        loss_inclusion_sum = torch.sum(loss_inclusion_mask)
 
         for sfx in ("top", "top-original", "surface"):
             if sfx == "surface":
@@ -208,11 +226,11 @@ class EchofilterLoss(_Loss):
                     ),
                     reduction=inner_reduction,
                 )
-                if self.ignore_lines_during_passive:
-                    loss_term = loss_term * (1 - target["is_passive"].unsqueeze(-1))
+                if apply_loss_inclusion:
+                    loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
                     loss_term = torch.sum(loss_term)
                     if self.reduction == "mean":
-                        loss_term = loss_term / torch.sum(1 - target["is_passive"])
+                        loss_term = loss_term / loss_inclusion_sum
                 loss += weight * loss_term
             elif "logit_is_boundary_" + sfx in input:
                 X = target[target_key]
@@ -240,11 +258,11 @@ class EchofilterLoss(_Loss):
                     C,
                     reduction=inner_reduction,
                 )
-                if self.ignore_lines_during_passive:
-                    loss_term = loss_term * (1 - target["is_passive"])
+                if apply_loss_inclusion:
+                    loss_term = loss_term * loss_inclusion_mask
                     loss_term = torch.sum(loss_term)
                     if self.reduction == "mean":
-                        loss_term = loss_term / torch.sum(1 - target["is_passive"])
+                        loss_term = loss_term / loss_inclusion_sum
                 loss += weight * loss_term
             else:
                 loss_term = F.binary_cross_entropy(
@@ -252,11 +270,11 @@ class EchofilterLoss(_Loss):
                     target[target_key],
                     reduction=inner_reduction,
                 )
-                if self.ignore_lines_during_passive:
-                    loss_term = loss_term * (1 - target["is_passive"].unsqueeze(-1))
+                if apply_loss_inclusion:
+                    loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
                     loss_term = torch.sum(loss_term)
                     if self.reduction == "mean":
-                        loss_term = loss_term / torch.sum(1 - target["is_passive"])
+                        loss_term = loss_term / loss_inclusion_sum
                 loss += weight * loss_term
 
         for sfx in ("", "-original"):
@@ -274,11 +292,11 @@ class EchofilterLoss(_Loss):
                     ),
                     reduction=inner_reduction,
                 )
-                if self.ignore_lines_during_passive:
-                    loss_term = loss_term * (1 - target["is_passive"].unsqueeze(-1))
+                if apply_loss_inclusion:
+                    loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
                     loss_term = torch.sum(loss_term)
                     if self.reduction == "mean":
-                        loss_term = loss_term / torch.sum(1 - target["is_passive"])
+                        loss_term = loss_term / loss_inclusion_sum
                 loss += weight * loss_term
             elif "logit_is_boundary_bottom" + sfx in input:
                 X = target["mask_bot" + sfx]
@@ -306,11 +324,11 @@ class EchofilterLoss(_Loss):
                     C,
                     reduction=inner_reduction,
                 )
-                if self.ignore_lines_during_passive:
-                    loss_term = loss_term * (1 - target["is_passive"])
+                if apply_loss_inclusion:
+                    loss_term = loss_term * loss_inclusion_mask
                     loss_term = torch.sum(loss_term)
                     if self.reduction == "mean":
-                        loss_term = loss_term / torch.sum(1 - target["is_passive"])
+                        loss_term = loss_term / loss_inclusion_sum
                 loss += weight * loss_term
             else:
                 loss_term = F.binary_cross_entropy(
@@ -321,11 +339,11 @@ class EchofilterLoss(_Loss):
                     ),
                     reduction=inner_reduction,
                 )
-                if self.ignore_lines_during_passive:
-                    loss_term = loss_term * (1 - target["is_passive"].unsqueeze(-1))
+                if apply_loss_inclusion:
+                    loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
                     loss_term = torch.sum(loss_term)
                     if self.reduction == "mean":
-                        loss_term = loss_term / torch.sum(1 - target["is_passive"])
+                        loss_term = loss_term / loss_inclusion_sum
                 loss += weight * loss_term
 
         if self.removed_segment:
