@@ -253,6 +253,7 @@ def train(
         num_workers=n_worker,
         pin_memory=True,
         drop_last=True,
+        worker_init_fn=echofilter.utils.worker_seed_fn,
     )
     loader_val = torch.utils.data.DataLoader(
         dataset_val,
@@ -261,6 +262,7 @@ def train(
         num_workers=n_worker,
         pin_memory=True,
         drop_last=False,
+        worker_init_fn=echofilter.utils.worker_staticseed_fn,
     )
     loader_augval = torch.utils.data.DataLoader(
         dataset_augval,
@@ -269,6 +271,7 @@ def train(
         num_workers=n_worker,
         pin_memory=True,
         drop_last=False,
+        worker_init_fn=echofilter.utils.worker_staticseed_fn,
     )
     print("Train loader has {:3d} batches".format(len(loader_train)))
     print("Val   loader has {:3d} batches".format(len(loader_val)))
