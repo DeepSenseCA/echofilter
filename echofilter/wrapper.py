@@ -165,6 +165,7 @@ class EchofilterLoss(_Loss):
         overall=0.0,
         surface=1.0,
         auxillary=1.0,
+        ignore_lines_during_passive=False,
     ):
         super(EchofilterLoss, self).__init__(None, None, reduction)
         self.top_mask = top_mask
@@ -175,9 +176,17 @@ class EchofilterLoss(_Loss):
         self.overall = overall
         self.surface = surface
         self.auxillary = auxillary
+        self.ignore_lines_during_passive = ignore_lines_during_passive
 
     def forward(self, input, target):
         loss = 0
+
+        target["is_passive"] = target["is_passive"].to(
+            input["logit_is_passive"].device,
+            input["logit_is_passive"].dtype,
+            non_blocking=True,
+        )
+        inner_reduction = "none" if self.ignore_lines_during_passive else self.reduction
 
         for sfx in ("top", "top-original", "surface"):
             if sfx == "surface":
@@ -191,14 +200,20 @@ class EchofilterLoss(_Loss):
             if not weight:
                 continue
             elif "logit_is_above_" + sfx in input:
-                loss += weight * F.binary_cross_entropy_with_logits(
+                loss_term = F.binary_cross_entropy_with_logits(
                     input["logit_is_above_" + sfx],
                     target[target_key].to(
                         input["logit_is_above_" + sfx].device,
                         input["logit_is_above_" + sfx].dtype,
                     ),
-                    reduction=self.reduction,
+                    reduction=inner_reduction,
                 )
+                if self.ignore_lines_during_passive:
+                    loss_term = loss_term * (1 - target["is_passive"].unsqueeze(-1))
+                    loss_term = torch.sum(loss_term)
+                    if self.reduction == "mean":
+                        loss_term = loss_term / torch.sum(1 - target["is_passive"])
+                loss += weight * loss_term
             elif "logit_is_boundary_" + sfx in input:
                 X = target[target_key]
                 shp = list(X.shape)
@@ -220,17 +235,29 @@ class EchofilterLoss(_Loss):
                     dtype=C.dtype,
                 )
                 C = torch.min(C, Cmax)
-                loss += weight * F.cross_entropy(
+                loss_term = F.cross_entropy(
                     input["logit_is_boundary_" + sfx].transpose(-2, -1),
                     C,
-                    reduction=self.reduction,
+                    reduction=inner_reduction,
                 )
+                if self.ignore_lines_during_passive:
+                    loss_term = loss_term * (1 - target["is_passive"])
+                    loss_term = torch.sum(loss_term)
+                    if self.reduction == "mean":
+                        loss_term = loss_term / torch.sum(1 - target["is_passive"])
+                loss += weight * loss_term
             else:
-                loss += weight * F.binary_cross_entropy(
+                loss_term = F.binary_cross_entropy(
                     input["p_is_above_" + sfx],
                     target[target_key],
-                    reduction=self.reduction,
+                    reduction=inner_reduction,
                 )
+                if self.ignore_lines_during_passive:
+                    loss_term = loss_term * (1 - target["is_passive"].unsqueeze(-1))
+                    loss_term = torch.sum(loss_term)
+                    if self.reduction == "mean":
+                        loss_term = loss_term / torch.sum(1 - target["is_passive"])
+                loss += weight * loss_term
 
         for sfx in ("", "-original"):
             weight = self.bottom_mask
@@ -239,14 +266,20 @@ class EchofilterLoss(_Loss):
             if not weight:
                 continue
             elif "logit_is_below_bottom" + sfx in input:
-                loss += weight * F.binary_cross_entropy_with_logits(
+                loss_term = F.binary_cross_entropy_with_logits(
                     input["logit_is_below_bottom" + sfx],
                     target["mask_bot" + sfx].to(
                         input["logit_is_below_bottom" + sfx].device,
                         input["logit_is_below_bottom" + sfx].dtype,
                     ),
-                    reduction=self.reduction,
+                    reduction=inner_reduction,
                 )
+                if self.ignore_lines_during_passive:
+                    loss_term = loss_term * (1 - target["is_passive"].unsqueeze(-1))
+                    loss_term = torch.sum(loss_term)
+                    if self.reduction == "mean":
+                        loss_term = loss_term / torch.sum(1 - target["is_passive"])
+                loss += weight * loss_term
             elif "logit_is_boundary_bottom" + sfx in input:
                 X = target["mask_bot" + sfx]
                 shp = list(X.shape)
@@ -268,20 +301,32 @@ class EchofilterLoss(_Loss):
                     dtype=C.dtype,
                 )
                 C = torch.min(C, Cmax)
-                loss += weight * F.cross_entropy(
+                loss_term = F.cross_entropy(
                     input["logit_is_boundary_bottom" + sfx].transpose(-2, -1),
                     C,
-                    reduction=self.reduction,
+                    reduction=inner_reduction,
                 )
+                if self.ignore_lines_during_passive:
+                    loss_term = loss_term * (1 - target["is_passive"])
+                    loss_term = torch.sum(loss_term)
+                    if self.reduction == "mean":
+                        loss_term = loss_term / torch.sum(1 - target["is_passive"])
+                loss += weight * loss_term
             else:
-                loss += weight * F.binary_cross_entropy(
+                loss_term = F.binary_cross_entropy(
                     input["p_is_below_bottom" + sfx],
                     target["mask_bot" + sfx].to(
                         input["p_is_below_bottom" + sfx].device,
                         input["p_is_below_bottom" + sfx].dtype,
                     ),
-                    reduction=self.reduction,
+                    reduction=inner_reduction,
                 )
+                if self.ignore_lines_during_passive:
+                    loss_term = loss_term * (1 - target["is_passive"].unsqueeze(-1))
+                    loss_term = torch.sum(loss_term)
+                    if self.reduction == "mean":
+                        loss_term = loss_term / torch.sum(1 - target["is_passive"])
+                loss += weight * loss_term
 
         if self.removed_segment:
             loss += self.removed_segment * F.binary_cross_entropy_with_logits(
