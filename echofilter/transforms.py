@@ -398,9 +398,14 @@ class RandomCropDepth(object):
         depth_intv = abs(sample["depths"][1] - sample["depths"][0])
 
         lim_top_shallowest = np.min(sample["depths"])
-        lim_top_deepest = max(lim_top_shallowest, np.min(sample["d_bot"]) - depth_intv)
-        lim_bot_shallowest = max(np.max(sample["d_top"]), np.min(sample["d_bot"]))
+        lim_top_deepest = max(
+            lim_top_shallowest + depth_intv, np.min(sample["d_bot"]) - depth_intv
+        )
         lim_bot_deepest = np.max(sample["depths"])
+        lim_bot_shallowest = min(
+            lim_bot_deepest - depth_intv,
+            max(np.max(sample["d_top"]), np.min(sample["d_bot"])),
+        )
 
         if sample["is_upward_facing"]:
             surf_options = sample["d_surf"][sample["d_surf"] > lim_top_shallowest]
@@ -419,7 +424,9 @@ class RandomCropDepth(object):
             depth_range * self.fraction_close / (1 + self.fraction_close)
         )
 
-        close_top_shallowest = max(lim_top_shallowest, opt_top_depth - close_dist_grow)
+        close_top_shallowest = min(
+            lim_top_deepest, max(lim_top_shallowest, opt_top_depth - close_dist_grow)
+        )
         close_top_deepest = min(
             lim_top_deepest,
             opt_top_depth + close_dist_shrink,
@@ -433,9 +440,12 @@ class RandomCropDepth(object):
             close_bot_shallowest = max(
                 lim_bot_shallowest,
                 opt_bot_depth - close_dist_shrink,
-                np.percentile(sample["d_bot"], 50),
+                np.percentile(sample["d_bot-original"], 50),
             )
-        close_bot_deepest = min(lim_bot_deepest, opt_bot_depth + close_dist_grow)
+        close_bot_shallowest = min(lim_bot_deepest, close_bot_shallowest)
+        close_bot_deepest = min(
+            lim_bot_deepest, max(lim_bot_shallowest, opt_bot_depth) + close_dist_grow,
+        )
 
         if (
             close_top_shallowest > close_top_deepest
@@ -464,12 +474,14 @@ class RandomCropDepth(object):
             lim_top_deepest,
             max(np.percentile(sample["d_top"], 50), opt_top_depth + close_dist_shrink),
         )
+        rand_top_deepest = max(lim_top_shallowest, rand_top_deepest)
         if sample["is_upward_facing"]:
             rand_bot_shallowest = close_bot_shallowest
         else:
             rand_bot_shallowest = max(
                 lim_bot_shallowest, np.percentile(sample["d_bot-original"], 50),
             )
+        rand_bot_shallowest = min(lim_bot_deepest, rand_bot_shallowest)
         rand_bot_deepest = lim_bot_deepest
 
         if (
