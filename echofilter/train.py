@@ -617,14 +617,6 @@ def train(
                 dataformats="NCWH",
             )
             writer.add_images(
-                "Overall/" + partition + "/Output/mask",
-                ensure_clim_met(
-                    add_image_border(ex_output["mask_keep_pixel"].float().unsqueeze(1))
-                ),
-                epoch,
-                dataformats="NCWH",
-            )
-            writer.add_images(
                 "Overall/" + partition + "/Overlap",
                 ensure_clim_met(
                     add_image_border(
