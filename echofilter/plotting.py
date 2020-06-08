@@ -228,24 +228,12 @@ def plot_transect(
         if k in transect:
             top_key = k
             break
-    if top_key is None:
-        raise ValueError(
-            "No top line depths key found in transect. Available keys were: {}".format(
-                transect.keys()
-            )
-        )
 
     bot_key = None
     for k in ("bottom", "d_bot", "bot"):
         if k in transect:
             bot_key = k
             break
-    if bot_key is None:
-        raise ValueError(
-            "No bottom line depths key found in transect. Available keys were: {}".format(
-                transect.keys()
-            )
-        )
 
     if x_scale == "index":
         tt = np.arange(transect["timestamps"].shape[0])
@@ -269,8 +257,10 @@ def plot_transect(
     )
     if cmap is not None:
         plt.set_cmap(cmap)
-    plt.plot(tt, transect[top_key], top_color, linewidth=linewidth)
-    plt.plot(tt, transect[bot_key], bot_color, linewidth=linewidth)
+    if top_key is not None:
+        plt.plot(tt, transect[top_key], top_color, linewidth=linewidth)
+    if bot_key is not None:
+        plt.plot(tt, transect[bot_key], bot_color, linewidth=linewidth)
 
     if show_regions:
         plot_indicator_hatch(
