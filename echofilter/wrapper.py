@@ -44,8 +44,8 @@ class Echofilter(nn.Module):
         top="boundary",
         bottom="boundary",
         mapping=None,
-        reduction_ispassive="mean",
-        reduction_isremoved="mean",
+        reduction_ispassive="logavgexp",
+        reduction_isremoved="logavgexp",
     ):
         super(Echofilter, self).__init__()
         self.model = model
