@@ -354,12 +354,6 @@ def fixup_lines(
         Depth of new top line.
     d_bot_new : numpy.ndarray
         Depth of new bottom line.
-    passive_starts : numpy.ndarray, optional
-        Start indices for passive segments of recording in `signals_raw`.
-        Included in returned tuple if `return_passive_boundaries` is `True`.
-    passive_ends : numpy.ndarray, optional
-        Start indices for passive segments of recording in `signals_raw`.
-        Included in returned tuple if `return_passive_boundaries` is `True`.
     """
     # Handle different sampling grids
     if d_top is not None:
