@@ -49,8 +49,19 @@ def transect_reader(fname):
         row in the data. Every row (except for the header) is yielded.
     """
     metadata_header = []
-    with open(fname, "r", encoding="utf-8-sig") as hf:
-        for i_row, row in enumerate(csv.reader(hf)):
+    with open(fname, "rb") as hf:
+        for i_row, row in enumerate(hf):
+            try:
+                row = row.decode("utf-8-sig" if i_row == 0 else "utf-8")
+            except:
+                if i_row == 0:
+                    raise
+                print(
+                    "Row {} of {} contained a byte which is not in UTF-8"
+                    " and will be skipped.".format(i_row, fname,)
+                )
+                continue
+            row = row.split(",")
             row = [entry.strip() for entry in row]
             if i_row == 0:
                 metadata_header = row
@@ -70,8 +81,6 @@ def count_lines(filename):
     """
     Count the number of lines in a file.
 
-    Credit: https://stackoverflow.com/a/27518377
-
     Parameters
     ----------
     filename : str
@@ -82,17 +91,10 @@ def count_lines(filename):
     int
         Number of lines in file.
     """
-    f = open(filename)
-    lines = 0
-    buf_size = 1024 * 1024
-    read_f = f.read  # loop optimization
-
-    buf = read_f(buf_size)
-    while buf:
-        lines += buf.count("\n")
-        buf = read_f(buf_size)
-
-    return lines
+    with open(filename, "rb") as f:
+        for i, _ in enumerate(f):
+            pass
+    return i + 1
 
 
 def transect_loader(
@@ -169,6 +171,7 @@ def transect_loader(
     data = np.empty((n_lines - skip_lines, n_depths))
     data[:] = np.nan
     timestamps = np.empty((n_lines - skip_lines))
+    timestamps[:] = np.nan
 
     row_lengths = np.empty((n_lines - skip_lines))
     row_depth_starts = {}
@@ -177,6 +180,7 @@ def transect_loader(
     n_warn_overflow = 0
     n_warn_underflow = 0
 
+    n_entry = 0
     for i_line, (meta, row) in enumerate(transect_reader(fname)):
         if i_line < skip_lines:
             continue
@@ -241,6 +245,7 @@ def transect_loader(
             ),
             "%Y-%m-%dT%H:%M:%S.%f",
         ).timestamp()
+        n_entry += 1
 
     # Turn NaNs into NaNs (instead of extremely negative number)
     with warnings.catch_warnings():
@@ -248,6 +253,7 @@ def transect_loader(
         data[data < -1e6] = np.nan
 
     # Work out what row length we should return
+    row_lengths = row_lengths[:n_entry]
     if row_len_selector == "init":
         n_depths = n_depths_init
     elif row_len_selector == "min":
@@ -278,7 +284,8 @@ def transect_loader(
     depths = np.linspace(depth_start, depth_stop, n_depths)
 
     # Crop the data down to size
-    data = data[:, :n_depths]
+    data = data[:n_entry, :n_depths]
+    timestamps = timestamps[:n_entry]
 
     return timestamps, depths, data
 
