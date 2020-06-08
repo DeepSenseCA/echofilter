@@ -213,6 +213,11 @@ def train(
         dataset_args["nearfield_distance"] = 1.7
         dataset_args["remove_offset_top"] = 0
         dataset_args["remove_offset_bottom"] = 0
+    elif dataset_name == "GrandPassage":
+        dataset_args["remove_nearfield"] = True
+        dataset_args["nearfield_distance"] = 1.7
+        dataset_args["remove_offset_top"] = 1.0
+        dataset_args["remove_offset_bottom"] = 0
 
     dataset_train = echofilter.dataset.TransectDataset(
         train_paths,
