@@ -1,7 +1,30 @@
+"""
+Evaluation criterions.
+"""
+
 import torch
 
 
 def _binarise_and_reshape(arg, threshold=0.5, ndim=None):
+    """
+    Binarise and partially flatten a tensor.
+
+    Parameters
+    ----------
+    arg : array_like
+        Input tensor or array.
+    threshold : float, optional
+        Threshold which entries in `arg` must exceed. Default is `0.5`.
+    ndim : int or None
+        Number of dimensions to keep. If `None`, only the first (batch)
+        dimension is kept and the rest are flattened. Default is `None`.
+
+    Returns
+    -------
+    array_like
+        A `numpy.ndarray` or `torch.Tensor` (corresponding to the type of
+        `arg`), but partially flattened and binarised.
+    """
     # Binarise mask
     arg = arg > threshold
     # Reshape so pixels are vectorised by batch
@@ -15,6 +38,33 @@ def _binarise_and_reshape(arg, threshold=0.5, ndim=None):
 
 
 def mask_active_fraction(input, threshold=0.5, ndim=None, reduction="mean"):
+    """
+    Measure the fraction of input which exceeds a threshold.
+
+    Parameters
+    ----------
+    input : torch.Tensor
+        Input tensor.
+    threshold : float, optional
+        Threshold which entries in `input` must exceed. Default is `0.5`.
+    ndim : int or None
+        Number of dimensions to keep. If `None`, only the first (batch)
+        dimension is kept and the rest are flattened. Default is `None`.
+    reduction : `"none"` or `"mean"` or `"sum"`, optional
+        Specifies the reduction to apply to the output:
+        `"none"` | `"mean"` | `"sum"`.
+        `"none"`: no reduction will be applied,
+        `"mean"`: the sum of the output will be divided by the number of
+        elements in the output,
+        `"sum"`: the output will be summed.
+        Default: `"mean"`.
+
+    Returns
+    -------
+    torch.Tensor
+        The fraction of `input` which exceeds `threshold`, with shaped
+        corresponding to `reduction`.
+    """
     # Binarise and reshape mask
     input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
 
@@ -33,10 +83,52 @@ def mask_active_fraction(input, threshold=0.5, ndim=None, reduction="mean"):
 
 
 def mask_active_fraction_with_logits(input, *args, **kwargs):
+    """
+    Convert logits to probabilities with sigmoid, then measure the fraction
+    of the tensor which exceeds a threshold.
+
+    Parameters
+    ----------
+    See `mask_active_fraction`.
+
+    Returns
+    -------
+    See `mask_active_fraction`.
+    """
     return mask_active_fraction(torch.sigmoid(input), *args, **kwargs)
 
 
 def mask_accuracy(input, target, threshold=0.5, ndim=None, reduction="mean"):
+    """
+    Measure the fraction of input which exceeds a threshold.
+
+    Parameters
+    ----------
+    input : torch.Tensor
+        Input tensor.
+    target : torch.Tensor
+        Target tensor, the same shape as `input`.
+    threshold : float, optional
+        Threshold which entries in `input` and `target` must exceed to be
+        binarised as the positive class. Default is `0.5`.
+    ndim : int or None
+        Number of dimensions to keep. If `None`, only the first (batch)
+        dimension is kept and the rest are flattened. Default is `None`.
+    reduction : `"none"` or `"mean"` or `"sum"`, optional
+        Specifies the reduction to apply to the output:
+        `"none"` | `"mean"` | `"sum"`.
+        `"none"`: no reduction will be applied,
+        `"mean"`: the sum of the output will be divided by the number of
+        elements in the output,
+        `"sum"`: the output will be summed.
+        Default: `"mean"`.
+
+    Returns
+    -------
+    torch.Tensor
+        The fraction of `input` which has the same class as `target` after
+        thresholding.
+    """
     # Binarise and reshape masks
     input = _binarise_and_reshape(input, threshold=threshold, ndim=ndim)
     target = _binarise_and_reshape(target, threshold=threshold, ndim=ndim)
@@ -58,6 +150,18 @@ def mask_accuracy(input, target, threshold=0.5, ndim=None, reduction="mean"):
 
 
 def mask_accuracy_with_logits(input, *args, **kwargs):
+    """
+    Measure the accuracy between input and target, after passing `input`
+    through a sigmoid function.
+
+    Parameters
+    ----------
+    See `mask_accuracy`.
+
+    Returns
+    -------
+    See `mask_accuracy`.
+    """
     return mask_accuracy(torch.sigmoid(input), *args, **kwargs)
 
 
