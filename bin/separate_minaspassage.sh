@@ -5,7 +5,7 @@
 # One way to get that list would be something like:
 # for survey in december2017 march2018 september2018 ; do ls -1 $survey/evExports/*.csv ; done | sed "s:-.*::g" >dates.txt
 
-wdir="/data/dsforce/surveyExports/stationary/sets/temp"
+wdir="/data/dsforce/surveyExports/MinasPassage/sets/temp"
 
 infile="dates.txt"
 trainfile="train.txt"
