@@ -240,9 +240,8 @@ def run_inference(
         pprint.pprint(checkpoint["model_parameters"])
     model = Echofilter(
         UNet(**checkpoint["model_parameters"]),
-        top="boundary",
-        bottom="boundary",
         mapping=checkpoint.get("wrapper_mapping", None),
+        **checkpoint.get("wrapper_params", {})
     )
     if verbose >= 1:
         print(

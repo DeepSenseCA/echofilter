@@ -722,6 +722,7 @@ def train(
             "deviation_method": DEVIATION_METHOD,
             "nan_value": NAN_VALUE,
             "wrapper_mapping": model.mapping,
+            "wrapper_params": model.params,
         }
         if use_mixed_precision:
             checkpoint["amp"] = apex.amp.state_dict()
