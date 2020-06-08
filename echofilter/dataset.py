@@ -10,6 +10,57 @@ from . import utils
 
 
 class TransectDataset(torch.utils.data.Dataset):
+    """
+    Load a collection of transects as a PyTorch dataset.
+
+    Parameters
+    ----------
+    transect_paths : list
+        Absolute paths to transects.
+    window_len : int
+        Width (number of timestamps) to load. Default is `128`.
+    crop_depth : float
+        Maximum depth to include, in metres. Deeper data will be cropped
+        away. Default is `None`.
+    num_windows_per_transect : int
+        Number of windows to extract for each transect. Start indices for
+        the windows will be equally spaced across the total width of the
+        transect. If this is `0`, the number of windows will be inferred
+        automatically based on `window_len` and the total width of the
+        transect, resulting in a different number of windows for each
+        transect. Default is `0`.
+    use_dynamic_offsets : bool
+        Whether starting indices for each window should be randomly offset.
+        Set to `True` for training and `False` for testing. Default is
+        `True`.
+    transform_pre : callable
+        Operations to perform to the dictionary containing a single sample.
+        These are performed before generating the masks. Default is `None`.
+    transform_post : callable
+        Operations to perform to the dictionary containing a single sample.
+        These are performed after generating the masks. Default is `None`.
+    remove_nearfield : bool, optional
+        Whether to remove top and bottom lines affected by nearfield
+        removal. If `True` (default), targets for the line near to the
+        sounder (bottom if upward facing, top otherwise) which are closer
+        than or equal to a distance of `nearfield_distance` become reduced
+        to `nearfield_visible_dist`.
+    nearfield_distance : float, optional
+        Nearfield distance in metres. Regions closer than the nearfield
+        may have been masked out from the dataset, but their effect will
+        be removed from the targets if `remove_nearfield=True`.
+        Default is `1.7`.
+    nearfield_visible_dist : float, optional
+        The distance at which the effect of being to close to the sounder
+        is obvious to the naked eye. Default is `0.5`.
+    remove_offset_top : float, optional
+        Line offset built in to the top line. If given, this will be
+        removed from the samples within the dataset. Default is `0`.
+    remove_offset_bottom : float, optional
+        Line offset built in to the bottom line. If given, this will be
+        removed from the samples within the dataset. Default is `0`.
+    """
+
     def __init__(
         self,
         transect_paths,
@@ -25,56 +76,6 @@ class TransectDataset(torch.utils.data.Dataset):
         remove_offset_top=0,
         remove_offset_bottom=0,
     ):
-        """
-        TransectDataset
-
-        Parameters
-        ----------
-        transect_paths : list
-            Absolute paths to transects.
-        window_len : int
-            Width (number of timestamps) to load. Default is `128`.
-        crop_depth : float
-            Maximum depth to include, in metres. Deeper data will be cropped
-            away. Default is `None`.
-        num_windows_per_transect : int
-            Number of windows to extract for each transect. Start indices for
-            the windows will be equally spaced across the total width of the
-            transect. If this is `0`, the number of windows will be inferred
-            automatically based on `window_len` and the total width of the
-            transect, resulting in a different number of windows for each
-            transect. Default is `0`.
-        use_dynamic_offsets : bool
-            Whether starting indices for each window should be randomly offset.
-            Set to `True` for training and `False` for testing. Default is
-            `True`.
-        transform_pre : callable
-            Operations to perform to the dictionary containing a single sample.
-            These are performed before generating the masks. Default is `None`.
-        transform_post : callable
-            Operations to perform to the dictionary containing a single sample.
-            These are performed after generating the masks. Default is `None`.
-        remove_nearfield : bool, optional
-            Whether to remove top and bottom lines affected by nearfield
-            removal. If `True` (default), targets for the line near to the
-            sounder (bottom if upward facing, top otherwise) which are closer
-            than or equal to a distance of `nearfield_distance` become reduced
-            to `nearfield_visible_dist`.
-        nearfield_distance : float, optional
-            Nearfield distance in metres. Regions closer than the nearfield
-            may have been masked out from the dataset, but their effect will
-            be removed from the targets if `remove_nearfield=True`.
-            Default is `1.7`.
-        nearfield_visible_dist : float, optional
-            The distance at which the effect of being to close to the sounder
-            is obvious to the naked eye. Default is `0.5`.
-        remove_offset_top : float, optional
-            Line offset built in to the top line. If given, this will be
-            removed from the samples within the dataset. Default is `0`.
-        remove_offset_bottom : float, optional
-            Line offset built in to the bottom line. If given, this will be
-            removed from the samples within the dataset. Default is `0`.
-        """
         super(TransectDataset, self).__init__()
         self.transect_paths = transect_paths
         self.window_len = window_len

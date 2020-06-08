@@ -2,6 +2,8 @@
 General utility functions.
 """
 
+import math
+import numbers
 import random
 
 import numpy as np
@@ -258,3 +260,66 @@ def worker_staticseed_fn(worker_id):
     random.seed(worker_id)
     np.random.seed(worker_id)
     torch.manual_seed(worker_id)
+
+
+def logavgexp(
+    input, dim, keepdim=False, temperature=None, internal_dtype=torch.float32
+):
+    """
+    Returns the log of meaned exponentials of each row of the `input` tensor in
+    the given dimension `dim`. The computation is numerically stabilized.
+
+    If `keepdim` is `True`, the output tensor is of the same size as `input`
+    except in the dimension `dim` where it is of size `1`. Otherwise, `dim` is
+    squeezed (see `torch.squeeze()`), resulting in the output tensor having 1
+    fewer dimension.
+
+    Parameters
+    ----------
+    input : torch.Tensor
+        The input tensor.
+    dim : int
+        The dimension to reduce.
+    keepdim : bool, optional
+        Whether the output tensor has `dim` retained or not.
+        Default is `False`.
+    temperature : float or None, optional
+        A temperature which is applied to the logits. Temperatures must be
+        positive. Temperatures greater than `1` make the result closer to the
+        average of `input`, whilst temperatures `0<t<1` make the result closer
+        to the maximum of `input`. If `None` (default) or `1`, no temperature
+        is applied.
+    internal_dtype : torch.dtype, optional
+        A data type which the `input` will be cast as before computing the
+        log-sum-exp step. Default is `torch.float32`.
+
+    Returns
+    -------
+    torch.Tensor
+        The log-average-exp of `input`.
+    """
+
+    if isinstance(temperature, numbers.Number) and temperature == 1:
+        temperature = None
+
+    input_dtype = input.dtype
+
+    if internal_dtype is not None:
+        input = input.to(internal_dtype)
+
+    if isinstance(temperature, torch.Tensor):
+        temperature = temperature.to(input.dtype)
+
+    if temperature is not None:
+        input = input.div(temperature)
+
+    log_n = math.log(input.shape[dim])  # TODO: can be cached
+    lae = torch.logsumexp(input, dim=dim, keepdim=True).sub(log_n)
+
+    if temperature is not None:
+        lae = lae.mul(temperature)
+
+    if not keepdim:
+        lae = lae.squeeze(dim)
+
+    return lae.to(input_dtype)

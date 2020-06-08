@@ -7,16 +7,53 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.modules.loss import _Loss
 
-from .utils import TensorDict
+from .utils import TensorDict, logavgexp
 
 
 class Echofilter(nn.Module):
-    def __init__(self, model, top="boundary", bottom="boundary", mapping=None):
+    """
+    Echofilter logit mapping wrapper.
+
+    Parameters
+    ----------
+    model : `torch.nn.Module`
+        The model backbone, which converts inputs to logits.
+    top : str, optional
+        Type of output for top line and surface line. If `"mask"`, the top
+        output corresponds to logits, which are converted into probabilities
+        with sigmoid. If `"boundary"` (default), the output corresponds to
+        logits for the location of the line, which is converted into a
+        probability mask using softmax and cumsum.
+    bottom : str, optional
+        As for `top`, but for the bottom line. Default is `"boundary"`.
+    mapping : dict or None, optional
+        Mapping from logit names to output channels provided by `model`.
+        If `None`, a default mapping is used. The mapping is stored as
+        `self.mapping`.
+    reduction_ispassive : str, optional
+        Method used to reduce the depths dimension for the `"logit_is_passive"`
+        output. Default is `"mean"`.
+    reduction_isremoved : str, optional
+        Method used to reduce the depths dimension for the `"logit_is_removed"`
+        output. Default is `"mean"`.
+    """
+
+    def __init__(
+        self,
+        model,
+        top="boundary",
+        bottom="boundary",
+        mapping=None,
+        reduction_ispassive="logavgexp",
+        reduction_isremoved="logavgexp",
+    ):
         super(Echofilter, self).__init__()
         self.model = model
         self.params = {
             "top": top,
             "bottom": bottom,
+            "reduction_ispassive": reduction_ispassive,
+            "reduction_isremoved": reduction_isremoved,
         }
         if mapping is None:
             mapping = {
@@ -61,8 +98,31 @@ class Echofilter(nn.Module):
             outputs[key] = logits[:, index]
 
         # Flatten some outputs which are vectors not arrays
-        outputs["logit_is_removed"] = torch.mean(outputs["logit_is_removed"], dim=-1)
-        outputs["logit_is_passive"] = torch.mean(outputs["logit_is_passive"], dim=-1)
+        if self.params["reduction_isremoved"] == "mean":
+            outputs["logit_is_removed"] = torch.mean(
+                outputs["logit_is_removed"], dim=-1
+            )
+        elif self.params["reduction_isremoved"] in {"logavgexp", "lae"}:
+            outputs["logit_is_removed"] = logavgexp(outputs["logit_is_removed"], dim=-1)
+        else:
+            raise ValueError(
+                "Unsupported reduction_isremoved value: {}".format(
+                    self.params["reduction_isremoved"]
+                )
+            )
+
+        if self.params["reduction_ispassive"] == "mean":
+            outputs["logit_is_passive"] = torch.mean(
+                outputs["logit_is_passive"], dim=-1
+            )
+        elif self.params["reduction_ispassive"] in {"logavgexp", "lae"}:
+            outputs["logit_is_passive"] = logavgexp(outputs["logit_is_passive"], dim=-1)
+        else:
+            raise ValueError(
+                "Unsupported reduction_ispassive value: {}".format(
+                    self.params["reduction_ispassive"]
+                )
+            )
 
         # Convert logits to probabilities
         outputs["p_is_removed"] = torch.sigmoid(outputs["logit_is_removed"])
@@ -152,6 +212,40 @@ class Echofilter(nn.Module):
 
 
 class EchofilterLoss(_Loss):
+    """
+    Evaluate loss for an Echofilter model.
+
+    Parameters
+    ----------
+    reduction : `"mean"` or `"sum"`, optional
+        The reduction method, which is used to collapse batch and timestamp
+        dimensions. Default is `"mean"`.
+    top_mask : float, optional
+        Weighting for top line/mask loss term. Default is `1.0`.
+    bottom_mask : float, optional
+        Weighting for bottom line/mask loss term. Default is `1.0`.
+    removed_segment : float, optional
+        Weighting for `is_removed` loss term. Default is `1.0`.
+    passive : float, optional
+        Weighting for `is_passive` loss term. Default is `1.0`.
+    patch : float, optional
+        Weighting for `mask_patch` loss term. Default is `1.0`.
+    overall : float, optional
+        Weighting for overall mask loss term. Default is `0.0`.
+    surface : float, optional
+        Weighting for surface line/mask loss term. Default is `1.0`.
+    auxiliary : float, optional
+        Weighting for auxiliary loss terms `"top-original"`,
+        `"bottom-original"`, `"mask_patches-original"`, and
+        `"mask_patches-ntob"`. Default is `1.0`.
+    ignore_lines_during_passive : bool, optional
+        Whether targets for lines should be excluded from the loss during
+        passive data collection. Default is `True`.
+    ignore_lines_during_removed : bool, optional
+        Whether targets for lines should be excluded from the loss during
+        entirely removed sections. Default is `True`.
+    """
+
     __constants__ = ["reduction"]
 
     def __init__(
@@ -164,7 +258,7 @@ class EchofilterLoss(_Loss):
         patch=1.0,
         overall=0.0,
         surface=1.0,
-        auxillary=1.0,
+        auxiliary=1.0,
         ignore_lines_during_passive=True,
         ignore_lines_during_removed=True,
     ):
@@ -176,11 +270,21 @@ class EchofilterLoss(_Loss):
         self.patch = patch
         self.overall = overall
         self.surface = surface
-        self.auxillary = auxillary
+        self.auxiliary = auxiliary
         self.ignore_lines_during_passive = ignore_lines_during_passive
         self.ignore_lines_during_removed = ignore_lines_during_removed
 
     def forward(self, input, target):
+        """
+        Construct loss term.
+
+        Parameters
+        ----------
+        input : dict
+            Output from `echofilter.wrapper.Echofilter` layer.
+        target : dict
+            A transect, as provided by `TransectDataset`.
+        """
         loss = 0
 
         target["is_passive"] = target["is_passive"].to(
@@ -214,7 +318,7 @@ class EchofilterLoss(_Loss):
                 weight = self.top_mask
                 target_key = "mask_" + sfx
                 if sfx != "top":
-                    weight *= self.auxillary
+                    weight *= self.auxiliary
             if not weight:
                 continue
             elif "logit_is_above_" + sfx in input:
@@ -280,7 +384,7 @@ class EchofilterLoss(_Loss):
         for sfx in ("", "-original"):
             weight = self.bottom_mask
             if sfx != "":
-                weight *= self.auxillary
+                weight *= self.auxiliary
             if not weight:
                 continue
             elif "logit_is_below_bottom" + sfx in input:
@@ -367,7 +471,7 @@ class EchofilterLoss(_Loss):
         for sfx in ("", "-original", "-ntob"):
             weight = self.patch
             if sfx != "":
-                weight *= self.auxillary
+                weight *= self.auxiliary
             if not weight:
                 continue
             loss += weight * F.binary_cross_entropy_with_logits(

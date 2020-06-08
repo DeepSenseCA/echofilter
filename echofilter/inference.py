@@ -185,44 +185,44 @@ def run_inference(
         # Use the first item from the list of checkpoints
         checkpoint = DEFAULT_CHECKPOINT
 
-    if os.path.isfile(checkpoint):
-        checkpoint_path = checkpoint
-    elif checkpoint in CHECKPOINT_RESOURCES:
-        checkpoint_path = download_checkpoint(checkpoint, cache_dir=cache_dir)
+    ckpt_name = checkpoint
+
+    if os.path.isfile(ckpt_name):
+        ckpt_path = ckpt_name
+    elif ckpt_name in CHECKPOINT_RESOURCES:
+        ckpt_path = download_checkpoint(ckpt_name, cache_dir=cache_dir)
     else:
         raise ValueError(
             "The checkpoint parameter should either be a path to a file or "
             "one of \n{},\nbut {} was provided.".format(
-                list(CHECKPOINT_RESOURCES.keys()), checkpoint
+                list(CHECKPOINT_RESOURCES.keys()), ckpt_name
             )
         )
 
-    if not os.path.isfile(checkpoint_path):
-        raise EnvironmentError("No checkpoint found at '{}'".format(checkpoint_path))
+    if not os.path.isfile(ckpt_path):
+        raise EnvironmentError("No checkpoint found at '{}'".format(ckpt_path))
     if verbose >= 1:
-        print("Loading checkpoint '{}'".format(checkpoint_path))
+        print("Loading checkpoint '{}'".format(ckpt_path))
 
     load_args = {}
     if device is not None:
         # Map model to be loaded to specified single gpu.
         load_args = dict(map_location=device)
     try:
-        checkpoint = torch.load(checkpoint_path, **load_args)
+        checkpoint = torch.load(ckpt_path, **load_args)
     except pickle.UnpicklingError:
-        if checkpoint not in CHECKPOINT_RESOURCES or checkpoint == checkpoint_path:
+        if ckpt_name not in CHECKPOINT_RESOURCES or ckpt_name == ckpt_path:
             # Direct path to checkpoint was given, so we shouldn't delete
             # the user's file
             print(
-                "Error: Unable to load checkpoint {}".format(
-                    os.path.abspath(checkpoint_path)
-                )
+                "Error: Unable to load checkpoint {}".format(os.path.abspath(ckpt_path))
             )
             raise
         # Delete the checkpoint and try again, in case it is just a
         # malformed download (interrupted download, etc)
-        os.remove(checkpoint_path)
-        checkpoint_path = download_checkpoint(checkpoint, cache_dir=cache_dir)
-        checkpoint = torch.load(checkpoint_path, **load_args)
+        os.remove(ckpt_path)
+        ckpt_path = download_checkpoint(ckpt_name, cache_dir=cache_dir)
+        checkpoint = torch.load(ckpt_path, **load_args)
 
     if image_height is None:
         image_height = checkpoint.get("sample_shape", (128, 512))[1]
@@ -240,9 +240,8 @@ def run_inference(
         pprint.pprint(checkpoint["model_parameters"])
     model = Echofilter(
         UNet(**checkpoint["model_parameters"]),
-        top="boundary",
-        bottom="boundary",
         mapping=checkpoint.get("wrapper_mapping", None),
+        **checkpoint.get("wrapper_params", {})
     )
     if verbose >= 1:
         print(
@@ -254,7 +253,7 @@ def run_inference(
     if verbose >= 1:
         print(
             "Loaded checkpoint state from '{}' (epoch {})".format(
-                checkpoint_path, checkpoint["epoch"]
+                ckpt_path, checkpoint["epoch"]
             )
         )
     # Ensure model is on correct device
