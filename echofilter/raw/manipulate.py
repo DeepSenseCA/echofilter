@@ -7,6 +7,7 @@ import os
 import warnings
 
 import numpy as np
+import scipy.interpolate
 
 from . import loader
 from .. import utils
@@ -510,10 +511,43 @@ def load_decomposed_transect_mask(
 
     # Generate new lines from mask
     d_top_new, d_bot_new = fixup_lines(
-        ts_raw, depths_raw, mask, t_top=t_top, d_top=d_top, t_bot=t_bot, d_bot=d_bot,
+        ts_mskd, depths_mskd, mask, t_top=t_top, d_top=d_top, t_bot=t_bot, d_bot=d_bot,
     )
+
+    def tidy_up_line(t, d):
+        if d is None:
+            d = np.nan * np.ones_like(ts_raw)
+        else:
+            d = np.interp(ts_raw, t, d)
+        return d
+
+    # Mask and data derived from it is sampled at the correct timestamps and
+    # depths for the raw data. It should be, but might not be if either of the
+    # CSV files contained invalid data.
+    if (
+        len(ts_raw) != len(ts_mskd)
+        or len(depths_raw) != len(depths_mskd)
+        or not np.allclose(ts_raw, ts_mskd)
+        or not np.allclose(depths_raw, depths_mskd)
+    ):
+        # Interpolate depth lines to timestamps used for raw data
+        d_top_new = tidy_up_line(ts_mskd, d_top_new)
+        d_bot_new = tidy_up_line(ts_mskd, d_bot_new)
+        # Interpolate mask
+        mask = scipy.interpolate.interp2d(
+            depths_mskd,
+            ts_mskd,
+            mask,
+            kind="linear",
+            bounds_error=False,
+            fill_value=None,
+        )(depths_raw, ts_raw)
+        # Binarise
+        mask = mask > 0.5
+
+    # Find passive data
     passive_starts, passive_ends = find_passive_data(signals_raw)
-    # Determine whether each timestamps is for a period of passive recording
+    # Determine whether each timestamp is for a period of passive recording
     is_passive = np.zeros(ts_raw.shape, dtype=bool)
     for pass_start, pass_end in zip(passive_starts, passive_ends):
         is_passive[pass_start:pass_end] = True
@@ -527,7 +561,7 @@ def load_decomposed_transect_mask(
         mask[ddepths < np.expand_dims(d_top_new, -1)] = 0
         mask[ddepths > np.expand_dims(d_bot_new, -1)] = 0
         mask[is_passive] = 0
-    allnan = np.all(np.isnan(signals_mskd), axis=1)
+    allnan = np.all(~mask, axis=1)
 
     # Timestamp is entirely removed if everything is nan and it isn't passive
     is_removed_raw = allnan & ~is_passive
@@ -559,13 +593,6 @@ def load_decomposed_transect_mask(
     if d_bot is not None:
         d_bot -= depth_intv / 4
 
-    def tidy_up_line(t, d):
-        if d is None:
-            d = np.nan * np.ones_like(ts_raw)
-        else:
-            d = np.interp(ts_raw, t, d)
-        return d
-
     d_top = tidy_up_line(t_top, d_top)
     d_bot = tidy_up_line(t_bot, d_bot)
     d_surf = tidy_up_line(t_surf, d_surf)
@@ -576,7 +603,7 @@ def load_decomposed_transect_mask(
     # is_removed indicators.
     mask_patches = ~mask
     mask_patches[is_passive] = 0
-    mask_patches[is_removed] = 0
+    mask_patches[is_removed > 0.5] = 0
     mask_patches_og = mask_patches.copy()
     mask_patches_ntob = mask_patches.copy()
     ddepths = np.broadcast_to(depths_raw, signals_raw.shape)
