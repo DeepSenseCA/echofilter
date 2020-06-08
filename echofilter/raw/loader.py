@@ -9,9 +9,10 @@ import os
 import warnings
 
 import numpy as np
-import scipy.interpolate
 import scipy.stats
 import pandas as pd
+
+from .utils import interp1d_preserve_nan
 
 
 ROOT_DATA_DIR = "/data/dsforce/surveyExports"
@@ -277,12 +278,9 @@ def transect_loader(
     for i_entry, (nd, d0, d1) in enumerate(
         zip(row_lengths, row_depth_starts, row_depth_ends)
     ):
-        data[i_entry, :n_depth_use] = scipy.interpolate.interp1d(
-            np.linspace(d0, d1, nd),
-            data[i_entry, :nd],
-            bounds_error=False,
-            fill_value=np.nan,
-        )(depths)
+        data[i_entry, :n_depth_use] = interp1d_preserve_nan(
+            np.linspace(d0, d1, nd), data[i_entry, :nd], depths, nan_threshold=0.3,
+        )
 
     # Crop the data down to size
     data = data[:, :n_depth_use]
