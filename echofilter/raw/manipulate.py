@@ -536,7 +536,6 @@ def load_decomposed_transect_mask(
 
     # Determine whether each timestamp is for recording which was completely
     # removed from analysis (but not because it is passive recording)
-    mask = ~np.isnan(signals_mskd)
     if np.all(mask):
         print("No data points were masked out in {}".format(fname_masked))
         # Use lines to create a mask
