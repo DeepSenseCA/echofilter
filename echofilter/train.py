@@ -83,6 +83,9 @@ PLOT_TRANSECTS = {
         "MinasPassage/september2018/evExports/september2018_D20181027-T202217_D20181028-T015217",
         "MinasPassage/september2018/evExports/september2018_D20181107-T122220_D20181107-T175217",
     ],
+    "GrandPassage": [
+        "GrandPassage/phase2/GrandPassage_WBAT_2B_20200125_UTC160020_ebblow",
+    ],
 }
 
 DEFAULT_CROP_DEPTH_PLOTS = 70
