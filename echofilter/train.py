@@ -603,34 +603,6 @@ def train(
                 "Input/" + partition, ex_input, epoch, dataformats="NCWH",
             )
             writer.add_images(
-                "Top/" + partition + "/Target",
-                ensure_clim_met(add_image_border(ex_data["mask_top"].unsqueeze(1))),
-                epoch,
-                dataformats="NCWH",
-            )
-            writer.add_images(
-                "Top/" + partition + "/Output/p",
-                ensure_clim_met(
-                    add_image_border(ex_output["p_is_above_top"].unsqueeze(1))
-                ),
-                epoch,
-                dataformats="NCWH",
-            )
-            writer.add_images(
-                "Bottom/" + partition + "/Target",
-                ensure_clim_met(add_image_border(ex_data["mask_bot"].unsqueeze(1))),
-                epoch,
-                dataformats="NCWH",
-            )
-            writer.add_images(
-                "Bottom/" + partition + "/Output/p",
-                ensure_clim_met(
-                    add_image_border(ex_output["p_is_below_bottom"].unsqueeze(1))
-                ),
-                epoch,
-                dataformats="NCWH",
-            )
-            writer.add_images(
                 "Overall/" + partition + "/Target",
                 ensure_clim_met(add_image_border(ex_data["mask"].float().unsqueeze(1))),
                 epoch,
