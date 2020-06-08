@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.modules.loss import _Loss
 
-from .utils import TensorDict
+from .utils import TensorDict, logavgexp
 
 
 class Echofilter(nn.Module):
@@ -30,14 +30,30 @@ class Echofilter(nn.Module):
         Mapping from logit names to output channels provided by `model`.
         If `None`, a default mapping is used. The mapping is stored as
         `self.mapping`.
+    reduction_ispassive : str, optional
+        Method used to reduce the depths dimension for the `"logit_is_passive"`
+        output. Default is `"mean"`.
+    reduction_isremoved : str, optional
+        Method used to reduce the depths dimension for the `"logit_is_removed"`
+        output. Default is `"mean"`.
     """
 
-    def __init__(self, model, top="boundary", bottom="boundary", mapping=None):
+    def __init__(
+        self,
+        model,
+        top="boundary",
+        bottom="boundary",
+        mapping=None,
+        reduction_ispassive="mean",
+        reduction_isremoved="mean",
+    ):
         super(Echofilter, self).__init__()
         self.model = model
         self.params = {
             "top": top,
             "bottom": bottom,
+            "reduction_ispassive": reduction_ispassive,
+            "reduction_isremoved": reduction_isremoved,
         }
         if mapping is None:
             mapping = {
@@ -82,8 +98,31 @@ class Echofilter(nn.Module):
             outputs[key] = logits[:, index]
 
         # Flatten some outputs which are vectors not arrays
-        outputs["logit_is_removed"] = torch.mean(outputs["logit_is_removed"], dim=-1)
-        outputs["logit_is_passive"] = torch.mean(outputs["logit_is_passive"], dim=-1)
+        if self.params["reduction_isremoved"] == "mean":
+            outputs["logit_is_removed"] = torch.mean(
+                outputs["logit_is_removed"], dim=-1
+            )
+        elif self.params["reduction_isremoved"] in {"logavgexp", "lae"}:
+            outputs["logit_is_removed"] = logavgexp(outputs["logit_is_removed"], dim=-1)
+        else:
+            raise ValueError(
+                "Unsupported reduction_isremoved value: {}".format(
+                    self.params["reduction_isremoved"]
+                )
+            )
+
+        if self.params["reduction_ispassive"] == "mean":
+            outputs["logit_is_passive"] = torch.mean(
+                outputs["logit_is_passive"], dim=-1
+            )
+        elif self.params["reduction_ispassive"] in {"logavgexp", "lae"}:
+            outputs["logit_is_passive"] = logavgexp(outputs["logit_is_passive"], dim=-1)
+        else:
+            raise ValueError(
+                "Unsupported reduction_ispassive value: {}".format(
+                    self.params["reduction_ispassive"]
+                )
+            )
 
         # Convert logits to probabilities
         outputs["p_is_removed"] = torch.sigmoid(outputs["logit_is_removed"])
