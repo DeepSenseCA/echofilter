@@ -316,14 +316,7 @@ def find_nonzero_region_boundaries(v):
 
 
 def fixup_lines(
-    timestamps,
-    depths,
-    signals_raw,
-    mask,
-    t_top=None,
-    d_top=None,
-    t_bot=None,
-    d_bot=None,
+    timestamps, depths, mask, t_top=None, d_top=None, t_bot=None, d_bot=None,
 ):
     """
     Extend existing top/bottom lines based on masked target Sv output.
@@ -334,11 +327,9 @@ def fixup_lines(
         Shaped `(num_timestamps, )`.
     depths : array_like
         Shaped `(num_depths, )`.
-    signals_raw : array_like
-        Shaped `(num_timestamps, num_depths)`.
     mask : array_like
-        Boolean array, where `True` denotes kept entries. Same shape as
-        `signals_raw`.
+        Boolean array, where `True` denotes kept entries.
+        Shaped `(num_timestamps, num_depths)`.
     t_top : array_like, optional
         Sampling times for existing top line.
     d_top : array_like, optional
@@ -519,14 +510,7 @@ def load_decomposed_transect_mask(
 
     # Generate new lines from mask
     d_top_new, d_bot_new = fixup_lines(
-        ts_raw,
-        depths_raw,
-        signals_raw,
-        mask,
-        t_top=t_top,
-        d_top=d_top,
-        t_bot=t_bot,
-        d_bot=d_bot,
+        ts_raw, depths_raw, mask, t_top=t_top, d_top=d_top, t_bot=t_bot, d_bot=d_bot,
     )
     passive_starts, passive_ends = find_passive_data(signals_raw)
     # Determine whether each timestamps is for a period of passive recording
