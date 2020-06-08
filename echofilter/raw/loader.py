@@ -166,9 +166,9 @@ def transect_loader(
         depth_stop_init = meta["Depth_stop"]
         break
 
-    n_depths = n_depths_init
+    n_depth_exp = n_depths_init
 
-    data = np.empty((n_lines - skip_lines, n_depths))
+    data = np.empty((n_lines - skip_lines, n_depth_exp))
     data[:] = np.nan
     timestamps = np.empty((n_lines - skip_lines))
     timestamps[:] = np.nan
@@ -208,34 +208,34 @@ def transect_loader(
                     )
                 )
 
-        if len(row) > n_depths:
+        if len(row) > n_depth_exp:
             if n_warn_overflow < warn_row_overflow:
                 print(
-                    "Row {} of {} exceeds expected n_depths of {} with {}".format(
-                        i_line, fname, n_depths, len(row)
+                    "Row {} of {} exceeds expected n_depth of {} with {}".format(
+                        i_line, fname, n_depth_exp, len(row)
                     )
                 )
                 n_warn_overflow += 1
             if expand_for_overflow:
                 data = np.pad(
                     data,
-                    ((0, 0), (0, len(row) - n_depths)),
+                    ((0, 0), (0, len(row) - n_depth_exp)),
                     mode="constant",
                     constant_values=np.nan,
                 )
-                n_depths = len(row)
+                n_depth_exp = len(row)
 
-        if len(row) < n_depths:
+        if len(row) < n_depth_exp:
             if n_warn_underflow < warn_row_underflow:
                 print(
-                    "Row {} of {} shorter than expected n_depths of {} with {}".format(
-                        i_line, fname, n_depths, len(row)
+                    "Row {} of {} shorter than expected n_depth_exp of {} with {}".format(
+                        i_line, fname, n_depth_exp, len(row)
                     )
                 )
                 n_warn_underflow += 1
             data[i_entry, : len(row)] = row
         else:
-            data[i_entry, :] = row[:n_depths]
+            data[i_entry, :] = row[:n_depth_exp]
 
         timestamps[i_entry] = datetime.datetime.strptime(
             "{}T{}.{:06d}".format(
@@ -255,23 +255,23 @@ def transect_loader(
     # Work out what row length we should return
     row_lengths = row_lengths[:n_entry]
     if row_len_selector == "init":
-        n_depths = n_depths_init
+        n_depth_use = n_depths_init
     elif row_len_selector == "min":
-        n_depths = np.min(row_lengths)
+        n_depth_use = np.min(row_lengths)
     elif row_len_selector == "max":
-        n_depths = np.max(row_lengths)
+        n_depth_use = np.max(row_lengths)
     elif row_len_selector == "median":
-        n_depths = np.median(row_lengths)
+        n_depth_use = np.median(row_lengths)
         # If the median is half-way between two values, round up
-        if n_depths not in row_depth_starts:
-            n_depths = int(np.round(n_depths))
+        if n_depth_use not in row_depth_starts:
+            n_depth_use = int(np.round(n_depth_use))
         # If the median is still not between values, drop the last value
         # to make the array be odd, guaranteeing the median is an observed
         # value, not an intermediary.
-        if n_depths not in row_depth_starts:
-            n_depths = np.median(row_lengths[:-1])
+        if n_depth_use not in row_depth_starts:
+            n_depth_use = np.median(row_lengths[:-1])
     elif row_len_selector == "mode":
-        n_depths = int(scipy.stats.mode(row_lengths, axis=None)[0])
+        n_depth_use = int(scipy.stats.mode(row_lengths, axis=None)[0])
     else:
         raise ValueError(
             "Unsupported row_len_selector value: {}".format(row_len_selector)
@@ -279,12 +279,12 @@ def transect_loader(
 
     # Use depths corresponding to that declared in the rows which had the
     # number of entries used.
-    depth_start = row_depth_starts[n_depths]
-    depth_stop = row_depth_ends[n_depths]
-    depths = np.linspace(depth_start, depth_stop, n_depths)
+    depth_start = row_depth_starts[n_depth_use]
+    depth_stop = row_depth_ends[n_depth_use]
+    depths = np.linspace(depth_start, depth_stop, n_depth_use)
 
     # Crop the data down to size
-    data = data[:n_entry, :n_depths]
+    data = data[:n_entry, :n_depth_use]
     timestamps = timestamps[:n_entry]
 
     return timestamps, depths, data
