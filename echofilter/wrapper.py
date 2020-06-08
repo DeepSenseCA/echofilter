@@ -11,6 +11,27 @@ from .utils import TensorDict
 
 
 class Echofilter(nn.Module):
+    """
+    Echofilter logit mapping wrapper.
+
+    Parameters
+    ----------
+    model : `torch.nn.Module`
+        The model backbone, which converts inputs to logits.
+    top : str, optional
+        Type of output for top line and surface line. If `"mask"`, the top
+        output corresponds to logits, which are converted into probabilities
+        with sigmoid. If `"boundary"` (default), the output corresponds to
+        logits for the location of the line, which is converted into a
+        probability mask using softmax and cumsum.
+    bottom : str, optional
+        As for `top`, but for the bottom line. Default is `"boundary"`.
+    mapping : dict or None, optional
+        Mapping from logit names to output channels provided by `model`.
+        If `None`, a default mapping is used. The mapping is stored as
+        `self.mapping`.
+    """
+
     def __init__(self, model, top="boundary", bottom="boundary", mapping=None):
         super(Echofilter, self).__init__()
         self.model = model
@@ -152,6 +173,40 @@ class Echofilter(nn.Module):
 
 
 class EchofilterLoss(_Loss):
+    """
+    Evaluate loss for an Echofilter model.
+
+    Parameters
+    ----------
+    reduction : `"mean"` or `"sum"`, optional
+        The reduction method, which is used to collapse batch and timestamp
+        dimensions. Default is `"mean"`.
+    top_mask : float, optional
+        Weighting for top line/mask loss term. Default is `1.0`.
+    bottom_mask : float, optional
+        Weighting for bottom line/mask loss term. Default is `1.0`.
+    removed_segment : float, optional
+        Weighting for `is_removed` loss term. Default is `1.0`.
+    passive : float, optional
+        Weighting for `is_passive` loss term. Default is `1.0`.
+    patch : float, optional
+        Weighting for `mask_patch` loss term. Default is `1.0`.
+    overall : float, optional
+        Weighting for overall mask loss term. Default is `0.0`.
+    surface : float, optional
+        Weighting for surface line/mask loss term. Default is `1.0`.
+    auxiliary : float, optional
+        Weighting for auxiliary loss terms `"top-original"`,
+        `"bottom-original"`, `"mask_patches-original"`, and
+        `"mask_patches-ntob"`. Default is `1.0`.
+    ignore_lines_during_passive : bool, optional
+        Whether targets for lines should be excluded from the loss during
+        passive data collection. Default is `True`.
+    ignore_lines_during_removed : bool, optional
+        Whether targets for lines should be excluded from the loss during
+        entirely removed sections. Default is `True`.
+    """
+
     __constants__ = ["reduction"]
 
     def __init__(
@@ -181,6 +236,16 @@ class EchofilterLoss(_Loss):
         self.ignore_lines_during_removed = ignore_lines_during_removed
 
     def forward(self, input, target):
+        """
+        Construct loss term.
+
+        Parameters
+        ----------
+        input : dict
+            Output from `echofilter.wrapper.Echofilter` layer.
+        target : dict
+            A transect, as provided by `TransectDataset`.
+        """
         loss = 0
 
         target["is_passive"] = target["is_passive"].to(
