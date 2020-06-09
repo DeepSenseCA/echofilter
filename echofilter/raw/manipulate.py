@@ -411,9 +411,7 @@ def fixup_lines(
     return d_top_new, d_bot_new
 
 
-def load_decomposed_transect_mask(
-    sample_path, dataset="",
-):
+def load_decomposed_transect_mask(sample_path):
     """
     Loads a raw and masked transect and decomposes the mask into top and bottom
     lines, and passive and removed regions.
@@ -423,10 +421,6 @@ def load_decomposed_transect_mask(
     sample_path : str
         Path to sample, without extension. The raw data should be located at
         `sample_path + '_Sv_raw.csv'`.
-    dataset : {'mobile', 'MinasPassage', ''}, optional
-        Name of dataset. Used to check integrity of the data loaded against
-        what is expected for that dataset. Default is `''`, which has no
-        dataset-specific expectations.
 
     Returns
     -------
@@ -474,6 +468,9 @@ def load_decomposed_transect_mask(
     ts_mskd, depths_mskd, signals_mskd = loader.transect_loader(fname_masked)
     mask = ~np.isnan(signals_mskd)
 
+    # Determine whether depths are ascending or descending
+    is_upward_facing = depths_raw[-1] < depths_raw[0]
+
     fname_top1 = os.path.join(sample_path + "_turbulence.evl")
     fname_top2 = os.path.join(sample_path + "_air.evl")
     fname_bot = os.path.join(sample_path + "_bottom.evl")
@@ -493,18 +490,18 @@ def load_decomposed_transect_mask(
 
     if os.path.isfile(fname_bot):
         t_bot, d_bot = loader.evl_loader(fname_bot)
-    elif dataset == "mobile":
+    elif not is_upward_facing:
         raise ValueError(
-            "Expected {} to exist when dateset is {}.".format(fname_bot, dataset)
+            "Expected {} to exist when transect is downfacing.".format(fname_bot)
         )
     else:
         t_bot = d_bot = None
 
     if os.path.isfile(fname_surf):
         t_surf, d_surf = loader.evl_loader(fname_surf)
-    elif dataset == "MinasPassage" or "GrandPassage" in dataset:
+    elif is_upward_facing:
         raise ValueError(
-            "Expected {} to exist when dateset is {}.".format(fname_surf, dataset)
+            "Expected {} to exist when transect is upfacing.".format(fname_surf)
         )
     else:
         t_surf = d_surf = None
@@ -577,8 +574,6 @@ def load_decomposed_transect_mask(
             r_ends.append(r_end)
             is_removed[r_start : r_end + 1] = 1
 
-    # Determine whether depths are ascending or descending
-    is_upward_facing = depths_raw[-1] < depths_raw[0]
     # Ensure depth is always increasing (which corresponds to descending from
     # the air down the water column)
     if is_upward_facing:
