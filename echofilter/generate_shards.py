@@ -4,8 +4,8 @@
 import functools
 import multiprocessing
 import os
-import traceback
 import sys
+import traceback
 
 import echofilter.raw.loader
 import echofilter.shardloader

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 from collections import OrderedDict
-import os
 import datetime
+import os
 import pickle
 import pprint
 import shutil
