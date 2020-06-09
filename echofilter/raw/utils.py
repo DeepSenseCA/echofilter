@@ -4,6 +4,46 @@ Loader utility functions.
 
 import numpy as np
 import scipy.interpolate
+import scipy.stats
+
+
+def mode(a, axis=None, keepdims=True, **kwargs):
+    """
+    Return an array of the modal (most common) value in the passed array.
+
+    If there is more than one such value, only the smallest is returned.
+
+    Parameters
+    ----------
+    a : array_like
+        n-dimensional array of which to find mode(s).
+    axis : int or None, optional
+        Axis or axes along which the mode is computed. The default,
+        `axis=None`, will sum all of the elements of the input array.
+        If axis is negative it counts from the last to the first axis.
+    keepdims : bool, optional
+        If this is set to `True` (default), the axes which are reduced are left
+        in the result as dimensions with size one. With this option, the result
+        will broadcast correctly against the input array.
+
+    Returns
+    -------
+    mode_along_axis : numpy.ndarray
+        An array with the same shape as `a`, with the specified axis removed.
+        If `keepdims=True` and either `a` is a 0-d array or `axis` is None,
+        a scalar is returned.
+
+    See also
+    --------
+    scipy.stats.mode
+    """
+    m = scipy.stats.mode(a, axis=axis, **kwargs)[0]
+    if keepdims:
+        return m
+    m = m.squeeze(0 if axis is None else axis)
+    if m.size == 1:
+        m = np.asscalar(m)
+    return m
 
 
 def interp1d_preserve_nan(
