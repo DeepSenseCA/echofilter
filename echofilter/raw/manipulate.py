@@ -531,14 +531,14 @@ def load_decomposed_transect_mask(sample_path):
         d_top_new = tidy_up_line(ts_mskd, d_top_new)
         d_bot_new = tidy_up_line(ts_mskd, d_bot_new)
         # Interpolate mask
-        mask = scipy.interpolate.interp2d(
-            depths_mskd,
-            ts_mskd,
-            mask,
-            kind="linear",
-            bounds_error=False,
-            fill_value=None,
-        )(depths_raw, ts_raw)
+        if is_upward_facing:
+            mask = scipy.interpolate.RectBivariateSpline(
+                ts_mskd, depths_mskd[::-1], mask[:, ::-1].astype(np.float),
+            )(ts_raw, depths_raw[::-1])[:, ::-1]
+        else:
+            mask = scipy.interpolate.RectBivariateSpline(
+                ts_mskd, depths_mskd, mask.astype(np.float),
+            )(ts_raw, depths_raw)
         # Binarise
         mask = mask > 0.5
 
