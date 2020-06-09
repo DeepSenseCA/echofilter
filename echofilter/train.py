@@ -89,6 +89,7 @@ PLOT_TRANSECTS = {
 }
 
 DEFAULT_CROP_DEPTH_PLOTS = 70
+MAX_INPUT_LEN = 4000
 
 
 def train(
@@ -1085,6 +1086,13 @@ def generate_from_transect(model, transect, sample_shape, device, dtype=torch.fl
 
 
 def _generate_from_loaded(transect, model, *args, crop_depth=None, **kwargs):
+
+    # Crop long input
+    for key in (
+        echofilter.transforms._fields_2d + echofilter.transforms._fields_1d_timelike
+    ):
+        if key in transect:
+            transect[key] = transect[key][:MAX_INPUT_LEN]
 
     # Apply depth crop
     if crop_depth is not None:
