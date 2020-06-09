@@ -83,9 +83,14 @@ PLOT_TRANSECTS = {
         "MinasPassage/september2018/evExports/september2018_D20181027-T202217_D20181028-T015217",
         "MinasPassage/september2018/evExports/september2018_D20181107-T122220_D20181107-T175217",
     ],
+    "GrandPassage": [
+        "GrandPassage/phase1/GrandPassage_WBAT_2A_20191222",
+        "GrandPassage/phase2/GrandPassage_WBAT_2B_20200125_UTC160020_ebblow",
+    ],
 }
 
 DEFAULT_CROP_DEPTH_PLOTS = 70
+MAX_INPUT_LEN = 4000
 
 
 def train(
@@ -212,6 +217,11 @@ def train(
         dataset_args["remove_nearfield"] = True
         dataset_args["nearfield_distance"] = 1.7
         dataset_args["remove_offset_top"] = 0
+        dataset_args["remove_offset_bottom"] = 0
+    elif dataset_name == "GrandPassage":
+        dataset_args["remove_nearfield"] = True
+        dataset_args["nearfield_distance"] = 1.7
+        dataset_args["remove_offset_top"] = 1.0
         dataset_args["remove_offset_bottom"] = 0
 
     dataset_train = echofilter.dataset.TransectDataset(
@@ -1064,7 +1074,7 @@ def generate_from_transect(model, transect, sample_shape, device, dtype=torch.fl
     )
     data = transform(data)
     input = torch.tensor(data["signals"]).unsqueeze(0).unsqueeze(0)
-    input = input.to(device, dtype)
+    input = input.to(device, dtype).contiguous()
     # Put data through model
     with torch.no_grad():
         output = model(input)
@@ -1078,11 +1088,24 @@ def generate_from_transect(model, transect, sample_shape, device, dtype=torch.fl
 
 def _generate_from_loaded(transect, model, *args, crop_depth=None, **kwargs):
 
+    # Crop long input
+    for key in (
+        echofilter.transforms._fields_2d + echofilter.transforms._fields_1d_timelike
+    ):
+        if key in transect:
+            transect[key] = transect[key][:MAX_INPUT_LEN]
+
     # Apply depth crop
     if crop_depth is not None:
         depth_crop_mask = transect["depths"] <= crop_depth
-        transect["depths"] = transect["depths"][depth_crop_mask]
-        transect["Sv"] = transect["Sv"][:, depth_crop_mask]
+
+        for key in echofilter.transforms._fields_2d:
+            if key in transect:
+                transect[key] = transect[key][:, depth_crop_mask]
+
+        for key in echofilter.transforms._fields_1d_depthlike:
+            if key in transect:
+                transect[key] = transect[key][depth_crop_mask]
 
     # Convert lines to masks
     ddepths = np.broadcast_to(transect["depths"], transect["Sv"].shape)

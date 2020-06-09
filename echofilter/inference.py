@@ -616,7 +616,7 @@ def inference_transect(
         )
         segment = transform(segment)
         input = torch.tensor(segment["signals"]).unsqueeze(0).unsqueeze(0)
-        input = input.to(device, dtype)
+        input = input.to(device, dtype).contiguous()
         # Put data through model
         with torch.no_grad():
             output = model(input)

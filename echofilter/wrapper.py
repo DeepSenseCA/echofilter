@@ -309,6 +309,10 @@ class EchofilterLoss(_Loss):
             inner_reduction = "none"
             loss_inclusion_mask *= 1 - target["is_removed"]
         loss_inclusion_sum = torch.sum(loss_inclusion_mask)
+        # Prevent division by zero
+        loss_inclusion_sum = torch.max(
+            loss_inclusion_sum, torch.ones_like(loss_inclusion_sum)
+        )
 
         for sfx in ("top", "top-original", "surface"):
             if sfx == "surface":
@@ -335,7 +339,6 @@ class EchofilterLoss(_Loss):
                     loss_term = torch.sum(loss_term)
                     if self.reduction == "mean":
                         loss_term = loss_term / loss_inclusion_sum
-                loss += weight * loss_term
             elif "logit_is_boundary_" + sfx in input:
                 X = target[target_key]
                 shp = list(X.shape)
@@ -367,7 +370,6 @@ class EchofilterLoss(_Loss):
                     loss_term = torch.sum(loss_term)
                     if self.reduction == "mean":
                         loss_term = loss_term / loss_inclusion_sum
-                loss += weight * loss_term
             else:
                 loss_term = F.binary_cross_entropy(
                     input["p_is_above_" + sfx],
@@ -379,6 +381,9 @@ class EchofilterLoss(_Loss):
                     loss_term = torch.sum(loss_term)
                     if self.reduction == "mean":
                         loss_term = loss_term / loss_inclusion_sum
+            if torch.isnan(loss_term).any():
+                print("Loss term {} is NaN".format(target_key))
+            else:
                 loss += weight * loss_term
 
         for sfx in ("", "-original"):
@@ -401,7 +406,6 @@ class EchofilterLoss(_Loss):
                     loss_term = torch.sum(loss_term)
                     if self.reduction == "mean":
                         loss_term = loss_term / loss_inclusion_sum
-                loss += weight * loss_term
             elif "logit_is_boundary_bottom" + sfx in input:
                 X = target["mask_bot" + sfx]
                 shp = list(X.shape)
@@ -433,7 +437,6 @@ class EchofilterLoss(_Loss):
                     loss_term = torch.sum(loss_term)
                     if self.reduction == "mean":
                         loss_term = loss_term / loss_inclusion_sum
-                loss += weight * loss_term
             else:
                 loss_term = F.binary_cross_entropy(
                     input["p_is_below_bottom" + sfx],
@@ -448,25 +451,36 @@ class EchofilterLoss(_Loss):
                     loss_term = torch.sum(loss_term)
                     if self.reduction == "mean":
                         loss_term = loss_term / loss_inclusion_sum
+            if torch.isnan(loss_term).any():
+                print("Loss term mask_bot{} is NaN".format(sfx))
+            else:
                 loss += weight * loss_term
 
         if self.removed_segment:
-            loss += self.removed_segment * F.binary_cross_entropy_with_logits(
+            loss_term = F.binary_cross_entropy_with_logits(
                 input["logit_is_removed"],
                 target["is_removed"].to(
                     input["logit_is_removed"].device, input["logit_is_removed"].dtype
                 ),
                 reduction=self.reduction,
             )
+            if torch.isnan(loss_term).any():
+                print("Loss term is_removed is NaN")
+            else:
+                loss += self.removed_segment * loss_term
 
         if self.passive:
-            loss += self.passive * F.binary_cross_entropy_with_logits(
+            loss_term = self.passive * F.binary_cross_entropy_with_logits(
                 input["logit_is_passive"],
                 target["is_passive"].to(
                     input["logit_is_passive"].device, input["logit_is_passive"].dtype
                 ),
                 reduction=self.reduction,
             )
+            if torch.isnan(loss_term).any():
+                print("Loss term is_passive is NaN")
+            else:
+                loss += self.passive * loss_term
 
         for sfx in ("", "-original", "-ntob"):
             weight = self.patch
@@ -474,7 +488,7 @@ class EchofilterLoss(_Loss):
                 weight *= self.auxiliary
             if not weight:
                 continue
-            loss += weight * F.binary_cross_entropy_with_logits(
+            loss_term = F.binary_cross_entropy_with_logits(
                 input["logit_is_patch" + sfx],
                 target["mask_patches" + sfx].to(
                     input["logit_is_patch" + sfx].device,
@@ -482,14 +496,22 @@ class EchofilterLoss(_Loss):
                 ),
                 reduction=self.reduction,
             )
+            if torch.isnan(loss_term).any():
+                print("Loss term mask_patches{} is NaN".format(sfx))
+            else:
+                loss += weight * loss_term
 
         if self.overall:
-            loss += self.overall * F.binary_cross_entropy(
+            loss_term = self.overall * F.binary_cross_entropy(
                 input["p_keep_pixel"],
                 target["mask"].to(
                     input["p_keep_pixel"].device, input["p_keep_pixel"].dtype
                 ),
                 reduction=self.reduction,
             )
+            if torch.isnan(loss_term).any():
+                print("Loss term overall is NaN")
+            else:
+                loss += self.overall * loss_term
 
         return loss
