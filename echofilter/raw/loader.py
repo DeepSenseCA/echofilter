@@ -279,12 +279,21 @@ def transect_loader(
     depths = np.linspace(d_start, d_stop, n_depth_use)
 
     # Interpolate depths to get a consistent sampling grid
+    interp_kwargs = dict(nan_threshold=0.3, assume_sorted=True)
     for i_entry, (nd, d0, d1) in enumerate(
         zip(row_lengths, row_depth_starts, row_depth_ends)
     ):
-        data[i_entry, :n_depth_use] = interp1d_preserve_nan(
-            np.linspace(d0, d1, nd), data[i_entry, :nd], depths, nan_threshold=0.3,
-        )
+        if d0 < d1:
+            data[i_entry, :n_depth_use] = interp1d_preserve_nan(
+                np.linspace(d0, d1, nd), data[i_entry, :nd], depths, **interp_kwargs,
+            )
+        else:
+            data[i_entry, :n_depth_use] = interp1d_preserve_nan(
+                np.linspace(d1, d0, nd),
+                data[i_entry, :nd][::-1],
+                depths,
+                **interp_kwargs,
+            )
 
     # Crop the data down to size
     data = data[:, :n_depth_use]
