@@ -12,7 +12,7 @@ import numpy as np
 import scipy.stats
 import pandas as pd
 
-from .utils import interp1d_preserve_nan
+from .utils import interp1d_preserve_nan, mode
 
 
 ROOT_DATA_DIR = "/data/dsforce/surveyExports"
@@ -262,7 +262,7 @@ def transect_loader(
         if n_depth_use not in row_depth_starts:
             n_depth_use = np.median(row_lengths[:-1])
     elif row_len_selector == "mode":
-        n_depth_use = int(scipy.stats.mode(row_lengths, axis=None)[0])
+        n_depth_use = mode(row_lengths)
     else:
         raise ValueError(
             "Unsupported row_len_selector value: {}".format(row_len_selector)
@@ -274,10 +274,8 @@ def transect_loader(
         d_start = np.median(row_depth_starts[row_lengths == n_depth_use])
         d_stop = np.median(row_depth_ends[row_lengths == n_depth_use])
     else:
-        d_start = float(
-            scipy.stats.mode(row_depth_starts[row_lengths == n_depth_use])[0]
-        )
-        d_stop = float(scipy.stats.mode(row_depth_ends[row_lengths == n_depth_use])[0])
+        d_start = mode(row_depth_starts[row_lengths == n_depth_use])
+        d_stop = mode(row_depth_ends[row_lengths == n_depth_use])
     depths = np.linspace(d_start, d_stop, n_depth_use)
 
     # Interpolate depths to get a consistent sampling grid
