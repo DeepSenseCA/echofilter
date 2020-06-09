@@ -171,6 +171,7 @@ def train(
             echofilter.transforms.Normalize(DATA_CENTER, DATA_DEVIATION),
             echofilter.transforms.ColorJitter(0.5, 0.3),
             echofilter.transforms.ReplaceNan(NAN_VALUE),
+            echofilter.transforms.RandomGridSampling(sample_shape, order=None, p=0.5),
             echofilter.transforms.Rescale(sample_shape, order=None),
         ]
     )
