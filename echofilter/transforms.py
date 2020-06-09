@@ -9,6 +9,7 @@ import skimage.transform
 
 
 _fields_2d = (
+    "Sv",
     "signals",
     "mask",
     "mask_top",
@@ -22,6 +23,11 @@ _fields_2d = (
 )
 _fields_1d_timelike = (
     "timestamps",
+    "top",
+    "bottom",
+    "top-original",
+    "bottom-original",
+    "surface",
     "d_top",
     "d_bot",
     "r_top",
