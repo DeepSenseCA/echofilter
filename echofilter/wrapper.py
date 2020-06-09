@@ -309,6 +309,10 @@ class EchofilterLoss(_Loss):
             inner_reduction = "none"
             loss_inclusion_mask *= 1 - target["is_removed"]
         loss_inclusion_sum = torch.sum(loss_inclusion_mask)
+        # Prevent division by zero
+        loss_inclusion_sum = torch.max(
+            loss_inclusion_sum, torch.ones_like(loss_inclusion_sum)
+        )
 
         for sfx in ("top", "top-original", "surface"):
             if sfx == "surface":
