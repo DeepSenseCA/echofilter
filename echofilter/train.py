@@ -655,14 +655,15 @@ def train(
                 continue
             if k not in dataset_name:
                 continue
+            plot_crop_depth = crop_depth
+            if plot_crop_depth is None and plot_transects_k == "mobile":
+                plot_crop_depth = DEFAULT_CROP_DEPTH_PLOTS
             for transect_name in plot_transects_k:
                 transect, prediction = generate_from_shards(
-                    model,
                     os.path.join(data_dir + "_sharded", transect_name),
+                    model,
                     sample_shape=sample_shape,
-                    crop_depth=DEFAULT_CROP_DEPTH_PLOTS
-                    if crop_depth is None
-                    else crop_depth,
+                    crop_depth=plot_crop_depth,
                     device=device,
                     dtype=torch.float,
                 )
@@ -1034,9 +1035,7 @@ def validate(
     return losses.avg, meters, (example_input, example_data, example_output)
 
 
-def generate_from_transect(
-    model, transect, sample_shape, crop_depth, device, dtype=torch.float
-):
+def generate_from_transect(model, transect, sample_shape, device, dtype=torch.float):
     """
     Generate an output for a sample transect, .
     """
@@ -1046,12 +1045,6 @@ def generate_from_transect(
 
     # Make a copy of the transect which we will use to
     data = copy.deepcopy(transect)
-
-    # Apply depth crop
-    if crop_depth is not None:
-        depth_crop_mask = data["depths"] <= crop_depth
-        data["depths"] = data["depths"][depth_crop_mask]
-        data["signals"] = data["signals"][:, depth_crop_mask]
 
     # Configure data to match what the model expects to see
     # Ensure depth is always increasing (which corresponds to descending from
@@ -1083,12 +1076,14 @@ def generate_from_transect(
     return output
 
 
-def generate_from_file(model, fname, *args, **kwargs):
-    """
-    Generate an output for a sample transect, specified by its file path.
-    """
-    # Load the data
-    transect = load_decomposed_transect_mask(fname)
+def _generate_from_loaded(transect, model, *args, crop_depth=None, **kwargs):
+
+    # Apply depth crop
+    if crop_depth is not None:
+        depth_crop_mask = transect["depths"] <= crop_depth
+        transect["depths"] = transect["depths"][depth_crop_mask]
+        transect["Sv"] = transect["Sv"][:, depth_crop_mask]
+
     # Convert lines to masks
     ddepths = np.broadcast_to(transect["depths"], transect["Sv"].shape)
     transect["mask_top"] = np.single(ddepths < np.expand_dims(transect["top"], -1))
@@ -1108,31 +1103,25 @@ def generate_from_file(model, fname, *args, **kwargs):
     return transect, prediction
 
 
-def generate_from_shards(model, fname, *args, **kwargs):
+def generate_from_file(fname, *args, **kwargs):
+    """
+    Generate an output for a sample transect, specified by its file path.
+    """
+    # Load the data
+    transect = load_decomposed_transect_mask(fname)
+    # Process the transect
+    return _generate_from_loaded(transect, *args, **kwargs)
+
+
+def generate_from_shards(fname, *args, **kwargs):
     """
     Generate an output for a sample transect, specified by the path to its
     sharded data.
     """
     # Load the data
     transect = echofilter.shardloader.load_transect_segments_from_shards_abs(fname)
-
-    # Convert lines to masks
-    ddepths = np.broadcast_to(transect["depths"], transect["Sv"].shape)
-    transect["mask_top"] = np.single(ddepths < np.expand_dims(transect["top"], -1))
-    transect["mask_bot"] = np.single(ddepths > np.expand_dims(transect["bottom"], -1))
-    # Add mask_patches to the data, for plotting
-    transect["mask_patches"] = 1 - transect["mask"]
-    transect["mask_patches"][transect["is_passive"] > 0.5] = 0
-    transect["mask_patches"][transect["is_removed"] > 0.5] = 0
-    transect["mask_patches"][transect["mask_top"] > 0.5] = 0
-    transect["mask_patches"][transect["mask_bot"] > 0.5] = 0
-
-    # Generate predictions for the transect
-    transect["signals"] = transect.pop("Sv")
-    prediction = generate_from_transect(model, transect, *args, **kwargs)
-    transect["Sv"] = transect.pop("signals")
-
-    return transect, prediction
+    # Process the transect
+    return _generate_from_loaded(transect, *args, **kwargs)
 
 
 def save_checkpoint(state, is_best, dirname=".", filename="checkpoint.pth.tar"):
