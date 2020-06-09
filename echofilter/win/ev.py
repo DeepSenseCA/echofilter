@@ -53,7 +53,7 @@ def maybe_open_echoview(
         yield app
     else:
         # Need to import the context which actually opens COM windows
-        from .win import opencom
+        from .manager import opencom
 
         with opencom(
             ECHOVIEW_COM_NAME,
