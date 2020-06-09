@@ -617,14 +617,6 @@ def train(
                 dataformats="NCWH",
             )
             writer.add_images(
-                "Overall/" + partition + "/Output/mask",
-                ensure_clim_met(
-                    add_image_border(ex_output["mask_keep_pixel"].float().unsqueeze(1))
-                ),
-                epoch,
-                dataformats="NCWH",
-            )
-            writer.add_images(
                 "Overall/" + partition + "/Overlap",
                 ensure_clim_met(
                     add_image_border(
@@ -644,7 +636,23 @@ def train(
                 dataformats="NCWH",
             )
 
+        # Determine whether to generate sample transect plots, or skip them
+        if n_epoch < 20:
+            # Every epoch
+            generate_sample_transect_plots = True
+        elif n_epoch < 100:
+            # Every 10th of the way through training
+            generate_sample_transect_plots = (epoch % (n_epoch // 10)) == 0
+        else:
+            # Every 10th epoch
+            generate_sample_transect_plots = (epoch % 10) == 0
+        # But always generate samples for first and last epoch
+        if epoch == 1 or epoch == n_epoch:
+            generate_sample_transect_plots = True
+
         for k, plot_transects_k in PLOT_TRANSECTS.items():
+            if not generate_sample_transect_plots:
+                continue
             if k not in dataset_name:
                 continue
             for transect_name in plot_transects_k:
