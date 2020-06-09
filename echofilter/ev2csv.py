@@ -223,6 +223,11 @@ def ev2csv(
         av.Properties.Analysis.ExcludeAbove = "None"
         av.Properties.Analysis.ExcludeBelow = "None"
         av.Properties.Analysis.ExcludeBadDataRegions = False
+        av.Properties.Analysis.ExcludeBadLineStatusPings = False
+        av.Properties.Data.ApplyMinimumThreshold = False
+        av.Properties.Data.ApplyMaximumThreshold = False
+        av.Properties.Data.ApplyMinimumTsThreshold = False
+        av.Properties.Data.ApplyTimeVariedThreshold = False
 
         # Export the raw file
         if verbose >= 1:
