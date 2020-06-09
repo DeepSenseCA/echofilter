@@ -10,7 +10,7 @@ import numpy as np
 import scipy.interpolate
 
 from . import loader
-from .. import utils
+from . import utils
 
 
 ROOT_DATA_DIR = loader.ROOT_DATA_DIR

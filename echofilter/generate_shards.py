@@ -4,11 +4,11 @@
 import functools
 import multiprocessing
 import os
-import traceback
 import sys
+import traceback
 
 import echofilter.raw.loader
-import echofilter.shardloader
+import echofilter.raw.shardloader
 
 
 ROOT_DATA_DIR = echofilter.raw.loader.ROOT_DATA_DIR
@@ -20,7 +20,7 @@ def generate_shard(
     """
     Shard a single transect.
 
-    Wrapper around echofilter.shardloader.segment_and_shard_transect which
+    Wrapper around echofilter.raw.shardloader.segment_and_shard_transect which
     adds verboseness and graceful failure options.
 
     Parameters
@@ -35,12 +35,12 @@ def generate_shard(
         continue. If `False`, the process will halt with an error as soon as
         any single transect hits an error. Default is `True`.
     *kwargs
-        See `echofilter.shardloader.segment_and_shard_transect`.
+        See `echofilter.raw.shardloader.segment_and_shard_transect`.
     """
     if verbose:
         print("Sharding {}".format(transect_pth))
     try:
-        echofilter.shardloader.segment_and_shard_transect(
+        echofilter.raw.shardloader.segment_and_shard_transect(
             transect_pth, **kwargs,
         )
     except Exception as ex:
@@ -64,7 +64,7 @@ def generate_shards(
     """
     Shard all transections in one partition of a dataset.
 
-    Wrapper around echofilter.shardloader.segment_and_shard_transect which
+    Wrapper around echofilter.raw.shardloader.segment_and_shard_transect which
     adds verboseness and graceful failure options.
 
     Parameters
@@ -90,7 +90,7 @@ def generate_shards(
         continue. If `False`, the process will halt with an error as soon as
         any single transect hits an error. Default is `True`.
     *kwargs
-        See `echofilter.shardloader.segment_and_shard_transect`.
+        See `echofilter.raw.shardloader.segment_and_shard_transect`.
     """
     if verbose:
         print('Getting partition list "{}" for "{}"'.format(partition, dataset))

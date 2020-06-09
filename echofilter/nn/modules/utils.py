@@ -1,5 +1,5 @@
 """
-Utilities for pytorch modules.
+nn.modules utility functions.
 """
 
 import collections
@@ -8,8 +8,6 @@ from itertools import repeat
 import torch
 from torch._six import container_abcs
 from torch import nn
-
-from ..utils import rint
 
 
 __all__ = ["same_to_padding", "init_cnn"]
@@ -69,6 +67,30 @@ def same_to_padding(kernel_size, stride=1, dilation=1, ndim=None):
     padding = tuple((k - 1) * d // 2 for k, d in zip(kernel_size, dilation))
 
     return padding
+
+
+def rint(x, minval=None):
+    """
+    Rounds and casts as an int, optionally with a floor value.
+
+    Parameters
+    ----------
+    x : float
+        Number to round.
+    minval : bool, optional
+        A floor value for the output. If `None`, no floor is applied. Default
+        is `None`.
+
+    Returns
+    -------
+    int
+        The number rounded to the nearest int, and cast as an int. If `minval`
+        is set, the max with `minval` is taken.
+    """
+    x = int(round(x))
+    if minval is not None:
+        x = max(minval, x)
+    return x
 
 
 def init_cnn(m):

@@ -7,9 +7,12 @@ import re
 import warnings
 
 import pywintypes
-import win32con
 import win32com.client
+import win32con
 import win32gui
+
+
+__all__ = ["opencom", "WindowManager"]
 
 
 class WindowManager:

@@ -29,16 +29,14 @@ except ImportError:
 
 import echofilter.dataset
 import echofilter.transforms
-import echofilter.shardloader
+import echofilter.raw.shardloader
 import echofilter.utils
-from echofilter import criterions
-from echofilter import schedulers
-from echofilter import torch_backports
-from echofilter.meters import AverageMeter, ProgressMeter
+from echofilter.nn.unet import UNet
+from echofilter.optim import criterions, schedulers
+from echofilter.optim.meters import AverageMeter, ProgressMeter
+from echofilter.nn.wrapper import Echofilter, EchofilterLoss
 from echofilter.raw.loader import get_partition_list
 from echofilter.raw.manipulate import load_decomposed_transect_mask
-from echofilter.unet import UNet
-from echofilter.wrapper import Echofilter, EchofilterLoss
 from echofilter.plotting import plot_transect_predictions
 
 
@@ -373,7 +371,7 @@ def train(
     elif schedule == "constant":
         pass
     elif schedule == "onecycle":
-        schedule_data["scheduler"] = torch_backports.OneCycleLR(
+        schedule_data["scheduler"] = schedulers.OneCycleLR(
             optimizer,
             max_lr=lr,
             steps_per_epoch=len(loader_train),
@@ -1142,7 +1140,7 @@ def generate_from_shards(fname, *args, **kwargs):
     sharded data.
     """
     # Load the data
-    transect = echofilter.shardloader.load_transect_segments_from_shards_abs(fname)
+    transect = echofilter.raw.shardloader.load_transect_segments_from_shards_abs(fname)
     # Process the transect
     return _generate_from_loaded(transect, *args, **kwargs)
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 from collections import OrderedDict
-import os
 import datetime
+import os
 import pickle
 import pprint
 import shutil
@@ -23,14 +23,14 @@ from torchutils.utils import count_parameters
 from torchutils.device import cuda_is_really_available
 from tqdm.auto import tqdm
 
-import echofilter.ev
 import echofilter.path
+from echofilter.nn.unet import UNet
+from echofilter.nn.wrapper import Echofilter
 import echofilter.raw
 from echofilter.raw.manipulate import join_transect, split_transect
 import echofilter.transforms
 import echofilter.utils
-from echofilter.unet import UNet
-from echofilter.wrapper import Echofilter
+import echofilter.win
 
 
 CHECKPOINT_RESOURCES = OrderedDict(
@@ -296,7 +296,7 @@ def run_inference(
     incompatible_count = 0
 
     # Open EchoView connection
-    with echofilter.ev.maybe_open_echoview(
+    with echofilter.win.maybe_open_echoview(
         do_open=do_open, minimize=minimize_echoview, hide=hide_echoview,
     ) as ev_app:
         for fname in maybe_tqdm(files):
