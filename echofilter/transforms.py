@@ -143,6 +143,108 @@ class Rescale(object):
         return sample
 
 
+class RandomGridSampling(Rescale):
+    """
+    Resample data onto a new grid, which is randomly resampled.
+
+    Parameters
+    ----------
+    output_size : tuple or int
+        Desired output size. If tuple, output is matched to output_size. If
+        int, output is square.
+    p : float, optional
+        Probability of performing the RandomGrid operation. Default is `0.5`.
+        Set to `1` to always do this operation.
+    order : int or None, optional
+        Order of the interpolation, for both image and vector elements.
+        For images-like components, the interpolation is 2d.
+        The following values are supported:
+
+        - 0: Nearest-neighbor
+        - 1: Linear (default)
+        - 2: Quadratic
+        - 3: Cubic
+
+        If `None`, the order is randomly selected from the set
+        {`0`, `1`, `3`}.
+    """
+
+    def __init__(self, *args, p=0.5, **kwargs):
+        super(RandomGridSampling, self).__init__(*args, **kwargs)
+        self.p = p
+
+    def __call__(self, sample):
+
+        if self.p >= 1 or random.random() > self.p:
+            # Nothing to do
+            return sample
+
+        order = self.order
+        if order is None:
+            # Randomly sample 0, 1, or 3
+            order = np.random.randint(3)
+            if order == 2:
+                order += 1
+
+        kind = self.order2kind[order]
+
+        # Randomly re-sample x and y
+        nx = len(sample["timestamps"])
+        ny = len(sample["depths"])
+        x_out = np.sort(np.random.uniform(0, nx - 1, size=self.output_size[0]))
+        y_out = np.sort(np.random.uniform(0, ny - 1, size=self.output_size[1]))
+
+        # 2D arrays (image-like)
+        for key in _fields_2d:
+            if key not in sample:
+                continue
+            _dtype = sample[key].dtype
+            sample[key] = np.asarray(sample[key])
+            if order == 0:
+                if sample[key].shape != (nx, ny):
+                    raise ValueError(
+                        'Expected sample["{}"] to be shaped {}'.format(key, (nx, ny))
+                    )
+                sample[key] = sample[key][np.round(x_out).astype(int)][
+                    :, np.round(y_out).astype(int)
+                ]
+            else:
+                sample[key] = scipy.interpolate.RectBivariateSpline(
+                    np.linspace(0, nx - 1, sample[key].shape[0]),
+                    np.linspace(0, ny - 1, sample[key].shape[1]),
+                    sample[key].astype(np.float),
+                    kx=order,
+                    ky=order,
+                )(x_out, y_out)
+            sample[key] = sample[key].astype(_dtype)
+
+        # 1D arrays (column-like)
+        for key in _fields_1d_timelike:
+            if key not in sample:
+                continue
+            _kind = "linear" if key == "timestamps" else kind
+            if key in {"is_passive", "is_removed"} and order > 1:
+                _kind = "linear"
+            _dtype = sample[key].dtype
+            sample[key] = scipy.interpolate.interp1d(
+                np.linspace(0, nx - 1, len(sample[key])), sample[key], kind=_kind,
+            )(x_out)
+            sample[key] = sample[key].astype(_dtype)
+
+        # 1D arrays (row-like)
+        for key in _fields_1d_depthlike:
+            if key not in sample:
+                continue
+            _kind = "linear" if key == "depths" else kind
+            _dtype = sample[key].dtype
+            sample[key] = scipy.interpolate.interp1d(
+                np.linspace(0, ny - 1, len(sample[key])), sample[key], kind=_kind,
+            )(y_out)
+            sample[key] = sample[key].astype(_dtype)
+
+        return sample
+
+
 class Normalize(object):
     """
     Normalize offset and scaling of image (mean and standard deviation).
