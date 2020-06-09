@@ -647,14 +647,15 @@ def train(
         for k, plot_transects_k in PLOT_TRANSECTS.items():
             if k not in dataset_name:
                 continue
+            plot_crop_depth = crop_depth
+            if plot_crop_depth is None and plot_transects_k == "mobile":
+                plot_crop_depth = DEFAULT_CROP_DEPTH_PLOTS
             for transect_name in plot_transects_k:
                 transect, prediction = generate_from_shards(
                     model,
                     os.path.join(data_dir + "_sharded", transect_name),
                     sample_shape=sample_shape,
-                    crop_depth=DEFAULT_CROP_DEPTH_PLOTS
-                    if crop_depth is None
-                    else crop_depth,
+                    crop_depth=plot_crop_depth,
                     device=device,
                     dtype=torch.float,
                 )
