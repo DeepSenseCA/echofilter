@@ -270,8 +270,14 @@ def transect_loader(
 
     # Use depths corresponding to that declared in the rows which had the
     # number of entries used.
-    d_start = float(scipy.stats.mode(row_depth_starts[row_lengths == n_depth_use])[0])
-    d_stop = float(scipy.stats.mode(row_depth_ends[row_lengths == n_depth_use])[0])
+    if row_len_selector == "median":
+        d_start = np.median(row_depth_starts[row_lengths == n_depth_use])
+        d_stop = np.median(row_depth_ends[row_lengths == n_depth_use])
+    else:
+        d_start = float(
+            scipy.stats.mode(row_depth_starts[row_lengths == n_depth_use])[0]
+        )
+        d_stop = float(scipy.stats.mode(row_depth_ends[row_lengths == n_depth_use])[0])
     depths = np.linspace(d_start, d_stop, n_depth_use)
 
     # Interpolate depths to get a consistent sampling grid
