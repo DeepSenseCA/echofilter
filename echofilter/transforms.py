@@ -96,6 +96,8 @@ class Rescale(object):
         for key in _fields_2d:
             if key not in sample:
                 continue
+            if sample[key].shape == self.output_size:
+                continue
             _dtype = sample[key].dtype
             with warnings.catch_warnings():
                 warnings.filterwarnings(
@@ -114,6 +116,8 @@ class Rescale(object):
         for key in _fields_1d_timelike:
             if key not in sample:
                 continue
+            if sample[key].shape == self.output_size[:1]:
+                continue
             _kind = "linear" if key == "timestamps" else kind
             if key in {"is_passive", "is_removed"} and order > 1:
                 _kind = "linear"
@@ -126,6 +130,8 @@ class Rescale(object):
         # 1D arrays (row-like)
         for key in _fields_1d_depthlike:
             if key not in sample:
+                continue
+            if sample[key].shape == self.output_size[1:]:
                 continue
             _kind = "linear" if key == "depths" else kind
             _dtype = sample[key].dtype
