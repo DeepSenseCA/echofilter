@@ -405,9 +405,9 @@ def run_inference(
                     continue
 
                 # Load the data
-                if verbose >= 4:
+                if verbose >= 5:
                     warn_row_overflow = np.inf
-                elif verbose >= 3:
+                elif verbose >= 4:
                     warn_row_overflow = None
                 else:
                     warn_row_overflow = 0
