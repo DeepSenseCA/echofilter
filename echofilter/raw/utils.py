@@ -7,7 +7,7 @@ import scipy.interpolate
 import scipy.stats
 
 
-def mode(a, axis=None, keepdims=True, **kwargs):
+def mode(a, axis=None, keepdims=False, **kwargs):
     """
     Return an array of the modal (most common) value in the passed array.
 
@@ -22,9 +22,9 @@ def mode(a, axis=None, keepdims=True, **kwargs):
         `axis=None`, will sum all of the elements of the input array.
         If axis is negative it counts from the last to the first axis.
     keepdims : bool, optional
-        If this is set to `True` (default), the axes which are reduced are left
+        If this is set to `True`, the axes which are reduced are left
         in the result as dimensions with size one. With this option, the result
-        will broadcast correctly against the input array.
+        will broadcast correctly against the input array. Default is `False`.
 
     Returns
     -------
