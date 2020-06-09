@@ -12,6 +12,8 @@ import numpy as np
 import scipy.stats
 import pandas as pd
 
+from .utils import interp1d_preserve_nan, mode
+
 
 ROOT_DATA_DIR = "/data/dsforce/surveyExports"
 
@@ -173,9 +175,9 @@ def transect_loader(
     timestamps = np.empty((n_lines - skip_lines))
     timestamps[:] = np.nan
 
-    row_lengths = np.empty((n_lines - skip_lines))
-    row_depth_starts = {}
-    row_depth_ends = {}
+    row_lengths = np.empty((n_lines - skip_lines), dtype=np.int)
+    row_depth_starts = np.empty((n_lines - skip_lines))
+    row_depth_ends = np.empty((n_lines - skip_lines))
 
     n_warn_overflow = 0
     n_warn_underflow = 0
@@ -188,25 +190,8 @@ def transect_loader(
 
         # Track the range of depths used in the row with this length
         row_lengths[i_entry] = len(row)
-        if len(row) not in row_depth_starts:
-            row_depth_starts[len(row)] = meta["Depth_start"]
-            row_depth_ends[len(row)] = meta["Depth_stop"]
-        else:
-            if (
-                row_depth_starts[len(row)] != meta["Depth_start"]
-                or row_depth_ends[len(row)] != meta["Depth_stop"]
-            ):
-                raise ValueError(
-                    "Rows with the same length of {} have different depth"
-                    " start/stop values ({}/{} vs {}/{}). This transect loader"
-                    " can not handle a mixture of depth resolutions.".format(
-                        len(row),
-                        row_depth_starts[len(row)],
-                        row_depth_ends[len(row)],
-                        meta["Depth_start"],
-                        meta["Depth_stop"],
-                    )
-                )
+        row_depth_starts[i_entry] = meta["Depth_start"]
+        row_depth_ends[i_entry] = meta["Depth_stop"]
 
         if len(row) > n_depth_exp:
             if n_warn_overflow < warn_row_overflow:
@@ -252,8 +237,14 @@ def transect_loader(
         warnings.filterwarnings("ignore", "invalid value encountered in less")
         data[data < -1e6] = np.nan
 
-    # Work out what row length we should return
+    # Trim timestamps dimension down to size
+    timestamps = timestamps[:n_entry]
+    data = data[:n_entry]
     row_lengths = row_lengths[:n_entry]
+    row_depth_starts = row_depth_starts[:n_entry]
+    row_depth_ends = row_depth_ends[:n_entry]
+
+    # Work out what row length we should return
     if row_len_selector == "init":
         n_depth_use = n_depths_init
     elif row_len_selector == "min":
@@ -271,7 +262,7 @@ def transect_loader(
         if n_depth_use not in row_depth_starts:
             n_depth_use = np.median(row_lengths[:-1])
     elif row_len_selector == "mode":
-        n_depth_use = int(scipy.stats.mode(row_lengths, axis=None)[0])
+        n_depth_use = mode(row_lengths)
     else:
         raise ValueError(
             "Unsupported row_len_selector value: {}".format(row_len_selector)
@@ -279,13 +270,33 @@ def transect_loader(
 
     # Use depths corresponding to that declared in the rows which had the
     # number of entries used.
-    depth_start = row_depth_starts[n_depth_use]
-    depth_stop = row_depth_ends[n_depth_use]
-    depths = np.linspace(depth_start, depth_stop, n_depth_use)
+    if row_len_selector == "median":
+        d_start = np.median(row_depth_starts[row_lengths == n_depth_use])
+        d_stop = np.median(row_depth_ends[row_lengths == n_depth_use])
+    else:
+        d_start = mode(row_depth_starts[row_lengths == n_depth_use])
+        d_stop = mode(row_depth_ends[row_lengths == n_depth_use])
+    depths = np.linspace(d_start, d_stop, n_depth_use)
+
+    # Interpolate depths to get a consistent sampling grid
+    interp_kwargs = dict(nan_threshold=0.3, assume_sorted=True)
+    for i_entry, (nd, d0, d1) in enumerate(
+        zip(row_lengths, row_depth_starts, row_depth_ends)
+    ):
+        if d0 < d1:
+            data[i_entry, :n_depth_use] = interp1d_preserve_nan(
+                np.linspace(d0, d1, nd), data[i_entry, :nd], depths, **interp_kwargs,
+            )
+        else:
+            data[i_entry, :n_depth_use] = interp1d_preserve_nan(
+                np.linspace(d1, d0, nd),
+                data[i_entry, :nd][::-1],
+                depths,
+                **interp_kwargs,
+            )
 
     # Crop the data down to size
-    data = data[:n_entry, :n_depth_use]
-    timestamps = timestamps[:n_entry]
+    data = data[:, :n_depth_use]
 
     return timestamps, depths, data
 
