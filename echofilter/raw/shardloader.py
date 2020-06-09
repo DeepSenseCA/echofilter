@@ -6,10 +6,10 @@ import os
 
 import numpy as np
 
-from . import raw
+from . import loader, manipulate
 
 
-ROOT_DATA_DIR = raw.loader.ROOT_DATA_DIR
+ROOT_DATA_DIR = loader.ROOT_DATA_DIR
 
 
 def segment_and_shard_transect(
@@ -47,16 +47,16 @@ def segment_and_shard_transect(
     For the contents of each directory, see `write_transect_shards`.
     """
     # Define output destination
-    root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
+    root_data_dir = loader.remove_trailing_slash(root_data_dir)
     root_shard_dir = os.path.join(root_data_dir + "_sharded", dataset)
 
     # Load the data, with mask decomposed into top, bottom, passive,
     # and removed regions.
-    transect = raw.manipulate.load_decomposed_transect_mask(
+    transect = manipulate.load_decomposed_transect_mask(
         os.path.join(root_data_dir, dataset, transect_pth)
     )
 
-    segments = raw.manipulate.split_transect(**transect)
+    segments = manipulate.split_transect(**transect)
 
     for i_segment, segment in enumerate(segments):
         dirname = os.path.join(root_shard_dir, transect_pth, str(i_segment))
@@ -340,7 +340,7 @@ def load_transect_from_shards_rel(
     -------
     See `load_transect_from_shards_abs`.
     """
-    root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
+    root_data_dir = loader.remove_trailing_slash(root_data_dir)
     root_shard_dir = os.path.join(root_data_dir + "_sharded", dataset)
     dirname = os.path.join(root_shard_dir, transect_rel_pth, str(segment))
     return load_transect_from_shards_abs(dirname, i1=i1, i2=i2, **kwargs,)
@@ -376,7 +376,7 @@ def load_transect_segments_from_shards_abs(
         transects.append(load_transect_from_shards_abs(dirname))
 
     # Join the segments together
-    return raw.manipulate.join_transect(transects)
+    return manipulate.join_transect(transects)
 
 
 def load_transect_segments_from_shards_rel(
@@ -402,7 +402,7 @@ def load_transect_segments_from_shards_rel(
     -------
     See `load_transect_from_shards_abs`.
     """
-    root_data_dir = raw.loader.remove_trailing_slash(root_data_dir)
+    root_data_dir = loader.remove_trailing_slash(root_data_dir)
     root_shard_dir = os.path.join(root_data_dir + "_sharded", dataset)
     dirname = os.path.join(root_shard_dir, transect_rel_pth)
     return load_transect_segments_from_shards_abs(dirname, segments=segments,)
