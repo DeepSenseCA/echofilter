@@ -6,6 +6,8 @@ import numpy as np
 import scipy.interpolate
 import scipy.stats
 
+from ..utils import get_indicator_onoffsets
+
 
 def mode(a, axis=None, keepdims=False, **kwargs):
     """
