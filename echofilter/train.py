@@ -1097,8 +1097,14 @@ def _generate_from_loaded(transect, model, *args, crop_depth=None, **kwargs):
     # Apply depth crop
     if crop_depth is not None:
         depth_crop_mask = transect["depths"] <= crop_depth
-        transect["depths"] = transect["depths"][depth_crop_mask]
-        transect["Sv"] = transect["Sv"][:, depth_crop_mask]
+
+        for key in echofilter.transforms._fields_2d:
+            if key in transect:
+                transect[key] = transect[key][:, depth_crop_mask]
+
+        for key in echofilter.transforms._fields_1d_depthlike:
+            if key in transect:
+                transect[key] = transect[key][depth_crop_mask]
 
     # Convert lines to masks
     ddepths = np.broadcast_to(transect["depths"], transect["Sv"].shape)
