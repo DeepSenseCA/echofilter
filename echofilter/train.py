@@ -84,6 +84,7 @@ PLOT_TRANSECTS = {
         "MinasPassage/september2018/evExports/september2018_D20181107-T122220_D20181107-T175217",
     ],
     "GrandPassage": [
+        "GrandPassage/phase1/GrandPassage_WBAT_2A_20191222",
         "GrandPassage/phase2/GrandPassage_WBAT_2B_20200125_UTC160020_ebblow",
     ],
 }
