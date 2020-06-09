@@ -1026,9 +1026,7 @@ def validate(
     return losses.avg, meters, (example_input, example_data, example_output)
 
 
-def generate_from_transect(
-    model, transect, sample_shape, crop_depth, device, dtype=torch.float
-):
+def generate_from_transect(model, transect, sample_shape, device, dtype=torch.float):
     """
     Generate an output for a sample transect, .
     """
@@ -1038,12 +1036,6 @@ def generate_from_transect(
 
     # Make a copy of the transect which we will use to
     data = copy.deepcopy(transect)
-
-    # Apply depth crop
-    if crop_depth is not None:
-        depth_crop_mask = data["depths"] <= crop_depth
-        data["depths"] = data["depths"][depth_crop_mask]
-        data["signals"] = data["signals"][:, depth_crop_mask]
 
     # Configure data to match what the model expects to see
     # Ensure depth is always increasing (which corresponds to descending from
@@ -1075,12 +1067,19 @@ def generate_from_transect(
     return output
 
 
-def generate_from_file(model, fname, *args, **kwargs):
+def generate_from_file(model, fname, *args, crop_depth=None, **kwargs):
     """
     Generate an output for a sample transect, specified by its file path.
     """
     # Load the data
     transect = load_decomposed_transect_mask(fname)
+
+    # Apply depth crop
+    if crop_depth is not None:
+        depth_crop_mask = transect["depths"] <= crop_depth
+        transect["depths"] = transect["depths"][depth_crop_mask]
+        transect["Sv"] = transect["Sv"][:, depth_crop_mask]
+
     # Convert lines to masks
     ddepths = np.broadcast_to(transect["depths"], transect["Sv"].shape)
     transect["mask_top"] = np.single(ddepths < np.expand_dims(transect["top"], -1))
@@ -1100,13 +1099,19 @@ def generate_from_file(model, fname, *args, **kwargs):
     return transect, prediction
 
 
-def generate_from_shards(model, fname, *args, **kwargs):
+def generate_from_shards(model, fname, *args, crop_depth=None, **kwargs):
     """
     Generate an output for a sample transect, specified by the path to its
     sharded data.
     """
     # Load the data
     transect = echofilter.shardloader.load_transect_segments_from_shards_abs(fname)
+
+    # Apply depth crop
+    if crop_depth is not None:
+        depth_crop_mask = transect["depths"] <= crop_depth
+        transect["depths"] = transect["depths"][depth_crop_mask]
+        transect["Sv"] = transect["Sv"][:, depth_crop_mask]
 
     # Convert lines to masks
     ddepths = np.broadcast_to(transect["depths"], transect["Sv"].shape)
