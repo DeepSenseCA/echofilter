@@ -1072,7 +1072,7 @@ def generate_from_transect(model, transect, sample_shape, device, dtype=torch.fl
     )
     data = transform(data)
     input = torch.tensor(data["signals"]).unsqueeze(0).unsqueeze(0)
-    input = input.to(device, dtype)
+    input = input.to(device, dtype).contiguous()
     # Put data through model
     with torch.no_grad():
         output = model(input)
