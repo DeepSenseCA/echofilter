@@ -9,7 +9,6 @@ import os
 import warnings
 
 import numpy as np
-import scipy.stats
 import pandas as pd
 
 from .utils import interp1d_preserve_nan, mode

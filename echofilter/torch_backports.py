@@ -76,15 +76,13 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
-import types
-import math
-from torch._six import inf
+from collections import Counter
 from functools import wraps
+import math
 import warnings
 import weakref
-from collections import Counter
-from bisect import bisect_right
 
+from torch._six import inf
 from torch.optim.optimizer import Optimizer
 
 
