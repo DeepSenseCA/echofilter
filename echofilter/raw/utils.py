@@ -92,6 +92,9 @@ def interp1d_preserve_nan(
     y_samples = scipy.interpolate.interp1d(
         x[~is_nan], y[~is_nan], bounds_error=bounds_error, **kwargs
     )(x_samples)
+    if np.sum(is_nan) == 0:
+        # Shortcut if there are no NaNs
+        return y_samples
     # Then find the points close to NaNs
     influence = scipy.interpolate.interp1d(
         x, is_nan, bounds_error=bounds_error, **kwargs
