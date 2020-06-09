@@ -10,7 +10,7 @@ import warnings
 from tqdm.auto import tqdm
 
 import echofilter.path
-import echofilter.win.ev
+import echofilter.win
 
 
 # Provide a warning for non-Windows users
@@ -117,7 +117,7 @@ def run_ev2csv(
     output_files = []
 
     # Open EchoView connection
-    with echofilter.win.ev.maybe_open_echoview(
+    with echofilter.win.maybe_open_echoview(
         do_open=not dry_run, minimize=minimize_echoview, hide=hide_echoview,
     ) as ev_app:
         for fname in maybe_tqdm(files):
@@ -214,7 +214,7 @@ def ev2csv(
     destination = os.path.abspath(destination)
 
     # Open the EV file
-    with echofilter.win.ev.open_ev_file(input, ev_app) as ev_file:
+    with echofilter.win.open_ev_file(input, ev_app) as ev_file:
 
         # Find the right variable
         av = ev_file.Variables.FindByName(variable_name).AsVariableAcoustic()

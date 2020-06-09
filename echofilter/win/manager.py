@@ -12,6 +12,9 @@ import win32con
 import win32gui
 
 
+__all__ = ["opencom", "WindowManager"]
+
+
 class WindowManager:
     """
     Encapsulates calls to window management using the Windows api.

@@ -30,7 +30,7 @@ import echofilter.raw
 from echofilter.raw.manipulate import join_transect, split_transect
 import echofilter.transforms
 import echofilter.utils
-import echofilter.win.ev
+import echofilter.win
 
 
 CHECKPOINT_RESOURCES = OrderedDict(
@@ -296,7 +296,7 @@ def run_inference(
     incompatible_count = 0
 
     # Open EchoView connection
-    with echofilter.win.ev.maybe_open_echoview(
+    with echofilter.win.maybe_open_echoview(
         do_open=do_open, minimize=minimize_echoview, hide=hide_echoview,
     ) as ev_app:
         for fname in maybe_tqdm(files):
