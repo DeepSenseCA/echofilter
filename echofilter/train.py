@@ -35,10 +35,10 @@ from echofilter import criterions
 from echofilter import schedulers
 from echofilter import torch_backports
 from echofilter.meters import AverageMeter, ProgressMeter
+from echofilter.nn.unet import UNet
+from echofilter.nn.wrapper import Echofilter, EchofilterLoss
 from echofilter.raw.loader import get_partition_list
 from echofilter.raw.manipulate import load_decomposed_transect_mask
-from echofilter.unet import UNet
-from echofilter.wrapper import Echofilter, EchofilterLoss
 from echofilter.plotting import plot_transect_predictions
 
 

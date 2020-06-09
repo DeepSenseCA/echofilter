@@ -25,12 +25,12 @@ from tqdm.auto import tqdm
 
 import echofilter.ev
 import echofilter.path
+from echofilter.nn.unet import UNet
+from echofilter.nn.wrapper import Echofilter
 import echofilter.raw
 from echofilter.raw.manipulate import join_transect, split_transect
 import echofilter.transforms
 import echofilter.utils
-from echofilter.unet import UNet
-from echofilter.wrapper import Echofilter
 
 
 CHECKPOINT_RESOURCES = OrderedDict(
