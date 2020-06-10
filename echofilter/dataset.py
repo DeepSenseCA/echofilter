@@ -19,9 +19,12 @@ class TransectDataset(torch.utils.data.Dataset):
         Absolute paths to transects.
     window_len : int
         Width (number of timestamps) to load. Default is `128`.
-    crop_depth : float
-        Maximum depth to include, in metres. Deeper data will be cropped
-        away. Default is `None`.
+    p_scale_window : float, optional
+        Probability of rescaling window. Default is `0`, which results in no
+        randomization of the window widths.
+    window_sf : float, optional
+        Maximum window scale factor. Scale factors will be log-uniformly
+        sampled in the range `1/window_sf` to `window_sf`. Default is `2`.
     num_windows_per_transect : int
         Number of windows to extract for each transect. Start indices for
         the windows will be equally spaced across the total width of the
@@ -33,6 +36,9 @@ class TransectDataset(torch.utils.data.Dataset):
         Whether starting indices for each window should be randomly offset.
         Set to `True` for training and `False` for testing. Default is
         `True`.
+    crop_depth : float
+        Maximum depth to include, in metres. Deeper data will be cropped
+        away. Default is `None`.
     transform : callable
         Operations to perform to the dictionary containing a single sample.
         These are performed before generating the top/bottom/overall mask.
@@ -63,9 +69,11 @@ class TransectDataset(torch.utils.data.Dataset):
         self,
         transect_paths,
         window_len=128,
-        crop_depth=None,
+        p_scale_window=0,
+        window_sf=2,
         num_windows_per_transect=0,
         use_dynamic_offsets=True,
+        crop_depth=None,
         transform=None,
         remove_nearfield=True,
         nearfield_distance=1.7,
@@ -76,9 +84,11 @@ class TransectDataset(torch.utils.data.Dataset):
         super(TransectDataset, self).__init__()
         self.transect_paths = transect_paths
         self.window_len = window_len
-        self.crop_depth = crop_depth
+        self.p_scale_window = p_scale_window
+        self.max_window_sf = window_sf if p_scale_window else 1
         self.num_windows = num_windows_per_transect
         self.use_dynamic_offsets = use_dynamic_offsets
+        self.crop_depth = crop_depth
         self.transform = transform
         self.remove_nearfield = remove_nearfield
         self.nearfield_distance = nearfield_distance
@@ -125,17 +135,23 @@ class TransectDataset(torch.utils.data.Dataset):
                 else:
                     centers += max_dy_offset / 2
                 centers = np.round(centers)
-                # Add each (transect, center) to the list for this epoch
+                # Generate a width for each window, and add each
+                # (transect, center, width) to the list for this epoch
                 for center_idx in centers:
-                    self.datapoints.append((seg_path, int(center_idx)))
+                    cur_win_len = self.window_len
+                    if self.p_scale_window and random.random() < self.p_scale_window:
+                        sf = np.exp(np.log(self.max_window_sf) * random.uniform(-1, 1))
+                        cur_win_len *= sf
+                    cur_win_len = int(np.round(cur_win_len))
+                    self.datapoints.append((seg_path, int(center_idx), cur_win_len))
 
     def __getitem__(self, index):
-        transect_pth, center_idx = self.datapoints[index]
+        transect_pth, center_idx, win_len = self.datapoints[index]
         # Load data from shards
         sample = shardloader.load_transect_from_shards_abs(
             transect_pth,
-            center_idx - int(self.window_len / 2),
-            center_idx - int(self.window_len / 2) + self.window_len,
+            center_idx - int(win_len / 2),
+            center_idx - int(win_len / 2) + win_len,
             pad_mode="reflect",
         )
         sample["d_top"] = sample.pop("top")
