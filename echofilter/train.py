@@ -579,7 +579,9 @@ def train(
         for k, plot_transects_k in PLOT_TRANSECTS.items():
             if not generate_sample_images:
                 continue
-            if k not in dataset_name:
+            if "stationary" in dataset_name and k != "mobile":
+                pass
+            elif k not in dataset_name:
                 continue
             plot_crop_depth = crop_depth
             if plot_crop_depth is None and plot_transects_k == "mobile":
