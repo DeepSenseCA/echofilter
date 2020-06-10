@@ -162,92 +162,11 @@ def train(
     if device is not None and device != "cpu":
         torch.cuda.set_device(torch.device(device))
 
-    # Augmentations
-    train_transform = torchvision.transforms.Compose(
-        [
-            echofilter.transforms.RandomCropDepth(),
-            echofilter.transforms.RandomReflection(),
-            echofilter.transforms.Normalize(DATA_CENTER, DATA_DEVIATION),
-            echofilter.transforms.ColorJitter(0.5, 0.3),
-            echofilter.transforms.ReplaceNan(NAN_VALUE),
-            echofilter.transforms.RandomGridSampling(sample_shape, order=None, p=0.5),
-            echofilter.transforms.Rescale(sample_shape, order=None),
-        ]
-    )
-    val_transform = torchvision.transforms.Compose(
-        [
-            echofilter.transforms.OptimalCropDepth(),
-            echofilter.transforms.Normalize(DATA_CENTER, DATA_DEVIATION),
-            echofilter.transforms.ReplaceNan(NAN_VALUE),
-            echofilter.transforms.Rescale(sample_shape, order=1),
-        ]
+    # Build dataset
+    dataset_train, dataset_val, dataset_augval = build_dataset(
+        dataset_name, data_dir, sample_shape
     )
 
-    train_paths = get_partition_list(
-        "train",
-        dataset=dataset_name,
-        partitioning_version="firstpass",
-        root_data_dir=data_dir,
-        full_path=True,
-        sharded=True,
-    )
-    val_paths = get_partition_list(
-        "validate",
-        dataset=dataset_name,
-        partitioning_version="firstpass",
-        root_data_dir=data_dir,
-        full_path=True,
-        sharded=True,
-    )
-    print("Found {:3d} train sample paths".format(len(train_paths)))
-    print("Found {:3d} val sample paths".format(len(val_paths)))
-
-    dataset_args = {}
-    if dataset_name == "mobile":
-        dataset_args["remove_nearfield"] = False
-        dataset_args["remove_offset_top"] = 0
-        dataset_args["remove_offset_bottom"] = 1.0
-    elif dataset_name == "MinasPassage":
-        dataset_args["remove_nearfield"] = True
-        dataset_args["nearfield_distance"] = 1.7
-        dataset_args["remove_offset_top"] = 0
-        dataset_args["remove_offset_bottom"] = 0
-    elif dataset_name == "GrandPassage":
-        dataset_args["remove_nearfield"] = True
-        dataset_args["nearfield_distance"] = 1.7
-        dataset_args["remove_offset_top"] = 1.0
-        dataset_args["remove_offset_bottom"] = 0
-
-    dataset_train = echofilter.dataset.TransectDataset(
-        train_paths,
-        window_len=sample_shape[0],
-        p_scale_window=0.8,
-        num_windows_per_transect=None,
-        use_dynamic_offsets=True,
-        crop_depth=crop_depth,
-        transform=train_transform,
-        **dataset_args
-    )
-    dataset_val = echofilter.dataset.TransectDataset(
-        val_paths,
-        window_len=sample_shape[0],
-        p_scale_window=0,
-        num_windows_per_transect=None,
-        use_dynamic_offsets=False,
-        crop_depth=crop_depth,
-        transform=val_transform,
-        **dataset_args
-    )
-    dataset_augval = echofilter.dataset.TransectDataset(
-        val_paths,
-        window_len=sample_shape[0],
-        p_scale_window=0.8,
-        num_windows_per_transect=None,
-        use_dynamic_offsets=False,
-        crop_depth=crop_depth,
-        transform=train_transform,
-        **dataset_args
-    )
     print("Train dataset has {:4d} samples".format(len(dataset_train)))
     print("Val   dataset has {:4d} samples".format(len(dataset_val)))
 
@@ -734,6 +653,216 @@ def train(
 
     # Close tensorboard connection
     writer.close()
+
+
+def build_dataset(
+    dataset_name,
+    data_dir,
+    sample_shape,
+    train_partition=None,
+    val_partition=None,
+    crop_depth=None,
+    random_crop_args={},
+):
+    """
+    Construct a pytorch Dataset.
+
+    Parameters
+    ----------
+    dataset_name : str
+        Name of the dataset.
+    data_dir : str
+        Path to root data directory, containing the dataset.
+    sample_shape : iterable of length 2
+        The shape which will be used for training.
+    train_partition : str, optional
+        Name of the partition to use for training. Can optionally be a list of
+        multiple partitions joined with `"+"`. Default is `"train"`
+        (except for `stationary2` where it is mixed).
+    val_partition : str, optional
+        Name of the partition to use for validation. Can optionally be a list
+        of multiple partitions joined with `"+"`. Default is `"validate"`
+        (except for `stationary2` where it is mixed).
+    crop_depth : float or None, optional
+        Depth at which to crop samples. Default is `None`.
+    random_crop_args : dict, optional
+        Arguments to control the random crop used during training. Default is
+        an empty dict, which uses the default arguments of
+        `echofilter.transforms.RandomCropDepth`.
+
+    Returns
+    -------
+    dataset_train : echofilter.dataset.TransectDataset
+        Dataset of training samples.
+    dataset_val : echofilter.dataset.TransectDataset
+        Dataset of validation samples.
+    dataset_augval : echofilter.dataset.TransectDataset
+        Dataset of validation samples, appyling the training augmentation
+        stack.
+    """
+
+    if dataset_name == "stationary2":
+        # The stationary2 dataset is MinasPassage and GrandPassage,
+        # plus a second duplicate copy of GrandPassage which uses only zoomed
+        # out depth crops.
+        random_crop_args2 = copy.deepcopy(random_crop_args)
+        random_crop_args2["p_crop_is_none"] = 0.2
+        random_crop_args2["p_crop_is_optimal"] = 0.0
+        random_crop_args2["p_crop_is_close"] = 0.0
+        # By default, we only evaluate on the validation partition of
+        # MinasPassage, and train on the train partition of both plus the
+        # validation partition of GrandPassage.
+        if train_partition is None and val_partition is None:
+            train_partition_main = "train"
+            val_partition_main = "validate"
+            train_partition_aux = "train+validate"
+            val_partition_aux = ""
+        else:
+            train_partition_main = train_partition_aux = train_partition
+            val_partition_main = val_partition_aux = val_partition
+        # Assemble the datasets
+        datasets = [
+            build_dataset(
+                "MinasPassage",
+                data_dir=data_dir,
+                sample_shape=sample_shape,
+                train_partition=train_partition_main,
+                val_partition=val_partition_main,
+                crop_depth=crop_depth,
+                random_crop_args=random_crop_args,
+            ),
+            build_dataset(
+                "GrandPassage",
+                data_dir=data_dir,
+                sample_shape=sample_shape,
+                train_partition=train_partition_aux,
+                val_partition=val_partition_aux,
+                crop_depth=crop_depth,
+                random_crop_args=random_crop_args,
+            ),
+            build_dataset(
+                "GrandPassage",
+                data_dir=data_dir,
+                sample_shape=sample_shape,
+                train_partition=train_partition_aux,
+                val_partition=val_partition_aux,
+                crop_depth=crop_depth,
+                random_crop_args=random_crop_args2,
+            ),
+        ]
+        return tuple(
+            echofilter.dataset.ConcatDataset([d[i] for d in datasets])
+            for i in range(len(datasets[0]))
+        )
+
+    if train_partition is None:
+        train_partition = "train"
+    if val_partition is None:
+        val_partition = "validate"
+
+    # Augmentations
+    train_transform = torchvision.transforms.Compose(
+        [
+            echofilter.transforms.RandomCropDepth(**random_crop_args),
+            echofilter.transforms.RandomReflection(),
+            echofilter.transforms.Normalize(DATA_CENTER, DATA_DEVIATION),
+            echofilter.transforms.ColorJitter(0.5, 0.3),
+            echofilter.transforms.ReplaceNan(NAN_VALUE),
+            echofilter.transforms.RandomGridSampling(sample_shape, order=None, p=0.5),
+            echofilter.transforms.Rescale(sample_shape, order=None),
+        ]
+    )
+    val_transform = torchvision.transforms.Compose(
+        [
+            echofilter.transforms.OptimalCropDepth(),
+            echofilter.transforms.Normalize(DATA_CENTER, DATA_DEVIATION),
+            echofilter.transforms.ReplaceNan(NAN_VALUE),
+            echofilter.transforms.Rescale(sample_shape, order=1),
+        ]
+    )
+
+    train_paths = []
+    for partition_name in train_partition.split("+"):
+        if len(partition_name) == 0:
+            continue
+        train_paths += get_partition_list(
+            partition_name,
+            dataset=dataset_name,
+            partitioning_version="firstpass",
+            root_data_dir=data_dir,
+            full_path=True,
+            sharded=True,
+        )
+    val_paths = []
+    for partition_name in val_partition.split("+"):
+        if len(partition_name) == 0:
+            continue
+        val_paths += get_partition_list(
+            partition_name,
+            dataset=dataset_name,
+            partitioning_version="firstpass",
+            root_data_dir=data_dir,
+            full_path=True,
+            sharded=True,
+        )
+    print(
+        "Found {:3d} train sample paths from partition {} for dataset {}".format(
+            len(train_paths), train_partition, dataset_name
+        )
+    )
+    print(
+        "Found {:3d} val sample paths from partition {} for dataset {}".format(
+            len(val_paths), val_partition, dataset_name
+        )
+    )
+
+    dataset_args = {}
+    if dataset_name == "mobile":
+        dataset_args["remove_nearfield"] = False
+        dataset_args["remove_offset_top"] = 0
+        dataset_args["remove_offset_bottom"] = 1.0
+    elif dataset_name == "MinasPassage":
+        dataset_args["remove_nearfield"] = True
+        dataset_args["nearfield_distance"] = 1.7
+        dataset_args["remove_offset_top"] = 0
+        dataset_args["remove_offset_bottom"] = 0
+    elif dataset_name == "GrandPassage":
+        dataset_args["remove_nearfield"] = True
+        dataset_args["nearfield_distance"] = 1.7
+        dataset_args["remove_offset_top"] = 1.0
+        dataset_args["remove_offset_bottom"] = 0
+
+    dataset_train = echofilter.dataset.TransectDataset(
+        train_paths,
+        window_len=sample_shape[0],
+        p_scale_window=0.8,
+        num_windows_per_transect=None,
+        use_dynamic_offsets=True,
+        crop_depth=crop_depth,
+        transform=train_transform,
+        **dataset_args
+    )
+    dataset_val = echofilter.dataset.TransectDataset(
+        val_paths,
+        window_len=sample_shape[0],
+        p_scale_window=0,
+        num_windows_per_transect=None,
+        use_dynamic_offsets=False,
+        crop_depth=crop_depth,
+        transform=val_transform,
+        **dataset_args
+    )
+    dataset_augval = echofilter.dataset.TransectDataset(
+        val_paths,
+        window_len=sample_shape[0],
+        p_scale_window=0.8,
+        num_windows_per_transect=None,
+        use_dynamic_offsets=False,
+        crop_depth=crop_depth,
+        transform=train_transform,
+        **dataset_args
+    )
+    return dataset_train, dataset_val, dataset_augval
 
 
 def train_epoch(

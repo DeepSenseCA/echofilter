@@ -382,3 +382,25 @@ class TransectDataset(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self.datapoints)
+
+
+class ConcatDataset(torch.utils.data.ConcatDataset):
+    """
+    Dataset as a concatenation of multiple TransectDatasets.
+
+    This class is useful to assemble different existing datasets.
+
+    Parameters
+    ----------
+    datasets : sequence
+        List of datasets to be concatenated.
+
+    Notes
+    -----
+    A subclass of `torch.utils.data.ConcatDataset` which supports the
+    `initialise_datapoints` method.
+    """
+
+    def initialise_datapoints(self):
+        for dataset in self.datasets:
+            dataset.initialise_datapoints()
