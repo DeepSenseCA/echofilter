@@ -318,9 +318,11 @@ class EchofilterLoss(_Loss):
             if sfx == "surface":
                 weight = self.surface
                 target_key = "mask_surf"
+                target_i_key = "index_surf"
             else:
                 weight = self.top_mask
                 target_key = "mask_" + sfx
+                target_i_key = "index_" + sfx
                 if sfx != "top":
                     weight *= self.auxiliary
             if not weight:
@@ -340,26 +342,10 @@ class EchofilterLoss(_Loss):
                     if self.reduction == "mean":
                         loss_term = loss_term / loss_inclusion_sum
             elif "logit_is_boundary_" + sfx in input:
-                X = target[target_key]
-                shp = list(X.shape)
-                shp[-1] = 1
-                X = torch.cat(
-                    [
-                        torch.ones(shp, dtype=X.dtype, device=X.device),
-                        X,
-                        torch.zeros(shp, dtype=X.dtype, device=X.device),
-                    ],
-                    dim=-1,
+                # Load cross-entropy class target
+                C = target[target_i_key].to(
+                    device=input["logit_is_boundary_" + sfx].device
                 )
-                X = X.float()
-                X = X.narrow(-1, 0, X.shape[-1] - 1) - X.narrow(-1, 1, X.shape[-1] - 1)
-                C = torch.argmax(X, dim=-1)
-                Cmax = torch.tensor(
-                    [input["logit_is_boundary_" + sfx].shape[-1] - 1],
-                    device=C.device,
-                    dtype=C.dtype,
-                )
-                C = torch.min(C, Cmax)
                 loss_term = F.cross_entropy(
                     input["logit_is_boundary_" + sfx].transpose(-2, -1),
                     C,
@@ -407,26 +393,10 @@ class EchofilterLoss(_Loss):
                     if self.reduction == "mean":
                         loss_term = loss_term / loss_inclusion_sum
             elif "logit_is_boundary_bottom" + sfx in input:
-                X = target["mask_bot" + sfx]
-                shp = list(X.shape)
-                shp[-1] = 1
-                X = torch.cat(
-                    [
-                        torch.zeros(shp, dtype=X.dtype, device=X.device),
-                        X,
-                        torch.ones(shp, dtype=X.dtype, device=X.device),
-                    ],
-                    dim=-1,
+                # Load cross-entropy class target
+                C = target["index_bot" + sfx].to(
+                    device=input["logit_is_boundary_bottom" + sfx].device
                 )
-                X = X.float()
-                X = X.narrow(-1, 0, X.shape[-1] - 1) - X.narrow(-1, 1, X.shape[-1] - 1)
-                C = torch.argmin(X, dim=-1)
-                Cmax = torch.tensor(
-                    [input["logit_is_boundary_bottom" + sfx].shape[-1] - 1],
-                    device=C.device,
-                    dtype=C.dtype,
-                )
-                C = torch.min(C, Cmax)
                 loss_term = F.cross_entropy(
                     input["logit_is_boundary_bottom" + sfx].transpose(-2, -1),
                     C,

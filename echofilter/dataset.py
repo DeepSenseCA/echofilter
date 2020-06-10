@@ -354,6 +354,29 @@ class TransectDataset(torch.utils.data.Dataset):
         sample["mask"][sample["mask_bot"] > 0.5] = 0
         sample["mask"][sample["mask_patches"] > 0.5] = 0
 
+        # Determine the boundary index for depths
+        for sfx in {"top", "top-original", "surf"}:
+            # Ties are broken to the smaller index
+            sample["index_" + sfx] = np.searchsorted(
+                sample["depths"], sample["d_" + sfx], side="left"
+            )
+            # It is possible for the top line to be above the field of view,
+            # and impossible for the top line to below
+            sample["index_" + sfx] = np.maximum(
+                0, np.minimum(len(sample["depths"]), sample["index_" + sfx])
+            )
+        for sfx in {"bot", "bot-original"}:
+            # Ties are broken to the larger index
+            sample["index_" + sfx] = np.searchsorted(
+                sample["depths"], sample["d_" + sfx], side="right"
+            )
+            # It is possible for the bottom line to be below the field of view,
+            # and impossible for the bottom line to above
+            sample["index_" + sfx] -= 1
+            sample["index_" + sfx] = np.maximum(
+                0, np.minimum(len(sample["depths"]), sample["index_" + sfx])
+            )
+
         input = np.expand_dims(sample["signals"], 0).astype(np.float32)
         return input, sample
 
