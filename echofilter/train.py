@@ -28,16 +28,16 @@ except ImportError:
     apex = None
 
 import echofilter.dataset
-import echofilter.transforms
-import echofilter.raw.shardloader
-import echofilter.utils
 from echofilter.nn.unet import UNet
+from echofilter.nn.wrapper import Echofilter, EchofilterLoss
 from echofilter.optim import criterions, schedulers
 from echofilter.optim.meters import AverageMeter, ProgressMeter
-from echofilter.nn.wrapper import Echofilter, EchofilterLoss
+from echofilter.plotting import plot_transect_predictions
 from echofilter.raw.loader import get_partition_list
 from echofilter.raw.manipulate import load_decomposed_transect_mask
-from echofilter.plotting import plot_transect_predictions
+import echofilter.raw.shardloader
+import echofilter.transforms
+import echofilter.utils
 
 
 ## For mobile dataset,
@@ -672,7 +672,8 @@ def build_dataset(
     Parameters
     ----------
     dataset_name : str
-        Name of the dataset.
+        Name of the dataset. This can optionally be a list of
+        multiple datasets joined with `"+"`.
     data_dir : str
         Path to root data directory, containing the dataset.
     sample_shape : iterable of length 2
@@ -702,6 +703,26 @@ def build_dataset(
         Dataset of validation samples, appyling the training augmentation
         stack.
     """
+
+    if "+" in dataset_name:
+        # Join multiple datasets together
+        datasets = [
+            build_dataset(
+                subdataset_name,
+                data_dir=data_dir,
+                sample_shape=sample_shape,
+                train_partition=train_partition,
+                val_partition=val_partition,
+                crop_depth=crop_depth,
+                random_crop_args=random_crop_args,
+            )
+            for subdataset_name in dataset_name.split("+")
+            if len(subdataset_name) > 0
+        ]
+        return tuple(
+            echofilter.dataset.ConcatDataset([d[i] for d in datasets])
+            for i in range(len(datasets[0]))
+        )
 
     if dataset_name == "stationary2":
         # The stationary2 dataset is MinasPassage and GrandPassage,
