@@ -333,13 +333,13 @@ class TransectDataset(torch.utils.data.Dataset):
         # Convert lines to masks and relative lines
         ddepths = np.broadcast_to(sample["depths"], sample["signals"].shape)
         for suffix in ["", "-original"]:
-            sample["mask_top" + suffix] = np.single(
-                ddepths < np.expand_dims(sample["d_top" + suffix], -1)
+            sample["mask_top" + suffix] = ddepths < np.expand_dims(
+                sample["d_top" + suffix], -1
             )
-            sample["mask_bot" + suffix] = np.single(
-                ddepths > np.expand_dims(sample["d_bot" + suffix], -1)
+            sample["mask_bot" + suffix] = ddepths > np.expand_dims(
+                sample["d_bot" + suffix], -1
             )
-        sample["mask_surf"] = np.single(ddepths < np.expand_dims(sample["d_surf"], -1))
+        sample["mask_surf"] = ddepths < np.expand_dims(sample["d_surf"], -1)
 
         depth_range = abs(sample["depths"][-1] - sample["depths"][0])
         for key in ["d_top", "d_bot", "d_surf", "d_top-original", "d_bot-original"]:
@@ -377,7 +377,11 @@ class TransectDataset(torch.utils.data.Dataset):
                 0, np.minimum(len(sample["depths"]), sample["index_" + sfx])
             )
 
-        input = np.expand_dims(sample["signals"], 0).astype(np.float32)
+        # Ensure everything is float32 datatype
+        for key in sample:
+            sample[key] = sample[key].astype(np.float32)
+
+        input = np.expand_dims(sample["signals"], 0)
         return input, sample
 
     def __len__(self):
