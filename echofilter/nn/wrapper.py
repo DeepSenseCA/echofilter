@@ -361,7 +361,7 @@ class EchofilterLoss(_Loss):
             elif "logit_is_boundary_" + sfx in input:
                 # Load cross-entropy class target
                 C = target[target_i_key].to(
-                    device=input["logit_is_boundary_" + sfx].device
+                    device=input["logit_is_boundary_" + sfx].device, dtype=torch.long,
                 )
                 loss_term = F.cross_entropy(
                     input["logit_is_boundary_" + sfx].transpose(-2, -1),
@@ -427,7 +427,8 @@ class EchofilterLoss(_Loss):
             elif "logit_is_boundary_bottom" + sfx in input:
                 # Load cross-entropy class target
                 C = target["index_bot" + sfx].to(
-                    device=input["logit_is_boundary_bottom" + sfx].device
+                    device=input["logit_is_boundary_bottom" + sfx].device,
+                    dtype=torch.long,
                 )
                 loss_term = F.cross_entropy(
                     input["logit_is_boundary_bottom" + sfx].transpose(-2, -1),
