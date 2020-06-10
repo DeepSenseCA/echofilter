@@ -246,8 +246,8 @@ class EchofilterLoss(_Loss):
         entirely removed sections. Default is `True`.
     ignore_surf_during_removed : bool, optional
         Whether target for the surface line should be excluded from the loss
-        during entirely removed sections. If `None` (default), the value from
-        `ignore_lines_during_removed` is used.
+        during entirely removed sections. If `None`, the value from
+        `ignore_lines_during_removed` is used. Default is `False`.
     """
 
     __constants__ = ["reduction"]
@@ -265,7 +265,7 @@ class EchofilterLoss(_Loss):
         auxiliary=1.0,
         ignore_lines_during_passive=True,
         ignore_lines_during_removed=True,
-        ignore_surf_during_removed=None,
+        ignore_surf_during_removed=False,
     ):
         super(EchofilterLoss, self).__init__(None, None, reduction)
         self.top_mask = top_mask
