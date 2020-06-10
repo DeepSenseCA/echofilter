@@ -165,7 +165,6 @@ def train(
     # Augmentations
     train_transform = torchvision.transforms.Compose(
         [
-            echofilter.transforms.RandomCropWidth(0.5),
             echofilter.transforms.RandomCropDepth(),
             echofilter.transforms.RandomReflection(),
             echofilter.transforms.Normalize(DATA_CENTER, DATA_DEVIATION),
@@ -221,28 +220,31 @@ def train(
 
     dataset_train = echofilter.dataset.TransectDataset(
         train_paths,
-        window_len=int(1.5 * sample_shape[0]),
-        crop_depth=crop_depth,
+        window_len=sample_shape[0],
+        p_scale_window=0.8,
         num_windows_per_transect=None,
         use_dynamic_offsets=True,
+        crop_depth=crop_depth,
         transform=train_transform,
         **dataset_args
     )
     dataset_val = echofilter.dataset.TransectDataset(
         val_paths,
         window_len=sample_shape[0],
-        crop_depth=crop_depth,
+        p_scale_window=0,
         num_windows_per_transect=None,
         use_dynamic_offsets=False,
+        crop_depth=crop_depth,
         transform=val_transform,
         **dataset_args
     )
     dataset_augval = echofilter.dataset.TransectDataset(
         val_paths,
-        window_len=int(1.5 * sample_shape[0]),
-        crop_depth=crop_depth,
+        window_len=sample_shape[0],
+        p_scale_window=0.8,
         num_windows_per_transect=None,
         use_dynamic_offsets=False,
+        crop_depth=crop_depth,
         transform=train_transform,
         **dataset_args
     )
