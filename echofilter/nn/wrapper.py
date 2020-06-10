@@ -384,16 +384,13 @@ class EchofilterLoss(_Loss):
             with torch.no_grad():
                 if self.ignore_lines_during_passive:
                     apply_loss_inclusion = True
-                    inner_reduction = "none"
                     loss_inclusion_mask_passive = 1 - target["is_passive"]
                 else:
                     apply_loss_inclusion = False
-                    inner_reduction = self.reduction
                     loss_inclusion_mask_passive = torch.ones_like(target["is_passive"])
                 loss_inclusion_mask = loss_inclusion_mask_passive
                 if self.ignore_lines_during_removed:
                     apply_loss_inclusion = True
-                    inner_reduction = "none"
                     loss_inclusion_mask *= 1 - target["is_removed"]
 
             for sfx in ("top", "top-original", "surface"):
@@ -420,19 +417,19 @@ class EchofilterLoss(_Loss):
                             input["logit_is_above_" + sfx + cs].device,
                             input["logit_is_above_" + sfx + cs].dtype,
                         ),
-                        reduction=inner_reduction,
-                        weight=cmask,
+                        reduction="none",
                     )
+                    loss_term *= cmask.unsqueeze(-1).unsqueeze(-1)
                     if apply_loss_inclusion:
-                        loss_term = loss_term * (my_loss_inc_mask.unsqueeze(-1))
-                        if self.reduction == "mean":
-                            loss_term = torch.mean(loss_term)
-                        elif self.reduction == "sum":
-                            loss_term = torch.sum(loss_term)
-                        elif self.reduction != "none":
-                            raise ValueError(
-                                "Unsupported reduction: {}".format(self.reduction)
-                            )
+                        loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
+                    if self.reduction == "mean":
+                        loss_term = torch.mean(loss_term)
+                    elif self.reduction == "sum":
+                        loss_term = torch.sum(loss_term)
+                    elif self.reduction != "none":
+                        raise ValueError(
+                            "Unsupported reduction: {}".format(self.reduction)
+                        )
                 elif "logit_is_boundary_" + sfx in input:
                     # Load cross-entropy class target
                     C = target[target_i_key].to(
@@ -459,19 +456,19 @@ class EchofilterLoss(_Loss):
                     loss_term = F.binary_cross_entropy(
                         input["p_is_above_" + sfx + cs],
                         target[target_key],
-                        reduction=inner_reduction,
-                        weight=cmask,
+                        reduction="none",
                     )
+                    loss_term *= cmask.unsqueeze(-1).unsqueeze(-1)
                     if apply_loss_inclusion:
-                        loss_term = loss_term * (my_loss_inc_mask.unsqueeze(-1))
-                        if self.reduction == "mean":
-                            loss_term = torch.mean(loss_term)
-                        elif self.reduction == "sum":
-                            loss_term = torch.sum(loss_term)
-                        elif self.reduction != "none":
-                            raise ValueError(
-                                "Unsupported reduction: {}".format(self.reduction)
-                            )
+                        loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
+                    if self.reduction == "mean":
+                        loss_term = torch.mean(loss_term)
+                    elif self.reduction == "sum":
+                        loss_term = torch.sum(loss_term)
+                    elif self.reduction != "none":
+                        raise ValueError(
+                            "Unsupported reduction: {}".format(self.reduction)
+                        )
                 if torch.isnan(loss_term).any():
                     print("Loss term {} is NaN".format(target_key))
                 else:
@@ -490,19 +487,19 @@ class EchofilterLoss(_Loss):
                             input["logit_is_below_bottom" + sfx + cs].device,
                             input["logit_is_below_bottom" + sfx + cs].dtype,
                         ),
-                        reduction=inner_reduction,
-                        weight=cmask,
+                        reduction="none",
                     )
+                    loss_term *= cmask.unsqueeze(-1).unsqueeze(-1)
                     if apply_loss_inclusion:
                         loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
-                        if self.reduction == "mean":
-                            loss_term = torch.mean(loss_term)
-                        elif self.reduction == "sum":
-                            loss_term = torch.sum(loss_term)
-                        elif self.reduction != "none":
-                            raise ValueError(
-                                "Unsupported reduction: {}".format(self.reduction)
-                            )
+                    if self.reduction == "mean":
+                        loss_term = torch.mean(loss_term)
+                    elif self.reduction == "sum":
+                        loss_term = torch.sum(loss_term)
+                    elif self.reduction != "none":
+                        raise ValueError(
+                            "Unsupported reduction: {}".format(self.reduction)
+                        )
                 elif "logit_is_boundary_bottom" + sfx in input:
                     # Load cross-entropy class target
                     C = target["index_bot" + sfx].to(
@@ -532,19 +529,19 @@ class EchofilterLoss(_Loss):
                             input["p_is_below_bottom" + sfx + cs].device,
                             input["p_is_below_bottom" + sfx + cs].dtype,
                         ),
-                        reduction=inner_reduction,
-                        weight=cmask,
+                        reduction="none",
                     )
+                    loss_term *= cmask.unsqueeze(-1).unsqueeze(-1)
                     if apply_loss_inclusion:
                         loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
-                        if self.reduction == "mean":
-                            loss_term = torch.mean(loss_term)
-                        elif self.reduction == "sum":
-                            loss_term = torch.sum(loss_term)
-                        elif self.reduction != "none":
-                            raise ValueError(
-                                "Unsupported reduction: {}".format(self.reduction)
-                            )
+                    if self.reduction == "mean":
+                        loss_term = torch.mean(loss_term)
+                    elif self.reduction == "sum":
+                        loss_term = torch.sum(loss_term)
+                    elif self.reduction != "none":
+                        raise ValueError(
+                            "Unsupported reduction: {}".format(self.reduction)
+                        )
                 if torch.isnan(loss_term).any():
                     print("Loss term mask_bot{} is NaN".format(sfx))
                 else:
@@ -557,9 +554,15 @@ class EchofilterLoss(_Loss):
                         input["logit_is_removed" + cs].device,
                         input["logit_is_removed" + cs].dtype,
                     ),
-                    reduction=self.reduction,
-                    weight=cmask,
+                    reduction="none",
                 )
+                loss_term *= cmask.unsqueeze(-1)
+                if self.reduction == "mean":
+                    loss_term = torch.mean(loss_term)
+                elif self.reduction == "sum":
+                    loss_term = torch.sum(loss_term)
+                elif self.reduction != "none":
+                    raise ValueError("Unsupported reduction: {}".format(self.reduction))
                 if torch.isnan(loss_term).any():
                     print("Loss term is_removed is NaN")
                 else:
@@ -572,9 +575,15 @@ class EchofilterLoss(_Loss):
                         input["logit_is_passive" + cs].device,
                         input["logit_is_passive" + cs].dtype,
                     ),
-                    reduction=self.reduction,
-                    weight=cmask,
+                    reduction="none",
                 )
+                loss_term *= cmask.unsqueeze(-1)
+                if self.reduction == "mean":
+                    loss_term = torch.mean(loss_term)
+                elif self.reduction == "sum":
+                    loss_term = torch.sum(loss_term)
+                elif self.reduction != "none":
+                    raise ValueError("Unsupported reduction: {}".format(self.reduction))
                 if torch.isnan(loss_term).any():
                     print("Loss term is_passive is NaN")
                 else:
@@ -592,9 +601,15 @@ class EchofilterLoss(_Loss):
                         input["logit_is_patch" + sfx + cs].device,
                         input["logit_is_patch" + sfx + cs].dtype,
                     ),
-                    reduction=self.reduction,
-                    weight=cmask,
+                    reduction="none",
                 )
+                loss_term *= cmask.unsqueeze(-1).unsqueeze(-1)
+                if self.reduction == "mean":
+                    loss_term = torch.mean(loss_term)
+                elif self.reduction == "sum":
+                    loss_term = torch.sum(loss_term)
+                elif self.reduction != "none":
+                    raise ValueError("Unsupported reduction: {}".format(self.reduction))
                 if torch.isnan(loss_term).any():
                     print("Loss term mask_patches{} is NaN".format(sfx))
                 else:
@@ -607,9 +622,15 @@ class EchofilterLoss(_Loss):
                         input["p_keep_pixel" + cs].device,
                         input["p_keep_pixel" + cs].dtype,
                     ),
-                    reduction=self.reduction,
-                    weight=cmask,
+                    reduction="none",
                 )
+                loss_term *= cmask.unsqueeze(-1).unsqueeze(-1)
+                if self.reduction == "mean":
+                    loss_term = torch.mean(loss_term)
+                elif self.reduction == "sum":
+                    loss_term = torch.sum(loss_term)
+                elif self.reduction != "none":
+                    raise ValueError("Unsupported reduction: {}".format(self.reduction))
                 if torch.isnan(loss_term).any():
                     print("Loss term overall is NaN")
                 else:
