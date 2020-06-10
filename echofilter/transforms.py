@@ -409,23 +409,40 @@ def optimal_crop_depth(transect):
     transect : dict
         Transect dictionary.
     """
-    shallowest_depth = np.min(transect["depths"])
+
+    d0 = np.min(transect["depths"])
+
+    depth_intv = abs(transect["depths"][1] - transect["depths"][0])
+    shallowest_depth = None
     if transect["is_upward_facing"]:
         for key in ("d_surf", "surface"):
             if key not in transect:
                 continue
-            surf_options = transect[key][transect[key] > shallowest_depth]
-            if len(surf_options) > 0:
-                shallowest_depth = np.min(surf_options)
-                break
+            surf_options = transect[key][transect[key] > d0]
+            if len(surf_options) == 0:
+                continue
+            d = np.min(surf_options)
+            if shallowest_depth is None:
+                shallowest_depth = d
+            else:
+                shallowest_depth = min(d, shallowest_depth)
+    if shallowest_depth is None:
+        shallowest_depth = d0
+    shallowest_depth -= depth_intv
 
-    deepest_depth = np.max(transect["depths"])
+    deepest_depth = None
     if not transect["is_upward_facing"]:
         for key in ("d_bot-original", "d_bot", "bottom-original", "bottom"):
             if key not in transect:
                 continue
-            deepest_depth = np.max(transect[key])
-            break
+            d = np.max(transect[key])
+            if deepest_depth is None:
+                deepest_depth = d
+            else:
+                deepest_depth = max(d, deepest_depth)
+    if deepest_depth is None:
+        deepest_depth = np.max(transect["depths"])
+    deepest_depth += depth_intv
 
     if shallowest_depth >= deepest_depth:
         return transect
