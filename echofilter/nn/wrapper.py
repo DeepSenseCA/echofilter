@@ -361,24 +361,27 @@ class EchofilterLoss(_Loss):
         n_conditions_in_loss = 0
         for condition in self.conditions:
             closs = 0
-            if condition == "":
-                cs = condition
-                cinput = input
-                ctarget = target
-            else:
-                cs = "|" + condition
-                if condition == "upfacing":
-                    cmask = target["is_upward_facing"] > 0.5
-                elif condition == "downfacing":
-                    cmask = target["is_upward_facing"] < 0.5
+            with torch.no_grad():
+                if condition == "":
+                    cs = condition
+                    cinput = input
+                    ctarget = target
                 else:
-                    raise ValueError("Unsupported condition: {}".format(condition))
-                n_samples_in_condition = torch.sum(cmask)
-                if n_samples_in_condition.cpu().item() == 0:
-                    # No samples in this batch match this condition
-                    continue
+                    cs = "|" + condition
+                    if condition == "upfacing":
+                        cmask = target["is_upward_facing"] > 0.5
+                    elif condition == "downfacing":
+                        cmask = target["is_upward_facing"] < 0.5
+                    else:
+                        raise ValueError("Unsupported condition: {}".format(condition))
+                    n_samples_in_condition = torch.sum(cmask)
+                    if n_samples_in_condition.cpu().item() == 0:
+                        # No samples in this batch match this condition
+                        continue
+                    ctarget = {k: v[cmask] for k, v in target.items()}
+
+            if condition != "":
                 cinput = {k: v[cmask] for k, v in input.items()}
-                ctarget = {k: v[cmask] for k, v in target.items()}
 
             n_conditions_in_loss += 1
 
