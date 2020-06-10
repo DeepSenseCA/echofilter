@@ -548,6 +548,20 @@ def train(
                     "{}/{}/{}".format(cr, chn, "Val"), meters_val[chn][cr].avg, epoch
                 )
 
+        # Determine whether to generate sample transect plots, or skip them
+        if n_epoch < 20:
+            # Every epoch
+            generate_sample_images = True
+        elif n_epoch < 100:
+            # Every 10th of the way through training
+            generate_sample_images = (epoch % (n_epoch // 10)) == 0
+        else:
+            # Every 10th epoch
+            generate_sample_images = (epoch % 10) == 0
+        # But always generate samples for first and last epoch
+        if epoch == 1 or epoch == n_epoch:
+            generate_sample_images = True
+
         def ensure_clim_met(x, x0=0.0, x1=1.0):
             x = x.clone()
             x[0, :, 0, 0] = 0
@@ -604,6 +618,8 @@ def train(
             ((ex_input_val, ex_data_val, ex_output_val), "Val"),
             ((ex_input_augval, ex_data_augval, ex_output_augval), "ValAug"),
         ):
+            if not generate_sample_images:
+                continue
             writer.add_images(
                 "Input/" + partition, ex_input, epoch, dataformats="NCWH",
             )
@@ -641,22 +657,8 @@ def train(
                 dataformats="NCWH",
             )
 
-        # Determine whether to generate sample transect plots, or skip them
-        if n_epoch < 20:
-            # Every epoch
-            generate_sample_transect_plots = True
-        elif n_epoch < 100:
-            # Every 10th of the way through training
-            generate_sample_transect_plots = (epoch % (n_epoch // 10)) == 0
-        else:
-            # Every 10th epoch
-            generate_sample_transect_plots = (epoch % 10) == 0
-        # But always generate samples for first and last epoch
-        if epoch == 1 or epoch == n_epoch:
-            generate_sample_transect_plots = True
-
         for k, plot_transects_k in PLOT_TRANSECTS.items():
-            if not generate_sample_transect_plots:
+            if not generate_sample_images:
                 continue
             if k not in dataset_name:
                 continue
