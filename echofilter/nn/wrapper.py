@@ -301,14 +301,10 @@ class EchofilterLoss(_Loss):
         loss = 0
 
         target["is_passive"] = target["is_passive"].to(
-            input["logit_is_passive"].device,
-            input["logit_is_passive"].dtype,
-            non_blocking=True,
+            input["logit_is_passive"].device, input["logit_is_passive"].dtype,
         )
         target["is_removed"] = target["is_removed"].to(
-            input["logit_is_removed"].device,
-            input["logit_is_removed"].dtype,
-            non_blocking=True,
+            input["logit_is_removed"].device, input["logit_is_removed"].dtype,
         )
 
         with torch.no_grad():
