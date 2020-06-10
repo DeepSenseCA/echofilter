@@ -584,7 +584,7 @@ def train(
             elif k not in dataset_name:
                 continue
             plot_crop_depth = crop_depth
-            if plot_crop_depth is None and plot_transects_k == "mobile":
+            if plot_crop_depth is None and k == "mobile":
                 plot_crop_depth = DEFAULT_CROP_DEPTH_PLOTS
             for transect_name in plot_transects_k:
                 transect, prediction = generate_from_shards(
