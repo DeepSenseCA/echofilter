@@ -28,16 +28,16 @@ except ImportError:
     apex = None
 
 import echofilter.dataset
-import echofilter.transforms
-import echofilter.raw.shardloader
-import echofilter.utils
 from echofilter.nn.unet import UNet
+from echofilter.nn.wrapper import Echofilter, EchofilterLoss
 from echofilter.optim import criterions, schedulers
 from echofilter.optim.meters import AverageMeter, ProgressMeter
-from echofilter.nn.wrapper import Echofilter, EchofilterLoss
+from echofilter.plotting import plot_transect_predictions
 from echofilter.raw.loader import get_partition_list
 from echofilter.raw.manipulate import load_decomposed_transect_mask
-from echofilter.plotting import plot_transect_predictions
+import echofilter.raw.shardloader
+import echofilter.transforms
+import echofilter.utils
 
 
 ## For mobile dataset,
