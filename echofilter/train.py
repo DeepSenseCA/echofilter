@@ -558,8 +558,8 @@ def train(
         else:
             # Every 10th epoch
             generate_sample_images = (epoch % 10) == 0
-        # But always generate samples for first and last epoch
-        if epoch == 1 or epoch == n_epoch:
+        # But always generate samples for first two epochs and last epoch
+        if epoch <= 2 or epoch == n_epoch:
             generate_sample_images = True
 
         def ensure_clim_met(x, x0=0.0, x1=1.0):
