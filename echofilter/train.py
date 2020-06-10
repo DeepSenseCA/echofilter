@@ -163,18 +163,15 @@ def train(
         torch.cuda.set_device(torch.device(device))
 
     # Augmentations
-    train_transform_pre = torchvision.transforms.Compose(
+    train_transform = torchvision.transforms.Compose(
         [
             echofilter.transforms.RandomCropWidth(0.5),
             echofilter.transforms.RandomCropDepth(),
             echofilter.transforms.RandomReflection(),
-        ]
-    )
-    train_transform_post = torchvision.transforms.Compose(
-        [
             echofilter.transforms.Normalize(DATA_CENTER, DATA_DEVIATION),
             echofilter.transforms.ColorJitter(0.5, 0.3),
             echofilter.transforms.ReplaceNan(NAN_VALUE),
+            echofilter.transforms.RandomGridSampling(sample_shape, order=None, p=0.5),
             echofilter.transforms.Rescale(sample_shape, order=None),
         ]
     )
@@ -228,8 +225,7 @@ def train(
         crop_depth=crop_depth,
         num_windows_per_transect=None,
         use_dynamic_offsets=True,
-        transform_pre=train_transform_pre,
-        transform_post=train_transform_post,
+        transform=train_transform,
         **dataset_args
     )
     dataset_val = echofilter.dataset.TransectDataset(
@@ -238,7 +234,7 @@ def train(
         crop_depth=crop_depth,
         num_windows_per_transect=None,
         use_dynamic_offsets=False,
-        transform_post=val_transform,
+        transform=val_transform,
         **dataset_args
     )
     dataset_augval = echofilter.dataset.TransectDataset(
@@ -247,8 +243,7 @@ def train(
         crop_depth=crop_depth,
         num_windows_per_transect=None,
         use_dynamic_offsets=False,
-        transform_pre=train_transform_pre,
-        transform_post=train_transform_post,
+        transform=train_transform,
         **dataset_args
     )
     print("Train dataset has {:4d} samples".format(len(dataset_train)))

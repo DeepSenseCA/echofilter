@@ -33,12 +33,10 @@ class TransectDataset(torch.utils.data.Dataset):
         Whether starting indices for each window should be randomly offset.
         Set to `True` for training and `False` for testing. Default is
         `True`.
-    transform_pre : callable
+    transform : callable
         Operations to perform to the dictionary containing a single sample.
-        These are performed before generating the masks. Default is `None`.
-    transform_post : callable
-        Operations to perform to the dictionary containing a single sample.
-        These are performed after generating the masks. Default is `None`.
+        These are performed before generating the top/bottom/overall mask.
+        Default is `None`.
     remove_nearfield : bool, optional
         Whether to remove top and bottom lines affected by nearfield
         removal. If `True` (default), targets for the line near to the
@@ -68,8 +66,7 @@ class TransectDataset(torch.utils.data.Dataset):
         crop_depth=None,
         num_windows_per_transect=0,
         use_dynamic_offsets=True,
-        transform_pre=None,
-        transform_post=None,
+        transform=None,
         remove_nearfield=True,
         nearfield_distance=1.7,
         nearfield_visible_dist=0.5,
@@ -82,8 +79,7 @@ class TransectDataset(torch.utils.data.Dataset):
         self.crop_depth = crop_depth
         self.num_windows = num_windows_per_transect
         self.use_dynamic_offsets = use_dynamic_offsets
-        self.transform_pre = transform_pre
-        self.transform_post = transform_post
+        self.transform = transform
         self.remove_nearfield = remove_nearfield
         self.nearfield_distance = nearfield_distance
         self.nearfield_visible_dist = nearfield_visible_dist
@@ -309,14 +305,14 @@ class TransectDataset(torch.utils.data.Dataset):
                 sample["d_top" + sfx][np.isnan(sample["d_top" + sfx])] = min_top_depth
             sample["d_bot" + sfx][np.isnan(sample["d_bot" + sfx])] = max_bot_depth
 
-        if self.transform_pre is not None:
-            sample = self.transform_pre(sample)
-
         # Apply depth crop
         if self.crop_depth is not None:
             depth_crop_mask = sample["depths"] <= self.crop_depth
             sample["depths"] = sample["depths"][depth_crop_mask]
             sample["signals"] = sample["signals"][:, depth_crop_mask]
+
+        if self.transform is not None:
+            sample = self.transform(sample)
 
         # Convert lines to masks and relative lines
         ddepths = np.broadcast_to(sample["depths"], sample["signals"].shape)
@@ -341,9 +337,6 @@ class TransectDataset(torch.utils.data.Dataset):
         sample["mask"][sample["mask_top"] > 0.5] = 0
         sample["mask"][sample["mask_bot"] > 0.5] = 0
         sample["mask"][sample["mask_patches"] > 0.5] = 0
-
-        if self.transform_post is not None:
-            sample = self.transform_post(sample)
 
         input = np.expand_dims(sample["signals"], 0).astype(np.float32)
         return input, sample
