@@ -584,7 +584,7 @@ def train(
             elif k not in dataset_name:
                 continue
             plot_crop_depth = crop_depth
-            if plot_crop_depth is None and k == "mobile":
+            if plot_crop_depth is None:
                 plot_crop_depth = DEFAULT_CROP_DEPTH_PLOTS
             for transect_name in plot_transects_k:
                 transect, prediction = generate_from_shards(
@@ -1242,7 +1242,12 @@ def _generate_from_loaded(transect, model, *args, crop_depth=None, **kwargs):
 
     # Apply depth crop
     if crop_depth is not None:
-        depth_crop_mask = transect["depths"] <= crop_depth
+        if transect["is_upward_facing"]:
+            depth_crop_mask = (
+                transect["depths"] >= np.max(transect["depths"]) - crop_depth
+            )
+        else:
+            depth_crop_mask = transect["depths"] <= crop_depth
 
         for key in echofilter.transforms._fields_2d:
             if key in transect:
