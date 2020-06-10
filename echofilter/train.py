@@ -99,6 +99,7 @@ def train(
     resume="",
     log_name=None,
     log_name_append=None,
+    conditional=False,
     n_block=6,
     latent_channels=32,
     expansion_factor=1,
@@ -228,11 +229,18 @@ def train(
         actfn=actfn,
         kernel_size=kernel_size,
     )
+    if conditional:
+        model_parameters["out_channels"] *= 3
     print()
     pprint.pprint(model_parameters)
     print()
 
-    model = Echofilter(UNet(**model_parameters), top="boundary", bottom="boundary",)
+    model = Echofilter(
+        UNet(**model_parameters),
+        top="boundary",
+        bottom="boundary",
+        conditional=conditional,
+    )
     model.to(device)
     print(
         "Built model with {} trainable parameters".format(
@@ -241,7 +249,7 @@ def train(
     )
 
     # define loss function (criterion) and optimizer
-    criterion = EchofilterLoss(overall=overall_loss_weight)
+    criterion = EchofilterLoss(conditional=conditional, overall=overall_loss_weight)
 
     optimizer_name = optimizer.lower()
     if optimizer_name == "adam":
@@ -1392,6 +1400,14 @@ def main():
     )
 
     # Model parameters
+    parser.add_argument(
+        "--conditional",
+        action="store_true",
+        help=(
+            "train a model conditioned on the direction the sounder is facing"
+            " (in addition to an unconditional model)"
+        ),
+    )
     parser.add_argument(
         "--nblock",
         "--num-blocks",
