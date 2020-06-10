@@ -364,8 +364,7 @@ class EchofilterLoss(_Loss):
             with torch.no_grad():
                 if condition == "":
                     cs = condition
-                    cinput = input
-                    ctarget = target
+                    cmask = torch.ones_like(target["is_upward_facing"])
                 else:
                     cs = "|" + condition
                     if condition == "upfacing":
@@ -378,10 +377,7 @@ class EchofilterLoss(_Loss):
                     if n_samples_in_condition.cpu().item() == 0:
                         # No samples in this batch match this condition
                         continue
-                    ctarget = {k: v[cmask] for k, v in target.items()}
-
-            if condition != "":
-                cinput = {k: v[cmask] for k, v in input.items()}
+                cmask = cmask.to(torch.float32)
 
             n_conditions_in_loss += 1
 
@@ -419,12 +415,13 @@ class EchofilterLoss(_Loss):
                     continue
                 elif "logit_is_above_" + sfx in input:
                     loss_term = F.binary_cross_entropy_with_logits(
-                        cinput["logit_is_above_" + sfx + cs],
-                        ctarget[target_key].to(
-                            cinput["logit_is_above_" + sfx + cs].device,
-                            cinput["logit_is_above_" + sfx + cs].dtype,
+                        input["logit_is_above_" + sfx + cs],
+                        target[target_key].to(
+                            input["logit_is_above_" + sfx + cs].device,
+                            input["logit_is_above_" + sfx + cs].dtype,
                         ),
                         reduction=inner_reduction,
+                        weight=cmask,
                     )
                     if apply_loss_inclusion:
                         loss_term = loss_term * (my_loss_inc_mask.unsqueeze(-1))
@@ -438,30 +435,32 @@ class EchofilterLoss(_Loss):
                             )
                 elif "logit_is_boundary_" + sfx in input:
                     # Load cross-entropy class target
-                    C = ctarget[target_i_key].to(
-                        device=cinput["logit_is_boundary_" + sfx + cs].device,
+                    C = target[target_i_key].to(
+                        device=input["logit_is_boundary_" + sfx + cs].device,
                         dtype=torch.long,
                     )
                     loss_term = F.cross_entropy(
-                        cinput["logit_is_boundary_" + sfx + cs].transpose(-2, -1),
+                        input["logit_is_boundary_" + sfx + cs].transpose(-2, -1),
                         C,
-                        reduction=inner_reduction,
+                        reduction="none",
                     )
+                    loss_term *= cmask.unsqueeze(-1)
                     if apply_loss_inclusion:
                         loss_term = loss_term * my_loss_inc_mask
-                        if self.reduction == "mean":
-                            loss_term = torch.mean(loss_term)
-                        elif self.reduction == "sum":
-                            loss_term = torch.sum(loss_term)
-                        elif self.reduction != "none":
-                            raise ValueError(
-                                "Unsupported reduction: {}".format(self.reduction)
-                            )
+                    if self.reduction == "mean":
+                        loss_term = torch.mean(loss_term)
+                    elif self.reduction == "sum":
+                        loss_term = torch.sum(loss_term)
+                    elif self.reduction != "none":
+                        raise ValueError(
+                            "Unsupported reduction: {}".format(self.reduction)
+                        )
                 else:
                     loss_term = F.binary_cross_entropy(
-                        cinput["p_is_above_" + sfx + cs],
-                        ctarget[target_key],
+                        input["p_is_above_" + sfx + cs],
+                        target[target_key],
                         reduction=inner_reduction,
+                        weight=cmask,
                     )
                     if apply_loss_inclusion:
                         loss_term = loss_term * (my_loss_inc_mask.unsqueeze(-1))
@@ -486,12 +485,13 @@ class EchofilterLoss(_Loss):
                     continue
                 elif "logit_is_below_bottom" + sfx in input:
                     loss_term = F.binary_cross_entropy_with_logits(
-                        cinput["logit_is_below_bottom" + sfx + cs],
-                        ctarget["mask_bot" + sfx].to(
-                            cinput["logit_is_below_bottom" + sfx + cs].device,
-                            cinput["logit_is_below_bottom" + sfx + cs].dtype,
+                        input["logit_is_below_bottom" + sfx + cs],
+                        target["mask_bot" + sfx].to(
+                            input["logit_is_below_bottom" + sfx + cs].device,
+                            input["logit_is_below_bottom" + sfx + cs].dtype,
                         ),
                         reduction=inner_reduction,
+                        weight=cmask,
                     )
                     if apply_loss_inclusion:
                         loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
@@ -505,33 +505,35 @@ class EchofilterLoss(_Loss):
                             )
                 elif "logit_is_boundary_bottom" + sfx in input:
                     # Load cross-entropy class target
-                    C = ctarget["index_bot" + sfx].to(
-                        device=cinput["logit_is_boundary_bottom" + sfx + cs].device,
+                    C = target["index_bot" + sfx].to(
+                        device=input["logit_is_boundary_bottom" + sfx + cs].device,
                         dtype=torch.long,
                     )
                     loss_term = F.cross_entropy(
-                        cinput["logit_is_boundary_bottom" + sfx + cs].transpose(-2, -1),
+                        input["logit_is_boundary_bottom" + sfx + cs].transpose(-2, -1),
                         C,
-                        reduction=inner_reduction,
+                        reduction="none",
                     )
+                    loss_term *= cmask.unsqueeze(-1)
                     if apply_loss_inclusion:
                         loss_term = loss_term * loss_inclusion_mask
-                        if self.reduction == "mean":
-                            loss_term = torch.mean(loss_term)
-                        elif self.reduction == "sum":
-                            loss_term = torch.sum(loss_term)
-                        elif self.reduction != "none":
-                            raise ValueError(
-                                "Unsupported reduction: {}".format(self.reduction)
-                            )
+                    if self.reduction == "mean":
+                        loss_term = torch.mean(loss_term)
+                    elif self.reduction == "sum":
+                        loss_term = torch.sum(loss_term)
+                    elif self.reduction != "none":
+                        raise ValueError(
+                            "Unsupported reduction: {}".format(self.reduction)
+                        )
                 else:
                     loss_term = F.binary_cross_entropy(
-                        cinput["p_is_below_bottom" + sfx + cs],
-                        ctarget["mask_bot" + sfx].to(
-                            cinput["p_is_below_bottom" + sfx + cs].device,
-                            cinput["p_is_below_bottom" + sfx + cs].dtype,
+                        input["p_is_below_bottom" + sfx + cs],
+                        target["mask_bot" + sfx].to(
+                            input["p_is_below_bottom" + sfx + cs].device,
+                            input["p_is_below_bottom" + sfx + cs].dtype,
                         ),
                         reduction=inner_reduction,
+                        weight=cmask,
                     )
                     if apply_loss_inclusion:
                         loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
@@ -550,12 +552,13 @@ class EchofilterLoss(_Loss):
 
             if self.removed_segment:
                 loss_term = F.binary_cross_entropy_with_logits(
-                    cinput["logit_is_removed" + cs],
-                    ctarget["is_removed"].to(
-                        cinput["logit_is_removed" + cs].device,
-                        cinput["logit_is_removed" + cs].dtype,
+                    input["logit_is_removed" + cs],
+                    target["is_removed"].to(
+                        input["logit_is_removed" + cs].device,
+                        input["logit_is_removed" + cs].dtype,
                     ),
                     reduction=self.reduction,
+                    weight=cmask,
                 )
                 if torch.isnan(loss_term).any():
                     print("Loss term is_removed is NaN")
@@ -564,12 +567,13 @@ class EchofilterLoss(_Loss):
 
             if self.passive:
                 loss_term = self.passive * F.binary_cross_entropy_with_logits(
-                    cinput["logit_is_passive" + cs],
-                    ctarget["is_passive"].to(
-                        cinput["logit_is_passive" + cs].device,
-                        cinput["logit_is_passive" + cs].dtype,
+                    input["logit_is_passive" + cs],
+                    target["is_passive"].to(
+                        input["logit_is_passive" + cs].device,
+                        input["logit_is_passive" + cs].dtype,
                     ),
                     reduction=self.reduction,
+                    weight=cmask,
                 )
                 if torch.isnan(loss_term).any():
                     print("Loss term is_passive is NaN")
@@ -583,12 +587,13 @@ class EchofilterLoss(_Loss):
                 if not weight:
                     continue
                 loss_term = F.binary_cross_entropy_with_logits(
-                    cinput["logit_is_patch" + sfx + cs],
-                    ctarget["mask_patches" + sfx].to(
-                        cinput["logit_is_patch" + sfx + cs].device,
-                        cinput["logit_is_patch" + sfx + cs].dtype,
+                    input["logit_is_patch" + sfx + cs],
+                    target["mask_patches" + sfx].to(
+                        input["logit_is_patch" + sfx + cs].device,
+                        input["logit_is_patch" + sfx + cs].dtype,
                     ),
                     reduction=self.reduction,
+                    weight=cmask,
                 )
                 if torch.isnan(loss_term).any():
                     print("Loss term mask_patches{} is NaN".format(sfx))
@@ -597,21 +602,18 @@ class EchofilterLoss(_Loss):
 
             if self.overall:
                 loss_term = self.overall * F.binary_cross_entropy(
-                    cinput["p_keep_pixel" + cs],
-                    ctarget["mask"].to(
-                        cinput["p_keep_pixel" + cs].device,
-                        cinput["p_keep_pixel" + cs].dtype,
+                    input["p_keep_pixel" + cs],
+                    target["mask"].to(
+                        input["p_keep_pixel" + cs].device,
+                        input["p_keep_pixel" + cs].dtype,
                     ),
                     reduction=self.reduction,
+                    weight=cmask,
                 )
                 if torch.isnan(loss_term).any():
                     print("Loss term overall is NaN")
                 else:
                     closs += self.overall * loss_term
-
-            if self.reduction == "mean" and condition != "":
-                # Apply a weighted mean
-                closs *= n_samples_in_condition.to(torch.float32) / batch_size
 
             loss += closs
 
