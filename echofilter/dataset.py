@@ -363,7 +363,7 @@ class TransectDataset(torch.utils.data.Dataset):
             # It is possible for the top line to be above the field of view,
             # and impossible for the top line to below
             sample["index_" + sfx] = np.maximum(
-                0, np.minimum(len(sample["depths"]), sample["index_" + sfx])
+                0, np.minimum(len(sample["depths"]) - 1, sample["index_" + sfx])
             )
         for sfx in {"bot", "bot-original"}:
             # Ties are broken to the larger index
@@ -374,7 +374,7 @@ class TransectDataset(torch.utils.data.Dataset):
             # and impossible for the bottom line to above
             sample["index_" + sfx] -= 1
             sample["index_" + sfx] = np.maximum(
-                0, np.minimum(len(sample["depths"]), sample["index_" + sfx])
+                0, np.minimum(len(sample["depths"]) - 1, sample["index_" + sfx])
             )
 
         # Ensure everything is float32 datatype
