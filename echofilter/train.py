@@ -364,6 +364,9 @@ def train(
         optimizer.load_state_dict(checkpoint["optimizer"])
         if use_mixed_precision and "amp" in checkpoint:
             apex.amp.load_state_dict(checkpoint["amp"])
+        if "scheduler" in schedule_data:
+            step_num = checkpoint["epoch"] * len(loader_train)
+            schedule_data["scheduler"].last_epoch = step_num
         print("Loaded checkpoint '{}' (epoch {})".format(resume, checkpoint["epoch"]))
 
     print("Starting training")
