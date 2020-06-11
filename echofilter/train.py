@@ -121,6 +121,7 @@ def train(
     device="cuda",
     n_worker=8,
     batch_size=16,
+    stratify=True,
     n_epoch=20,
     seed=None,
     print_freq=50,
@@ -171,10 +172,20 @@ def train(
     print("Train dataset has {:4d} samples".format(len(dataset_train)))
     print("Val   dataset has {:4d} samples".format(len(dataset_val)))
 
+    stratify_allowed = stratify
+    if stratify_allowed:
+        stratify = isinstance(dataset_train, echofilter.dataset.ConcatDataset)
+    if stratify:
+        # Use custom stratified sampler to handle multiple datasets
+        sampler = echofilter.dataset.StratifiedRandomSampler(dataset_train)
+    else:
+        sampler = None
+
     loader_train = torch.utils.data.DataLoader(
         dataset_train,
         batch_size=batch_size,
-        shuffle=True,
+        shuffle=not stratify,
+        sampler=sampler,
         num_workers=n_worker,
         pin_memory=True,
         drop_last=True,
@@ -1556,6 +1567,12 @@ def main():
         type=int,
         default=16,
         help="mini-batch size (default: 16)",
+    )
+    parser.add_argument(
+        "--no-stratify",
+        dest="stratify",
+        action="store_false",
+        help="disable stratified sampling; use fully random sampling instead",
     )
     parser.add_argument(
         "--epochs",

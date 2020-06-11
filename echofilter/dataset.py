@@ -408,3 +408,53 @@ class ConcatDataset(torch.utils.data.ConcatDataset):
     def initialise_datapoints(self):
         for dataset in self.datasets:
             dataset.initialise_datapoints()
+
+
+class StratifiedRandomSampler(torch.utils.data.Sampler):
+    """
+    Samples elements randomly without repetition, stratified across datasets in
+    the data_source.
+
+    Parameters
+    ----------
+    data_source : torch.utils.data.ConcatDataset
+        Dataset to sample from. Must possess a `cumulative_sizes` attribute.
+    """
+
+    def __init__(self, data_source):
+        self.data_source = data_source
+
+    @property
+    def num_samples(self):
+        # dataset size might change at runtime
+        return len(self.data_source)
+
+    def __iter__(self):
+
+        n_sample = len(self.data_source)
+        n_dataset = len(self.data_source.cumulative_sizes)
+
+        perms = []
+        lower = 0
+        for upper in self.data_source.cumulative_sizes:
+            p = list(range(lower, upper))
+            random.shuffle(p)
+            perms.append(p)
+            lower = upper
+
+        dataset_sizes = np.array([len(p) for p in perms])
+        target_fraction = dataset_sizes / n_sample
+        sub_tallies = np.zeros(n_dataset, dtype=int)
+        cur_fraction = np.zeros(n_dataset)
+
+        indices = []
+        while len(indices) < n_sample:
+            i = np.argmax(target_fraction - cur_fraction)
+            indices.append(perms[i].pop())
+            sub_tallies[i] += 1
+            cur_fraction = sub_tallies / len(indices)
+
+        return iter(indices)
+
+    def __len__(self):
+        return self.num_samples
