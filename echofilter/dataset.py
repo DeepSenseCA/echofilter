@@ -312,14 +312,16 @@ class TransectDataset(torch.utils.data.Dataset):
                     sample["mask_patches" + suffix] > 0.5
                 ).astype(np.float32)
 
-        sample["d_surf"][np.isnan(sample["d_surf"])] = np.min(sample["depths"])
+        sample["d_surf"][~np.isfinite(sample["d_surf"])] = np.min(sample["depths"])
         for sfx in ("", "-original"):
             if sample["is_upward_facing"]:
-                where_nan = np.isnan(sample["d_top" + sfx])
-                sample["d_top" + sfx][where_nan] = sample["d_surf"][where_nan]
+                where_invalid = ~np.isfinite(sample["d_top" + sfx])
+                sample["d_top" + sfx][where_invalid] = sample["d_surf"][where_invalid]
             else:
-                sample["d_top" + sfx][np.isnan(sample["d_top" + sfx])] = min_top_depth
-            sample["d_bot" + sfx][np.isnan(sample["d_bot" + sfx])] = max_bot_depth
+                sample["d_top" + sfx][
+                    ~np.isfinite(sample["d_top" + sfx])
+                ] = min_top_depth
+            sample["d_bot" + sfx][~np.isfinite(sample["d_bot" + sfx])] = max_bot_depth
 
         # Apply depth crop
         if self.crop_depth is not None:
@@ -380,6 +382,19 @@ class TransectDataset(torch.utils.data.Dataset):
         # Ensure everything is float32 datatype
         for key in sample:
             sample[key] = sample[key].astype(np.float32)
+            # Ensure no entries are invalid numbers
+            nan_count = np.sum(np.isnan(sample[key]))
+            if nan_count > 0:
+                print("WARNING: NaN present in {}".format(key))
+                sample[key][np.isnan(sample[key])] = 0
+            inf_count = np.sum(np.isinf(sample[key]))
+            if inf_count > 0:
+                print("WARNING: inf present in {}".format(key))
+                sample[key][np.isinf(sample[key])] = 0
+            inf_count = np.sum(~np.isfinite(sample[key]))
+            if inf_count > 0:
+                print("WARNING: non-finite numbers present in {}".format(key))
+                sample[key][~np.isfinite(sample[key])] = 0
 
         input = np.expand_dims(sample["signals"], 0)
         return input, sample
