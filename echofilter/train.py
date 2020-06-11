@@ -171,10 +171,18 @@ def train(
     print("Train dataset has {:4d} samples".format(len(dataset_train)))
     print("Val   dataset has {:4d} samples".format(len(dataset_val)))
 
+    stratify = isinstance(dataset_train, echofilter.dataset.ConcatDataset)
+    if stratify:
+        # Use custom stratified sampler to handle multiple datasets
+        sampler = echofilter.dataset.StratifiedRandomSampler(dataset_train)
+    else:
+        sampler = None
+
     loader_train = torch.utils.data.DataLoader(
         dataset_train,
         batch_size=batch_size,
-        shuffle=True,
+        shuffle=not stratify,
+        sampler=sampler,
         num_workers=n_worker,
         pin_memory=True,
         drop_last=True,
