@@ -658,8 +658,20 @@ def train(
         }
         if use_mixed_precision:
             checkpoint["amp"] = apex.amp.state_dict()
+
+        if (
+            schedule == "mesaonecycle"
+            and epoch / n_epoch <= warmdown_pct
+            and (epoch + 1) / n_epoch > warmdown_pct
+        ):
+            dup = "ep{}".format(epoch)
+        else:
+            dup = None
         save_checkpoint(
-            checkpoint, is_best, dirname=os.path.join("models", dataset_name, log_name),
+            checkpoint,
+            is_best,
+            dirname=os.path.join("models", dataset_name, log_name),
+            dup=dup,
         )
         meters_to_csv(
             meters_val, is_best, dirname=os.path.join("models", dataset_name, log_name)
@@ -1339,12 +1351,17 @@ def generate_from_shards(fname, *args, **kwargs):
     return _generate_from_loaded(transect, *args, **kwargs)
 
 
-def save_checkpoint(state, is_best, dirname=".", filename="checkpoint.pth.tar"):
+def save_checkpoint(
+    state, is_best, dirname=".", fname_fmt="checkpoint{}.pth.tar", dup=None
+):
     os.makedirs(dirname, exist_ok=True)
-    torch.save(state, os.path.join(dirname, filename))
+    fname = os.path.join(dirname, fname_fmt.format(""))
+    torch.save(state, fname)
     if is_best:
+        shutil.copyfile(fname, os.path.join(dirname, fname_fmt.format("_best")))
+    if dup:
         shutil.copyfile(
-            os.path.join(dirname, filename), os.path.join(dirname, "model_best.pth.tar")
+            fname, os.path.join(dirname, fname_fmt.format("_{}".format(dup)))
         )
 
 
