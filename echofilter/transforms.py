@@ -5,7 +5,10 @@ import warnings
 
 import numpy as np
 import scipy.interpolate
+import scipy.ndimage.filters
 import skimage.transform
+
+from echofilter.nn.modules.utils import _pair
 
 
 _fields_2d = (
@@ -192,6 +195,136 @@ class RandomGridSampling(Rescale):
         ny = len(sample["depths"])
         x_out = np.sort(np.random.uniform(0, nx - 1, size=self.output_size[0]))
         y_out = np.sort(np.random.uniform(0, ny - 1, size=self.output_size[1]))
+
+        # 2D arrays (image-like)
+        for key in _fields_2d:
+            if key not in sample:
+                continue
+            _dtype = sample[key].dtype
+            sample[key] = np.asarray(sample[key])
+            if order == 0:
+                if sample[key].shape != (nx, ny):
+                    raise ValueError(
+                        'Expected sample["{}"] to be shaped {}'.format(key, (nx, ny))
+                    )
+                sample[key] = sample[key][np.round(x_out).astype(int)][
+                    :, np.round(y_out).astype(int)
+                ]
+            else:
+                sample[key] = scipy.interpolate.RectBivariateSpline(
+                    np.linspace(0, nx - 1, sample[key].shape[0]),
+                    np.linspace(0, ny - 1, sample[key].shape[1]),
+                    sample[key].astype(np.float),
+                    kx=order,
+                    ky=order,
+                )(x_out, y_out)
+            sample[key] = sample[key].astype(_dtype)
+
+        # 1D arrays (column-like)
+        for key in _fields_1d_timelike:
+            if key not in sample:
+                continue
+            _kind = "linear" if key == "timestamps" else kind
+            if key in {"is_passive", "is_removed"} and order > 1:
+                _kind = "linear"
+            _dtype = sample[key].dtype
+            sample[key] = scipy.interpolate.interp1d(
+                np.linspace(0, nx - 1, len(sample[key])), sample[key], kind=_kind,
+            )(x_out)
+            sample[key] = sample[key].astype(_dtype)
+
+        # 1D arrays (row-like)
+        for key in _fields_1d_depthlike:
+            if key not in sample:
+                continue
+            _kind = "linear" if key == "depths" else kind
+            _dtype = sample[key].dtype
+            sample[key] = scipy.interpolate.interp1d(
+                np.linspace(0, ny - 1, len(sample[key])), sample[key], kind=_kind,
+            )(y_out)
+            sample[key] = sample[key].astype(_dtype)
+
+        return sample
+
+
+class RandomElasticGrid(Rescale):
+    """
+    Resample data onto a new grid, which is elastically deformed from the
+    original sampling grid.
+
+    Parameters
+    ----------
+    output_size : tuple or int
+        Desired output size. If tuple, output is matched to output_size. If
+        int, output is square.
+    p : float, optional
+        Probability of performing the RandomGrid operation. Default is `0.5`.
+    sigma : float, optional
+        Gaussian filter kernel size. Default is `8.0`.
+    alpha : float, optional
+        Maximum size of image distortions, relative to the length of the side
+        of the image. Default is `0.05`.
+    order : int or None, optional
+        Order of the interpolation, for both image and vector elements.
+        For images-like components, the interpolation is 2d.
+        The following values are supported:
+
+        - 0: Nearest-neighbor
+        - 1: Linear (default)
+        - 2: Quadratic
+        - 3: Cubic
+
+        If `None`, the order is randomly selected from the set
+        {`1`, `2`, `3`}.
+    """
+
+    def __init__(self, *args, p=0.5, sigma=8.0, alpha=0.05, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.p = p
+        self.sigma = _pair(sigma)
+        self.alpha = _pair(alpha)
+
+    def __call__(self, sample):
+
+        if random.random() > self.p:
+            # Nothing to do
+            return sample
+
+        order = self.order
+        if order is None:
+            # Randomly sample 1, 2 or 3
+            order = random.randint(1, 3)
+
+        kind = self.order2kind[order]
+
+        # Randomly re-sample x and y
+        nx = len(sample["timestamps"])
+        ny = len(sample["depths"])
+        if nx < 2 or ny < 2:
+            raise ValueError("Input image shape ({}, {}) is too small".format(nx, ny))
+        if self.output_size[0] < 2 or self.output_size[1] < 2:
+            raise ValueError(
+                "Output image shape {} is too small".format(self.output_size)
+            )
+
+        x_out = np.linspace(0, nx - 1, self.output_size[0])
+        x_intv = x_out[1] - x_out[0]
+        dx = x_intv * 2 * (np.random.rand(*x_out.shape) - 0.5)
+        dx = scipy.ndimage.filters.gaussian_filter1d(dx, self.sigma[0], cval=0)
+        dx *= self.alpha[0] * nx
+        x_out += dx
+
+        y_out = np.linspace(0, ny - 1, self.output_size[1])
+        y_intv = y_out[1] - y_out[0]
+        dy = y_intv * 2 * (np.random.rand(*y_out.shape) - 0.5)
+        dy = scipy.ndimage.filters.gaussian_filter1d(dy, self.sigma[1], cval=0)
+        dy *= self.alpha[1] * ny
+        y_out += dy
+
+        x_out = x_out.clip(0, nx - 1)
+        y_out = y_out.clip(0, ny - 1)
+        x_out = np.sort(x_out)
+        y_out = np.sort(y_out)
 
         # 2D arrays (image-like)
         for key in _fields_2d:
