@@ -248,9 +248,10 @@ class RandomElasticGrid(Rescale):
 
     Parameters
     ----------
-    output_size : tuple or int
+    output_size : tuple or int or None
         Desired output size. If tuple, output is matched to output_size. If
-        int, output is square.
+        int, output is square. If `None`, the size remains unchanged from the
+        input.
     p : float, optional
         Probability of performing the RandomGrid operation. Default is `0.5`.
     sigma : float, optional
@@ -272,8 +273,9 @@ class RandomElasticGrid(Rescale):
         {`1`, `2`, `3`}.
     """
 
-    def __init__(self, *args, p=0.5, sigma=8.0, alpha=0.05, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, output_size, p=0.5, sigma=8.0, alpha=0.05, order=1):
+        self.output_size = None if output_size is None else _pair(output_size)
+        self.order = order
         self.p = p
         self.sigma = _pair(sigma)
         self.alpha = _pair(alpha)
@@ -294,21 +296,22 @@ class RandomElasticGrid(Rescale):
         # Randomly re-sample x and y
         nx = len(sample["timestamps"])
         ny = len(sample["depths"])
+        output_size = self.output_size
+        if output_size is None:
+            output_size = (nx, ny)
         if nx < 2 or ny < 2:
             raise ValueError("Input image shape ({}, {}) is too small".format(nx, ny))
-        if self.output_size[0] < 2 or self.output_size[1] < 2:
-            raise ValueError(
-                "Output image shape {} is too small".format(self.output_size)
-            )
+        if output_size[0] < 2 or output_size[1] < 2:
+            raise ValueError("Output image shape {} is too small".format(output_size))
 
-        x_out = np.linspace(0, nx - 1, self.output_size[0])
+        x_out = np.linspace(0, nx - 1, output_size[0])
         x_intv = x_out[1] - x_out[0]
         dx = x_intv * 2 * (np.random.rand(*x_out.shape) - 0.5)
         dx = scipy.ndimage.filters.gaussian_filter1d(dx, self.sigma[0], cval=0)
         dx *= self.alpha[0] * nx
         x_out += dx
 
-        y_out = np.linspace(0, ny - 1, self.output_size[1])
+        y_out = np.linspace(0, ny - 1, output_size[1])
         y_intv = y_out[1] - y_out[0]
         dy = y_intv * 2 * (np.random.rand(*y_out.shape) - 0.5)
         dy = scipy.ndimage.filters.gaussian_filter1d(dy, self.sigma[1], cval=0)
