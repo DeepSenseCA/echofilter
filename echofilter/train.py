@@ -932,7 +932,15 @@ def train_epoch(
     losses = AverageMeter("Loss", ":.4f")
 
     meters = {}
-    for chn in ["Overall", "Top", "Bottom", "RemovedSeg", "Passive", "Patch"]:
+    for chn in [
+        "Overall",
+        "Top",
+        "Bottom",
+        "RemovedSeg",
+        "Passive",
+        "Patch",
+        "Surface",
+    ]:
         for condition in model.conditions:
             cs = condition
             if condition != "":
@@ -1019,6 +1027,9 @@ def train_epoch(
                 elif chn.startswith("top"):
                     output_k = output["p_is_above_top" + cs]
                     target_k = metadata["mask_top"]
+                elif chn.startswith("surf"):
+                    output_k = output["p_is_above_surface" + cs]
+                    target_k = metadata["mask_surf"]
                 elif chn.startswith("bottom"):
                     output_k = output["p_is_below_bottom" + cs]
                     target_k = metadata["mask_bot"]
@@ -1125,7 +1136,15 @@ def validate(
     losses = AverageMeter("Loss", ":.4f")
 
     meters = {}
-    for chn in ["Overall", "Top", "Bottom", "RemovedSeg", "Passive", "Patch"]:
+    for chn in [
+        "Overall",
+        "Top",
+        "Bottom",
+        "RemovedSeg",
+        "Passive",
+        "Patch",
+        "Surface",
+    ]:
         for condition in model.conditions:
             cs = condition
             if condition != "":
@@ -1214,6 +1233,9 @@ def validate(
                 elif chn.startswith("top"):
                     output_k = output["p_is_above_top" + cs]
                     target_k = metadata["mask_top"]
+                elif chn.startswith("surf"):
+                    output_k = output["p_is_above_surface" + cs]
+                    target_k = metadata["mask_surf"]
                 elif chn.startswith("bottom"):
                     output_k = output["p_is_below_bottom" + cs]
                     target_k = metadata["mask_bot"]
