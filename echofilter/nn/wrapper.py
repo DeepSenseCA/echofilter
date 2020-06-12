@@ -2,6 +2,8 @@
 Model wrapper
 """
 
+import warnings
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -410,26 +412,6 @@ class EchofilterLoss(_Loss):
                         weight *= self.auxiliary
                 if not weight:
                     continue
-                elif "logit_is_above_" + sfx in input:
-                    loss_term = F.binary_cross_entropy_with_logits(
-                        input["logit_is_above_" + sfx + cs],
-                        target[target_key].to(
-                            input["logit_is_above_" + sfx + cs].device,
-                            input["logit_is_above_" + sfx + cs].dtype,
-                        ),
-                        reduction="none",
-                    )
-                    loss_term *= cmask.unsqueeze(-1).unsqueeze(-1)
-                    if apply_loss_inclusion:
-                        loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
-                    if self.reduction == "mean":
-                        loss_term = torch.mean(loss_term)
-                    elif self.reduction == "sum":
-                        loss_term = torch.sum(loss_term)
-                    elif self.reduction != "none":
-                        raise ValueError(
-                            "Unsupported reduction: {}".format(self.reduction)
-                        )
                 elif "logit_is_boundary_" + sfx in input:
                     # Load cross-entropy class target
                     C = target[target_i_key].to(
@@ -452,40 +434,19 @@ class EchofilterLoss(_Loss):
                         raise ValueError(
                             "Unsupported reduction: {}".format(self.reduction)
                         )
-                else:
-                    loss_term = F.binary_cross_entropy(
-                        input["p_is_above_" + sfx + cs],
-                        target[target_key],
-                        reduction="none",
+                elif "logit_is_above_" + sfx in input:
+                    warnings.warn(
+                        'Using loss corresponding to "mask" logits.'
+                        ' The "boundary" is recommended instead.'
+                        " The loss component for this line will be"
+                        " F.binary_cross_entropy_with_logits(input[{}], target[{}])"
+                        "".format("logit_is_above_" + sfx + cs, target_key,)
                     )
-                    loss_term *= cmask.unsqueeze(-1).unsqueeze(-1)
-                    if apply_loss_inclusion:
-                        loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
-                    if self.reduction == "mean":
-                        loss_term = torch.mean(loss_term)
-                    elif self.reduction == "sum":
-                        loss_term = torch.sum(loss_term)
-                    elif self.reduction != "none":
-                        raise ValueError(
-                            "Unsupported reduction: {}".format(self.reduction)
-                        )
-                if torch.isnan(loss_term).any():
-                    print("Loss term {} is NaN".format(target_key))
-                else:
-                    closs += weight * loss_term
-
-            for sfx in ("", "-original"):
-                weight = self.bottom_mask
-                if sfx != "":
-                    weight *= self.auxiliary
-                if not weight:
-                    continue
-                elif "logit_is_below_bottom" + sfx in input:
                     loss_term = F.binary_cross_entropy_with_logits(
-                        input["logit_is_below_bottom" + sfx + cs],
-                        target["mask_bot" + sfx].to(
-                            input["logit_is_below_bottom" + sfx + cs].device,
-                            input["logit_is_below_bottom" + sfx + cs].dtype,
+                        input["logit_is_above_" + sfx + cs],
+                        target[target_key].to(
+                            input["logit_is_above_" + sfx + cs].device,
+                            input["logit_is_above_" + sfx + cs].dtype,
                         ),
                         reduction="none",
                     )
@@ -500,6 +461,25 @@ class EchofilterLoss(_Loss):
                         raise ValueError(
                             "Unsupported reduction: {}".format(self.reduction)
                         )
+                else:
+                    raise ValueError(
+                        "The input does not contain either {} or {} fields."
+                        " At least one of these is required if the loss term weighting"
+                        " is non-zero.".format(
+                            "logit_is_boundary_" + sfx, "logit_is_above_" + sfx,
+                        )
+                    )
+                if torch.isnan(loss_term).any():
+                    print("Loss term {} is NaN".format(target_key))
+                else:
+                    closs += weight * loss_term
+
+            for sfx in ("", "-original"):
+                weight = self.bottom_mask
+                if sfx != "":
+                    weight *= self.auxiliary
+                if not weight:
+                    continue
                 elif "logit_is_boundary_bottom" + sfx in input:
                     # Load cross-entropy class target
                     C = target["index_bot" + sfx].to(
@@ -522,12 +502,19 @@ class EchofilterLoss(_Loss):
                         raise ValueError(
                             "Unsupported reduction: {}".format(self.reduction)
                         )
-                else:
-                    loss_term = F.binary_cross_entropy(
-                        input["p_is_below_bottom" + sfx + cs],
+                elif "logit_is_below_bottom" + sfx in input:
+                    warnings.warn(
+                        'Using loss corresponding to "mask" logits.'
+                        ' The "boundary" is recommended instead.'
+                        " The loss component for this line will be"
+                        " F.binary_cross_entropy_with_logits(input[{}], target[{}])"
+                        "".format("logit_is_below_bottom" + sfx + cs, target_key,)
+                    )
+                    loss_term = F.binary_cross_entropy_with_logits(
+                        input["logit_is_below_bottom" + sfx + cs],
                         target["mask_bot" + sfx].to(
-                            input["p_is_below_bottom" + sfx + cs].device,
-                            input["p_is_below_bottom" + sfx + cs].dtype,
+                            input["logit_is_below_bottom" + sfx + cs].device,
+                            input["logit_is_below_bottom" + sfx + cs].dtype,
                         ),
                         reduction="none",
                     )
@@ -542,6 +529,15 @@ class EchofilterLoss(_Loss):
                         raise ValueError(
                             "Unsupported reduction: {}".format(self.reduction)
                         )
+                else:
+                    raise ValueError(
+                        "The input does not contain either {} or {} fields."
+                        " At least one of these is required if the loss term weighting"
+                        " is non-zero.".format(
+                            "logit_is_boundary_bottom" + sfx,
+                            "logit_is_below_bottom" + sfx,
+                        )
+                    )
                 if torch.isnan(loss_term).any():
                     print("Loss term mask_bot{} is NaN".format(sfx))
                 else:

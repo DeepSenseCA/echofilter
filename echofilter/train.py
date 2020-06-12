@@ -8,6 +8,7 @@ import pprint
 import shutil
 import sys
 import time
+import traceback
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -918,6 +919,7 @@ def train_epoch(
     print_freq=10,
     schedule_data=None,
     use_mixed_precision=False,
+    continue_through_error=True,
 ):
     if schedule_data is None:
         schedule_data = {"name": "constant"}
@@ -957,6 +959,7 @@ def train_epoch(
     model.train()
 
     example_input = example_data = example_output = None
+    n_backward_errors = 0
 
     end = time.time()
     for i, (input, metadata) in enumerate(loader):
@@ -1037,11 +1040,24 @@ def train_epoch(
 
         # compute gradient and do optimizer update step
         optimizer.zero_grad()
-        if use_mixed_precision:
-            with apex.amp.scale_loss(loss, optimizer) as scaled_loss:
-                scaled_loss.backward()
-        else:
-            loss.backward()
+
+        try:
+            if use_mixed_precision:
+                with apex.amp.scale_loss(loss, optimizer) as scaled_loss:
+                    scaled_loss.backward()
+            else:
+                loss.backward()
+        except Exception as ex:
+            n_backward_errors += 1
+            if n_backward_errors > 5:
+                # If there have been more than 5 faulty batches in this epoch, we halt
+                # now since it seems like a systemic problem and not a one-off.
+                continue_through_error = False
+            if not continue_through_error:
+                raise ex
+            print("Error in backward step:")
+            print("".join(traceback.TracebackException.from_exception(ex).format()))
+
         optimizer.step()
         if "scheduler" in schedule_data:
             schedule_data["scheduler"].step()
