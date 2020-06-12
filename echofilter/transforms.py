@@ -78,13 +78,7 @@ class Rescale(object):
     }
 
     def __init__(self, output_size, order=1):
-        if isinstance(output_size, int):
-            output_size = (output_size, output_size)
-        elif isinstance(output_size, collections.Sequence):
-            output_size = tuple(output_size)
-        else:
-            raise ValueError("Output size must be an int or a tuple.")
-        self.output_size = output_size
+        self.output_size = _pair(output_size)
         self.order = order
 
     def __call__(self, sample):
