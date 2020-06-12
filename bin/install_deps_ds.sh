@@ -24,6 +24,7 @@ conda install numpy scipy pandas tqdm matplotlib seaborn jupyter apex pytorch to
 pip install git+https://github.com/scottclowe/pytorch-utils
 pip install git+https://github.com/davidtvs/pytorch-lr-finder.git@1d1e3e7170db3d784ac7e268a63fa8a077880b50
 pip install git+https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer.git@8d636a560b71e740e9423aa10ba4c7f751bb9120
+pip install -e .
 
 conda list
 
