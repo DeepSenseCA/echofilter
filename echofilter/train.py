@@ -933,18 +933,23 @@ def train_epoch(
 
     meters = {}
     for chn in ["Overall", "Top", "Bottom", "RemovedSeg", "Passive", "Patch"]:
-        meters[chn] = {}
-        meters[chn]["Accuracy"] = AverageMeter("Accuracy (" + chn + ")", ":6.2f")
-        meters[chn]["Precision"] = AverageMeter("Precision (" + chn + ")", ":6.2f")
-        meters[chn]["Recall"] = AverageMeter("Recall (" + chn + ")", ":6.2f")
-        meters[chn]["F1 Score"] = AverageMeter("F1 Score (" + chn + ")", ":6.4f")
-        meters[chn]["Jaccard"] = AverageMeter("Jaccard (" + chn + ")", ":6.4f")
-        meters[chn]["Active output"] = AverageMeter(
-            "Active output (" + chn + ")", ":6.2f"
-        )
-        meters[chn]["Active target"] = AverageMeter(
-            "Active target (" + chn + ")", ":6.2f"
-        )
+        for condition in model.conditions:
+            cs = condition
+            if condition != "":
+                cs = "|" + condition
+            cc = chn + cs
+            meters[cc] = {}
+            meters[cc]["Accuracy"] = AverageMeter("Accuracy (" + cc + ")", ":6.2f")
+            meters[cc]["Precision"] = AverageMeter("Precision (" + cc + ")", ":6.2f")
+            meters[cc]["Recall"] = AverageMeter("Recall (" + cc + ")", ":6.2f")
+            meters[cc]["F1 Score"] = AverageMeter("F1 Score (" + cc + ")", ":6.4f")
+            meters[cc]["Jaccard"] = AverageMeter("Jaccard (" + cc + ")", ":6.4f")
+            meters[cc]["Active output"] = AverageMeter(
+                "Active output (" + cc + ")", ":6.2f"
+            )
+            meters[cc]["Active target"] = AverageMeter(
+                "Active target (" + cc + ")", ":6.2f"
+            )
 
     progress = ProgressMeter(
         len(loader),
@@ -989,24 +994,42 @@ def train_epoch(
 
             # Measure and record performance with various metrics
             for chn, meters_k in meters.items():
+
+                chnparts = chn.split("|")
+                if len(chnparts) < 2:
+                    chnparts.append("")
+                    cs = ""
+                else:
+                    if chnparts[1].startswith("up"):
+                        mask = metadata["is_upward_facing"] > 0.5
+                    elif chnparts[1].startswith("down"):
+                        mask = metadata["is_upward_facing"] < 0.5
+                    else:
+                        raise ValueError("Unsupported condition {}".format(parts[1]))
+                    cs = "|" + chnparts[1]
+                    if torch.sum(mask).item() == 0:
+                        continue
+                    output_k = output_k[mask]
+                    target_k = target_k[mask]
+
                 chn = chn.lower()
-                if chn == "overall":
-                    output_k = output["mask_keep_pixel"].float()
+                if chn.startswith("overall"):
+                    output_k = output["mask_keep_pixel" + cs].float()
                     target_k = metadata["mask"]
-                elif chn == "top":
-                    output_k = output["p_is_above_top"]
+                elif chn.startswith("top"):
+                    output_k = output["p_is_above_top" + cs]
                     target_k = metadata["mask_top"]
-                elif chn == "bottom":
-                    output_k = output["p_is_below_bottom"]
+                elif chn.startswith("bottom"):
+                    output_k = output["p_is_below_bottom" + cs]
                     target_k = metadata["mask_bot"]
-                elif chn == "removedseg":
-                    output_k = output["p_is_removed"]
+                elif chn.startswith("removedseg"):
+                    output_k = output["p_is_removed" + cs]
                     target_k = metadata["is_removed"]
-                elif chn == "passive":
-                    output_k = output["p_is_passive"]
+                elif chn.startswith("passive"):
+                    output_k = output["p_is_passive" + cs]
                     target_k = metadata["is_passive"]
-                elif chn == "patch":
-                    output_k = output["p_is_patch"]
+                elif chn.startswith("patch"):
+                    output_k = output["p_is_patch" + cs]
                     target_k = metadata["mask_patches"]
                 else:
                     raise ValueError("Unrecognised output channel: {}".format(chn))
@@ -1103,18 +1126,23 @@ def validate(
 
     meters = {}
     for chn in ["Overall", "Top", "Bottom", "RemovedSeg", "Passive", "Patch"]:
-        meters[chn] = {}
-        meters[chn]["Accuracy"] = AverageMeter("Accuracy (" + chn + ")", ":6.2f")
-        meters[chn]["Precision"] = AverageMeter("Precision (" + chn + ")", ":6.2f")
-        meters[chn]["Recall"] = AverageMeter("Recall (" + chn + ")", ":6.2f")
-        meters[chn]["F1 Score"] = AverageMeter("F1 Score (" + chn + ")", ":6.4f")
-        meters[chn]["Jaccard"] = AverageMeter("Jaccard (" + chn + ")", ":6.4f")
-        meters[chn]["Active output"] = AverageMeter(
-            "Active output (" + chn + ")", ":6.2f"
-        )
-        meters[chn]["Active target"] = AverageMeter(
-            "Active target (" + chn + ")", ":6.2f"
-        )
+        for condition in model.conditions:
+            cs = condition
+            if condition != "":
+                cs = "|" + condition
+            cc = chn + cs
+            meters[cc] = {}
+            meters[cc]["Accuracy"] = AverageMeter("Accuracy (" + cc + ")", ":6.2f")
+            meters[cc]["Precision"] = AverageMeter("Precision (" + cc + ")", ":6.2f")
+            meters[cc]["Recall"] = AverageMeter("Recall (" + cc + ")", ":6.2f")
+            meters[cc]["F1 Score"] = AverageMeter("F1 Score (" + cc + ")", ":6.4f")
+            meters[cc]["Jaccard"] = AverageMeter("Jaccard (" + cc + ")", ":6.4f")
+            meters[cc]["Active output"] = AverageMeter(
+                "Active output (" + chn + ")", ":6.2f"
+            )
+            meters[cc]["Active target"] = AverageMeter(
+                "Active target (" + cc + ")", ":6.2f"
+            )
 
     progress = ProgressMeter(
         len(loader),
@@ -1161,24 +1189,42 @@ def validate(
 
             # Measure and record performance with various metrics
             for chn, meters_k in meters.items():
+
+                chnparts = chn.split("|")
+                if len(chnparts) < 2:
+                    chnparts.append("")
+                    cs = ""
+                else:
+                    if chnparts[1].startswith("up"):
+                        mask = metadata["is_upward_facing"] > 0.5
+                    elif chnparts[1].startswith("down"):
+                        mask = metadata["is_upward_facing"] < 0.5
+                    else:
+                        raise ValueError("Unsupported condition {}".format(parts[1]))
+                    cs = "|" + chnparts[1]
+                    if torch.sum(mask).item() == 0:
+                        continue
+                    output_k = output_k[mask]
+                    target_k = target_k[mask]
+
                 chn = chn.lower()
-                if chn == "overall":
-                    output_k = output["mask_keep_pixel"].float()
+                if chn.startswith("overall"):
+                    output_k = output["mask_keep_pixel" + cs].float()
                     target_k = metadata["mask"]
-                elif chn == "top":
-                    output_k = output["p_is_above_top"]
+                elif chn.startswith("top"):
+                    output_k = output["p_is_above_top" + cs]
                     target_k = metadata["mask_top"]
-                elif chn == "bottom":
-                    output_k = output["p_is_below_bottom"]
+                elif chn.startswith("bottom"):
+                    output_k = output["p_is_below_bottom" + cs]
                     target_k = metadata["mask_bot"]
-                elif chn == "removedseg":
-                    output_k = output["p_is_removed"]
+                elif chn.startswith("removedseg"):
+                    output_k = output["p_is_removed" + cs]
                     target_k = metadata["is_removed"]
-                elif chn == "passive":
-                    output_k = output["p_is_passive"]
+                elif chn.startswith("passive"):
+                    output_k = output["p_is_passive" + cs]
                     target_k = metadata["is_passive"]
-                elif chn == "patch":
-                    output_k = output["p_is_patch"]
+                elif chn.startswith("patch"):
+                    output_k = output["p_is_patch" + cs]
                     target_k = metadata["mask_patches"]
                 else:
                     raise ValueError("Unrecognised output channel: {}".format(chn))
