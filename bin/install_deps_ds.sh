@@ -30,4 +30,3 @@ conda list
 echo "$LD_LIBRARY_PATH"
 
 python -c "import torch; print(torch.__version__)"
-
