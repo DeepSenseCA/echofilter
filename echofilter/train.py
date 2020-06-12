@@ -1427,6 +1427,9 @@ def meters_to_csv(meters, is_best, dirname=".", filename="meters.csv"):
     os.makedirs(dirname, exist_ok=True)
     df = pd.DataFrame()
     for chn in meters:
+        if "|" in chn:
+            # Skip conditional model evaluations
+            continue
         # For each output plane
         for criterion_name, meter in meters[chn].items():
             # For each criterion
