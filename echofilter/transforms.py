@@ -154,7 +154,6 @@ class RandomGridSampling(Rescale):
         int, output is square.
     p : float, optional
         Probability of performing the RandomGrid operation. Default is `0.5`.
-        Set to `1` to always do this operation.
     order : int or None, optional
         Order of the interpolation, for both image and vector elements.
         For images-like components, the interpolation is 2d.
@@ -175,7 +174,7 @@ class RandomGridSampling(Rescale):
 
     def __call__(self, sample):
 
-        if self.p >= 1 or random.random() > self.p:
+        if random.random() > self.p:
             # Nothing to do
             return sample
 
