@@ -981,65 +981,72 @@ def train_epoch(
         ns = input.size(0)
         losses.update(loss.item(), ns)
 
-        if i == max(0, len(loader) - 2):
-            example_input = input.detach()
-            example_data = {k: v.detach() for k, v in metadata.items()}
-            example_output = output.detach()
+        with torch.no_grad():
+            if i == max(0, len(loader) - 2):
+                example_input = input.detach()
+                example_data = {k: v.detach() for k, v in metadata.items()}
+                example_output = output.detach()
 
-        # Measure and record performance with various metrics
-        for chn, meters_k in meters.items():
-            chn = chn.lower()
-            if chn == "overall":
-                output_k = output["mask_keep_pixel"].float()
-                target_k = metadata["mask"]
-            elif chn == "top":
-                output_k = output["p_is_above_top"]
-                target_k = metadata["mask_top"]
-            elif chn == "bottom":
-                output_k = output["p_is_below_bottom"]
-                target_k = metadata["mask_bot"]
-            elif chn == "removedseg":
-                output_k = output["p_is_removed"]
-                target_k = metadata["is_removed"]
-            elif chn == "passive":
-                output_k = output["p_is_passive"]
-                target_k = metadata["is_passive"]
-            elif chn == "patch":
-                output_k = output["p_is_patch"]
-                target_k = metadata["mask_patches"]
-            else:
-                raise ValueError("Unrecognised output channel: {}".format(chn))
-
-            for c, v in meters_k.items():
-                c = c.lower()
-                if c == "accuracy":
-                    v.update(
-                        100.0 * criterions.mask_accuracy(output_k, target_k).item(), ns
-                    )
-                elif c == "precision":
-                    v.update(
-                        100.0 * criterions.mask_precision(output_k, target_k).item(), ns
-                    )
-                elif c == "recall":
-                    v.update(
-                        100.0 * criterions.mask_recall(output_k, target_k).item(), ns
-                    )
-                elif c == "f1 score" or c == "f1":
-                    v.update(criterions.mask_f1_score(output_k, target_k).item(), ns)
-                elif c == "jaccard":
-                    v.update(
-                        criterions.mask_jaccard_index(output_k, target_k).item(), ns
-                    )
-                elif c == "active output":
-                    v.update(
-                        100.0 * criterions.mask_active_fraction(output_k).item(), ns
-                    )
-                elif c == "active target":
-                    v.update(
-                        100.0 * criterions.mask_active_fraction(target_k).item(), ns
-                    )
+            # Measure and record performance with various metrics
+            for chn, meters_k in meters.items():
+                chn = chn.lower()
+                if chn == "overall":
+                    output_k = output["mask_keep_pixel"].float()
+                    target_k = metadata["mask"]
+                elif chn == "top":
+                    output_k = output["p_is_above_top"]
+                    target_k = metadata["mask_top"]
+                elif chn == "bottom":
+                    output_k = output["p_is_below_bottom"]
+                    target_k = metadata["mask_bot"]
+                elif chn == "removedseg":
+                    output_k = output["p_is_removed"]
+                    target_k = metadata["is_removed"]
+                elif chn == "passive":
+                    output_k = output["p_is_passive"]
+                    target_k = metadata["is_passive"]
+                elif chn == "patch":
+                    output_k = output["p_is_patch"]
+                    target_k = metadata["mask_patches"]
                 else:
-                    raise ValueError("Unrecognised criterion: {}".format(c))
+                    raise ValueError("Unrecognised output channel: {}".format(chn))
+
+                for c, v in meters_k.items():
+                    c = c.lower()
+                    if c == "accuracy":
+                        v.update(
+                            100.0 * criterions.mask_accuracy(output_k, target_k).item(),
+                            ns,
+                        )
+                    elif c == "precision":
+                        v.update(
+                            100.0
+                            * criterions.mask_precision(output_k, target_k).item(),
+                            ns,
+                        )
+                    elif c == "recall":
+                        v.update(
+                            100.0 * criterions.mask_recall(output_k, target_k).item(),
+                            ns,
+                        )
+                    elif c == "f1 score" or c == "f1":
+                        v.update(
+                            criterions.mask_f1_score(output_k, target_k).item(), ns
+                        )
+                    elif c == "jaccard":
+                        v.update(
+                            criterions.mask_jaccard_index(output_k, target_k).item(), ns
+                        )
+                    elif c == "active output":
+                        v.update(
+                            100.0 * criterions.mask_active_fraction(output_k).item(), ns
+                        )
+                    elif c == "active target":
+                        v.update(
+                            100.0 * criterions.mask_active_fraction(target_k).item(), ns
+                        )
+                    else:
+                        raise ValueError("Unrecognised criterion: {}".format(c))
 
         # compute gradient and do optimizer update step
         optimizer.zero_grad()
