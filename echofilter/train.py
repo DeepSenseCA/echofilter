@@ -1025,14 +1025,14 @@ def train_epoch(
                     output_k = output["mask_keep_pixel" + cs].float()
                     target_k = metadata["mask"]
                 elif chn.startswith("top"):
-                    output_k = output["p_is_above_top" + cs]
-                    target_k = metadata["mask_top"]
+                    output_k = output["p_is_below_top" + cs]
+                    target_k = 1 - metadata["mask_top"]
                 elif chn.startswith("surf"):
                     output_k = output["p_is_below_surface" + cs]
                     target_k = 1 - metadata["mask_surf"]
                 elif chn.startswith("bottom"):
-                    output_k = output["p_is_below_bottom" + cs]
-                    target_k = metadata["mask_bot"]
+                    output_k = output["p_is_above_bottom" + cs]
+                    target_k = 1 - metadata["mask_bot"]
                 elif chn.startswith("removedseg"):
                     output_k = output["p_is_removed" + cs]
                     target_k = metadata["is_removed"]
@@ -1231,14 +1231,14 @@ def validate(
                     output_k = output["mask_keep_pixel" + cs].float()
                     target_k = metadata["mask"]
                 elif chn.startswith("top"):
-                    output_k = output["p_is_above_top" + cs]
-                    target_k = metadata["mask_top"]
+                    output_k = output["p_is_below_top" + cs]
+                    target_k = 1 - metadata["mask_top"]
                 elif chn.startswith("surf"):
                     output_k = output["p_is_below_surface" + cs]
                     target_k = 1 - metadata["mask_surf"]
                 elif chn.startswith("bottom"):
-                    output_k = output["p_is_below_bottom" + cs]
-                    target_k = metadata["mask_bot"]
+                    output_k = output["p_is_above_bottom" + cs]
+                    target_k = 1 - metadata["mask_bot"]
                 elif chn.startswith("removedseg"):
                     output_k = output["p_is_removed" + cs]
                     target_k = metadata["is_removed"]
