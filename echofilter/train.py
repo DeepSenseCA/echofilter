@@ -120,6 +120,7 @@ def train(
     use_mixed_precision=None,
     amp_opt="O1",
     device="cuda",
+    multigpu=False,
     n_worker=8,
     batch_size=16,
     stratify=True,
@@ -247,12 +248,7 @@ def train(
     pprint.pprint(model_parameters)
     print()
 
-    model = Echofilter(
-        UNet(**model_parameters),
-        top="boundary",
-        bottom="boundary",
-        conditional=conditional,
-    )
+    model = UNet(**model_parameters)
     model.to(device)
     print(
         "Built model with {} trainable parameters".format(
@@ -341,6 +337,15 @@ def train(
     if use_mixed_precision:
         print('Converting model to mixed precision, opt="{}"'.format(amp_opt))
         model, optimizer = apex.amp.initialize(model, optimizer, opt_level=amp_opt)
+
+    if multigpu and torch.cuda.device_count() > 1:
+        print("Using local parallelism on {} GPUs".format(torch.cuda.device_count()))
+        model = torch.nn.DataParallel(model)
+
+    # Add UI wrapper around model
+    model = Echofilter(
+        model, top="boundary", bottom="boundary", conditional=conditional,
+    )
 
     # Make a tensorboard writer
     writer = SummaryWriter(log_dir=os.path.join("runs", dataset_name, log_name))
@@ -1567,6 +1572,9 @@ def main():
         type=str,
         default="cuda",
         help='device to use (default: "cuda", using first gpu)',
+    )
+    parser.add_argument(
+        "--multigpu", action="store_true", help="train on multiple GPUs",
     )
     parser.add_argument(
         "--no-amp",
