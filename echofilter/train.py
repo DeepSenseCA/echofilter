@@ -381,6 +381,13 @@ def train(
 
         t_epoch_start = time.time()
 
+        # Set the seed state at the start of each epoch
+        # This ensures some level of consistency between models which continue
+        # running and those resumed from checkpoints (don't want to run the
+        # exact initial augmented samples from the first epoch again when
+        # resuming later in the run)
+        seed_all(1000 + seed + epoch)
+
         # Resample offsets for each window
         loader_train.dataset.initialise_datapoints()
 
