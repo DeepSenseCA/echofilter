@@ -33,11 +33,11 @@ from echofilter.nn.unet import UNet
 from echofilter.nn.wrapper import Echofilter, EchofilterLoss
 from echofilter.optim import criterions, schedulers
 from echofilter.optim.meters import AverageMeter, ProgressMeter
+import echofilter.optim.utils
 from echofilter.plotting import plot_transect_predictions
 from echofilter.raw.loader import get_partition_list
 from echofilter.raw.manipulate import load_decomposed_transect_mask
 import echofilter.raw.shardloader
-import echofilter.utils
 
 
 ## For mobile dataset,
@@ -449,8 +449,8 @@ def train(
         )
         # Print metrics to terminal
         name_fmt = "{:.<28s}"
-        current_lr = echofilter.utils.get_current_lr(optimizer)
-        current_mom = echofilter.utils.get_current_momentum(optimizer)
+        current_lr = echofilter.optim.utils.get_current_lr(optimizer)
+        current_mom = echofilter.optim.utils.get_current_momentum(optimizer)
 
         print((name_fmt + " {:.4e}").format("Learning rate", current_lr))
         print((name_fmt + " {:.4f}").format("Momentum", current_mom))
