@@ -962,7 +962,7 @@ def train_epoch(
 
     batch_time = AverageMeter("Time", ":6.3f")
     data_time = AverageMeter("Data", ":6.3f")
-    losses = AverageMeter("Loss", ":.4f")
+    losses = AverageMeter("Loss", ":6.3f")
 
     meters = {}
     for chn in [
@@ -1166,7 +1166,7 @@ def validate(
 ):
     batch_time = AverageMeter("Time", ":6.3f")
     data_time = AverageMeter("Data", ":6.3f")
-    losses = AverageMeter("Loss", ":.4f")
+    losses = AverageMeter("Loss", ":6.3f")
 
     meters = {}
     for chn in [
