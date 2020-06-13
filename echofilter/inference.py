@@ -69,6 +69,7 @@ def run_inference(
     skip_incompatible=False,
     minimize_echoview=False,
     hide_echoview="new",
+    line_status=3,
     device=None,
     cache_dir=None,
     cache_csv=None,
@@ -152,6 +153,14 @@ def run_inference(
         If `hide_echoview="always"`, the application is hidden even if it was
         already running. In the latter case, the window will be revealed again
         when this function is completed. Default is `"new"`.
+    line_status : int, optional
+        Status to use for the lines.
+        Must be one of:
+            `0` : none
+            `1` : unverified
+            `2` : bad
+            `3` : good
+        Default is `3`.
     device : str or torch.device or None, optional
         Name of device on which the model will be run. If `None`, the first
         available CUDA GPU is used if any are found, and otherwise the CPU is
@@ -465,7 +474,9 @@ def run_inference(
                         " interface, use the --force flag) to overwrite existing"
                         " outputs.".format(dest_file)
                     )
-                echofilter.raw.loader.evl_writer(dest_file, timestamps, depths)
+                echofilter.raw.loader.evl_writer(
+                    dest_file, timestamps, depths, status=line_status
+                )
 
     if verbose >= 1:
         s = "Finished {}processing {} file{}.".format(
@@ -919,6 +930,25 @@ def main():
             extension before their suffix (including a new file extension).
             Default behaviour is to strip the input file name extension before
             constructing the output path.
+        """,
+    )
+
+    # Output files
+    group_outconfig = parser.add_argument_group(
+        "Output configuration arguments",
+        "Parameters specifying the properties of the output.",
+    )
+    group_outconfig.add_argument(
+        "--line-status",
+        type=int,
+        default=3,
+        help="""
+            Status value for all the lines which are generated. Options are
+                0 (none),
+                1 (unverified),
+                2 (bad), or
+                3 (good).
+            Default is 3.
         """,
     )
 
