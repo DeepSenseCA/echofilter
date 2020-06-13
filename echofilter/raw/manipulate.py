@@ -8,6 +8,7 @@ import warnings
 
 import numpy as np
 import scipy.interpolate
+import scipy.ndimage
 
 from . import loader
 from . import utils
@@ -124,6 +125,227 @@ def find_passive_data(signals, n_depth_use=38, threshold=25.0, deviation=None):
             nonpassives = np.nonzero(
                 np.median(baseline - signals[:current_index, :n_depth_use], axis=1)
                 < threshold_high
+            )[0]
+            if len(nonpassives) == 0:
+                indices_passive_start[-1] = 0
+            else:
+                indices_passive_start[-1] = min(
+                    indices_passive_start[-1], nonpassives[-1] + 1,
+                )
+
+        # Combine with preceding passive segments if they overlap
+        while (
+            len(indices_passive_start) > 1
+            and indices_passive_start[-1] <= indices_passive_end[-2]
+        ):
+            indices_passive_start = indices_passive_start[:-1]
+            indices_passive_end = indices_passive_end[:-2] + indices_passive_end[-1:]
+
+    return np.array(indices_passive_start), np.array(indices_passive_end)
+
+
+def find_passive_data_v2(
+    signals,
+    n_depth_use=38,
+    threshold_inner=None,
+    threshold_init=None,
+    deviation=None,
+    sigma_depth=0,
+    sigma_time=1,
+):
+    """
+    Find segments of Sv recording which correspond to passive recording.
+
+    Parameters
+    ----------
+    signals : array_like
+        Two-dimensional array of Sv values, shaped `[timestamps, depths]`.
+    n_depth_use : int, optional
+        How many Sv depths to use, starting with the first depths (closest
+        to the sounder device). If `None` all depths are used. Default is `38`.
+        The median is taken across the depths, after taking the temporal
+        derivative.
+    threshold_inner : float, optional
+        Theshold to apply to the temporal derivative of the signal when
+        detected fine-tuned start/end of passive regions.
+        Default behaviour is to use a threshold automatically determined using
+        `deviation` if it is set, and otherwise use a threshold of `35.0`.
+    threshold_init : float, optional
+        Theshold to apply during the initial scan of the start/end of passive
+        regions, which seeds the fine-tuning search.
+        Default behaviour is to use a threshold automatically determined using
+        `deviation` if it is set, and otherwise use a threshold of `12.0`.
+    deviation : float, optional
+        Set `threshold_inner` to be `deviation` times the standard deviation of
+        the temporal derivative of the signal. The standard deviation is
+        robustly estimated based on the interquartile range.
+        If this is set, `threshold_inner` must not be `None`.
+        Default is `None`
+    sigma_depth : float, optional
+        Width of kernel for filtering signals across second dimension (depth).
+        Default is `0` (no filter).
+    sigma_time : float, optional
+        Width of kernel for filtering signals across second dimension (time).
+        Default is `1`. Set to `0` to not filter.
+
+    Returns
+    -------
+    passive_start : numpy.ndarray
+        Indices of rows of `signals` at which passive segments start.
+    passive_end : numpy.ndarray
+        Indices of rows of `signals` at which passive segments end.
+
+    Notes
+    -----
+    Works by looking at the difference between consecutive recordings and
+    finding large deviations.
+    """
+    # Ensure signals is numpy array
+    signals = np.asarray(signals)
+
+    if n_depth_use is None:
+        n_depth_use = signals.shape[1]
+
+    if sigma_depth > 0:
+        signals_smooth = scipy.ndimage.gaussian_filter1d(
+            signals.astype(np.float32), sigma_depth, axis=-1
+        )
+    else:
+        signals_smooth = signals
+
+    md_inner = np.median(np.diff(signals_smooth[:, :n_depth_use], axis=0), axis=1)
+
+    if sigma_time > 0:
+        signals_init = scipy.ndimage.gaussian_filter1d(
+            signals_smooth.astype(np.float32), sigma_time, axis=0
+        )
+        md_init = np.median(np.diff(signals_init[:, :n_depth_use], axis=0), axis=1)
+    else:
+        signals_init = signals
+        md_init = md_inner
+
+    if threshold_inner is not None and deviation is not None:
+        raise ValueError("Only one of `threshold_inner` and `deviation` should be set.")
+    if threshold_init is None:
+        if deviation is None:
+            threshold_init = 12.0
+        else:
+            threshold_inner = (
+                (np.percentile(md_init, 75) - np.percentile(md_init, 25))
+                / 1.35
+                * deviation
+            )
+    if threshold_inner is None:
+        if deviation is None:
+            threshold_inner = 35.0
+        else:
+            threshold_inner = (
+                (np.percentile(md_inner, 75) - np.percentile(md_inner, 25))
+                / 1.35
+                * deviation
+            )
+
+    threshold_high_inner = threshold_inner
+    threshold_low_inner = -threshold_inner
+    threshold_high_init = threshold_init
+    threshold_low_init = -threshold_init
+    indices_possible_start_init = np.nonzero(md_init < threshold_low_init)[0]
+    indices_possible_end_init = np.nonzero(md_init > threshold_high_init)[0]
+
+    if len(indices_possible_start_init) == 0 and len(indices_possible_end_init) == 0:
+        return np.array([]), np.array([])
+
+    # Fine tune indices without smoothing
+    indices_possible_start = []
+    indices_possible_end = []
+
+    capture_start = None
+    for i, index_p in enumerate(indices_possible_start_init):
+        if capture_start is None:
+            capture_start = index_p
+        if (
+            i + 1 >= len(indices_possible_start_init)
+            or indices_possible_start_init[i + 1] > index_p + 3
+        ):
+            # break capture
+            capture_end = index_p
+            capture = np.arange(capture_start, capture_end + 1)
+            indices_possible_start.append(capture[np.argmin(md_init[capture])])
+            capture_start = None
+
+    capture_start = None
+    for i, index_p in enumerate(indices_possible_end_init):
+        if capture_start is None:
+            capture_start = index_p
+        if (
+            i + 1 >= len(indices_possible_end_init)
+            or indices_possible_end_init[i + 1] > index_p + 3
+        ):
+            # break capture
+            capture_end = index_p
+            capture = np.arange(capture_start, capture_end + 1)
+            indices_possible_end.append(capture[np.argmax(md_init[capture])])
+            capture_start = None
+
+    indices_possible_start = np.array(indices_possible_start)
+    indices_possible_end = np.array(indices_possible_end)
+
+    current_index = 0
+    indices_passive_start = []
+    indices_passive_end = []
+
+    if len(indices_possible_start) > 0:
+        indices_possible_start += 1
+
+    if len(indices_possible_end) > 0:
+        indices_possible_end += 1
+
+    if len(indices_possible_end) > 0 and (
+        len(indices_possible_start) == 0
+        or indices_possible_end[0] < indices_possible_start[0]
+    ):
+        indices_passive_start.append(0)
+        current_index = indices_possible_end[0]
+        indices_passive_end.append(current_index)
+        indices_possible_start = indices_possible_start[
+            indices_possible_start > current_index
+        ]
+        indices_possible_end = indices_possible_end[
+            indices_possible_end > current_index
+        ]
+
+    while len(indices_possible_start) > 0:
+        current_index = indices_possible_start[0]
+        indices_passive_start.append(current_index)
+        baseline_index = max(0, current_index - 2)
+        baseline = signals[baseline_index, :n_depth_use]
+
+        # Find first column which returns to the baseline value seen before passive region
+        offsets = np.nonzero(
+            np.median(baseline - signals[current_index:, :n_depth_use], axis=1)
+            < threshold_high_inner
+        )[0]
+        if len(offsets) == 0:
+            current_index = signals.shape[0]
+        else:
+            current_index += offsets[0]
+        indices_passive_end.append(current_index)
+
+        # Remove preceding indices from the list of candidates
+        indices_possible_start = indices_possible_start[
+            indices_possible_start > current_index
+        ]
+        indices_possible_end = indices_possible_end[
+            indices_possible_end > current_index
+        ]
+
+        # Check the start was sufficiently inclusive
+        if current_index < signals.shape[0]:
+            baseline_index = min(signals.shape[0] - 1, current_index + 1)
+            baseline = signals[baseline_index, :n_depth_use]
+            nonpassives = np.nonzero(
+                np.median(baseline - signals[:current_index, :n_depth_use], axis=1)
+                < threshold_high_inner
             )[0]
             if len(nonpassives) == 0:
                 indices_passive_start[-1] = 0
