@@ -499,12 +499,11 @@ def train(
         if n_epoch < 20:
             # Every epoch
             generate_sample_images = True
-        elif n_epoch < 100:
-            # Every 10th of the way through training
-            generate_sample_images = (epoch % (n_epoch // 10)) == 0
         else:
-            # Every 10th epoch
-            generate_sample_images = (epoch % 10) == 0
+            # Every 20th of the way through training
+            generate_sample_images = (
+                int(20 * epoch / n_epoch) > 20 * (epoch - 1) / n_epoch
+            )
         # But always generate samples for first two epochs and last epoch
         if epoch <= 2 or epoch == n_epoch:
             generate_sample_images = True
