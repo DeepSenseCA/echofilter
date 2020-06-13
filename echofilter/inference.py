@@ -51,8 +51,8 @@ DEFAULT_VARNAME = "Fileset1: Sv pings T1"
 
 
 def run_inference(
-    files,
-    data_dir=".",
+    paths,
+    source_dir=".",
     checkpoint=None,
     output_dir="",
     variable_name=DEFAULT_VARNAME,
@@ -81,12 +81,12 @@ def run_inference(
 
     Parameters
     ----------
-    files : iterable
+    paths : iterable
         Files and folders to be processed. These may be full paths or paths
-        relative to `data_dir`. For each folder specified, any files with
+        relative to `source_dir`. For each folder specified, any files with
         extension `'csv'` within the folder and all its tree of subdirectories
         will be processed.
-    data_dir : str, optional
+    source_dir : str, optional
         Path to directory where files are found. Default is `'.'`.
     checkpoint : str or None, optional
         A path to a checkpoint file, or name of a checkpoint known to this
@@ -96,7 +96,7 @@ def run_inference(
         Directory where output files will be written. If this is `''`, outputs
         are written to the same directory as each input file. Otherwise, they
         are written to `output_dir`, preserving their path relative to
-        `data_dir` if relative paths were used. Default is `''`.
+        `source_dir` if relative paths were used. Default is `''`.
     variable_name : str, optional
         Name of the EchoView acoustic variable to load from EV files. Default
         is `'Fileset1: Sv pings T1'`.
@@ -143,10 +143,10 @@ def run_inference(
         Skip processing CSV files which do not seem to contain an exported
         echoview transect. If `False`, an error is raised. Default is `False`.
     minimize_echoview : bool, optional
-        If `True`, the Echoview window being used will be minimized while this
+        If `True`, the EchoView window being used will be minimized while this
         function is running. Default is `False`.
     hide_echoview : {"never", "new", "always"}, optional
-        Whether to hide the Echoview window entirely while the code runs.
+        Whether to hide the EchoView window entirely while the code runs.
         If `hide_echoview="new"`, the application is only hidden if it
         was created by this function, and not if it was already running.
         If `hide_echoview="always"`, the application is hidden even if it was
@@ -261,8 +261,8 @@ def run_inference(
     # Put model in evaluation mode
     model.eval()
 
-    files_input = files
-    files = list(echofilter.path.parse_files_in_folders(files, data_dir, extensions))
+    files_input = paths
+    files = list(echofilter.path.parse_files_in_folders(paths, source_dir, extensions))
     if verbose >= 1:
         print("Processing {} file{}".format(len(files), "" if len(files) == 1 else "s"))
 
@@ -278,7 +278,7 @@ def run_inference(
     if dry_run:
         if verbose >= 3:
             print(
-                "Echoview application would{} be opened {}.".format(
+                "EchoView application would{} be opened {}.".format(
                     "" if do_open else " not",
                     "to convert EV files to CSV"
                     if do_open
@@ -304,11 +304,11 @@ def run_inference(
                 print("Processing {}".format(fname))
 
             # Check what the full path should be
-            fname_full = echofilter.path.determine_file_path(fname, data_dir)
+            fname_full = echofilter.path.determine_file_path(fname, source_dir)
 
             # Determine where destination should be placed
             destination = echofilter.path.determine_destination(
-                fname, fname_full, data_dir, output_dir
+                fname, fname_full, source_dir, output_dir
             )
             if not keep_ext:
                 destination = os.path.splitext(destination)[0]
@@ -364,7 +364,7 @@ def run_inference(
                 else:
                     # Determine where exported CSV file should be placed
                     csv_fname = echofilter.path.determine_destination(
-                        fname, fname_full, data_dir, ev2csv_dir
+                        fname, fname_full, source_dir, ev2csv_dir
                     )
                     if not keep_ext:
                         csv_fname = os.path.splitext(csv_fname)[0]
@@ -731,216 +731,369 @@ def main():
         version="%(prog)s {version}".format(version=echofilter.__version__),
     )
     parser.add_argument(
-        "files",
-        type=str,
-        nargs="+",
-        default=[],
-        metavar="PATH",
-        help="file(s) to process. For each directory given, all csv files"
-        " within that directory and its subdirectories will be processed.",
-    )
-    parser.add_argument(
-        "--data-dir",
-        "-d",
-        dest="data_dir",
-        type=str,
-        default=".",
-        metavar="DIR",
-        help='path to directory containing FILE (default: ".")',
-    )
-    default_extensions = ["csv"]
-    if echofilter.path.check_if_windows():
-        default_extensions.append("ev")
-    parser.add_argument(
-        "--extension",
-        "-x",
-        dest="extensions",
-        type=str,
-        nargs="+",
-        default=default_extensions,
-        help="file extensions to process (default: {})".format(default_extensions),
-    )
-    parser.add_argument(
-        "--output-dir",
-        "-o",
-        type=str,
-        default="",
-        metavar="DIR",
-        help="path to output directory. If empty, output is placed in the same"
-        ' directory as the input file. (default: "")',
-    )
-    parser.add_argument(
-        "--keep-ext",
-        action="store_true",
-        help="keep the input file extension in output file names",
-    )
-    parser.add_argument(
-        "--variable-name",
-        "--vn",
-        dest="variable_name",
-        type=str,
-        default=DEFAULT_VARNAME,
-        help="Name of the EchoView acoustic variable to load from EV files."
-        " Default is {}.".format(DEFAULT_VARNAME),
-    )
-    parser.add_argument(
-        "--checkpoint",
-        type=str,
-        default=DEFAULT_CHECKPOINT,
-        metavar="PATH",
-        help="path to checkpoint to load, or name of checkpoint available to"
-        ' download (default: "{}")'.format(DEFAULT_CHECKPOINT),
-    )
-    DEFAULT_CACHE_DIR = get_default_cache_dir()
-    parser.add_argument(
-        "--cache-dir",
-        type=str,
-        default=DEFAULT_CACHE_DIR,
-        help='path to checkpoint cache directory (default: "{}")'.format(
-            DEFAULT_CACHE_DIR
-        ),
-    )
-    parser.add_argument(
-        "--cache-csv",
-        nargs="?",
-        type=str,
-        default=None,
-        const="",
-        metavar="DIR",
-        help="path to directory where CSV files generated from EV inputs should"
-        " be cached. If an empty string is given, exported CSV files will"
-        " be placed in the same directory as the input EV file."
-        " (default: do not cache)",
-    )
-    parser.add_argument(
-        "--csv-suffix",
-        type=str,
-        default=".csv",
-        help="suffix used for cached CSV files which are exported from EV files"
-        ' (default: ".csv")',
-    )
-    parser.add_argument(
-        "--training-standardization",
-        dest="use_training_standardization",
-        action="store_true",
-        help="scale the Sv intensities using the values used for training,"
-        " instead of values derived from the current sample",
-    )
-    parser.add_argument(
-        "--image-height",
-        "--height",
-        dest="image_height",
-        type=float,
-        default=None,
-        help="input image height, in pixels. The echogram will be resized to"
-        " have this height, and its width will be kept. (default: same"
-        " as using during training)",
-    )
-    parser.add_argument(
-        "--facing",
-        type=str,
-        choices=["downward", "upward", "auto"],
-        default="auto",
-        help='orientation of echosounder (default: "auto")',
-    )
-    parser.add_argument(
-        "--row-len-selector",
-        type=str,
-        choices=["init", "min", "max", "median", "mode"],
-        default="mode",
-        help='how to handle inputs with differing number of samples across time (default: "mode")',
-    )
-    parser.add_argument(
-        "--crop-depth-min",
-        type=float,
-        default=None,
-        help="shallowest depth, in metres, to analyse after. Data will be"
-        " truncated at this depth with shallower data removed."
-        " (default: None, do not truncate)",
-    )
-    parser.add_argument(
-        "--crop-depth-max",
-        type=float,
-        default=None,
-        help="deepest depth, in metres, to analyse after. Data will be"
-        " truncated at this depth with deeper data removed."
-        " (default: None, do not truncate)",
-    )
-    parser.add_argument(
-        "--force",
-        "-f",
-        dest="overwrite_existing",
-        action="store_true",
-        help="overwrite existing files without warning",
-    )
-    parser.add_argument(
-        "--skip-existing",
-        "--skip",
-        dest="skip_existing",
-        action="store_true",
-        help="skip processing files for which all outputs already exist",
-    )
-    parser.add_argument(
-        "--skip-incompatible",
-        dest="skip_incompatible",
-        action="store_true",
-        help="skip incompatible files without raising an error",
-    )
-    parser.add_argument(
-        "--minimize-echoview",
-        dest="minimize_echoview",
-        action="store_true",
-        help="minimize the Echoview window while this code runs",
-    )
-    parser.add_argument(
-        "--show-echoview",
-        dest="hide_echoview",
-        action="store_const",
-        const="never",
-        default=None,
-        help="don't hide an Echoview window created to run this code",
-    )
-    parser.add_argument(
-        "--hide-echoview",
-        dest="hide_echoview",
-        action="store_const",
-        const="new",
-        help="hide Echoview window, but only if it was not already open (default behaviour)",
-    )
-    parser.add_argument(
-        "--always-hide-echoview",
-        "--always-hide",
-        dest="hide_echoview",
-        action="store_const",
-        const="always",
-        help="hide the Echoview window while this code runs, even if it was already open",
-    )
-    parser.add_argument(
-        "--dry-run",
-        "-n",
-        action="store_true",
-        help="perform a trial run with no changes made",
-    )
-    parser.add_argument(
-        "--device",
-        type=str,
-        default=None,
-        help="device to use (default: use first gpu if available, otherwise cpu)",
-    )
-    parser.add_argument(
         "--verbose",
         "-v",
         action="count",
         default=1,
-        help="increase verbosity, print more progress details",
+        help="""
+            Increase the level of verbosity of the program. This can be
+            specified multiple times, each will increase the amount of detail
+            printed to the terminal.
+        """,
     )
     parser.add_argument(
         "--quiet",
         "-q",
         action="count",
         default=0,
-        help="decrease verbosity, print fewer progress details",
+        help="""
+            Decrease the level of verbosity of the program. This can be
+            specified multiple times, each will reduce the amount of detail
+            printed to the terminal.
+        """,
     )
+
+    # Input files
+    group_infile = parser.add_argument_group(
+        "Input file arguments", "Parameters specifying which files will processed.",
+    )
+    parser.add_argument(
+        "paths",
+        type=str,
+        nargs="+",
+        default=[],
+        metavar="FILE_OR_DIRECTORY",
+        help="""
+            File(s)/directory(ies) to process.
+            Inputs can be absolute paths or relative paths to either files
+            or directories. Paths can be given relative to the current
+            directory, or optionally be relative to the SOURCE_DIR argument
+            specified with --source-dir. For each directory given, the
+            directory will be searched recursively for files bearing an
+            extension specified by SEARCH_EXTENSION (see --extension).
+            Multiple files and directories can be specified, separated by
+            spaces.
+            This is a required argument. At least one input file or directory
+            must be given. In order to process the directory given by
+            SOURCE_DIR, specify "." for this argument:
+                echofilter . --source-dir SOURCE_DIR
+        """,
+    )
+    group_infile.add_argument(
+        "--source-dir",
+        "-d",
+        dest="source_dir",
+        type=str,
+        default=".",
+        metavar="SOURCE_DIR",
+        help="""
+            Path to source directory which contains the files and folders
+            specified by the paths argument. Default: "." (the current
+            directory).
+        """,
+    )
+    default_extensions = ["csv"]
+    if echofilter.path.check_if_windows():
+        default_extensions.append("ev")
+    group_infile.add_argument(
+        "--extension",
+        "-x",
+        dest="extensions",
+        metavar="SEARCH_EXTENSION",
+        type=str,
+        nargs="+",
+        default=default_extensions,
+        help="""
+            File extension(s) to process. This argument is used when the
+            FILE_OR_DIRECTORY is a directory; files within the directory (and
+            all its recursive subdirectories) are filtered against this list of
+            extensions to identify which files to process. Default: {}
+            (note that the default SEARCH_EXTENSION is OS-specific).
+        """.format(
+            default_extensions
+        ),
+    )
+    group_infile.add_argument(
+        "--skip-existing",
+        "--skip",
+        dest="skip_existing",
+        action="store_true",
+        help="""
+            Skip processing files for which all outputs already exist
+        """,
+    )
+    group_infile.add_argument(
+        "--skip-incompatible",
+        dest="skip_incompatible",
+        action="store_true",
+        help="""
+            Skip over incompatible input CSV files, without raising an error.
+            Default behaviour is to stop if an input CSV file can not be
+            processed. This argument is useful if you are processing a
+            directory which contains a mixture of CSV files - some are Sv data
+            exported from EV files and others are not.
+        """,
+    )
+
+    # Output files
+    group_outfile = parser.add_argument_group(
+        "Destination file arguments",
+        "Parameters specifying where output files will be located.",
+    )
+    group_outfile.add_argument(
+        "--output-dir",
+        "-o",
+        metavar="OUTPUT_DIR",
+        type=str,
+        default="",
+        help="""
+            Path to output directory. If empty (default), each output is placed
+            in the same directory as its input file. If OUTPUT_DIR is
+            specified, the full output path for each file all contains the
+            subtree of the input file relative to the base directory given by
+            SOURCE_DIR.
+        """,
+    )
+    group_outfile.add_argument(
+        "--dry-run",
+        "-n",
+        action="store_true",
+        help="""
+            Perform a trial run, with no changes made. Text printed to the
+            command prompt indicates which files would be processed, but work
+            is only simulated and not performed.
+        """,
+    )
+    group_outfile.add_argument(
+        "--force",
+        "-f",
+        dest="overwrite_existing",
+        action="store_true",
+        help="""
+            Overwrite existing files without warning. Default behaviour is to
+            stop processing if an output file already exists.
+        """,
+    )
+    DEFAULT_CACHE_DIR = get_default_cache_dir()
+    group_outfile.add_argument(
+        "--cache-dir",
+        type=str,
+        default=DEFAULT_CACHE_DIR,
+        help="""
+            Path to checkpoint cache directory. Default: "{}".
+        """.format(
+            DEFAULT_CACHE_DIR
+        ),
+    )
+    group_outfile.add_argument(
+        "--cache-csv",
+        nargs="?",
+        type=str,
+        default=None,
+        const="",
+        metavar="CSV_DIR",
+        help="""
+            Path to directory where CSV files generated from EV inputs should
+            be cached. If this argument is supplied with an empty string,
+            exported CSV files will be saved in the same directory as each
+            input EV file. The default behaviour is discard any CSV files
+            generated by this program once it has finished running.
+        """,
+    )
+    group_outfile.add_argument(
+        "--csv-suffix",
+        type=str,
+        default=".csv",
+        help="""
+            Suffix used for cached CSV files which are exported from EV files.
+            This should contain a file extension, including ".", but may
+            optionally contain additional text, for instance "_Sv_raw.csv".
+            Default: ".csv".
+        """,
+    )
+    group_outfile.add_argument(
+        "--keep-ext",
+        action="store_true",
+        help="""
+            If provided, the output file names maintain the input file
+            extension before their suffix (including a new file extension).
+            Default behaviour is to strip the input file name extension before
+            constructing the output path.
+        """,
+    )
+
+    # Input data transforms
+    group_inproc = parser.add_argument_group(
+        "Input processing arguments",
+        "Parameters specifying how data will be loaded from the input files"
+        " and transformed before it given to the model.",
+    )
+    group_inproc.add_argument(
+        "--variable-name",
+        "--vn",
+        dest="variable_name",
+        type=str,
+        default=DEFAULT_VARNAME,
+        help="""
+            Name of the EchoView acoustic variable to load from EV files.
+            Default: "{}".
+        """.format(
+            DEFAULT_VARNAME
+        ),
+    )
+    group_inproc.add_argument(
+        "--row-len-selector",
+        type=str,
+        choices=["init", "min", "max", "median", "mode"],
+        default="mode",
+        help="""
+            How to handle inputs with differing number of depth samples across
+            time. This method is used to select the "master" number of depth
+            samples and minimum and maximum depth. The Sv values for all
+            timepoints are interpolated onto this range of depths in order to
+            create an input which is sampled in a rectangular manner.
+            Default: "mode", the modal number of depths is used, and the modal
+            depth range is select amongst time samples which bear this number
+            of depths.
+        """,
+    )
+    group_inproc.add_argument(
+        "--facing",
+        type=str,
+        choices=["downward", "upward", "auto"],
+        default="auto",
+        help="""
+            Orientation of echosounder. If this is "auto" (default), the
+            orientation is automatically determined from the ordering of the
+            depths field in the input (increasing depth values = "downward";
+            diminishing depths = "upward").
+        """,
+    )
+    group_inproc.add_argument(
+        "--training-standardization",
+        dest="use_training_standardization",
+        action="store_true",
+        help="""
+            If this is given, Sv intensities are scaled using the values used
+            when the model was trained before being given to the model for
+            inference. The default behaviour is to derive the standardization
+            values from the Sv statistics of the input instead.
+        """,
+    )
+    group_inproc.add_argument(
+        "--crop-depth-min",
+        type=float,
+        default=None,
+        help="""
+            Shallowest depth, in metres, to analyse. Data will be truncated at
+            this depth, with shallower data removed before the Sv input is
+            shown to the model. Default behaviour is not to truncate.
+        """,
+    )
+    group_inproc.add_argument(
+        "--crop-depth-max",
+        type=float,
+        default=None,
+        help="""
+            Deepest depth, in metres, to analyse. Data will be truncated at
+            this depth, with deeper data removed before the Sv input is
+            shown to the model. Default behaviour is not to truncate.
+        """,
+    )
+    group_inproc.add_argument(
+        "--image-height",
+        "--height",
+        dest="image_height",
+        type=float,
+        default=None,
+        help="""
+            Height to which the Sv image will be rescaled, in pixels, before
+            being given to the model. The default behaviour is to use the same
+            height as was used when the model was trained.
+        """,
+    )
+
+    # Input data transforms
+    group_model = parser.add_argument_group(
+        "Model arguments",
+        "Parameters specifying which model checkpoint will be used and how it"
+        " is run.",
+    )
+    group_model.add_argument(
+        "--checkpoint",
+        type=str,
+        default=DEFAULT_CHECKPOINT,
+        help="""
+            Name of checkpoint to load, or path to a checkpoint file.
+            Default: "{}".
+        """.format(
+            DEFAULT_CHECKPOINT
+        ),
+    )
+    group_model.add_argument(
+        "--device",
+        type=str,
+        default=None,
+        help="""
+            Device to use for running the model for inference.
+            Default: use first GPU if available, otherwise use the CPU.
+            Note: echofilter.exe is complied without GPU support and can only
+            run on the CPU. To use the GPU you must use the source version.
+        """,
+    )
+
+    # EchoView interaction files
+    group_evwin = parser.add_argument_group(
+        "EchoView window management",
+        "Parameters specifying how to interact with any EchoView windows which"
+        " are used during this process.",
+    )
+    group_evwin_hiding = group_evwin.add_mutually_exclusive_group()
+    group_evwin_hiding.add_argument(
+        "--hide-echoview",
+        dest="hide_echoview",
+        action="store_const",
+        const="new",
+        help="""
+            Hide any EchoView window spawned by this program. If it must use
+            an EchoView instance which was already running, that window is not
+            hidden. This is the default behaviour.
+        """,
+    )
+    group_evwin_hiding.add_argument(
+        "--show-echoview",
+        dest="hide_echoview",
+        action="store_const",
+        const="never",
+        default=None,
+        help="""
+            Don't hide an EchoView window created to run this code. (Disables
+            the default behaviour which is equivalent to --hide-echoview.)
+        """,
+    )
+    group_evwin_hiding.add_argument(
+        "--always-hide-echoview",
+        "--always-hide",
+        dest="hide_echoview",
+        action="store_const",
+        const="always",
+        help="""
+            Hide the EchoView window while this code runs, even if this
+            process is utilising an EchoView window which was already open.
+        """,
+    )
+    group_evwin.add_argument(
+        "--minimize-echoview",
+        dest="minimize_echoview",
+        action="store_true",
+        help="""
+            Minimize any EchoView window used to runs this code while it runs.
+            The window will be restored once the program is finished.
+            If this argument is supplied, --show-echoview is implied unless
+            --hide-echoview is also given.
+        """,
+    )
+
     kwargs = vars(parser.parse_args())
     kwargs["verbose"] -= kwargs.pop("quiet", 0)
 

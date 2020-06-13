@@ -28,9 +28,9 @@ DEFAULT_VARNAME = "Fileset1: Sv pings T1"
 
 
 def run_ev2csv(
-    files,
+    paths,
     variable_name=DEFAULT_VARNAME,
-    data_dir=".",
+    source_dir=".",
     output_dir="",
     suffix=None,
     keep_ext=False,
@@ -46,21 +46,21 @@ def run_ev2csv(
 
     Parameters
     ----------
-    files : iterable
+    paths : iterable
         Paths to input EV files to process, or directories containing EV files.
-        These may be full paths or paths relative to `data_dir`. For each
+        These may be full paths or paths relative to `source_dir`. For each
         folder specified, any files with extension `'csv'` within the folder
         and all its tree of subdirectories will be processed.
     variable_name : str, optional
         Name of the EchoView acoustic variable to export. Default is
         `'Fileset1: Sv pings T1'`.
-    data_dir : str, optional
+    source_dir : str, optional
         Path to directory where files are found. Default is `'.'`.
     output_dir : str, optional
         Directory where output files will be written. If this is `''`, outputs
         are written to the same directory as each input file. Otherwise, they
         are written to `output_dir`, preserving their path relative to
-        `data_dir` if relative paths were used. Default is `''`.
+        `source_dir` if relative paths were used. Default is `''`.
     suffix : str, optional
         Output filename suffix. Default is `'_Sv_raw.csv'` if `keep_ext=False`,
         or `'.Sv_raw.csv'` if `keep_ext=True`.
@@ -104,7 +104,7 @@ def run_ev2csv(
     else:
         suffix = "_Sv_raw.csv"
 
-    files = list(echofilter.path.parse_files_in_folders(files, data_dir, "ev"))
+    files = list(echofilter.path.parse_files_in_folders(paths, source_dir, "ev"))
     if verbose >= 1:
         print("Processing {} file{}".format(len(files), "" if len(files) == 1 else "s"))
 
@@ -125,11 +125,11 @@ def run_ev2csv(
                 print("Exporting {} to raw CSV".format(fname))
 
             # Check what the full path should be
-            fname_full = echofilter.path.determine_file_path(fname, data_dir)
+            fname_full = echofilter.path.determine_file_path(fname, source_dir)
 
             # Determine where destination should be placed
             destination = echofilter.path.determine_destination(
-                fname, fname_full, data_dir, output_dir
+                fname, fname_full, source_dir, output_dir
             )
             if not keep_ext:
                 destination = os.path.splitext(destination)[0]
@@ -255,119 +255,200 @@ def main():
         version="%(prog)s {version}".format(version=echofilter.__version__),
     )
     parser.add_argument(
-        "files",
-        type=str,
-        nargs="+",
-        default=[],
-        metavar="PATH",
-        help="file(s) to process. For each directory given, all csv files"
-        " within that directory and its subdirectories will be processed.",
-    )
-    parser.add_argument(
-        "--data-dir",
-        "-d",
-        dest="data_dir",
-        type=str,
-        default=".",
-        metavar="DIR",
-        help='path to directory containing FILE (default: ".")',
-    )
-    parser.add_argument(
-        "--output-dir",
-        "-o",
-        type=str,
-        default="",
-        metavar="DIR",
-        help="path to output directory. If empty, output is placed in the same"
-        ' directory as the input file. (default: "")',
-    )
-    parser.add_argument(
-        "--output-suffix",
-        "--suffix",
-        dest="suffix",
-        type=str,
-        default=None,
-        help='Output filename suffix. Default is "_Sv_raw.csv", or'
-        ' ".Sv_raw.csv" --keep_ext is used',
-    )
-    parser.add_argument(
-        "--variable-name",
-        "--vn",
-        dest="variable_name",
-        type=str,
-        default=DEFAULT_VARNAME,
-        help="Name of the EchoView acoustic variable to export. Default is {}.".format(
-            DEFAULT_VARNAME
-        ),
-    )
-    parser.add_argument(
-        "--keep-ext",
-        action="store_true",
-        help="keep the input file extension in output file names",
-    )
-    parser.add_argument(
-        "--force",
-        "-f",
-        dest="overwrite_existing",
-        action="store_true",
-        help="overwrite existing files without warning",
-    )
-    parser.add_argument(
-        "--skip-existing",
-        "--skip",
-        dest="skip_existing",
-        action="store_true",
-        help="skip processing files for which all outputs already exist",
-    )
-    parser.add_argument(
-        "--minimize-echoview",
-        dest="minimize_echoview",
-        action="store_true",
-        help="minimize the Echoview window while this code runs",
-    )
-    parser.add_argument(
-        "--show-echoview",
-        dest="hide_echoview",
-        action="store_const",
-        const="never",
-        default=None,
-        help="don't hide an Echoview window created to run this code",
-    )
-    parser.add_argument(
-        "--hide-echoview",
-        dest="hide_echoview",
-        action="store_const",
-        const="new",
-        help="hide Echoview window, but only if it was not already open (default behaviour)",
-    )
-    parser.add_argument(
-        "--always-hide-echoview",
-        "--always-hide",
-        dest="hide_echoview",
-        action="store_const",
-        const="always",
-        help="hide the Echoview window while this code runs, even if it was already open",
-    )
-    parser.add_argument(
-        "--dry-run",
-        "-n",
-        action="store_true",
-        help="perform a trial run with no changes made",
-    )
-    parser.add_argument(
         "--verbose",
         "-v",
         action="count",
         default=1,
-        help="increase verbosity, print more progress details",
+        help="""
+            Increase the level of verbosity of the program. This can be
+            specified multiple times, each will increase the amount of detail
+            printed to the terminal.
+        """,
     )
     parser.add_argument(
         "--quiet",
         "-q",
         action="count",
         default=0,
-        help="decrease verbosity, print fewer progress details",
+        help="""
+            Decrease the level of verbosity of the program. This can be
+            specified multiple times, each will reduce the amount of detail
+            printed to the terminal.
+        """,
     )
+
+    # Input files
+    group_infile = parser.add_argument_group(
+        "Input file arguments", "Parameters specifying which files will processed.",
+    )
+    parser.add_argument(
+        "paths",
+        type=str,
+        nargs="+",
+        default=[],
+        metavar="FILE_OR_DIRECTORY",
+        help="""
+            File(s)/directory(ies) to process.
+            Inputs can be absolute paths or relative paths to either files
+            or directories. Paths can be given relative to the current
+            directory, or optionally be relative to the SOURCE_DIR argument
+            specified with --source-dir. For each directory given, the
+            directory will be searched recursively for files bearing an
+            extension of ".ev" or ".EV".
+            Multiple files and directories can be specified, separated by
+            spaces.
+            This is a required argument. At least one input file or directory
+            must be given. In order to process the directory given by
+            SOURCE_DIR, specify "." for this argument:
+                ev2csv . --source-dir SOURCE_DIR
+        """,
+    )
+    group_infile.add_argument(
+        "--source-dir",
+        "-d",
+        dest="source_dir",
+        type=str,
+        default=".",
+        metavar="SOURCE_DIR",
+        help="""
+            Path to source directory which contains the files and folders
+            specified by the paths argument. Default: "." (the current
+            directory).
+        """,
+    )
+    group_infile.add_argument(
+        "--skip-existing",
+        "--skip",
+        dest="skip_existing",
+        action="store_true",
+        help="""
+            Skip processing files for which all outputs already exist
+        """,
+    )
+
+    # Output files
+    group_outfile = parser.add_argument_group(
+        "Destination file arguments",
+        "Parameters specifying where output files will be located.",
+    )
+    group_outfile.add_argument(
+        "--output-dir",
+        "-o",
+        metavar="OUTPUT_DIR",
+        type=str,
+        default="",
+        help="""
+            Path to output directory. If empty (default), each output is placed
+            in the same directory as its input file. If OUTPUT_DIR is
+            specified, the full output path for each file all contains the
+            subtree of the input file relative to the base directory given by
+            SOURCE_DIR.
+        """,
+    )
+    group_outfile.add_argument(
+        "--dry-run",
+        "-n",
+        action="store_true",
+        help="""
+            Perform a trial run, with no changes made. Text printed to the
+            command prompt indicates which files would be processed, but work
+            is only simulated and not performed.
+        """,
+    )
+    group_outfile.add_argument(
+        "--force",
+        "-f",
+        dest="overwrite_existing",
+        action="store_true",
+        help="""
+            Overwrite existing files without warning. Default behaviour is to
+            stop processing if an output file already exists.
+        """,
+    )
+    group_outfile.add_argument(
+        "--output-suffix",
+        "--suffix",
+        dest="suffix",
+        type=str,
+        default=None,
+        help="""
+            Output filename suffix. Default is "_Sv_raw.csv", or ".Sv_raw.csv"
+            if the --keep_ext argument is supplied.
+        """,
+    )
+
+    # Input data transforms
+    group_inproc = parser.add_argument_group(
+        "Input processing arguments",
+        "Parameters specifying how data will be loaded from the input files"
+        " and transformed before it given to the model.",
+    )
+    group_inproc.add_argument(
+        "--variable-name",
+        "--vn",
+        dest="variable_name",
+        type=str,
+        default=DEFAULT_VARNAME,
+        help="""
+            Name of the EchoView acoustic variable to load from EV files.
+            Default: "{}".
+        """.format(
+            DEFAULT_VARNAME
+        ),
+    )
+
+    # EchoView interaction files
+    group_evwin = parser.add_argument_group(
+        "EchoView window management",
+        "Parameters specifying how to interact with any EchoView windows which"
+        " are used during this process.",
+    )
+    group_evwin_hiding = group_evwin.add_mutually_exclusive_group()
+    group_evwin_hiding.add_argument(
+        "--hide-echoview",
+        dest="hide_echoview",
+        action="store_const",
+        const="new",
+        help="""
+            Hide any EchoView window spawned by this program. If it must use
+            an EchoView instance which was already running, that window is not
+            hidden. This is the default behaviour.
+        """,
+    )
+    group_evwin_hiding.add_argument(
+        "--show-echoview",
+        dest="hide_echoview",
+        action="store_const",
+        const="never",
+        default=None,
+        help="""
+            Don't hide an EchoView window created to run this code. (Disables
+            the default behaviour which is equivalent to --hide-echoview.)
+        """,
+    )
+    group_evwin_hiding.add_argument(
+        "--always-hide-echoview",
+        "--always-hide",
+        dest="hide_echoview",
+        action="store_const",
+        const="always",
+        help="""
+            Hide the EchoView window while this code runs, even if this
+            process is utilising an EchoView window which was already open.
+        """,
+    )
+    group_evwin.add_argument(
+        "--minimize-echoview",
+        dest="minimize_echoview",
+        action="store_true",
+        help="""
+            Minimize any EchoView window used to runs this code while it runs.
+            The window will be restored once the program is finished.
+            If this argument is supplied, --show-echoview is implied unless
+            --hide-echoview is also given.
+        """,
+    )
+
     kwargs = vars(parser.parse_args())
     kwargs["verbose"] -= kwargs.pop("quiet", 0)
 
