@@ -1486,7 +1486,9 @@ def main():
     prog = os.path.split(sys.argv[0])[1]
     if prog == "__main__.py" or prog == "__main__":
         prog = os.path.split(__file__)[1]
-    parser = argparse.ArgumentParser(prog=prog, description="Echofilter training",)
+    parser = argparse.ArgumentParser(
+        prog=prog, description="Echofilter model training",
+    )
     parser.add_argument(
         "--version",
         "-V",
@@ -1495,21 +1497,22 @@ def main():
     )
 
     # Data parameters
-    parser.add_argument(
+    group_data = parser.add_argument_group("Data parameters")
+    group_data.add_argument(
         "--data-dir",
         type=str,
         default="/data/dsforce/surveyExports",
         metavar="DIR",
         help="path to root data directory",
     )
-    parser.add_argument(
+    group_data.add_argument(
         "--dataset",
         dest="dataset_name",
         type=str,
         default="mobile",
         help="which dataset to use",
     )
-    parser.add_argument(
+    group_data.add_argument(
         "--shape",
         dest="sample_shape",
         nargs=2,
@@ -1517,27 +1520,27 @@ def main():
         default=(128, 512),
         help="input shape [W, H] (default: (128, 512))",
     )
-    parser.add_argument(
+    group_data.add_argument(
         "--crop-depth",
         type=float,
         default=None,
         help="depth, in metres, at which data should be truncated (default: None)",
     )
-    parser.add_argument(
+    group_data.add_argument(
         "--resume",
         default="",
         type=str,
         metavar="PATH",
         help="path to latest checkpoint (default: none)",
     )
-    parser.add_argument(
+    group_data.add_argument(
         "--log",
         dest="log_name",
         default=None,
         type=str,
         help="output directory name (default: DATE_TIME)",
     )
-    parser.add_argument(
+    group_data.add_argument(
         "--log-append",
         dest="log_name_append",
         default=None,
@@ -1546,7 +1549,8 @@ def main():
     )
 
     # Model parameters
-    parser.add_argument(
+    group_model = parser.add_argument_group("Model parameters")
+    group_model.add_argument(
         "--conditional",
         action="store_true",
         help=(
@@ -1554,7 +1558,7 @@ def main():
             " (in addition to an unconditional model)"
         ),
     )
-    parser.add_argument(
+    group_model.add_argument(
         "--nblock",
         "--num-blocks",
         dest="n_block",
@@ -1562,25 +1566,25 @@ def main():
         default=6,
         help="number of blocks down and up in the UNet (default: 6)",
     )
-    parser.add_argument(
+    group_model.add_argument(
         "--latent-channels",
         type=int,
         default=32,
         help="number of initial/final latent channels to use in the model (default: 32)",
     )
-    parser.add_argument(
+    group_model.add_argument(
         "--expansion-factor",
         type=float,
         default=1.0,
         help="expansion for number of channels as model becomes deeper"
         " (default: 1., constant number of channels)",
     )
-    parser.add_argument(
+    group_model.add_argument(
         "--expand-only-on-down",
         action="store_true",
         help="only expand channels on dowsampling blocks",
     )
-    parser.add_argument(
+    group_model.add_argument(
         "--blocks-per-downsample",
         nargs="+",
         type=int,
@@ -1588,7 +1592,7 @@ def main():
         help="for each dim (time, depth), number of blocks between downsample"
         " steps (default: [2, 1])",
     )
-    parser.add_argument(
+    group_model.add_argument(
         "--blocks-before-first-downsample",
         nargs="+",
         type=int,
@@ -1596,26 +1600,26 @@ def main():
         help="for each dim (time, depth), number of blocks before first"
         " downsample step (default: [2, 1])",
     )
-    parser.add_argument(
+    group_model.add_argument(
         "--only-skip-connection-on-downsample",
         dest="always_include_skip_connection",
         action="store_false",
         help="only include skip connections when downsampling",
     )
-    parser.add_argument(
+    group_model.add_argument(
         "--deepest-inner",
         type=str,
         default="horizontal_block",
         help="layer to include at the deepest point of the UNet"
         ' (default: "horizontal_block"). Set to "identity" to disable.',
     )
-    parser.add_argument(
+    group_model.add_argument(
         "--intrablock-expansion",
         type=float,
         default=6.0,
         help="expansion within inverse residual blocks (default: 6.)",
     )
-    parser.add_argument(
+    group_model.add_argument(
         "--se-reduction",
         "--se",
         dest="se_reduction",
@@ -1623,36 +1627,36 @@ def main():
         default=4.0,
         help="reduction within squeeze-and-excite blocks (default: 4.)",
     )
-    parser.add_argument(
+    group_model.add_argument(
         "--downsampling-modes",
         nargs="+",
         type=str,
         default="max",
         help='for each downsampling step, the method to use (default: "max")',
     )
-    parser.add_argument(
+    group_model.add_argument(
         "--upsampling-modes",
         nargs="+",
         type=str,
         default="bilinear",
         help='for each upsampling step, the method to use (default: "bilinear")',
     )
-    parser.add_argument(
+    group_model.add_argument(
         "--fused-conv",
         dest="depthwise_separable_conv",
         action="store_false",
         help="use fused instead of depthwise separable convolutions",
     )
-    parser.add_argument(
+    group_model.add_argument(
         "--no-residual",
         dest="residual",
         action="store_false",
         help="don't use residual blocks",
     )
-    parser.add_argument(
+    group_model.add_argument(
         "--actfn", type=str, default="InplaceReLU", help="activation function to use",
     )
-    parser.add_argument(
+    group_model.add_argument(
         "--kernel",
         dest="kernel_size",
         type=int,
@@ -1661,29 +1665,30 @@ def main():
     )
 
     # Training methodology parameters
-    parser.add_argument(
+    group_training = parser.add_argument_group("Training parameters")
+    group_training.add_argument(
         "--device",
         type=str,
         default="cuda",
         help='device to use (default: "cuda", using first gpu)',
     )
-    parser.add_argument(
+    group_training.add_argument(
         "--multigpu", action="store_true", help="train on multiple GPUs",
     )
-    parser.add_argument(
+    group_training.add_argument(
         "--no-amp",
         dest="use_mixed_precision",
         action="store_false",
         default=None,
         help="use fp32 instead of mixed precision (default: use mixed precision on gpu)",
     )
-    parser.add_argument(
+    group_training.add_argument(
         "--amp-opt",
         type=str,
         default="O1",
         help='optimizer level for apex automatic mixed precision (default: "O1")',
     )
-    parser.add_argument(
+    group_training.add_argument(
         "-j",
         "--workers",
         dest="n_worker",
@@ -1692,39 +1697,40 @@ def main():
         metavar="N",
         help="number of data loading workers (default: 8)",
     )
-    parser.add_argument(
+    group_training.add_argument(
         "-p",
         "--print-freq",
         type=int,
         default=50,
         help="print frequency (default: 50)",
     )
-    parser.add_argument(
+    group_training.add_argument(
         "-b",
         "--batch-size",
         type=int,
         default=16,
         help="mini-batch size (default: 16)",
     )
-    parser.add_argument(
+    group_training.add_argument(
         "--no-stratify",
         dest="stratify",
         action="store_false",
         help="disable stratified sampling; use fully random sampling instead",
     )
-    parser.add_argument(
+    group_training.add_argument(
         "--epochs",
         dest="n_epoch",
         type=int,
         default=20,
         help="number of total epochs to run (default: 20)",
     )
-    parser.add_argument(
+    group_training.add_argument(
         "--seed", default=None, type=int, help="seed for initializing training.",
     )
 
     # Optimiser parameters
-    parser.add_argument(
+    group_optim = parser.add_argument_group("Optimizer parameters")
+    group_optim.add_argument(
         "--optim",
         "--optimiser",
         "--optimizer",
@@ -1733,13 +1739,13 @@ def main():
         default="rangerva",
         help='optimizer name (default: "rangerva")',
     )
-    parser.add_argument(
+    group_optim.add_argument(
         "--schedule",
         type=str,
         default="constant",
         help='LR schedule (default: "constant")',
     )
-    parser.add_argument(
+    group_optim.add_argument(
         "--lr",
         "--learning-rate",
         dest="lr",
@@ -1748,16 +1754,16 @@ def main():
         metavar="LR",
         help="initial learning rate (default: 0.1)",
     )
-    parser.add_argument(
+    group_optim.add_argument(
         "--momentum", type=float, default=0.9, help="momentum (default: 0.9)",
     )
-    parser.add_argument(
+    group_optim.add_argument(
         "--base-momentum",
         type=float,
         default=None,
         help="base momentum; only used for OneCycle schedule (default: same as momentum)",
     )
-    parser.add_argument(
+    group_optim.add_argument(
         "--wd",
         "--weight-decay",
         dest="weight_decay",
@@ -1765,27 +1771,27 @@ def main():
         default=1e-5,
         help="weight decay (default: 1e-5)",
     )
-    parser.add_argument(
+    group_optim.add_argument(
         "--warmup-pct",
         type=float,
         default=0.2,
         help="fraction of training to spend warming up LR; only used for"
         " OneCycle MesaOneCycle schedules (default: 0.2)",
     )
-    parser.add_argument(
+    group_optim.add_argument(
         "--warmdown-pct",
         type=float,
         default=0.7,
         help="fraction of training before warming down LR; only used for"
         " MesaOneCycle schedule (default: 0.7)",
     )
-    parser.add_argument(
+    group_optim.add_argument(
         "--anneal-strategy",
         type=str,
         default="cos",
         help='annealing strategy; only used for OneCycle schedule (default: "cos")',
     )
-    parser.add_argument(
+    group_optim.add_argument(
         "--overall-loss-weight",
         type=float,
         default=0.0,
