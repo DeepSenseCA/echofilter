@@ -140,6 +140,10 @@ def train(
 ):
 
     seed_all(seed)
+    # Can't get this to be deterministic anyway, so may as well keep the
+    # non-deterministic optimization enabled
+    torch.backends.cudnn.deterministic = False
+    torch.backends.cudnn.benchmark = True
 
     # Input handling
     schedule = schedule.lower()
@@ -387,6 +391,10 @@ def train(
         # exact initial augmented samples from the first epoch again when
         # resuming later in the run)
         seed_all(1000 + seed + epoch)
+        # Can't get this to be deterministic anyway, so may as well keep the
+        # non-deterministic optimization enabled
+        torch.backends.cudnn.deterministic = False
+        torch.backends.cudnn.benchmark = True
 
         # Resample offsets for each window
         loader_train.dataset.initialise_datapoints()
