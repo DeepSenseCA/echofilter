@@ -28,8 +28,7 @@ try:
 except ImportError:
     apex = None
 
-import echofilter.data.dataset
-import echofilter.data.transforms
+import echofilter.data
 from echofilter.nn.unet import UNet
 from echofilter.nn.wrapper import Echofilter, EchofilterLoss
 from echofilter.optim import criterions, schedulers
