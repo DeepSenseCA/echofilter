@@ -251,11 +251,11 @@ def train(
     pprint.pprint(model_parameters)
     print()
 
-    model = UNet(**model_parameters)
-    model.to(device)
+    unet = UNet(**model_parameters)
+    unet.to(device)
     print(
-        "Built model with {} trainable parameters".format(
-            count_parameters(model, only_trainable=True)
+        "Built UNet model with {} trainable parameters".format(
+            count_parameters(unet, only_trainable=True)
         )
     )
 
@@ -279,7 +279,7 @@ def train(
         raise ValueError("Unrecognised optimizer: {}".format(optimizer))
 
     optimizer = optimizer_class(
-        model.parameters(), lr, betas=(momentum, 0.999), weight_decay=weight_decay,
+        unet.parameters(), lr, betas=(momentum, 0.999), weight_decay=weight_decay,
     )
 
     schedule_data = {"name": schedule}
@@ -320,16 +320,17 @@ def train(
         raise ValueError("Unsupported schedule: {}".format(schedule))
 
     if use_mixed_precision:
-        print('Converting model to mixed precision, opt="{}"'.format(amp_opt))
-        model, optimizer = apex.amp.initialize(model, optimizer, opt_level=amp_opt)
+        print('Converting unet to mixed precision, opt="{}"'.format(amp_opt))
+        unet, optimizer = apex.amp.initialize(unet, optimizer, opt_level=amp_opt)
 
+    model_inner = unet
     if multigpu and torch.cuda.device_count() > 1:
         print("Using local parallelism on {} GPUs".format(torch.cuda.device_count()))
-        model = torch.nn.DataParallel(model)
+        model_inner = torch.nn.DataParallel(model_inner)
 
     # Add UI wrapper around model
     model = Echofilter(
-        model, top="boundary", bottom="boundary", conditional=conditional,
+        model_inner, top="boundary", bottom="boundary", conditional=conditional,
     )
 
     if schedule == "lrfinder":
@@ -665,7 +666,7 @@ def train(
             "model_parameters": model_parameters,
             "sample_shape": sample_shape,
             "epoch": epoch,
-            "state_dict": model.state_dict(),
+            "state_dict": unet.state_dict(),
             "best_loss": best_loss_val,
             "optimizer": optimizer.state_dict(),
             "meters": meters_val,
