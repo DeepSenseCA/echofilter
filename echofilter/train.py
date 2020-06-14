@@ -151,7 +151,7 @@ def train(
         base_momentum = momentum
 
     if log_name is None or log_name == "":
-        log_name = datetime.datetime.now().strftime("%Y-%b-%d_%H:%M:%S")
+        log_name = datetime.datetime.now().strftime("%Y-%m-%d_%H.%M.%S")
     if log_name_append is None:
         log_name_append = os.uname()[1]
     if len(log_name_append) > 0:
