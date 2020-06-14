@@ -370,7 +370,14 @@ def train(
             checkpoint = torch.load(resume, map_location=device)
         start_epoch = checkpoint["epoch"] + 1
         best_loss_val = checkpoint["best_loss"]
-        model.load_state_dict(checkpoint["state_dict"])
+        try:
+            unet.load_state_dict(checkpoint["state_dict"])
+        except RuntimeError:
+            print(
+                "Checkpoint doesn't seem to be for the UNet component. Trying"
+                " to load it as the whole model instead."
+            )
+            model.load_state_dict(checkpoint["state_dict"])
         optimizer.load_state_dict(checkpoint["optimizer"])
         if use_mixed_precision and "amp" in checkpoint:
             apex.amp.load_state_dict(checkpoint["amp"])

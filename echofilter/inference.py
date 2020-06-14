@@ -238,8 +238,9 @@ def run_inference(
     if verbose >= 2:
         print("Constructing U-Net model, with arguments:")
         pprint.pprint(checkpoint["model_parameters"])
+    unet = UNet(**checkpoint["model_parameters"])
     model = Echofilter(
-        UNet(**checkpoint["model_parameters"]),
+        unet,
         mapping=checkpoint.get("wrapper_mapping", None),
         **checkpoint.get("wrapper_params", {})
     )
@@ -249,13 +250,35 @@ def run_inference(
                 count_parameters(model, only_trainable=True)
             )
         )
-    model.load_state_dict(checkpoint["state_dict"])
-    if verbose >= 1:
-        print(
-            "Loaded checkpoint state from '{}' (epoch {})".format(
-                ckpt_path, checkpoint["epoch"]
+    try:
+        unet.load_state_dict(checkpoint["state_dict"])
+        if verbose >= 1:
+            print(
+                "Loaded UNet state from checkpoint".format(
+                    ckpt_path, checkpoint["epoch"]
+                )
             )
-        )
+    except RuntimeError as err:
+        if verbose >= 2:
+            print(
+                "Warning: Checkpoint doesn't seem to be for the UNet."
+                "Trying to load it as the whole model instead."
+            )
+        try:
+            model.load_state_dict(checkpoint["state_dict"])
+            if verbose >= 1:
+                print(
+                    "Loaded model state from checkpoint".format(
+                        ckpt_path, checkpoint["epoch"]
+                    )
+                )
+        except RuntimeError:
+            print(
+                "Could not load the checkpoint state as either the whole model"
+                "or the unet component."
+            )
+            raise err
+
     # Ensure model is on correct device
     model.to(device)
     # Put model in evaluation mode
