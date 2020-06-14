@@ -312,6 +312,7 @@ class EchofilterLoss(_Loss):
         auxiliary=1.0,
         ignore_lines_during_passive=True,
         ignore_lines_during_removed=True,
+        ignore_surf_during_passive=True,
         ignore_surf_during_removed=False,
     ):
         super(EchofilterLoss, self).__init__(None, None, reduction)
@@ -326,13 +327,7 @@ class EchofilterLoss(_Loss):
         self.auxiliary = auxiliary
         self.ignore_lines_during_passive = ignore_lines_during_passive
         self.ignore_lines_during_removed = ignore_lines_during_removed
-        if ignore_surf_during_removed is None:
-            ignore_surf_during_removed = ignore_lines_during_removed
-        if ignore_surf_during_removed and not ignore_lines_during_removed:
-            raise ValueError(
-                "Surface line can only be ignored during is_removed if other"
-                " lines are also ignored."
-            )
+        self.ignore_surf_during_passive = ignore_surf_during_passive
         self.ignore_surf_during_removed = ignore_surf_during_removed
 
         self.conditions = [""]
@@ -383,33 +378,30 @@ class EchofilterLoss(_Loss):
 
             n_conditions_in_loss += 1
 
-            with torch.no_grad():
-                if self.ignore_lines_during_passive:
-                    apply_loss_inclusion = True
-                    loss_inclusion_mask_passive = 1 - target["is_passive"]
-                else:
-                    apply_loss_inclusion = False
-                    loss_inclusion_mask_passive = torch.ones_like(target["is_passive"])
-                loss_inclusion_mask = loss_inclusion_mask_passive
-                if self.ignore_lines_during_removed:
-                    apply_loss_inclusion = True
-                    loss_inclusion_mask *= 1 - target["is_removed"]
-
             for sfx in ("top", "top-original", "surface"):
-                my_loss_inc_mask = loss_inclusion_mask
-                if sfx == "surface":
-                    weight = self.surface
-                    target_key = "mask_surf"
-                    target_i_key = "index_surf"
-                    # Check whether to include surf during is_removed
-                    if self.ignore_surf_during_removed:
-                        my_loss_inc_mask = loss_inclusion_mask_passive
-                else:
-                    weight = self.top_mask
-                    target_key = "mask_" + sfx
-                    target_i_key = "index_" + sfx
-                    if sfx != "top":
-                        weight *= self.auxiliary
+                with torch.no_grad():
+                    loss_inclusion_mask = torch.ones_like(target["is_passive"])
+                    if sfx == "surface":
+                        target_key = "mask_surf"
+                        target_i_key = "index_surf"
+                        weight = self.surface
+                        # Check whether surface line is masked out
+                        if self.ignore_surf_during_passive:
+                            loss_inclusion_mask *= 1 - target["is_passive"]
+                        if self.ignore_surf_during_removed:
+                            loss_inclusion_mask *= 1 - target["is_removed"]
+                    else:
+                        target_key = "mask_" + sfx
+                        target_i_key = "index_" + sfx
+                        weight = self.top_mask
+                        if sfx != "top":
+                            weight *= self.auxiliary
+                        # Check whether line is masked out
+                        if self.ignore_lines_during_passive:
+                            loss_inclusion_mask *= 1 - target["is_passive"]
+                        if self.ignore_lines_during_removed:
+                            loss_inclusion_mask *= 1 - target["is_removed"]
+
                 if not weight:
                     continue
                 elif "logit_is_boundary_" + sfx in input:
@@ -424,8 +416,7 @@ class EchofilterLoss(_Loss):
                         reduction="none",
                     )
                     loss_term *= cmask.unsqueeze(-1)
-                    if apply_loss_inclusion:
-                        loss_term = loss_term * my_loss_inc_mask
+                    loss_term *= loss_inclusion_mask
                     if self.reduction == "mean":
                         loss_term = torch.mean(loss_term)
                     elif self.reduction == "sum":
@@ -451,8 +442,7 @@ class EchofilterLoss(_Loss):
                         reduction="none",
                     )
                     loss_term *= cmask.unsqueeze(-1).unsqueeze(-1)
-                    if apply_loss_inclusion:
-                        loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
+                    loss_term *= loss_inclusion_mask.unsqueeze(-1)
                     if self.reduction == "mean":
                         loss_term = torch.mean(loss_term)
                     elif self.reduction == "sum":
@@ -478,6 +468,15 @@ class EchofilterLoss(_Loss):
                 weight = self.bottom_mask
                 if sfx != "":
                     weight *= self.auxiliary
+
+                with torch.no_grad():
+                    loss_inclusion_mask = torch.ones_like(target["is_passive"])
+                    # Check whether line is masked out
+                    if self.ignore_lines_during_passive:
+                        loss_inclusion_mask *= 1 - target["is_passive"]
+                    if self.ignore_lines_during_removed:
+                        loss_inclusion_mask *= 1 - target["is_removed"]
+
                 if not weight:
                     continue
                 elif "logit_is_boundary_bottom" + sfx in input:
@@ -492,8 +491,7 @@ class EchofilterLoss(_Loss):
                         reduction="none",
                     )
                     loss_term *= cmask.unsqueeze(-1)
-                    if apply_loss_inclusion:
-                        loss_term = loss_term * loss_inclusion_mask
+                    loss_term *= loss_inclusion_mask
                     if self.reduction == "mean":
                         loss_term = torch.mean(loss_term)
                     elif self.reduction == "sum":
@@ -519,8 +517,7 @@ class EchofilterLoss(_Loss):
                         reduction="none",
                     )
                     loss_term *= cmask.unsqueeze(-1).unsqueeze(-1)
-                    if apply_loss_inclusion:
-                        loss_term = loss_term * (loss_inclusion_mask.unsqueeze(-1))
+                    loss_term *= loss_inclusion_mask.unsqueeze(-1)
                     if self.reduction == "mean":
                         loss_term = torch.mean(loss_term)
                     elif self.reduction == "sum":
