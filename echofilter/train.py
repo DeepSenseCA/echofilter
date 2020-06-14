@@ -1036,26 +1036,16 @@ def train_epoch(
                 example_output = output.detach()
 
             # Measure and record performance with various metrics
-            for chn, meters_k in meters.items():
+            for chn_cond, meters_k in meters.items():
 
-                chnparts = chn.split("|")
+                chnparts = chn_cond.split("|")
+                chn = chnparts[0].lower()
                 if len(chnparts) < 2:
-                    chnparts.append("")
-                    cs = ""
+                    cs = cond = ""
                 else:
-                    if chnparts[1].startswith("up"):
-                        mask = metadata["is_upward_facing"] > 0.5
-                    elif chnparts[1].startswith("down"):
-                        mask = metadata["is_upward_facing"] < 0.5
-                    else:
-                        raise ValueError("Unsupported condition {}".format(parts[1]))
-                    cs = "|" + chnparts[1]
-                    if torch.sum(mask).item() == 0:
-                        continue
-                    output_k = output_k[mask]
-                    target_k = target_k[mask]
+                    cond = chnparts[1]
+                    cs = "|" + cond
 
-                chn = chn.lower()
                 if chn.startswith("overall"):
                     output_k = output["mask_keep_pixel" + cs].float()
                     target_k = metadata["mask"]
@@ -1079,6 +1069,18 @@ def train_epoch(
                     target_k = metadata["mask_patches"]
                 else:
                     raise ValueError("Unrecognised output channel: {}".format(chn))
+
+                if cond:
+                    if cond.startswith("up"):
+                        mask = metadata["is_upward_facing"] > 0.5
+                    elif cond.startswith("down"):
+                        mask = metadata["is_upward_facing"] < 0.5
+                    else:
+                        raise ValueError("Unsupported condition {}".format(parts[1]))
+                    if torch.sum(mask).item() == 0:
+                        continue
+                    output_k = output_k[mask]
+                    target_k = target_k[mask]
 
                 for c, v in meters_k.items():
                     c = c.lower()
@@ -1242,26 +1244,16 @@ def validate(
                 example_output.append({k: v[0].detach() for k, v in output.items()})
 
             # Measure and record performance with various metrics
-            for chn, meters_k in meters.items():
+            for chn_cond, meters_k in meters.items():
 
-                chnparts = chn.split("|")
+                chnparts = chn_cond.split("|")
+                chn = chnparts[0].lower()
                 if len(chnparts) < 2:
-                    chnparts.append("")
-                    cs = ""
+                    cs = cond = ""
                 else:
-                    if chnparts[1].startswith("up"):
-                        mask = metadata["is_upward_facing"] > 0.5
-                    elif chnparts[1].startswith("down"):
-                        mask = metadata["is_upward_facing"] < 0.5
-                    else:
-                        raise ValueError("Unsupported condition {}".format(parts[1]))
-                    cs = "|" + chnparts[1]
-                    if torch.sum(mask).item() == 0:
-                        continue
-                    output_k = output_k[mask]
-                    target_k = target_k[mask]
+                    cond = chnparts[1]
+                    cs = "|" + cond
 
-                chn = chn.lower()
                 if chn.startswith("overall"):
                     output_k = output["mask_keep_pixel" + cs].float()
                     target_k = metadata["mask"]
@@ -1285,6 +1277,18 @@ def validate(
                     target_k = metadata["mask_patches"]
                 else:
                     raise ValueError("Unrecognised output channel: {}".format(chn))
+
+                if cond:
+                    if cond.startswith("up"):
+                        mask = metadata["is_upward_facing"] > 0.5
+                    elif cond.startswith("down"):
+                        mask = metadata["is_upward_facing"] < 0.5
+                    else:
+                        raise ValueError("Unsupported condition {}".format(parts[1]))
+                    if torch.sum(mask).item() == 0:
+                        continue
+                    output_k = output_k[mask]
+                    target_k = target_k[mask]
 
                 for c, v in meters_k.items():
                     c = c.lower()
