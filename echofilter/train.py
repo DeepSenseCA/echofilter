@@ -281,28 +281,10 @@ def train(
     optimizer = optimizer_class(
         model.parameters(), lr, betas=(momentum, 0.999), weight_decay=weight_decay,
     )
+
     schedule_data = {"name": schedule}
-
     if schedule == "lrfinder":
-        from torch_lr_finder import LRFinder
-
-        print("Running learning rate finder")
-        lr_finder = LRFinder(model, optimizer, criterion, device=device)
-        lr_finder.range_test(loader_train, end_lr=100, num_iter=100, diverge_th=3)
-        print("Plotting learning rate finder results")
-        hf = plt.figure(figsize=(15, 9))
-        ax = plt.axes()
-        lr_finder.plot(skip_start=0, skip_end=1, log_lr=True, ax=ax)
-        plt.tick_params(reset=True, color=(0.2, 0.2, 0.2))
-        plt.tick_params(labelsize=14)
-        ax.minorticks_on()
-        ax.tick_params(direction="out")
-        # Save figure
-        figpth = os.path.join("models", dataset_name, log_name, "lrfinder.png")
-        os.makedirs(os.path.dirname(figpth), exist_ok=True)
-        plt.savefig(figpth)
-        print("LR Finder results saved to {}".format(figpth))
-        return
+        pass
     elif schedule == "constant":
         pass
     elif schedule == "onecycle":
@@ -350,8 +332,26 @@ def train(
         model, top="boundary", bottom="boundary", conditional=conditional,
     )
 
-    # Make a tensorboard writer
-    writer = SummaryWriter(log_dir=os.path.join("runs", dataset_name, log_name))
+    if schedule == "lrfinder":
+        from torch_lr_finder import LRFinder
+
+        print("Running learning rate finder")
+        lr_finder = LRFinder(model, optimizer, criterion, device=device)
+        lr_finder.range_test(loader_train, end_lr=100, num_iter=100, diverge_th=3)
+        print("Plotting learning rate finder results")
+        hf = plt.figure(figsize=(15, 9))
+        ax = plt.axes()
+        lr_finder.plot(skip_start=0, skip_end=1, log_lr=True, ax=ax)
+        plt.tick_params(reset=True, color=(0.2, 0.2, 0.2))
+        plt.tick_params(labelsize=14)
+        ax.minorticks_on()
+        ax.tick_params(direction="out")
+        # Save figure
+        figpth = os.path.join("models", dataset_name, log_name, "lrfinder.png")
+        os.makedirs(os.path.dirname(figpth), exist_ok=True)
+        plt.savefig(figpth)
+        print("LR Finder results saved to {}".format(figpth))
+        return
 
     # Initialise loop tracking
     start_epoch = 1
@@ -377,6 +377,9 @@ def train(
             step_num = checkpoint["epoch"] * len(loader_train)
             schedule_data["scheduler"].last_epoch = step_num
         print("Loaded checkpoint '{}' (epoch {})".format(resume, checkpoint["epoch"]))
+
+    # Make a tensorboard writer
+    writer = SummaryWriter(log_dir=os.path.join("runs", dataset_name, log_name))
 
     print("Starting training")
     t_start = time.time()
