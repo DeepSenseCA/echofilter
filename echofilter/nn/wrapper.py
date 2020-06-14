@@ -310,9 +310,9 @@ class EchofilterLoss(_Loss):
         overall=0.0,
         surface=1.0,
         auxiliary=1.0,
-        ignore_lines_during_passive=True,
+        ignore_lines_during_passive=False,
         ignore_lines_during_removed=True,
-        ignore_surf_during_passive=True,
+        ignore_surf_during_passive=False,
         ignore_surf_during_removed=False,
     ):
         super(EchofilterLoss, self).__init__(None, None, reduction)
