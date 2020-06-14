@@ -23,12 +23,12 @@ from torchutils.utils import count_parameters
 from torchutils.device import cuda_is_really_available
 from tqdm.auto import tqdm
 
+import echofilter.data.transforms
 import echofilter.path
 from echofilter.nn.unet import UNet
 from echofilter.nn.wrapper import Echofilter
 import echofilter.raw
 from echofilter.raw.manipulate import join_transect, split_transect
-import echofilter.transforms
 import echofilter.utils
 import echofilter.win
 
@@ -574,7 +574,9 @@ def inference_transect(
         transect["signals"] = transect["signals"][:, depth_crop_mask]
 
     # Standardize data distribution
-    transect = echofilter.transforms.Normalize(data_center, data_deviation)(transect)
+    transect = echofilter.data.transforms.Normalize(data_center, data_deviation)(
+        transect
+    )
 
     # Configure data to match what the model expects to see
     # Determine whether depths are ascending or descending
@@ -608,8 +610,8 @@ def inference_transect(
         # Preprocessing transform
         transform = torchvision.transforms.Compose(
             [
-                echofilter.transforms.ReplaceNan(nan_value),
-                echofilter.transforms.Rescale(
+                echofilter.data.transforms.ReplaceNan(nan_value),
+                echofilter.data.transforms.Rescale(
                     (segment["signals"].shape[0], image_height), order=1,
                 ),
             ]

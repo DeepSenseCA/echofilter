@@ -5,7 +5,7 @@ import warnings
 import numpy as np
 import torch.utils.data
 
-from .raw import shardloader
+from ..raw import shardloader
 from . import utils
 
 

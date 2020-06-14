@@ -28,17 +28,16 @@ try:
 except ImportError:
     apex = None
 
-import echofilter.dataset
+import echofilter.data
 from echofilter.nn.unet import UNet
 from echofilter.nn.wrapper import Echofilter, EchofilterLoss
 from echofilter.optim import criterions, schedulers
 from echofilter.optim.meters import AverageMeter, ProgressMeter
+import echofilter.optim.utils
 from echofilter.plotting import plot_transect_predictions
 from echofilter.raw.loader import get_partition_list
 from echofilter.raw.manipulate import load_decomposed_transect_mask
 import echofilter.raw.shardloader
-import echofilter.transforms
-import echofilter.utils
 
 
 ## For mobile dataset,
@@ -180,10 +179,10 @@ def train(
 
     stratify_allowed = stratify
     if stratify_allowed:
-        stratify = isinstance(dataset_train, echofilter.dataset.ConcatDataset)
+        stratify = isinstance(dataset_train, echofilter.data.dataset.ConcatDataset)
     if stratify:
         # Use custom stratified sampler to handle multiple datasets
-        sampler = echofilter.dataset.StratifiedRandomSampler(dataset_train)
+        sampler = echofilter.data.dataset.StratifiedRandomSampler(dataset_train)
     else:
         sampler = None
 
@@ -195,7 +194,7 @@ def train(
         num_workers=n_worker,
         pin_memory=True,
         drop_last=True,
-        worker_init_fn=echofilter.utils.worker_seed_fn,
+        worker_init_fn=echofilter.data.utils.worker_seed_fn,
     )
     loader_val = torch.utils.data.DataLoader(
         dataset_val,
@@ -204,7 +203,7 @@ def train(
         num_workers=n_worker,
         pin_memory=True,
         drop_last=False,
-        worker_init_fn=echofilter.utils.worker_staticseed_fn,
+        worker_init_fn=echofilter.data.utils.worker_staticseed_fn,
     )
     loader_augval = torch.utils.data.DataLoader(
         dataset_augval,
@@ -213,7 +212,7 @@ def train(
         num_workers=n_worker,
         pin_memory=True,
         drop_last=False,
-        worker_init_fn=echofilter.utils.worker_staticseed_fn,
+        worker_init_fn=echofilter.data.utils.worker_staticseed_fn,
     )
     print("Train loader has {:3d} batches".format(len(loader_train)))
     print("Val   loader has {:3d} batches".format(len(loader_val)))
@@ -450,8 +449,8 @@ def train(
         )
         # Print metrics to terminal
         name_fmt = "{:.<28s}"
-        current_lr = echofilter.utils.get_current_lr(optimizer)
-        current_mom = echofilter.utils.get_current_momentum(optimizer)
+        current_lr = echofilter.optim.utils.get_current_lr(optimizer)
+        current_mom = echofilter.optim.utils.get_current_momentum(optimizer)
 
         print((name_fmt + " {:.4e}").format("Learning rate", current_lr))
         print((name_fmt + " {:.4f}").format("Momentum", current_mom))
@@ -745,15 +744,15 @@ def build_dataset(
     random_crop_args : dict, optional
         Arguments to control the random crop used during training. Default is
         an empty dict, which uses the default arguments of
-        `echofilter.transforms.RandomCropDepth`.
+        `echofilter.data.transforms.RandomCropDepth`.
 
     Returns
     -------
-    dataset_train : echofilter.dataset.TransectDataset
+    dataset_train : echofilter.data.dataset.TransectDataset
         Dataset of training samples.
-    dataset_val : echofilter.dataset.TransectDataset
+    dataset_val : echofilter.data.dataset.TransectDataset
         Dataset of validation samples.
-    dataset_augval : echofilter.dataset.TransectDataset
+    dataset_augval : echofilter.data.dataset.TransectDataset
         Dataset of validation samples, appyling the training augmentation
         stack.
     """
@@ -774,7 +773,7 @@ def build_dataset(
             if len(subdataset_name) > 0
         ]
         return tuple(
-            echofilter.dataset.ConcatDataset([d[i] for d in datasets])
+            echofilter.data.dataset.ConcatDataset([d[i] for d in datasets])
             for i in range(len(datasets[0]))
         )
 
@@ -828,7 +827,7 @@ def build_dataset(
             ),
         ]
         return tuple(
-            echofilter.dataset.ConcatDataset([d[i] for d in datasets])
+            echofilter.data.dataset.ConcatDataset([d[i] for d in datasets])
             for i in range(len(datasets[0]))
         )
 
@@ -840,23 +839,23 @@ def build_dataset(
     # Augmentations
     train_transform = torchvision.transforms.Compose(
         [
-            echofilter.transforms.RandomCropDepth(**random_crop_args),
-            echofilter.transforms.RandomReflection(),
-            echofilter.transforms.Normalize(DATA_CENTER, DATA_DEVIATION),
-            echofilter.transforms.ColorJitter(0.5, 0.3),
-            echofilter.transforms.ReplaceNan(NAN_VALUE),
-            echofilter.transforms.RandomElasticGrid(
+            echofilter.data.transforms.RandomCropDepth(**random_crop_args),
+            echofilter.data.transforms.RandomReflection(),
+            echofilter.data.transforms.Normalize(DATA_CENTER, DATA_DEVIATION),
+            echofilter.data.transforms.ColorJitter(0.5, 0.3),
+            echofilter.data.transforms.ReplaceNan(NAN_VALUE),
+            echofilter.data.transforms.RandomElasticGrid(
                 sample_shape, order=None, p=0.5, sigma=[8, 16], alpha=0.1,
             ),
-            echofilter.transforms.Rescale(sample_shape, order=None),
+            echofilter.data.transforms.Rescale(sample_shape, order=None),
         ]
     )
     val_transform = torchvision.transforms.Compose(
         [
-            echofilter.transforms.OptimalCropDepth(),
-            echofilter.transforms.Normalize(DATA_CENTER, DATA_DEVIATION),
-            echofilter.transforms.ReplaceNan(NAN_VALUE),
-            echofilter.transforms.Rescale(sample_shape, order=1),
+            echofilter.data.transforms.OptimalCropDepth(),
+            echofilter.data.transforms.Normalize(DATA_CENTER, DATA_DEVIATION),
+            echofilter.data.transforms.ReplaceNan(NAN_VALUE),
+            echofilter.data.transforms.Rescale(sample_shape, order=1),
         ]
     )
 
@@ -911,7 +910,7 @@ def build_dataset(
         dataset_args["remove_offset_top"] = 1.0
         dataset_args["remove_offset_bottom"] = 0
 
-    dataset_train = echofilter.dataset.TransectDataset(
+    dataset_train = echofilter.data.dataset.TransectDataset(
         train_paths,
         window_len=sample_shape[0],
         p_scale_window=0.8,
@@ -921,7 +920,7 @@ def build_dataset(
         transform=train_transform,
         **dataset_args
     )
-    dataset_val = echofilter.dataset.TransectDataset(
+    dataset_val = echofilter.data.dataset.TransectDataset(
         val_paths,
         window_len=sample_shape[0],
         p_scale_window=0,
@@ -931,7 +930,7 @@ def build_dataset(
         transform=val_transform,
         **dataset_args
     )
-    dataset_augval = echofilter.dataset.TransectDataset(
+    dataset_augval = echofilter.data.dataset.TransectDataset(
         val_paths,
         window_len=sample_shape[0],
         p_scale_window=0.8,
@@ -1362,9 +1361,11 @@ def generate_from_transect(model, transect, sample_shape, device, dtype=torch.fl
     # Apply transforms
     transform = torchvision.transforms.Compose(
         [
-            echofilter.transforms.Normalize(DATA_CENTER, DATA_DEVIATION),
-            echofilter.transforms.ReplaceNan(NAN_VALUE),
-            echofilter.transforms.Rescale((data["signals"].shape[0], sample_shape[1])),
+            echofilter.data.transforms.Normalize(DATA_CENTER, DATA_DEVIATION),
+            echofilter.data.transforms.ReplaceNan(NAN_VALUE),
+            echofilter.data.transforms.Rescale(
+                (data["signals"].shape[0], sample_shape[1])
+            ),
         ]
     )
     data = transform(data)
@@ -1385,7 +1386,8 @@ def _generate_from_loaded(transect, model, *args, crop_depth=None, **kwargs):
 
     # Crop long input
     for key in (
-        echofilter.transforms._fields_2d + echofilter.transforms._fields_1d_timelike
+        echofilter.data.transforms._fields_2d
+        + echofilter.data.transforms._fields_1d_timelike
     ):
         if key in transect:
             transect[key] = transect[key][:MAX_INPUT_LEN]
@@ -1399,11 +1401,11 @@ def _generate_from_loaded(transect, model, *args, crop_depth=None, **kwargs):
         else:
             depth_crop_mask = transect["depths"] <= crop_depth
 
-        for key in echofilter.transforms._fields_2d:
+        for key in echofilter.data.transforms._fields_2d:
             if key in transect:
                 transect[key] = transect[key][:, depth_crop_mask]
 
-        for key in echofilter.transforms._fields_1d_depthlike:
+        for key in echofilter.data.transforms._fields_1d_depthlike:
             if key in transect:
                 transect[key] = transect[key][depth_crop_mask]
 

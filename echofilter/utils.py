@@ -2,10 +2,7 @@
 General utility functions.
 """
 
-import random
-
 import numpy as np
-import torch
 
 
 def first_nonzero(arr, axis=-1, invalid_val=-1):
@@ -76,79 +73,3 @@ def get_indicator_onoffsets(indicator):
     offsets.append(indices[-1])
 
     return onsets, offsets
-
-
-def get_current_lr(optimizer):
-    """
-    Get the learning rate of an optimizer.
-
-    Parameters
-    ----------
-    optimizer : torch.optim.Optimizer
-        An optimizer, with a learning rate common to all parameter groups.
-
-    Returns
-    -------
-    float
-        The learning rate of the first parameter group.
-    """
-    return optimizer.param_groups[0]["lr"]
-
-
-def get_current_momentum(optimizer):
-    """
-    Get the momentum of an optimizer.
-
-    Parameters
-    ----------
-    optimizer : torch.optim.Optimizer
-        An optimizer which implements momentum or betas (where momentum is the
-        first beta, c.f. torch.optim.Adam) with a momentum common to all
-        parameter groups.
-
-    Returns
-    -------
-    float
-        The momentum of the first parameter group.
-    """
-    if "momentum" not in optimizer.defaults and "betas" not in optimizer.defaults:
-        raise ValueError(
-            "optimizer {} does not support momentum".format(optimizer.__class__)
-        )
-
-    group = optimizer.param_groups[0]
-    if "momentum" in group:
-        return group["momentum"]
-    else:
-        return group["betas"][0]
-
-
-def worker_seed_fn(worker_id):
-    """
-    A worker initialization function for `torch.utils.data.DataLoader` objects
-    which seeds builtin `random` and `numpy` with `torch.randint` (which is
-    stable if torch is manually seeded in the main program).
-
-    Parameters
-    ----------
-    worker_id : int
-        The ID of the worker.
-    """
-    np.random.seed((torch.randint(0, 4294967296, (1,)).item() + worker_id) % 4294967296)
-    random.seed(torch.randint(0, 4294967296, (1,)).item() + worker_id)
-
-
-def worker_staticseed_fn(worker_id):
-    """
-    A worker initialization function for `torch.utils.data.DataLoader` objects
-    which produces the same seed for builtin `random`, `numpy`, and `torch`
-    every time, so it is the same for every epoch.
-
-    Parameters
-    ----------
-    worker_id : int
-        The ID of the worker.
-    """
-    random.seed(worker_id)
-    np.random.seed(worker_id)
-    torch.manual_seed(worker_id)
