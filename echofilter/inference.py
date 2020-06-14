@@ -53,29 +53,29 @@ DEFAULT_VARNAME = "Fileset1: Sv pings T1"
 def run_inference(
     paths,
     source_dir=".",
-    checkpoint=None,
-    output_dir="",
-    variable_name=DEFAULT_VARNAME,
-    image_height=None,
-    facing="auto",
-    row_len_selector="mode",
-    crop_depth_min=None,
-    crop_depth_max=None,
-    use_training_standardization=False,
     extensions="csv",
-    keep_ext=False,
-    overwrite_existing=False,
     skip_existing=False,
     skip_incompatible=False,
-    minimize_echoview=False,
-    hide_echoview="new",
-    line_status=3,
-    device=None,
+    output_dir="",
+    dry_run=False,
+    overwrite_existing=False,
     cache_dir=None,
     cache_csv=None,
     csv_suffix=".csv",
+    keep_ext=False,
+    line_status=3,
+    variable_name=DEFAULT_VARNAME,
+    row_len_selector="mode",
+    facing="auto",
+    use_training_standardization=False,
+    crop_depth_min=None,
+    crop_depth_max=None,
+    image_height=None,
+    checkpoint=None,
+    device=None,
+    hide_echoview="new",
+    minimize_echoview=False,
     verbose=1,
-    dry_run=False,
 ):
     """
     Perform inference on input files, and write output lines in evl format.
@@ -89,82 +89,27 @@ def run_inference(
         will be processed.
     source_dir : str, optional
         Path to directory where files are found. Default is `'.'`.
-    checkpoint : str or None, optional
-        A path to a checkpoint file, or name of a checkpoint known to this
-        package (listed in `CHECKPOINT_RESOURCES`). If `None` (default),
-        the first checkpoint in `CHECKPOINT_RESOURCES` is used.
-    output_dir : str, optional
-        Directory where output files will be written. If this is `''`, outputs
-        are written to the same directory as each input file. Otherwise, they
-        are written to `output_dir`, preserving their path relative to
-        `source_dir` if relative paths were used. Default is `''`.
-    variable_name : str, optional
-        Name of the EchoView acoustic variable to load from EV files. Default
-        is `'Fileset1: Sv pings T1'`.
-    image_height : int or None, optional
-        Height in pixels of input to model. The data loaded from the csv will
-        be resized to this height (the width of the image is unchanged).
-        If `None` (default), the height matches that used when the model was
-        trained.
-    facing : {"downward", "upward", "auto"}, optional
-        Orientation in which the echosounder is facing. Default is `"auto"`,
-        in which case the orientation is determined from the ordering of the
-        depth values in the data (increasing = `"upward"`,
-        decreasing = `"downward"`).
-    row_len_selector : str, optional
-        Method used to handle input csv files with different number of Sv
-        values across time (i.e. a non-rectangular input). Default is `'mode'`.
-        See `echofilter.raw.loader.transect_loader` for options.
-    crop_depth_min : float or None, optional
-        Minimum depth to include in input. If `None` (default), there is no
-        minimum depth.
-    crop_depth_max : float or None, optional
-        Maxmimum depth to include in input. If `None` (default), there is no
-        maximum depth.
-    use_training_standardization : bool, optional
-        Whether to use the exact normalization center and deviation values as
-        used during training. If `False` (default), the center and deviation
-        are determined per sample, using the same method methodology as used
-        to determine the center and deviation values for training.
     extensions : iterable or str, optional
         File extensions to detect when running on a directory. Default is
         `'csv'`.
-    keep_ext : bool, optional
-        Whether to preserve the file extension in the input file name when
-        generating output file name. Default is `False`, removing the
-        extension.
-    overwrite_existing : bool, optional
-        Overwrite existing outputs without producing a warning message. If
-        `False`, an error is generated if files would be overwritten.
-        Default is `False`.
     skip_existing : bool, optional
         Skip processing files which already have all outputs present. Default
         is `False`.
     skip_incompatible : bool, optional
         Skip processing CSV files which do not seem to contain an exported
         echoview transect. If `False`, an error is raised. Default is `False`.
-    minimize_echoview : bool, optional
-        If `True`, the EchoView window being used will be minimized while this
-        function is running. Default is `False`.
-    hide_echoview : {"never", "new", "always"}, optional
-        Whether to hide the EchoView window entirely while the code runs.
-        If `hide_echoview="new"`, the application is only hidden if it
-        was created by this function, and not if it was already running.
-        If `hide_echoview="always"`, the application is hidden even if it was
-        already running. In the latter case, the window will be revealed again
-        when this function is completed. Default is `"new"`.
-    line_status : int, optional
-        Status to use for the lines.
-        Must be one of:
-            `0` : none
-            `1` : unverified
-            `2` : bad
-            `3` : good
-        Default is `3`.
-    device : str or torch.device or None, optional
-        Name of device on which the model will be run. If `None`, the first
-        available CUDA GPU is used if any are found, and otherwise the CPU is
-        used. Set to `'cpu'` to use the CPU even if a CUDA GPU is available.
+    output_dir : str, optional
+        Directory where output files will be written. If this is `''`, outputs
+        are written to the same directory as each input file. Otherwise, they
+        are written to `output_dir`, preserving their path relative to
+        `source_dir` if relative paths were used. Default is `''`.
+    dry_run : bool, optional
+        If `True`, perform a trial run with no changes made. Default is
+        `False`.
+    overwrite_existing : bool, optional
+        Overwrite existing outputs without producing a warning message. If
+        `False`, an error is generated if files would be overwritten.
+        Default is `False`.
     cache_dir : str or None, optional
         Path to directory where downloaded checkpoint files should be cached.
         If `None` (default), an OS-appropriate application-specific default
@@ -178,12 +123,67 @@ def run_inference(
     csv_suffix : str, optional
         Suffix used for cached CSV files which are exported from EV files.
         Default is `'.csv'` (only the file extension is changed).
+    keep_ext : bool, optional
+        Whether to preserve the file extension in the input file name when
+        generating output file name. Default is `False`, removing the
+        extension.
+    line_status : int, optional
+        Status to use for the lines.
+        Must be one of:
+            `0` : none
+            `1` : unverified
+            `2` : bad
+            `3` : good
+        Default is `3`.
+    variable_name : str, optional
+        Name of the EchoView acoustic variable to load from EV files. Default
+        is `'Fileset1: Sv pings T1'`.
+    row_len_selector : str, optional
+        Method used to handle input csv files with different number of Sv
+        values across time (i.e. a non-rectangular input). Default is `'mode'`.
+        See `echofilter.raw.loader.transect_loader` for options.
+    facing : {"downward", "upward", "auto"}, optional
+        Orientation in which the echosounder is facing. Default is `"auto"`,
+        in which case the orientation is determined from the ordering of the
+        depth values in the data (increasing = `"upward"`,
+        decreasing = `"downward"`).
+    use_training_standardization : bool, optional
+        Whether to use the exact normalization center and deviation values as
+        used during training. If `False` (default), the center and deviation
+        are determined per sample, using the same method methodology as used
+        to determine the center and deviation values for training.
+    crop_depth_min : float or None, optional
+        Minimum depth to include in input. If `None` (default), there is no
+        minimum depth.
+    crop_depth_max : float or None, optional
+        Maxmimum depth to include in input. If `None` (default), there is no
+        maximum depth.
+    image_height : int or None, optional
+        Height in pixels of input to model. The data loaded from the csv will
+        be resized to this height (the width of the image is unchanged).
+        If `None` (default), the height matches that used when the model was
+        trained.
+    checkpoint : str or None, optional
+        A path to a checkpoint file, or name of a checkpoint known to this
+        package (listed in `CHECKPOINT_RESOURCES`). If `None` (default),
+        the first checkpoint in `CHECKPOINT_RESOURCES` is used.
+    device : str or torch.device or None, optional
+        Name of device on which the model will be run. If `None`, the first
+        available CUDA GPU is used if any are found, and otherwise the CPU is
+        used. Set to `'cpu'` to use the CPU even if a CUDA GPU is available.
+    hide_echoview : {"never", "new", "always"}, optional
+        Whether to hide the EchoView window entirely while the code runs.
+        If `hide_echoview="new"`, the application is only hidden if it
+        was created by this function, and not if it was already running.
+        If `hide_echoview="always"`, the application is hidden even if it was
+        already running. In the latter case, the window will be revealed again
+        when this function is completed. Default is `"new"`.
+    minimize_echoview : bool, optional
+        If `True`, the EchoView window being used will be minimized while this
+        function is running. Default is `False`.
     verbose : int, optional
         Verbosity level. Default is `1`. Set to `0` to disable print
         statements, or elevate to a higher number to increase verbosity.
-    dry_run : bool, optional
-        If `True`, perform a trial run with no changes made. Default is
-        `False`.
     """
 
     if device is None:
