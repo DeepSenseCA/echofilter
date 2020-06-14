@@ -473,6 +473,9 @@ def run_inference(
                 nan_value=nan_value,
                 verbose=verbose - 1,
             )
+            if verbose >= 4:
+                s = "\n    ".join([""] + list(str(k) for k in output.keys()))
+                print("Generated model output with fields:" + s)
 
             # Convert output into lines
             top_depths = output["depths"][
