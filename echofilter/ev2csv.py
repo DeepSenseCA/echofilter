@@ -10,6 +10,7 @@ import warnings
 from tqdm.auto import tqdm
 
 import echofilter.path
+import echofilter.utils
 import echofilter.win
 
 
@@ -246,7 +247,9 @@ def main():
     if prog == "__main__.py" or prog == "__main__":
         prog = os.path.split(__file__)[1]
     parser = argparse.ArgumentParser(
-        prog=prog, description="EchoView to raw CSV exporter",
+        prog=prog,
+        description="EchoView to raw CSV exporter",
+        formatter_class=echofilter.utils.FlexibleHelpFormatter,
     )
     parser.add_argument(
         "--version",
@@ -287,20 +290,23 @@ def main():
         nargs="+",
         default=[],
         metavar="FILE_OR_DIRECTORY",
-        help="""
+        help="""d|
             File(s)/directory(ies) to process.
-            Inputs can be absolute paths or relative paths to either files
-            or directories. Paths can be given relative to the current
-            directory, or optionally be relative to the SOURCE_DIR argument
-            specified with --source-dir. For each directory given, the
-            directory will be searched recursively for files bearing an
-            extension of ".ev" or ".EV".
-            Multiple files and directories can be specified, separated by
-            spaces.
-            This is a required argument. At least one input file or directory
-            must be given. In order to process the directory given by
-            SOURCE_DIR, specify "." for this argument:
-                ev2csv . --source-dir SOURCE_DIR
+            Inputs can be absolute paths or relative paths to
+            either files or directories. Paths can be given
+            relative to the current directory, or optionally be
+            relative to the SOURCE_DIR argument specified with
+            --source-dir. For each directory given, the directory
+            will be searched recursively for files bearing an
+            extension specified by SEARCH_EXTENSION (see the
+            --extension argument for details).
+            Multiple files and directories can be specified,
+            separated by spaces.
+            This is a required argument. At least one input file
+            or directory must be given.
+            In order to process the directory given by SOURCE_DIR,
+            specify "." for this argument, such as:
+                echofilter . --source-dir SOURCE_DIR
         """,
     )
     group_infile.add_argument(

@@ -758,7 +758,9 @@ def main():
     if prog == "__main__.py":
         prog = "echofilter"
     parser = argparse.ArgumentParser(
-        prog=prog, description=echofilter.__meta__.description,
+        prog=prog,
+        description=echofilter.__meta__.description,
+        formatter_class=echofilter.utils.FlexibleHelpFormatter,
     )
     parser.add_argument(
         "--version",
@@ -799,19 +801,22 @@ def main():
         nargs="+",
         default=[],
         metavar="FILE_OR_DIRECTORY",
-        help="""
+        help="""d|
             File(s)/directory(ies) to process.
-            Inputs can be absolute paths or relative paths to either files
-            or directories. Paths can be given relative to the current
-            directory, or optionally be relative to the SOURCE_DIR argument
-            specified with --source-dir. For each directory given, the
-            directory will be searched recursively for files bearing an
-            extension specified by SEARCH_EXTENSION (see --extension).
-            Multiple files and directories can be specified, separated by
-            spaces.
-            This is a required argument. At least one input file or directory
-            must be given. In order to process the directory given by
-            SOURCE_DIR, specify "." for this argument:
+            Inputs can be absolute paths or relative paths to
+            either files or directories. Paths can be given
+            relative to the current directory, or optionally be
+            relative to the SOURCE_DIR argument specified with
+            --source-dir. For each directory given, the directory
+            will be searched recursively for files bearing an
+            extension specified by SEARCH_EXTENSION (see the
+            --extension argument for details).
+            Multiple files and directories can be specified,
+            separated by spaces.
+            This is a required argument. At least one input file
+            or directory must be given.
+            In order to process the directory given by SOURCE_DIR,
+            specify "." for this argument, such as:
                 echofilter . --source-dir SOURCE_DIR
         """,
     )
@@ -839,12 +844,15 @@ def main():
         type=str,
         nargs="+",
         default=default_extensions,
-        help="""
-            File extension(s) to process. This argument is used when the
-            FILE_OR_DIRECTORY is a directory; files within the directory (and
-            all its recursive subdirectories) are filtered against this list of
-            extensions to identify which files to process. Default: {}
-            (note that the default SEARCH_EXTENSION is OS-specific).
+        help="""d|
+            File extension(s) to process. This argument is used
+            when the FILE_OR_DIRECTORY is a directory; files
+            within the directory (and all its recursive
+            subdirectories) are filtered against this list of
+            extensions to identify which files to process.
+            Default: {}.
+            (Note that the default SEARCH_EXTENSION value is
+            OS-specific.)
         """.format(
             default_extensions
         ),
@@ -915,8 +923,9 @@ def main():
         "--cache-dir",
         type=str,
         default=DEFAULT_CACHE_DIR,
-        help="""
-            Path to checkpoint cache directory. Default: "{}".
+        help="""d|
+            Path to checkpoint cache directory.
+            Default: "{}".
         """.format(
             DEFAULT_CACHE_DIR
         ),
@@ -967,13 +976,13 @@ def main():
         "--line-status",
         type=int,
         default=3,
-        help="""
-            Status value for all the lines which are generated. Options are
-                0 (none),
-                1 (unverified),
-                2 (bad), or
-                3 (good).
-            Default is 3.
+        help="""d|
+            Status value for all the lines which are generated. Options are:
+              0: none
+              1: unverified
+              2: bad
+              3: good
+            Default: 3.
         """,
     )
 
@@ -989,8 +998,9 @@ def main():
         dest="variable_name",
         type=str,
         default=DEFAULT_VARNAME,
-        help="""
-            Name of the EchoView acoustic variable to load from EV files.
+        help="""d|
+            Name of the EchoView acoustic variable to load from
+            EV files.
             Default: "{}".
         """.format(
             DEFAULT_VARNAME
@@ -1078,8 +1088,9 @@ def main():
         "--checkpoint",
         type=str,
         default=DEFAULT_CHECKPOINT,
-        help="""
-            Name of checkpoint to load, or path to a checkpoint file.
+        help="""d|
+            Name of checkpoint to load, or path to a checkpoint
+            file.
             Default: "{}".
         """.format(
             DEFAULT_CHECKPOINT
