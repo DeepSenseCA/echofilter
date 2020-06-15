@@ -66,6 +66,8 @@ def run_inference(
     csv_suffix=".csv",
     keep_ext=False,
     line_status=3,
+    offset_top=0.0,
+    offset_bottom=0.0,
     lines_during_passive="redact",
     variable_name=DEFAULT_VARNAME,
     row_len_selector="mode",
@@ -138,6 +140,11 @@ def run_inference(
             `2` : bad
             `3` : good
         Default is `3`.
+    offset_top : float, optional
+        Offset for top line, which moves the top line deeper. Default is `0`.
+    offset_bottom : float, optional
+        Offset for bottom line, which moves the line to become more shallow.
+         Default is `0`.
     variable_name : str, optional
         Name of the EchoView acoustic variable to load from EV files. Default
         is `'Fileset1: Sv pings T1'`.
@@ -484,6 +491,9 @@ def run_inference(
             bottom_depths = output["depths"][
                 echofilter.utils.first_nonzero(output["p_is_below_bottom"] > 0.5, -1)
             ]
+            # Offset lines
+            top_depths += offset_top
+            bottom_depths -= offset_bottom
             # Redact passive regions
             is_passive = output["p_is_passive"] < 0.5
             if lines_during_passive == "predict":
@@ -1022,6 +1032,36 @@ def main():
         """,
     )
     group_outconfig.add_argument(
+        "--offset",
+        type=float,
+        default=0.0,
+        help="""
+            Offset for both top and bottom lines, in metres. This will shift
+            both lines towards each other by the same distance of OFFSET.
+            Default is 0.
+        """,
+    )
+    group_outconfig.add_argument(
+        "--offset-top",
+        type=int,
+        default=None,
+        help="""
+            Offset for the top line, in metres. This shifts the top line
+            downards by some distance OFFSET_TOP. If this is set, it overwrites
+            the value provided by --offset.
+        """,
+    )
+    group_outconfig.add_argument(
+        "--offset-bottom",
+        type=int,
+        default=None,
+        help="""
+            Offset for the bottom line, in metres. This shifts the bottom line
+            upwards by some distance OFFSET_BOTTOM. If this is set, it
+            overwrites the value provided by --offset.
+        """,
+    )
+    group_outconfig.add_argument(
         "--lines-during-passive",
         type=str,
         default="redact",
@@ -1267,7 +1307,14 @@ def main():
     )
 
     kwargs = vars(parser.parse_args())
+
     kwargs["verbose"] -= kwargs.pop("quiet", 0)
+
+    default_offset = kwargs.pop("offset")
+    if kwargs["offset_top"] is None:
+        kwargs["offset_top"] = default_offset
+    if kwargs["offset_bottom"] is None:
+        kwargs["offset_bottom"] = default_offset
 
     if kwargs["hide_echoview"] is None:
         kwargs["hide_echoview"] = "never" if kwargs["minimize_echoview"] else "new"
