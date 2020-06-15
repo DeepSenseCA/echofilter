@@ -250,41 +250,29 @@ def main():
         prog=prog,
         description="EchoView to raw CSV exporter",
         formatter_class=echofilter.utils.FlexibleHelpFormatter,
+        add_help=False,
     )
-    parser.add_argument(
+
+    # Actions
+    group_action = parser.add_argument_group(
+        "Actions",
+        "These arguments specify special actions to perform. The main action"
+        " of this program is supressed if any of these are given.",
+    )
+    group_action.add_argument(
+        "-h", "--help", action="help", help="Show this help message and exit.",
+    )
+    group_action.add_argument(
         "--version",
         "-V",
         action="version",
         version="%(prog)s {version}".format(version=echofilter.__version__),
-    )
-    parser.add_argument(
-        "--verbose",
-        "-v",
-        action="count",
-        default=1,
-        help="""
-            Increase the level of verbosity of the program. This can be
-            specified multiple times, each will increase the amount of detail
-            printed to the terminal.
-        """,
-    )
-    parser.add_argument(
-        "--quiet",
-        "-q",
-        action="count",
-        default=0,
-        help="""
-            Decrease the level of verbosity of the program. This can be
-            specified multiple times, each will reduce the amount of detail
-            printed to the terminal.
-        """,
+        help="Show program's version number and exit.",
     )
 
     # Input files
-    group_infile = parser.add_argument_group(
-        "Input file arguments", "Parameters specifying which files will processed.",
-    )
-    parser.add_argument(
+    group_positional = parser.add_argument_group("Positional arguments")
+    group_positional.add_argument(
         "paths",
         type=str,
         nargs="+",
@@ -308,6 +296,9 @@ def main():
             specify "." for this argument, such as:
                 echofilter . --source-dir SOURCE_DIR
         """,
+    )
+    group_infile = parser.add_argument_group(
+        "Input file arguments", "Parameters specifying which files will processed.",
     )
     group_infile.add_argument(
         "--source-dir",
@@ -452,6 +443,35 @@ def main():
             The window will be restored once the program is finished.
             If this argument is supplied, --show-echoview is implied unless
             --hide-echoview is also given.
+        """,
+    )
+
+    # Verbosity controls
+    group_verb = parser.add_argument_group(
+        "Verbosity arguments",
+        "Parameters controlling how verbose the program should be"
+        " while it is running.",
+    )
+    group_verb.add_argument(
+        "--verbose",
+        "-v",
+        action="count",
+        default=1,
+        help="""
+            Increase the level of verbosity of the program. This can be
+            specified multiple times, each will increase the amount of detail
+            printed to the terminal. The default verbosity level is 1.
+        """,
+    )
+    group_verb.add_argument(
+        "--quiet",
+        "-q",
+        action="count",
+        default=0,
+        help="""
+            Decrease the level of verbosity of the program. This can be
+            specified multiple times, each will reduce the amount of detail
+            printed to the terminal.
         """,
     )
 
