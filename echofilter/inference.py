@@ -10,6 +10,7 @@ import sys
 import tempfile
 import time
 import urllib
+import warnings
 
 import appdirs
 import numpy as np
@@ -48,6 +49,7 @@ CHECKPOINT_RESOURCES = OrderedDict(
 DEFAULT_CHECKPOINT = next(iter(CHECKPOINT_RESOURCES))
 
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
+EV_UNDEFINED_DEPTH = -10000.99
 
 
 def run_inference(
@@ -64,6 +66,7 @@ def run_inference(
     csv_suffix=".csv",
     keep_ext=False,
     line_status=3,
+    lines_during_passive="redact",
     variable_name=DEFAULT_VARNAME,
     row_len_selector="mode",
     facing="auto",
@@ -481,6 +484,47 @@ def run_inference(
             bottom_depths = output["depths"][
                 echofilter.utils.first_nonzero(output["p_is_below_bottom"] > 0.5, -1)
             ]
+            # Redact passive regions
+            is_passive = output["p_is_passive"] < 0.5
+            if lines_during_passive == "predict":
+                pass
+            elif lines_during_passive == "redact":
+                top_depths = top_depths[~is_passive]
+                bottom_depths = bottom_depths[~is_passive]
+            elif lines_during_passive == "undefined":
+                top_depths[is_passive] = EV_UNDEFINED_DEPTH
+                bottom_depths[is_passive] = EV_UNDEFINED_DEPTH
+            elif lines_during_passive.startswith("interp"):
+                if lines_during_passive == "interpolate-time":
+                    x = output["timestamps"]
+                elif lines_during_passive == "interpolate-index":
+                    x = np.arange(len(output["timestamps"]))
+                else:
+                    raise ValueError(
+                        "Unsupported passive line interpolation method: {}".format(
+                            lines_during_passive
+                        )
+                    )
+                if len(x[~is_passive]) == 0:
+                    if verbose >= 0:
+                        s = (
+                            "Could not interpolate depths for passive data for"
+                            " {}, as all data appears to be from passive"
+                            " collection. The original model predictions will"
+                            " be kept instead.".format(fname)
+                        )
+                        warnings.warn(s)
+                else:
+                    top_depths[is_passive] = np.interp(
+                        x[is_passive], x[~is_passive], top_depths[~is_passive]
+                    )
+                    bottom_depths[is_passive] = np.interp(
+                        x[is_passive], x[~is_passive], bottom_depths[~is_passive]
+                    )
+            else:
+                raise ValueError(
+                    "Unsupported passive line method: {}".format(lines_during_passive)
+                )
 
             # Export evl files
             destination_dir = os.path.dirname(destination)
@@ -976,6 +1020,47 @@ def main():
               3: good
             Default: 3.
         """,
+    )
+    group_outconfig.add_argument(
+        "--lines-during-passive",
+        type=str,
+        default="redact",
+        choices=[
+            "interpolate-time",
+            "interpolate-index",
+            "predict",
+            "redact",
+            "undefined",
+        ],
+        help="""d|
+            Method used to handle line depths during collection
+            periods determined to be passive recording instead of
+            active recording.
+            Options are:
+              interpolate-time:
+                  depths are linearly interpolated from active
+                  recording periods, using the time at which
+                  recordings where made.
+              interpolate-index:
+                  depths are linearly interpolated from active
+                  recording periods, using the index of the
+                  recording.
+              predict:
+                  the model's prediction for the lines during
+                  passive data collection will be kept; the nature
+                  of the prediction depends on how the model was
+                  trained.
+              redact:
+                  no depths are provided during periods determined
+                  to be passive data collection.
+              undefined:
+                  depths are replaced with the placeholder value
+                  used by EchoView to denote undefined values,
+                  which is {}.
+            Default: "redact".
+        """.format(
+            EV_UNDEFINED_DEPTH
+        ),
     )
 
     # Input data transforms
