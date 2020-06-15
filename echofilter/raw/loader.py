@@ -365,7 +365,7 @@ def evl_loader(fname):
     return np.array(timestamps), np.array(values)
 
 
-def evl_writer(fname, timestamps, depths, status=1):
+def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n"):
     """
     EVL file writer
 
@@ -385,6 +385,11 @@ def evl_writer(fname, timestamps, depths, status=1):
             `3` : good
         Default is `1` (unverified). For more details on line status, see:
         https://support.echoview.com/WebHelp/Using_Echoview/Echogram/Lines/About_Line_Status.htm
+    line_ending : str, optional
+        Line ending. Default is "\r\n" the standard line ending on Windows/DOS,
+        as per the specification for the file format.
+        https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm
+        Set to "\n" to get Unix-style line endings instead.
 
     Notes
     -----
@@ -393,9 +398,9 @@ def evl_writer(fname, timestamps, depths, status=1):
     """
     with open(fname, "w+", encoding="utf-8") as hf:
         # Write header
-        print("﻿EVBD 3 10.0.270.37090", file=hf)
+        print("﻿EVBD 3 10.0.270.37090", file=hf, end=line_ending)
         n_row = len(depths)
-        print(n_row, file=hf)
+        print(n_row, file=hf, end=line_ending)
         # Write each row
         for i_row, (timestamp, depth) in enumerate(zip(timestamps, depths)):
             # Datetime must be in the format CCYYMMDD HHmmSSssss
@@ -411,6 +416,7 @@ def evl_writer(fname, timestamps, depths, status=1):
                     0 if i_row == n_row - 1 else status,
                 ),
                 file=hf,
+                end=line_ending,
             )
 
 
