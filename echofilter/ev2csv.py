@@ -10,6 +10,7 @@ import warnings
 from tqdm.auto import tqdm
 
 import echofilter.path
+import echofilter.utils
 import echofilter.win
 
 
@@ -246,62 +247,59 @@ def main():
     if prog == "__main__.py" or prog == "__main__":
         prog = os.path.split(__file__)[1]
     parser = argparse.ArgumentParser(
-        prog=prog, description="EchoView to raw CSV exporter",
+        prog=prog,
+        description="EchoView to raw CSV exporter",
+        formatter_class=echofilter.utils.FlexibleHelpFormatter,
+        add_help=False,
     )
-    parser.add_argument(
+
+    # Actions
+    group_action = parser.add_argument_group(
+        "Actions",
+        "These arguments specify special actions to perform. The main action"
+        " of this program is supressed if any of these are given.",
+    )
+    group_action.add_argument(
+        "-h", "--help", action="help", help="Show this help message and exit.",
+    )
+    group_action.add_argument(
         "--version",
         "-V",
         action="version",
         version="%(prog)s {version}".format(version=echofilter.__version__),
-    )
-    parser.add_argument(
-        "--verbose",
-        "-v",
-        action="count",
-        default=1,
-        help="""
-            Increase the level of verbosity of the program. This can be
-            specified multiple times, each will increase the amount of detail
-            printed to the terminal.
-        """,
-    )
-    parser.add_argument(
-        "--quiet",
-        "-q",
-        action="count",
-        default=0,
-        help="""
-            Decrease the level of verbosity of the program. This can be
-            specified multiple times, each will reduce the amount of detail
-            printed to the terminal.
-        """,
+        help="Show program's version number and exit.",
     )
 
     # Input files
-    group_infile = parser.add_argument_group(
-        "Input file arguments", "Parameters specifying which files will processed.",
-    )
-    parser.add_argument(
+    group_positional = parser.add_argument_group("Positional arguments")
+    group_positional.add_argument(
         "paths",
         type=str,
         nargs="+",
         default=[],
         metavar="FILE_OR_DIRECTORY",
-        help="""
+        help="""d|
             File(s)/directory(ies) to process.
-            Inputs can be absolute paths or relative paths to either files
-            or directories. Paths can be given relative to the current
-            directory, or optionally be relative to the SOURCE_DIR argument
-            specified with --source-dir. For each directory given, the
-            directory will be searched recursively for files bearing an
-            extension of ".ev" or ".EV".
-            Multiple files and directories can be specified, separated by
-            spaces.
-            This is a required argument. At least one input file or directory
-            must be given. In order to process the directory given by
-            SOURCE_DIR, specify "." for this argument:
-                ev2csv . --source-dir SOURCE_DIR
+            Inputs can be absolute paths or relative paths to
+            either files or directories. Paths can be given
+            relative to the current directory, or optionally be
+            relative to the SOURCE_DIR argument specified with
+            --source-dir. For each directory given, the directory
+            will be searched recursively for files bearing an
+            extension specified by SEARCH_EXTENSION (see the
+            --extension argument for details).
+            Multiple files and directories can be specified,
+            separated by spaces.
+            This is a required argument. At least one input file
+            or directory must be given.
+            In order to process the directory given by SOURCE_DIR,
+            specify "." for this argument, such as:
+                echofilter . --source-dir SOURCE_DIR
         """,
+    )
+    group_infile = parser.add_argument_group(
+        "Input file arguments",
+        "Optional parameters specifying which files will processed.",
     )
     group_infile.add_argument(
         "--source-dir",
@@ -329,7 +327,7 @@ def main():
     # Output files
     group_outfile = parser.add_argument_group(
         "Destination file arguments",
-        "Parameters specifying where output files will be located.",
+        "Optional parameters specifying where output files will be located.",
     )
     group_outfile.add_argument(
         "--output-dir",
@@ -380,8 +378,8 @@ def main():
     # Input data transforms
     group_inproc = parser.add_argument_group(
         "Input processing arguments",
-        "Parameters specifying how data will be loaded from the input files"
-        " and transformed before it given to the model.",
+        "Optional parameters specifying how data will be loaded from the input"
+        " files and transformed before it given to the model.",
     )
     group_inproc.add_argument(
         "--variable-name",
@@ -397,11 +395,11 @@ def main():
         ),
     )
 
-    # EchoView interaction files
+    # EchoView interaction arguments
     group_evwin = parser.add_argument_group(
         "EchoView window management",
-        "Parameters specifying how to interact with any EchoView windows which"
-        " are used during this process.",
+        "Optional parameters specifying how to interact with any EchoView"
+        " windows which are used during this process.",
     )
     group_evwin_hiding = group_evwin.add_mutually_exclusive_group()
     group_evwin_hiding.add_argument(
@@ -446,6 +444,35 @@ def main():
             The window will be restored once the program is finished.
             If this argument is supplied, --show-echoview is implied unless
             --hide-echoview is also given.
+        """,
+    )
+
+    # Verbosity controls
+    group_verb = parser.add_argument_group(
+        "Verbosity arguments",
+        "Optional parameters controlling how verbose the program should be"
+        " while it is running.",
+    )
+    group_verb.add_argument(
+        "--verbose",
+        "-v",
+        action="count",
+        default=1,
+        help="""
+            Increase the level of verbosity of the program. This can be
+            specified multiple times, each will increase the amount of detail
+            printed to the terminal. The default verbosity level is 1.
+        """,
+    )
+    group_verb.add_argument(
+        "--quiet",
+        "-q",
+        action="count",
+        default=0,
+        help="""
+            Decrease the level of verbosity of the program. This can be
+            specified multiple times, each will reduce the amount of detail
+            printed to the terminal.
         """,
     )
 
