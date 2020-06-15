@@ -298,7 +298,8 @@ def main():
         """,
     )
     group_infile = parser.add_argument_group(
-        "Input file arguments", "Parameters specifying which files will processed.",
+        "Input file arguments",
+        "Optional parameters specifying which files will processed.",
     )
     group_infile.add_argument(
         "--source-dir",
@@ -326,7 +327,7 @@ def main():
     # Output files
     group_outfile = parser.add_argument_group(
         "Destination file arguments",
-        "Parameters specifying where output files will be located.",
+        "Optional parameters specifying where output files will be located.",
     )
     group_outfile.add_argument(
         "--output-dir",
@@ -377,8 +378,8 @@ def main():
     # Input data transforms
     group_inproc = parser.add_argument_group(
         "Input processing arguments",
-        "Parameters specifying how data will be loaded from the input files"
-        " and transformed before it given to the model.",
+        "Optional parameters specifying how data will be loaded from the input"
+        " files and transformed before it given to the model.",
     )
     group_inproc.add_argument(
         "--variable-name",
@@ -397,8 +398,8 @@ def main():
     # EchoView interaction arguments
     group_evwin = parser.add_argument_group(
         "EchoView window management",
-        "Parameters specifying how to interact with any EchoView windows which"
-        " are used during this process.",
+        "Optional parameters specifying how to interact with any EchoView"
+        " windows which are used during this process.",
     )
     group_evwin_hiding = group_evwin.add_mutually_exclusive_group()
     group_evwin_hiding.add_argument(
@@ -449,7 +450,7 @@ def main():
     # Verbosity controls
     group_verb = parser.add_argument_group(
         "Verbosity arguments",
-        "Parameters controlling how verbose the program should be"
+        "Optional parameters controlling how verbose the program should be"
         " while it is running.",
     )
     group_verb.add_argument(
