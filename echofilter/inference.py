@@ -1099,7 +1099,7 @@ def main():
         """,
     )
 
-    # EchoView interaction files
+    # EchoView interaction arguments
     group_evwin = parser.add_argument_group(
         "EchoView window management",
         "Parameters specifying how to interact with any EchoView windows which"
