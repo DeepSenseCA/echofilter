@@ -234,7 +234,11 @@ def transect_loader(
     # Turn NaNs into NaNs (instead of extremely negative number)
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "invalid value encountered in less")
-        data[data < -1e6] = np.nan
+        warnings.filterwarnings("ignore", "invalid value encountered in greater")
+        # 9.9e+37 and -9.9e+37 are special values indicating missing data
+        # https://support.echoview.com/WebHelp/Reference/File_formats/Export_file_formats/Special_Export_Values.htm
+        data[data < -1e37] = np.nan
+        data[data > 1e37] = np.nan
 
     # Trim timestamps dimension down to size
     timestamps = timestamps[:n_entry]
