@@ -443,7 +443,7 @@ def run_inference(
             if skip_existing:
                 any_missing = False
                 dest_files = []
-                for name in ("top", "bottom"):
+                for name in ("top", "bottom", "surface"):
                     dest_files.append("{}.{}.evl".format(destination, name))
                 dest_files.append("{}.{}.evr".format(destination, "regions"))
                 for dest_file in dest_files:
@@ -572,6 +572,9 @@ def run_inference(
             )
 
             # Convert output into lines
+            surface_depths = output["depths"][
+                echofilter.utils.last_nonzero(output["p_is_above_surface"] > 0.5, -1)
+            ]
             top_depths = output["depths"][
                 echofilter.utils.last_nonzero(output["p_is_above_top"] > 0.5, -1)
             ]
@@ -627,7 +630,11 @@ def run_inference(
             destination_dir = os.path.dirname(destination)
             if destination_dir != "":
                 os.makedirs(destination_dir, exist_ok=True)
-            for name, depths in (("top", top_depths), ("bottom", bottom_depths)):
+            for name, depths in (
+                ("top", top_depths),
+                ("bottom", bottom_depths),
+                ("surface", surface_depths),
+            ):
                 dest_file = "{}.{}.evl".format(destination, name)
                 if verbose >= 2:
                     print("Writing output {}".format(dest_file))
