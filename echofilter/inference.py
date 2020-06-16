@@ -358,8 +358,11 @@ def run_inference(
             # Check whether to skip processing this file
             if skip_existing:
                 any_missing = False
+                dest_files = []
                 for name in ("top", "bottom"):
-                    dest_file = "{}.{}.evl".format(destination, name)
+                    dest_files.append("{}.{}.evl".format(destination, name))
+                dest_files.append("{}.{}.evr".format(destination, "regions"))
+                for dest_file in dest_files:
                     if not os.path.isfile(dest_file):
                         any_missing = True
                         break
@@ -554,6 +557,20 @@ def run_inference(
                 echofilter.raw.loader.evl_writer(
                     dest_file, timestamps, depths, status=line_status
                 )
+            # Export evr file
+            dest_file = "{}.{}.evr".format(destination, "regions")
+            if verbose >= 2:
+                print("Writing output {}".format(dest_file))
+            if os.path.exists(dest_file) and not overwrite_existing:
+                raise EnvironmentError(
+                    "Output {} already exists.\n"
+                    " Run with overwrite_existing=True (with the command line"
+                    " interface, use the --force flag) to overwrite existing"
+                    " outputs.".format(dest_file)
+                )
+            echofilter.raw.loader.write_transect_regions(
+                dest_file, output, "p_is_patch"
+            )
 
     if verbose >= 1:
         s = "Finished {}processing {} file{}.".format(
