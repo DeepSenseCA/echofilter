@@ -592,7 +592,7 @@ def evr_writer(
                 notes = common_notes
                 n_lines_notes = n_lines_common_notes
             else:
-                notes = notes.rstrip("\n").replace("\n", line_ending)
+                notes = notes.strip("\n").replace("\n", line_ending)
                 if len(common_notes) > 0:
                     notes += line_ending + common_notes
                 n_lines_notes = 1 + notes.count(line_ending)
