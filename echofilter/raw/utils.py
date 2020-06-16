@@ -184,3 +184,45 @@ def squash_gaps(mask, max_gap_squash, axis=-1, inplace=False):
         li = ~np.any(check, axis=0)
         mask[li] = 0
     return mask
+
+
+def integrate_area_of_contour(x, y, closed=None, preserve_sign=False):
+    """
+    Compute the area within a contour, using Green's algorithm.
+
+    Parameters
+    ----------
+    x : array_like vector
+        x co-ordinates of nodes along the contour.
+    y : array_like vector
+        y co-ordinates of nodes along the contour.
+    closed : bool or None, optional
+        Whether the contour is already closed. If `False`, it will be closed
+        before deterimining the area. If `None` (default), it is automatically
+        determined as to whether the contour is already closed, and is closed
+        if necessary.
+    preserve_sign : bool, optional
+        Whether to preserve the sign of the area. If `True`, the area is
+        positive if the contour is anti-clockwise and negative if it is
+        clockwise oriented. Default is `False`, which always returns a positive
+        area.
+
+    Returns
+    -------
+    area : float
+        The integral of the area witihn the contour.
+
+    Notes
+    -----
+    https://en.wikipedia.org/wiki/Green%27s_theorem#Area_calculation
+    """
+    if closed is None:
+        closed = x[0] == x[-1] and y[0] == y[-1]
+    if not closed:
+        x = np.concatenate([x, x[[0]]])
+        y = np.concatenate([y, y[[0]]])
+    # Integrate to find the area
+    A = 0.5 * np.sum(y[:-1] * np.diff(x) - x[:-1] * np.diff(y))
+    # Take the abs in case the curve was clockwise instead of anti-clockwise
+    A = np.abs(A)
+    return A

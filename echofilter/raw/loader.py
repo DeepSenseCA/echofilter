@@ -9,9 +9,16 @@ import os
 import warnings
 
 import numpy as np
+import scipy.ndimage
+import skimage.measure
 import pandas as pd
 
-from .utils import interp1d_preserve_nan, mode
+from .utils import (
+    get_indicator_onoffsets,
+    integrate_area_of_contour,
+    interp1d_preserve_nan,
+    mode,
+)
 
 
 ROOT_DATA_DIR = "/data/dsforce/surveyExports"
@@ -443,6 +450,288 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n"):
                 file=hf,
                 end=line_ending,
             )
+
+
+def evr_writer(
+    fname,
+    rectangles=[],
+    contours=[],
+    common_notes="",
+    default_region_type=0,
+    line_ending="\r\n",
+):
+    """
+    EVR file writer.
+
+    Writes regions to an EchoView region file.
+
+    Parameters
+    ----------
+    fname : str
+        Destination of output file.
+    rectangles : list of dictionaries, optional
+        Rectangle region definitions. Default is an empty list. Each rectangle
+        region must implement fields `"depths"` and `"timestamps"`, which
+        indicate the extent of the rectangle. Optionally, `"creation_type"`,
+        `"region_name"`, `"region_type"`, and `"notes"` may be set.
+        If these are not given, the default creation_type is 4 and region_type
+        is set by `default_region_type`.
+    contours : list of dictionaries
+        Contour region definitions. Default is an empty list. Each contour
+        region must implement a `"points"` field containing a `numpy.ndarray`
+        shaped `(n, 2)` defining the co-ordinates of nodes along the (open)
+        contour in units of timestamp and depth. Optionally, `"creation_type"`,
+        `"region_name"`, `"region_type"`, and `"notes"` may be set.
+        If these are not given, the default creation_type is 2 and region_type
+        is set by `default_region_type`.
+    common_notes : str, optional
+        Notes to include for every region. Default is `""`.
+    default_region_type : int, optional
+        The region type to use for rectangles and contours which do not define
+        a `"region_type"` field. Possible region types are
+            `0` : bad (no data)
+            `1` : analysis
+            `2` : marker
+            `3` : fishtracks
+            `4` : bad (empty water)
+        Default is `0`.
+    line_ending : str, optional
+        Line ending. Default is "\r\n" the standard line ending on Windows/DOS,
+        as per the specification for the file format.
+        https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm
+        Set to "\n" to get Unix-style line endings instead.
+
+    Notes
+    -----
+    For more details on the format specification, see:
+    https://support.echoview.com/WebHelp/Reference/File_formats/Export_file_formats/2D_Region_definition_file_format.htm
+    """
+    common_notes = common_notes.strip("\n").replace("\n", line_ending)
+    if len(common_notes) == 0:
+        n_lines_common_notes = 0
+    else:
+        n_lines_common_notes = 1 + common_notes.count(line_ending)
+    n_regions = len(rectangles) + len(contours)
+    i_region = 0
+    with open(fname, "w+", encoding="utf-8") as hf:
+        # Common print arguments
+        pa = {"file": hf, "end": line_ending}
+        # Write header
+        print("﻿﻿EVRG 7 10.0.283.37689", **pa)
+        print(n_regions, **pa)
+
+        # Write each rectangle
+        for region in rectangles:
+            # Regions are indexed from 1, so increment the counter first
+            i_region += 1
+            print("", **pa)  # Blank line separates regions
+            # Determine extent of rectangle
+            left = timestamp2evdtstr(np.min(region["timestamps"]))
+            right = timestamp2evdtstr(np.max(region["timestamps"]))
+            top = np.min(region["depths"])
+            bottom = np.max(region["depths"])
+            # Region header
+            print(
+                "13 4 {i} 0 {type} -1 1 {left}  {top} {right}  {bottom}".format(
+                    i=i_region,
+                    type=region.get("creation_type", 4),
+                    left=left,
+                    right=right,
+                    top=top,
+                    bottom=bottom,
+                ),
+                **pa,
+            )
+            # Notes
+            notes = region.get("notes", "")
+            if len(notes) == 0:
+                notes = common_notes
+                n_lines_notes = n_lines_common_notes
+            else:
+                notes = notes.strip("\n").replace("\n", line_ending)
+                if len(common_notes) > 0:
+                    notes += line_ending + common_notes
+                n_lines_notes = 1 + notes.count(line_ending)
+            print(n_lines_notes, **pa)  # Number of lines of notes
+            if len(notes) > 0:
+                print(notes, **pa)
+            # Detection settings
+            print("0", **pa)  # Number of lines of detection settings
+            # Region classification string
+            print("Unclassified regions", **pa)
+            # The points defining the region itself
+            print(
+                "{left} {top} {left} {bottom} {right} {bottom} {right} {top}".format(
+                    left=left, right=right, top=top, bottom=bottom,
+                ),
+                file=hf,
+                end=" ",  # Terminates with a space, not a new line
+            )
+            # Region type
+            print(region.get("region_type", default_region_type), **pa)
+            # Region name
+            print(region.get("region_name", "Region {}".format(i_region)), **pa)
+
+        # Write each contour
+        for region in contours:
+            # Regions are indexed from 1, so increment the counter first
+            i_region += 1
+            print("", **pa)  # Blank line separates regions
+            # Header line
+            print(
+                "13 {n} {i} 0 {type} -1 1 {left}  {top} {right}  {bottom}".format(
+                    n=region["points"].shape[0],
+                    i=i_region,
+                    type=region.get("creation_type", 2),
+                    left=timestamp2evdtstr(np.min(region["points"][:, 0])),
+                    right=timestamp2evdtstr(np.max(region["points"][:, 0])),
+                    top=np.min(region["points"][:, 1]),
+                    bottom=np.max(region["points"][:, 1]),
+                ),
+                **pa,
+            )
+            # Notes
+            notes = region.get("notes", "")
+            if len(notes) == 0:
+                notes = common_notes
+                n_lines_notes = n_lines_common_notes
+            else:
+                notes = notes.rstrip("\n").replace("\n", line_ending)
+                if len(common_notes) > 0:
+                    notes += line_ending + common_notes
+                n_lines_notes = 1 + notes.count(line_ending)
+            print(n_lines_notes, **pa)  # Number of lines of notes
+            if len(notes) > 0:
+                print(notes, **pa)
+            # Detection settings
+            print("0", **pa)  # Number of lines of detection settings
+            # Region classification string
+            print("Unclassified regions", **pa)
+            # The region itself
+            for point in region["points"]:
+                print(
+                    "{} {}".format(timestamp2evdtstr(point[0]), point[1]),
+                    file=hf,
+                    end=" ",
+                )
+            # Region type
+            print(region.get("region_type", default_region_type), **pa)
+            # Region name
+            print(region.get("region_name", "Region {}".format(i_region)), **pa)
+
+
+def write_transect_regions(
+    fname,
+    transect,
+    patches_key="mask_patches",
+    minimum_patch_area=0,
+    common_notes="",
+    line_ending="\r\n",
+):
+    """
+    Convert a transect dictionary to a set of regions and write as an EVR file.
+
+    Parameters
+    ----------
+    fname : str
+        Destination of output file.
+    transect : dict
+        Transect dictionary.
+    patches_key : str, optional
+        Field name to use for the mask of patch regions. Default is
+        `"mask_patches"`.
+    minimum_patch_area : float, optional
+        Minimum amount of area (in input pixel space) that a patch must occupy
+        in order to be included in the output. Set to `0` to include all
+        patches, no matter their area. Default is `0`.
+    common_notes : str, optional
+        Notes to include for every region. Default is `""`.
+    line_ending : str, optional
+        Line ending. Default is "\r\n" the standard line ending on Windows/DOS,
+        as per the specification for the file format.
+        https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm
+        Set to "\n" to get Unix-style line endings instead.
+    """
+    rectangles = []
+    contours = []
+    # Regions around each period of passive data
+    passive_key = "is_passive"
+    if passive_key not in transect:
+        passive_key = "p_" + passive_key
+    if passive_key not in transect:
+        raise ValueError(
+            "Key {} and {} not found in transect.".format(passive_key[2:], passive_key)
+        )
+    is_passive = transect[passive_key] > 0.5
+    passive_starts, passive_ends = get_indicator_onoffsets(is_passive)
+    i_passive = 1
+    for start_index, end_index in zip(passive_starts, passive_ends):
+        region = {}
+        region["region_name"] = "Passive data region {}".format(i_passive)
+        region["notes"] = "Passive data"
+        region["creation_type"] = 4
+        region["region_type"] = 0
+        region["depths"] = transect["depths"][[0, -1]]
+        region["timestamps"] = transect["timestamps"][[start_index, end_index]]
+        rectangles.append(region)
+        i_passive += 1
+    # Regions around each period of removed data
+    removed_key = "is_removed"
+    if removed_key not in transect:
+        removed_key = "p_" + removed_key
+    if removed_key not in transect:
+        raise ValueError(
+            "Key {} and {} not found in transect.".format(removed_key[2:], removed_key)
+        )
+    is_removed = transect[removed_key] > 0.5
+    removed_starts, removed_ends = get_indicator_onoffsets(is_removed)
+    i_removed = 1
+    for start_index, end_index in zip(removed_starts, removed_ends):
+        region = {}
+        region["region_name"] = "Removed data block {}".format(i_removed)
+        region["notes"] = "Removed data block"
+        region["creation_type"] = 4
+        region["region_type"] = 0
+        region["depths"] = transect["depths"][[0, -1]]
+        region["timestamps"] = transect["timestamps"][[start_index, end_index]]
+        rectangles.append(region)
+        i_removed += 1
+    # Contours around each removed patch
+    if patches_key not in transect:
+        raise ValueError("Key {} not found in transect.".format(patches_key))
+    patches = transect[patches_key]
+    patches = scipy.ndimage.binary_fill_holes(patches > 0.5)
+    contours_coords = skimage.measure.find_contours(patches, 0.5)
+    contour_dicts = []
+    i_contour = 1
+    for contour in contours_coords:
+        area = integrate_area_of_contour(contour[:, 0], contour[:, 1], closed=False)
+        if area < minimum_patch_area:
+            continue
+        region = {}
+        region["region_name"] = "Removed contour {}".format(i_contour)
+        region["notes"] = "Removed contour"
+        region["creation_type"] = 2
+        region["region_type"] = 0
+        x = np.interp(
+            contour[:, 0],
+            np.arange(len(transect["timestamps"])),
+            transect["timestamps"],
+        )
+        y = np.interp(
+            contour[:, 1], np.arange(len(transect["depths"])), transect["depths"]
+        )
+        region["points"] = np.stack([x, y], axis=-1)
+        contour_dicts.append(region)
+        i_contour += 1
+    # Write the output
+    return evr_writer(
+        fname,
+        rectangles=rectangles,
+        contours=contour_dicts,
+        common_notes=common_notes,
+        line_ending=line_ending,
+    )
 
 
 def load_transect_data(transect_pth, dataset="mobile", root_data_dir=ROOT_DATA_DIR):
