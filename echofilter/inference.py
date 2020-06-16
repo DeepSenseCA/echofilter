@@ -69,6 +69,11 @@ def run_inference(
     offset_top=0.0,
     offset_bottom=0.0,
     lines_during_passive="redact",
+    passive_collate_length=10,
+    removed_collate_length=10,
+    minimum_passive_length=10,
+    minimum_removed_length=10,
+    minimum_patch_area=25,
     variable_name=DEFAULT_VARNAME,
     row_len_selector="mode",
     facing="auto",
@@ -171,6 +176,29 @@ def run_inference(
                 used by EchoView to denote undefined values,
                 which is `-10000.99`.
         Default: "redact".
+    passive_collate_length : int, optional
+        Maximum interval, in ping indices, between detected passive regions
+        which will removed to merge consecutive passive regions together
+        into a single, collated, region. Default is 10.
+    passive_collate_length : int, optional
+        Maximum interval, in ping indices, between detected blocks
+        (vertical rectangles) marked for removal which will also be removed
+        to merge consecutive removed blocks together into a single,
+        collated, region. Default is 10.
+    minimum_passive_length : int, optional
+        Minimum length, in ping indices, which a detected passive region
+        must have to be included in the output. Set to -1 to omit all
+        detected passive regions from the output. Default is 10.
+    minimum_removed_length : int, optional
+        Minimum length, in ping indices, which a detected removal block
+        (vertical rectangle) must have to be included in the output.
+        Set to -1 to omit all detected removal blocks from the output.
+        Default is 10.
+    minimum_patch_area : int, optional
+        Minimum area, in pixels, which a detected removal patch
+        (contour/polygon) region must have to be included in the output.
+        Set to -1 to omit all detected patches from the output.
+        Default is 25.
     variable_name : str, optional
         Name of the EchoView acoustic variable to load from EV files. Default
         is `'Fileset1: Sv pings T1'`.
@@ -595,7 +623,14 @@ def run_inference(
                     " outputs.".format(dest_file)
                 )
             echofilter.raw.loader.write_transect_regions(
-                dest_file, output, "p_is_patch"
+                dest_file,
+                output,
+                patches_key="p_is_patch",
+                passive_collate_length=passive_collate_length,
+                removed_collate_length=removed_collate_length,
+                minimum_passive_length=minimum_passive_length,
+                minimum_removed_length=minimum_removed_length,
+                minimum_patch_area=minimum_patch_area,
             )
 
     if verbose >= 1:
@@ -1144,6 +1179,69 @@ def main():
         """.format(
             EV_UNDEFINED_DEPTH
         ),
+    )
+    group_outconfig.add_argument(
+        "--passive-collate",
+        "--passive-collate-length",
+        dest="passive_collate_length",
+        type=int,
+        default=10,
+        help="""
+            Maximum interval, in ping indices, between detected passive regions
+            which will removed to merge consecutive passive regions together
+            into a single, collated, region. Default is 10.
+        """,
+    )
+    group_outconfig.add_argument(
+        "--removed-collate",
+        "--removed-collate-length",
+        dest="passive_collate_length",
+        type=int,
+        default=10,
+        help="""
+            Maximum interval, in ping indices, between detected blocks
+            (vertical rectangles) marked for removal which will also be removed
+            to merge consecutive removed blocks together into a single,
+            collated, region. Default is 10.
+        """,
+    )
+    group_outconfig.add_argument(
+        "--minimum-passive",
+        "--minimum-passive-length",
+        dest="minimum_passive_length",
+        type=int,
+        default=10,
+        help="""
+            Minimum length, in ping indices, which a detected passive region
+            must have to be included in the output. Set to -1 to omit all
+            detected passive regions from the output. Default is 10.
+        """,
+    )
+    group_outconfig.add_argument(
+        "--minimum-removed",
+        "--minimum-removed-length",
+        dest="minimum_removed_length",
+        type=int,
+        default=10,
+        help="""
+            Minimum length, in ping indices, which a detected removal block
+            (vertical rectangle) must have to be included in the output.
+            Set to -1 to omit all detected removal blocks from the output.
+            Default is 10.
+        """,
+    )
+    group_outconfig.add_argument(
+        "--minimum-patch",
+        "--minimum-patch-area",
+        dest="minimum_patch_area",
+        type=int,
+        default=25,
+        help="""
+            Minimum area, in pixels, which a detected removal patch
+            (contour/polygon) region must have to be included in the output.
+            Set to -1 to omit all detected patches from the output.
+            Default is 25.
+        """,
     )
 
     # Input data transforms
