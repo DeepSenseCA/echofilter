@@ -8,6 +8,7 @@ import pprint
 import shutil
 import sys
 import tempfile
+import textwrap
 import time
 import urllib
 import warnings
@@ -383,6 +384,17 @@ def run_inference(
             )
         do_open = False
 
+    common_notes = textwrap.dedent(
+        """
+        Classified by echofilter {ver} at {dt}
+        Model checkpoint: {ckpt_name}
+        """.format(
+            ver=echofilter.__version__,
+            dt=datetime.datetime.now().astimezone().isoformat(timespec="seconds"),
+            ckpt_name=os.path.split(ckpt_name)[1],
+        )
+    )
+
     if len(files) == 1 or verbose <= 0:
         maybe_tqdm = lambda x: x
     else:
@@ -631,6 +643,7 @@ def run_inference(
                 minimum_passive_length=minimum_passive_length,
                 minimum_removed_length=minimum_removed_length,
                 minimum_patch_area=minimum_patch_area,
+                common_notes=common_notes,
             )
 
     if verbose >= 1:
