@@ -794,7 +794,7 @@ def write_transect_regions(
         )
         contour_dicts.append(region)
         i_contour += 1
-    if verbose:
+    if verbose >= 1:
         print(
             "Outputting {} regions:"
             " {} passive, {} removed blocks, {} removed patches".format(
@@ -805,7 +805,7 @@ def write_transect_regions(
             )
         )
         n_skipped = n_passive_skipped + n_removed_skipped + n_contour_skipped
-        if verbose > 1 or n_skipped > 0:
+        if verbose >= 2 or n_skipped > 0:
             print(
                 "There were {} skipped (too small) regions:"
                 " {} passive, {} removed blocks, {} removed patches".format(
