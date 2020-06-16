@@ -70,8 +70,8 @@ def run_inference(
     offset_top=0.0,
     offset_bottom=0.0,
     lines_during_passive="redact",
-    passive_collate_length=10,
-    removed_collate_length=10,
+    collate_passive_length=10,
+    collate_removed_length=10,
     minimum_passive_length=10,
     minimum_removed_length=10,
     minimum_patch_area=25,
@@ -178,11 +178,11 @@ def run_inference(
                 used by EchoView to denote undefined values,
                 which is `-10000.99`.
         Default: "redact".
-    passive_collate_length : int, optional
+    collate_passive_length : int, optional
         Maximum interval, in ping indices, between detected passive regions
         which will removed to merge consecutive passive regions together
         into a single, collated, region. Default is 10.
-    passive_collate_length : int, optional
+    collate_passive_length : int, optional
         Maximum interval, in ping indices, between detected blocks
         (vertical rectangles) marked for removal which will also be removed
         to merge consecutive removed blocks together into a single,
@@ -671,8 +671,8 @@ def run_inference(
                 dest_file,
                 output,
                 patches_key=patches_key,
-                passive_collate_length=passive_collate_length,
-                removed_collate_length=removed_collate_length,
+                collate_passive_length=collate_passive_length,
+                collate_removed_length=collate_removed_length,
                 minimum_passive_length=minimum_passive_length,
                 minimum_removed_length=minimum_removed_length,
                 minimum_patch_area=minimum_patch_area,
@@ -1232,9 +1232,9 @@ def main():
         ),
     )
     group_outconfig.add_argument(
-        "--passive-collate",
-        "--passive-collate-length",
-        dest="passive_collate_length",
+        "--collate-passive",
+        "--collate-passive-length",
+        dest="collate_passive_length",
         type=int,
         default=10,
         help="""
@@ -1244,9 +1244,9 @@ def main():
         """,
     )
     group_outconfig.add_argument(
-        "--removed-collate",
-        "--removed-collate-length",
-        dest="passive_collate_length",
+        "--collate-removed",
+        "--collate-removed-length",
+        dest="collate_passive_length",
         type=int,
         default=10,
         help="""
