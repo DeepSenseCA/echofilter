@@ -26,10 +26,10 @@ from torchutils.device import cuda_is_really_available
 from tqdm.auto import tqdm
 
 import echofilter.data.transforms
-import echofilter.path
 import echofilter.nn
 from echofilter.nn.unet import UNet
 from echofilter.nn.wrapper import Echofilter
+import echofilter.path
 import echofilter.raw
 from echofilter.raw.manipulate import join_transect, split_transect
 import echofilter.utils

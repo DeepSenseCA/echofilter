@@ -10,6 +10,11 @@ import sys
 import time
 import traceback
 
+try:
+    import apex
+except ImportError:
+    apex = None
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -22,11 +27,6 @@ from torch.utils.tensorboard import SummaryWriter
 import torchvision.transforms
 from torchutils.random import seed_all
 from torchutils.utils import count_parameters
-
-try:
-    import apex
-except ImportError:
-    apex = None
 
 import echofilter.data
 from echofilter.nn.unet import UNet
