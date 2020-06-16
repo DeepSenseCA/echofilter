@@ -670,14 +670,12 @@ def write_transect_regions(
     rectangles = []
     contours = []
     # Regions around each period of passive data
-    passive_key = "is_passive"
-    if passive_key not in transect:
-        passive_key = "p_" + passive_key
-    if passive_key not in transect:
-        raise ValueError(
-            "Key {} and {} not found in transect.".format(passive_key[2:], passive_key)
-        )
-    is_passive = transect[passive_key] > 0.5
+    key = "is_passive"
+    if key not in transect:
+        key = "p_" + key
+    if key not in transect:
+        raise ValueError("Key {} and {} not found in transect.".format(key[2:], key))
+    is_passive = transect[key] > 0.5
     is_passive = ~utils.squash_gaps(~is_passive, passive_collate_length)
     passive_starts, passive_ends = utils.get_indicator_onoffsets(is_passive)
     i_passive = 1
@@ -706,14 +704,12 @@ def write_transect_regions(
         rectangles.append(region)
         i_passive += 1
     # Regions around each period of removed data
-    removed_key = "is_removed"
-    if removed_key not in transect:
-        removed_key = "p_" + removed_key
-    if removed_key not in transect:
-        raise ValueError(
-            "Key {} and {} not found in transect.".format(removed_key[2:], removed_key)
-        )
-    is_removed = transect[removed_key] > 0.5
+    key = "is_removed"
+    if key not in transect:
+        key = "p_" + key
+    if key not in transect:
+        raise ValueError("Key {} and {} not found in transect.".format(key[2:], key))
+    is_removed = transect[key] > 0.5
     is_removed = ~utils.squash_gaps(~is_removed, removed_collate_length)
     removed_starts, removed_ends = utils.get_indicator_onoffsets(is_removed)
     i_removed = 1
