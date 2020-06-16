@@ -39,16 +39,29 @@ import echofilter.win
 CHECKPOINT_RESOURCES = OrderedDict(
     [
         (
-            "stationary_effunet_block6.xb.2-1_lc32_se2_v2.ckpt.tar",
-            {"gdrive": "1Rgr6y7SYEYrAq6tSF7tjqbKoZthKpMCb"},
+            # 2020-06-15_05.39.07_conditional_effunet6x.2-1_lc32-se2_bs12-lr0.016_mesa_mom.92-.98_w.1-.5_ep100_elastic_resume5
+            "conditional_mobile-stationary2_effunet6x2-1_lc32_v1.0.ckpt.tar",
+            {"gdrive": "1vEshqJbj906tCEA4KybUmlBXN9YEG_Fu"},
         ),
         (
-            "stationary_effunet_block6.xb.2-1_lc32_se2.ckpt.tar",
-            {"gdrive": "114vL-pAxrn9UDhaNG5HxZwjxNy7WMfW_"},
+            # 2020-06-14_14.24.21_effunet6x.2-1_lc32-se2_bs20-lr0.02_mesa_mom.92-.98_w.1-.5_ep150_elastic_epseed_resume2
+            "stationary2_effunet6x2-1_lc32_v1.0.ckpt.tar",
+            {"gdrive": "1qPg9lUbtLk_DOR86sPS-DAvOaAlnvAF_"},
+        ),
+        (
+            # 2020-06-14_13.53.10_effunet6x.2-1_lc32-se2_bs30-lr0.02_mesa_mom.92-.98_w.1-.5_ep300_elastic_epseed_resume2
+            "mobile_effunet6x2-1_lc32_v1.0.ckpt.tar",
+            {"gdrive": "1yODjTcRsGc3v8cNZqFZjqbtGHHwoAohU"},
         ),
     ]
 )
-DEFAULT_CHECKPOINT = next(iter(CHECKPOINT_RESOURCES))
+
+# Default checkpoint depends on facing
+DEFAULT_CHECKPOINTS = {
+    "auto": next(iter(CHECKPOINT_RESOURCES)),
+    "downward": "mobile_effunet6x2-1_lc32_v1.0.ckpt.tar",
+    "upward": "stationary2_effunet6x2-1_lc32_v1.0.ckpt.tar",
+}
 
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
 EV_UNDEFINED_DEPTH = -10000.99
@@ -85,6 +98,7 @@ def run_inference(
     crop_depth_max=None,
     image_height=None,
     checkpoint=None,
+    force_unconditioned=False,
     logit_smoothing_sigma=1,
     device=None,
     hide_echoview="new",
@@ -252,6 +266,10 @@ def run_inference(
         A path to a checkpoint file, or name of a checkpoint known to this
         package (listed in `CHECKPOINT_RESOURCES`). If `None` (default),
         the first checkpoint in `CHECKPOINT_RESOURCES` is used.
+    force_unconditioned : bool, optional
+        Whether to always use unconditioned logit outputs. If `False`
+        (default) conditional logits will be used if the checkpoint loaded is
+        for a conditional model.
     logit_smoothing_sigma : float, optional
         Standard deviation over which logits will be smoothed before being
         converted into output. Default is `1`.
@@ -278,9 +296,16 @@ def run_inference(
         device = "cuda" if cuda_is_really_available() else "cpu"
     device = torch.device(device)
 
+    if facing is None:
+        facing = "auto"
+    if facing.startswith("down"):
+        facing = "downward"
+    if facing.startswith("up"):
+        facing = "upward"
+
     if checkpoint is None:
         # Use the first item from the list of checkpoints
-        checkpoint = DEFAULT_CHECKPOINT
+        checkpoint = DEFAULT_CHECKPOINTS[facing]
 
     ckpt_name = checkpoint
 
@@ -358,10 +383,12 @@ def run_inference(
         mapping=checkpoint.get("wrapper_mapping", None),
         **checkpoint.get("wrapper_params", {})
     )
+    is_conditional_model = model.params.get("conditional", False)
     if verbose >= 1:
         print(
-            "Built model with {} trainable parameters".format(
-                count_parameters(model, only_trainable=True)
+            "Built {}model with {} trainable parameters".format(
+                "conditional " if is_conditional_model else "",
+                count_parameters(model, only_trainable=True),
             )
         )
     try:
@@ -596,21 +623,40 @@ def run_inference(
                 s = "\n    ".join([""] + list(str(k) for k in output.keys()))
                 print("Generated model output with fields:" + s)
 
+            if is_conditional_model and not force_unconditioned:
+                if output["is_upward_facing"]:
+                    cs = "|upfacing"
+                else:
+                    cs = "|downfacing"
+                if verbose >= 2:
+                    print(
+                        "Using conditional probability outputs from model:"
+                        " p(state{})".format(cs)
+                    )
+            else:
+                cs = ""
+                if is_conditional_model and force_unconditioned and verbose >= 2:
+                    print("Using unconditioned output from conditional model")
+
             # Convert output into lines
             surface_depths = output["depths"][
-                echofilter.utils.last_nonzero(output["p_is_above_surface"] > 0.5, -1)
+                echofilter.utils.last_nonzero(
+                    output["p_is_above_surface" + cs] > 0.5, -1
+                )
             ]
             top_depths = output["depths"][
-                echofilter.utils.last_nonzero(output["p_is_above_top"] > 0.5, -1)
+                echofilter.utils.last_nonzero(output["p_is_above_top" + cs] > 0.5, -1)
             ]
             bottom_depths = output["depths"][
-                echofilter.utils.first_nonzero(output["p_is_below_bottom"] > 0.5, -1)
+                echofilter.utils.first_nonzero(
+                    output["p_is_below_bottom" + cs] > 0.5, -1
+                )
             ]
             # Offset lines
             top_depths += offset_top
             bottom_depths -= offset_bottom
             # Redact passive regions
-            is_passive = output["p_is_passive"] < 0.5
+            is_passive = output["p_is_passive" + cs] < 0.5
             if lines_during_passive == "predict":
                 pass
             elif lines_during_passive == "redact":
@@ -695,7 +741,9 @@ def run_inference(
             echofilter.raw.loader.write_transect_regions(
                 dest_file,
                 output,
-                patches_key=patches_key,
+                passive_key="p_is_passive" + cs,
+                removed_key="p_is_removed" + cs,
+                patches_key=patches_key + cs,
                 collate_passive_length=collate_passive_length,
                 collate_removed_length=collate_removed_length,
                 minimum_passive_length=minimum_passive_length,
@@ -1445,14 +1493,31 @@ def main():
     group_model.add_argument(
         "--checkpoint",
         type=str,
-        default=DEFAULT_CHECKPOINT,
+        default=None,
         help="""d|
             Name of checkpoint to load, or path to a checkpoint
-            file.
-            Default: "{}".
+            file. The default checkpoint depends on --facing:
+              auto    : "{auto}"
+              downward: "{downward}"
+              upward  : "{upward}"
         """.format(
-            DEFAULT_CHECKPOINT
+            auto=DEFAULT_CHECKPOINTS["auto"],
+            downward=DEFAULT_CHECKPOINTS["downward"],
+            upward=DEFAULT_CHECKPOINTS["upward"],
         ),
+    )
+    group_model.add_argument(
+        "--unconditioned",
+        "--force_unconditioned",
+        dest="force_unconditioned",
+        action="store_true",
+        help="""
+            If this flag is present and a conditional model is loaded,
+            it will be run for its unconditioned output. This means the
+            model is output is not conditioned on the orientation of
+            the echosounder. By default, conditional models are used for
+            their conditional output.
+        """,
     )
     group_model.add_argument(
         "--logit-smoothing",
@@ -1460,6 +1525,7 @@ def main():
         dest="logit_smoothing_sigma",
         type=float,
         nargs="+",
+        metavar="SIGMA",
         default=[1],
         help="""
             Standard deviation of Gaussian smoothing kernel applied to the

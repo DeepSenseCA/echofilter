@@ -619,6 +619,8 @@ def evr_writer(
 def write_transect_regions(
     fname,
     transect,
+    passive_key="is_passive",
+    removed_key="is_removed",
     patches_key="mask_patches",
     collate_passive_length=0,
     collate_removed_length=0,
@@ -638,6 +640,11 @@ def write_transect_regions(
         Destination of output file.
     transect : dict
         Transect dictionary.
+    passive_key : str, optional
+        Field name to use for passive data identification. Default is
+        `"is_passive"`.
+    removed_key : str, optional
+        Field name to use for removed blocks. Default is `"is_removed"`.
     patches_key : str, optional
         Field name to use for the mask of patch regions. Default is
         `"mask_patches"`.
@@ -673,7 +680,7 @@ def write_transect_regions(
     rectangles = []
     contours = []
     # Regions around each period of passive data
-    key = "is_passive"
+    key = passive_key
     if key not in transect:
         key = "p_" + key
     if key not in transect:
@@ -709,7 +716,7 @@ def write_transect_regions(
         rectangles.append(region)
         i_passive += 1
     # Regions around each period of removed data
-    key = "is_removed"
+    key = removed_key
     if key not in transect:
         key = "p_" + key
     if key not in transect:
@@ -787,7 +794,7 @@ def write_transect_regions(
         )
         contour_dicts.append(region)
         i_contour += 1
-    if verbose:
+    if verbose >= 1:
         print(
             "Outputting {} regions:"
             " {} passive, {} removed blocks, {} removed patches".format(
@@ -798,7 +805,7 @@ def write_transect_regions(
             )
         )
         n_skipped = n_passive_skipped + n_removed_skipped + n_contour_skipped
-        if verbose > 1 or n_skipped > 0:
+        if verbose >= 2 or n_skipped > 0:
             print(
                 "There were {} skipped (too small) regions:"
                 " {} passive, {} removed blocks, {} removed patches".format(
