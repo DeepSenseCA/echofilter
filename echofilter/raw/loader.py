@@ -365,6 +365,32 @@ def evl_loader(fname):
     return np.array(timestamps), np.array(values)
 
 
+def timestamp2evdtstr(timestamp):
+    """
+    Converts a timestamp into an Echoview-compatible datetime string, in the
+    format "CCYYMMDD HHmmSSssss", where:
+        CC = century
+        YY = year
+        MM = month
+        DD = day
+        HH = hour
+        mm = minute
+        SS = second
+        ssss = 0.1 milliseconds
+
+    Parameters
+    ----------
+    timestamp : float
+        Number of seconds since Unix epoch.
+    """
+    # Datetime must be in the format CCYYMMDD HHmmSSssss
+    # where ssss = 0.1 milliseconds.
+    # We have to manually determine the number of "0.1 milliseconds"
+    # from the microsecond component.
+    dt = datetime.datetime.fromtimestamp(timestamp)
+    return "{}{:04d}".format(dt.strftime("%Y%m%d %H%M%S"), round(dt.microsecond / 100),)
+
+
 def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n"):
     """
     EVL file writer
@@ -409,9 +435,8 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n"):
             # from the microsecond component.
             dt = datetime.datetime.fromtimestamp(timestamp)
             print(
-                "{}{:04d}  {} {} ".format(
-                    dt.strftime("%Y%m%d %H%M%S"),
-                    round(dt.microsecond / 100),
+                "{}  {} {} ".format(
+                    timestamp2evdtstr(timestamp),
                     depth,
                     0 if i_row == n_row - 1 else status,
                 ),
