@@ -96,6 +96,7 @@ def run_inference(
     use_training_standardization=False,
     crop_depth_min=None,
     crop_depth_max=None,
+    autocrop_threshold=0.35,
     image_height=None,
     checkpoint=None,
     force_unconditioned=False,
@@ -257,6 +258,10 @@ def run_inference(
     crop_depth_max : float or None, optional
         Maxmimum depth to include in input. If `None` (default), there is no
         maximum depth.
+    autocrop_threshold : float, optional
+        Minimum fraction of input height which must be found to be removable
+        for the model to be re-run with an automatically cropped input.
+        Default is 0.35.
     image_height : int or None, optional
         Height in pixels of input to model. The data loaded from the csv will
         be resized to this height (the width of the image is unchanged).
@@ -614,6 +619,8 @@ def run_inference(
                 facing=facing,
                 crop_depth_min=crop_depth_min,
                 crop_depth_max=crop_depth_max,
+                autocrop_threshold=autocrop_threshold,
+                force_unconditioned=force_unconditioned,
                 data_center=center_param,
                 data_deviation=deviation_param,
                 nan_value=nan_value,
@@ -780,6 +787,8 @@ def inference_transect(
     facing="auto",
     crop_depth_min=None,
     crop_depth_max=None,
+    autocrop_threshold=0.35,
+    force_unconditioned=False,
     data_center="mean",
     data_deviation="stdev",
     nan_value=-3,
@@ -814,6 +823,13 @@ def inference_transect(
     crop_depth_max : float or None, optional
         Maxmimum depth to include in input. If `None` (default), there is no
         maximum depth.
+    autocrop_threshold : float, optional
+        Minimum fraction of input height which must be found to be removable
+        for the model to be re-run with an automatically cropped input.
+        Default is 0.35.
+    force_unconditioned : bool, optional
+        Whether to always use unconditioned logit outputs when deteriming the
+        new depth range for automatic cropping.
     data_center : float or str, optional
         Center point to use, which will be subtracted from the Sv signals
         (i.e. the overall sample mean).
@@ -918,9 +934,92 @@ def inference_transect(
     if verbose >= 1:
         print()
 
-    joined_output = join_transect(outputs)
-    joined_output["is_upward_facing"] = is_upward_facing
-    return joined_output
+    output = join_transect(outputs)
+    output["is_upward_facing"] = is_upward_facing
+
+    if autocrop_threshold >= 1:
+        # If we are not doing auto-crop, return the current output
+        return output
+
+    # See how much of the depth we could crop away
+    cs = ""
+    if model.params["conditional"] and not force_unconditioned:
+        if output["is_upward_facing"]:
+            cs = "|upfacing"
+        else:
+            cs = "|downfacing"
+    is_passive = output["p_is_passive" + cs] > 0.5
+    depth_intv = abs(transect["depths"][1] - transect["depths"][0])
+    if is_upward_facing:
+        # Restrict the top based on the observed surface depths
+        surface_depths = output["depths"][
+            echofilter.utils.last_nonzero(output["p_is_above_surface" + cs] > 0.5, -1)
+        ]
+        # Redact passive regions
+        if len(surface_depths[~is_passive]) > 0:
+            surface_depths = surface_depths[~is_passive]
+        # Find a good estimator of the maximum. Go for a robust estimate of
+        # four sigma from the middle.
+        pct = np.percentile(surface_depths, [2.275, 97.725])
+        dev = (pct[1] - pct[0]) / 4
+        new_crop_min = pct[0] - 2 * dev
+        # Don't go higher than the minimum of the predicted surface depths
+        new_crop_min = max(new_crop_min, np.min(surface_depths))
+        # Offset minimum by at least 2m, to be sure we are capturing enough
+        # surrounding content.
+        new_crop_min -= max(2, 10 * depth_intv)
+        new_crop_max = np.max(transect["depths"])
+    else:
+        new_crop_min = np.min(transect["depths"])
+        # Restrict the bottom based on the observed bottom depths
+        bottom_depths = output["depths"][
+            echofilter.utils.first_nonzero(output["p_is_below_bottom" + cs] > 0.5, -1)
+        ]
+        # Redact passive regions
+        if len(bottom_depths[~is_passive]) > 0:
+            bottom_depths = bottom_depths[~is_passive]
+        # Find a good estimator of the maximum. Go for a robust estimate of
+        # four sigma from the middle.
+        pct = np.percentile(bottom_depths, [2.275, 97.725])
+        dev = (pct[1] - pct[0]) / 4
+        new_crop_max = pct[1] + 2 * dev
+        # Don't go deeper than the maximum of the predicted bottom depths
+        new_crop_max = min(new_crop_max, np.max(bottom_depths))
+        # Offset maximum by at least 2m, to be sure we are capturing enough
+        # surrounding content.
+        new_crop_max += max(2, 10 * depth_intv)
+
+    current_height = abs(transect["depths"][-1] - transect["depths"][0])
+    new_height = abs(new_crop_max - new_crop_min)
+    if (current_height - new_height) / current_height <= autocrop_threshold:
+        # No need to crop
+        return output
+
+    if verbose >= 1:
+        print(
+            "Automatically zooming in on the {:.2f}m to {:.2f}m depth range"
+            " and re-doing model inference.".format(new_crop_min, new_crop_max)
+        )
+
+    # Crop and run again; and don't autocrop a second time!
+    return inference_transect(
+        model,
+        transect["timestamps"],
+        transect["depths"],
+        transect["signals"],
+        device,
+        image_height,
+        facing=facing,
+        crop_depth_min=new_crop_min,
+        crop_depth_max=new_crop_max,
+        autocrop_threshold=1,  # Don't crop again
+        force_unconditioned=force_unconditioned,
+        data_center=data_center,
+        data_deviation=data_deviation,
+        nan_value=nan_value,
+        dtype=dtype,
+        verbose=verbose,
+    )
 
 
 def get_default_cache_dir():
@@ -1469,6 +1568,25 @@ def main():
             Deepest depth, in metres, to analyse. Data will be truncated at
             this depth, with deeper data removed before the Sv input is
             shown to the model. Default behaviour is not to truncate.
+        """,
+    )
+    group_inproc.add_argument(
+        "--autocrop-threshold",
+        "--autocrop",
+        "--autozoom",
+        dest="autocrop_threshold",
+        type=float,
+        default=0.35,
+        help="""
+            The inference routine will re-run the model with a zoomed in
+            version of the data, if the fraction of the depth which it deems
+            irrelevant exceeds the AUTO_CROP_THRESHOLD. The extent of the depth
+            which is deemed relevant is from the shallowest point on the
+            surface line to the deepest point on the bottom line.
+            The data will only be zoomed in and re-analysed at most once.
+            To always run the model through once (never auto zoomed), set to 1.
+            To always run the model through exactly twice (always one round
+            of auto-zoom), set to 0. Default is 0.35.
         """,
     )
     group_inproc.add_argument(
