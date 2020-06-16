@@ -286,6 +286,13 @@ def run_inference(
         device = "cuda" if cuda_is_really_available() else "cpu"
     device = torch.device(device)
 
+    if facing is None:
+        facing = "auto"
+    if facing.startswith("down"):
+        facing = "downward"
+    if facing.startswith("up"):
+        facing = "upward"
+
     if checkpoint is None:
         # Use the first item from the list of checkpoints
         checkpoint = DEFAULT_CHECKPOINT
