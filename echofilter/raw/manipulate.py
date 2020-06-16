@@ -186,19 +186,7 @@ def make_lines_from_mask(mask, depths=None, max_gap_squash=1.0):
     # Merge small gaps between masked out data, so the middle is masked out too
     # We merge all gaps smaller than 120 pixels apart.
     max_gap_squash_idx = int(np.round(max_gap_squash / depth_intv))
-    for i in range(max_gap_squash_idx, 2, -1):
-        li = ~np.any(
-            [
-                np.pad(mask[:, i // 2 :], ((0, 0), (0, i // 2)), mode="constant"),
-                np.pad(
-                    mask[:, : -((i + 1) // 2)],
-                    ((0, 0), ((i + 1) // 2, 0)),
-                    mode="constant",
-                ),
-            ],
-            axis=0,
-        )
-        mask[li] = 0
+    mask = utils.squash_gaps(mask, max_gap_squash_idx)
 
     # Check which depths were removed for each timestamp
     nonremoved_depths = np.tile(depths, (mask.shape[0], 1)).astype("float")

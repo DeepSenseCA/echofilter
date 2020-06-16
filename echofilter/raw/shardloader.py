@@ -7,6 +7,7 @@ import os
 import numpy as np
 
 from . import loader, manipulate
+from .utils import pad1d
 
 
 ROOT_DATA_DIR = loader.ROOT_DATA_DIR
@@ -160,39 +161,6 @@ def write_transect_shards(dirname, transect, max_depth=None, shard_len=128):
         np.savez_compressed(fname, **shard)
 
 
-def _pad1d(array, pad_width, axis=0, **kwargs):
-    """
-    Pad an array along a single axis only.
-
-    Parameters
-    ----------
-    array : numpy.ndarary
-        Array to be padded.
-    pad_width : int or tuple
-        The amount to pad, either a length two tuple of values for each edge,
-        or an int if the padding should be the same for each side.
-    axis : int, optional
-        The axis to pad. Default is `0`.
-    **kwargs
-        As per `numpy.pad`.
-
-    Returns
-    -------
-    numpy.ndarary
-        Padded array.
-
-    See also
-    --------
-    numpy.pad
-    """
-    pads = [(0, 0) for _ in range(array.ndim)]
-    if hasattr(pad_width, "__len__"):
-        pads[axis] = pad_width
-    else:
-        pads[axis] = (pad_width, pad_width)
-    return np.pad(array, pads, **kwargs)
-
-
 def load_transect_from_shards_abs(
     transect_abs_pth, i1=0, i2=None, pad_mode="edge",
 ):
@@ -294,7 +262,7 @@ def load_transect_from_shards_abs(
         else:
             broad_data = np.concatenate([shard[key] for shard in shards])
             # Have to trim data down, and pad if requested indices out of range
-            transect[key] = _pad1d(
+            transect[key] = pad1d(
                 broad_data[(i1_ - j1 * shard_len) : (i2_ - j1 * shard_len)],
                 (i1_ - i1, i2 - i2_),
                 axis=0,

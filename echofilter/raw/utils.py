@@ -104,3 +104,83 @@ def interp1d_preserve_nan(
     # and remove the points too close to a NaN in the input
     y_samples[influence > nan_threshold] = np.nan
     return y_samples
+
+
+def pad1d(array, pad_width, axis=0, **kwargs):
+    """
+    Pad an array along a single axis only.
+
+    Parameters
+    ----------
+    array : numpy.ndarary
+        Array to be padded.
+    pad_width : int or tuple
+        The amount to pad, either a length two tuple of values for each edge,
+        or an int if the padding should be the same for each side.
+    axis : int, optional
+        The axis to pad. Default is `0`.
+    **kwargs
+        As per `numpy.pad`.
+
+    Returns
+    -------
+    numpy.ndarary
+        Padded array.
+
+    See also
+    --------
+    numpy.pad
+    """
+    pads = [(0, 0) for _ in range(array.ndim)]
+    if hasattr(pad_width, "__len__"):
+        pads[axis] = pad_width
+    else:
+        pads[axis] = (pad_width, pad_width)
+    return np.pad(array, pads, **kwargs)
+
+
+def squash_gaps(mask, max_gap_squash, axis=-1, inplace=False):
+    """
+    Merge small gaps between zero values in a boolean array.
+
+    Parameters
+    ----------
+    mask : boolean array
+        The input mask, with small gaps between zero values which will be
+        squashed with zeros.
+    max_gap_squash : int
+        Maximum length of gap to squash.
+    axis : int, optional
+        Axis on which to operate. Default is `-1`.
+    inplace : bool, optional
+        Whether to operate on the original array. If `False`, a copy is
+        created and returned.
+
+    Returns
+    -------
+    merged_mask : boolean array
+        Mask as per the input, but with small gaps squashed.
+    """
+    if not inplace:
+        mask = mask.copy()
+    L = mask.shape[axis]
+    for i in range(max_gap_squash, 2, -1):
+        check = np.stack(
+            [
+                pad1d(
+                    mask.take(range(i // 2, L), axis=axis),
+                    (0, i // 2),
+                    axis=axis,
+                    mode="constant",
+                ),
+                pad1d(
+                    mask.take(range(0, L - ((i + 1) // 2)), axis=axis),
+                    ((i + 1) // 2, 0),
+                    axis=axis,
+                    mode="constant",
+                ),
+            ]
+        )
+        li = ~np.any(check, axis=0)
+        mask[li] = 0
+    return mask
