@@ -1195,7 +1195,7 @@ def main():
         """,
     )
 
-    # Input data transforms
+    # Model arguments
     group_model = parser.add_argument_group(
         "Model arguments",
         "Optional parameters specifying which model checkpoint will be used"
