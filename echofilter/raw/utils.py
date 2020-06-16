@@ -164,7 +164,7 @@ def squash_gaps(mask, max_gap_squash, axis=-1, inplace=False):
     if not inplace:
         mask = mask.copy()
     L = mask.shape[axis]
-    for i in range(max_gap_squash, 2, -1):
+    for i in range(max_gap_squash, 1, -1):
         check = np.stack(
             [
                 pad1d(
