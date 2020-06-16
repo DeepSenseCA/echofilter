@@ -620,8 +620,8 @@ def write_transect_regions(
     fname,
     transect,
     patches_key="mask_patches",
-    passive_collate_length=0,
-    removed_collate_length=0,
+    collate_passive_length=0,
+    collate_removed_length=0,
     minimum_passive_length=0,
     minimum_removed_length=0,
     minimum_patch_area=0,
@@ -641,10 +641,10 @@ def write_transect_regions(
     patches_key : str, optional
         Field name to use for the mask of patch regions. Default is
         `"mask_patches"`.
-    passive_collate_length : int, optional
+    collate_passive_length : int, optional
         Maximum distance (in indices) over which passive regions should be
         merged together, closing small gaps between them. Default is `0`.
-    removed_collate_length : int, optional
+    collate_removed_length : int, optional
         Maximum distance (in indices) over which removed blocks should be
         merged together, closing small gaps between them. Default is `0`.
     minimum_passive_length : int, optional
@@ -679,7 +679,7 @@ def write_transect_regions(
     if key not in transect:
         raise ValueError("Key {} and {} not found in transect.".format(key[2:], key))
     is_passive = transect[key] > 0.5
-    is_passive = ~utils.squash_gaps(~is_passive, passive_collate_length)
+    is_passive = ~utils.squash_gaps(~is_passive, collate_passive_length)
     passive_starts, passive_ends = utils.get_indicator_onoffsets(is_passive)
     i_passive = 1
     n_passive_skipped = 0
@@ -715,7 +715,7 @@ def write_transect_regions(
     if key not in transect:
         raise ValueError("Key {} and {} not found in transect.".format(key[2:], key))
     is_removed = transect[key] > 0.5
-    is_removed = ~utils.squash_gaps(~is_removed, removed_collate_length)
+    is_removed = ~utils.squash_gaps(~is_removed, collate_removed_length)
     removed_starts, removed_ends = utils.get_indicator_onoffsets(is_removed)
     i_removed = 1
     n_removed_skipped = 0
