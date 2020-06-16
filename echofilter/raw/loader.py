@@ -13,12 +13,7 @@ import scipy.ndimage
 import skimage.measure
 import pandas as pd
 
-from .utils import (
-    get_indicator_onoffsets,
-    integrate_area_of_contour,
-    interp1d_preserve_nan,
-    mode,
-)
+from . import utils
 
 
 ROOT_DATA_DIR = "/data/dsforce/surveyExports"
@@ -272,7 +267,7 @@ def transect_loader(
         if n_depth_use not in row_depth_starts:
             n_depth_use = np.median(row_lengths[:-1])
     elif row_len_selector == "mode":
-        n_depth_use = mode(row_lengths)
+        n_depth_use = utils.mode(row_lengths)
     else:
         raise ValueError(
             "Unsupported row_len_selector value: {}".format(row_len_selector)
@@ -284,8 +279,8 @@ def transect_loader(
         d_start = np.median(row_depth_starts[row_lengths == n_depth_use])
         d_stop = np.median(row_depth_ends[row_lengths == n_depth_use])
     else:
-        d_start = mode(row_depth_starts[row_lengths == n_depth_use])
-        d_stop = mode(row_depth_ends[row_lengths == n_depth_use])
+        d_start = utils.mode(row_depth_starts[row_lengths == n_depth_use])
+        d_stop = utils.mode(row_depth_ends[row_lengths == n_depth_use])
     depths = np.linspace(d_start, d_stop, n_depth_use)
 
     # Interpolate depths to get a consistent sampling grid
@@ -294,11 +289,11 @@ def transect_loader(
         zip(row_lengths, row_depth_starts, row_depth_ends)
     ):
         if d0 < d1:
-            data[i_entry, :n_depth_use] = interp1d_preserve_nan(
+            data[i_entry, :n_depth_use] = utils.interp1d_preserve_nan(
                 np.linspace(d0, d1, nd), data[i_entry, :nd], depths, **interp_kwargs,
             )
         else:
-            data[i_entry, :n_depth_use] = interp1d_preserve_nan(
+            data[i_entry, :n_depth_use] = utils.interp1d_preserve_nan(
                 np.linspace(d1, d0, nd),
                 data[i_entry, :nd][::-1],
                 depths,
@@ -663,7 +658,7 @@ def write_transect_regions(
             "Key {} and {} not found in transect.".format(passive_key[2:], passive_key)
         )
     is_passive = transect[passive_key] > 0.5
-    passive_starts, passive_ends = get_indicator_onoffsets(is_passive)
+    passive_starts, passive_ends = utils.get_indicator_onoffsets(is_passive)
     i_passive = 1
     for start_index, end_index in zip(passive_starts, passive_ends):
         region = {}
@@ -684,7 +679,7 @@ def write_transect_regions(
             "Key {} and {} not found in transect.".format(removed_key[2:], removed_key)
         )
     is_removed = transect[removed_key] > 0.5
-    removed_starts, removed_ends = get_indicator_onoffsets(is_removed)
+    removed_starts, removed_ends = utils.get_indicator_onoffsets(is_removed)
     i_removed = 1
     for start_index, end_index in zip(removed_starts, removed_ends):
         region = {}
@@ -705,7 +700,9 @@ def write_transect_regions(
     contour_dicts = []
     i_contour = 1
     for contour in contours_coords:
-        area = integrate_area_of_contour(contour[:, 0], contour[:, 1], closed=False)
+        area = utils.integrate_area_of_contour(
+            contour[:, 0], contour[:, 1], closed=False
+        )
         if area < minimum_patch_area:
             continue
         region = {}
