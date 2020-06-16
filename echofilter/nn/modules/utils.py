@@ -41,7 +41,7 @@ def same_to_padding(kernel_size, stride=1, dilation=1, ndim=None):
     if isinstance(kernel_size, int):
         if kernel_size % 2 == 0:
             raise ValueError("Same padding is not implemented for even kernels sizes.")
-    elif any(k % 2 == 0 for s in kernel_size):
+    elif any(k % 2 == 0 for k in kernel_size):
         raise ValueError("Same padding is not implemented for even kernels sizes.")
 
     args = [kernel_size, stride, dilation]
