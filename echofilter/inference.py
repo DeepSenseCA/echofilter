@@ -1484,6 +1484,7 @@ def main():
         dest="logit_smoothing_sigma",
         type=float,
         nargs="+",
+        metavar="SIGMA",
         default=[1],
         help="""
             Standard deviation of Gaussian smoothing kernel applied to the
