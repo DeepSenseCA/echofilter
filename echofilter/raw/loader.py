@@ -6,6 +6,7 @@ from collections import OrderedDict
 import csv
 import datetime
 import os
+import textwrap
 import warnings
 
 import numpy as np
@@ -688,11 +689,20 @@ def write_transect_regions(
             continue
         region = {}
         region["region_name"] = "Passive data region {}".format(i_passive)
-        region["notes"] = "Passive data"
         region["creation_type"] = 4
         region["region_type"] = 0
         region["depths"] = transect["depths"][[0, -1]]
         region["timestamps"] = transect["timestamps"][[start_index, end_index]]
+        region["notes"] = textwrap.dedent(
+            """
+            Passive data
+            Length in pixels: {}
+            Duration in seconds: {}
+            """.format(
+                end_index - start_index + 1,
+                region["timestamps"][1] - region["timestamps"][0],
+            )
+        )
         rectangles.append(region)
         i_passive += 1
     # Regions around each period of removed data
@@ -715,11 +725,20 @@ def write_transect_regions(
             continue
         region = {}
         region["region_name"] = "Removed data block {}".format(i_removed)
-        region["notes"] = "Removed data block"
         region["creation_type"] = 4
         region["region_type"] = 0
         region["depths"] = transect["depths"][[0, -1]]
         region["timestamps"] = transect["timestamps"][[start_index, end_index]]
+        region["notes"] = textwrap.dedent(
+            """
+            Removed data block
+            Length in pixels: {}
+            Duration in seconds: {}
+            """.format(
+                end_index - start_index + 1,
+                region["timestamps"][1] - region["timestamps"][0],
+            )
+        )
         rectangles.append(region)
         i_removed += 1
     # Contours around each removed patch
@@ -740,8 +759,7 @@ def write_transect_regions(
         if area < minimum_patch_area:
             continue
         region = {}
-        region["region_name"] = "Removed contour {}".format(i_contour)
-        region["notes"] = "Removed contour"
+        region["region_name"] = "Removed patch {}".format(i_contour)
         region["creation_type"] = 2
         region["region_type"] = 0
         x = np.interp(
@@ -753,6 +771,15 @@ def write_transect_regions(
             contour[:, 1], np.arange(len(transect["depths"])), transect["depths"]
         )
         region["points"] = np.stack([x, y], axis=-1)
+        region["notes"] = textwrap.dedent(
+            """
+            Removed patch
+            Area in pixels: {}
+            Area in meter-seconds: {}
+            """.format(
+                area, utils.integrate_area_of_contour(x, y, closed=False)
+            )
+        )
         contour_dicts.append(region)
         i_contour += 1
     # Write the output
