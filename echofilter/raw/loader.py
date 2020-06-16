@@ -627,6 +627,7 @@ def write_transect_regions(
     minimum_patch_area=0,
     common_notes="",
     line_ending="\r\n",
+    verbose=0,
 ):
     """
     Convert a transect dictionary to a set of regions and write as an EVR file.
@@ -666,6 +667,8 @@ def write_transect_regions(
         as per the specification for the file format.
         https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm
         Set to "\n" to get Unix-style line endings instead.
+    verbose : int, optional
+        Verbosity level. Default is `0`.
     """
     rectangles = []
     contours = []
@@ -679,11 +682,13 @@ def write_transect_regions(
     is_passive = ~utils.squash_gaps(~is_passive, passive_collate_length)
     passive_starts, passive_ends = utils.get_indicator_onoffsets(is_passive)
     i_passive = 1
+    n_passive_skipped = 0
     for start_index, end_index in zip(passive_starts, passive_ends):
         if minimum_passive_length == -1:
             # No passive regions
             break
         if end_index - start_index + 1 <= minimum_passive_length:
+            n_passive_skipped += 1
             continue
         region = {}
         region["region_name"] = "Passive data region {}".format(i_passive)
@@ -713,11 +718,13 @@ def write_transect_regions(
     is_removed = ~utils.squash_gaps(~is_removed, removed_collate_length)
     removed_starts, removed_ends = utils.get_indicator_onoffsets(is_removed)
     i_removed = 1
+    n_removed_skipped = 0
     for start_index, end_index in zip(removed_starts, removed_ends):
         if minimum_removed_length == -1:
             # No passive regions
             break
         if end_index - start_index + 1 <= minimum_removed_length:
+            n_removed_skipped += 1
             continue
         region = {}
         region["region_name"] = "Removed data block {}".format(i_removed)
@@ -745,6 +752,7 @@ def write_transect_regions(
     contours_coords = skimage.measure.find_contours(patches, 0.5)
     contour_dicts = []
     i_contour = 1
+    n_contour_skipped = 0
     for contour in contours_coords:
         if minimum_patch_area == -1:
             # No patches
@@ -753,6 +761,7 @@ def write_transect_regions(
             contour[:, 0], contour[:, 1], closed=False
         )
         if area < minimum_patch_area:
+            n_contour_skipped += 1
             continue
         region = {}
         region["region_name"] = "Removed patch {}".format(i_contour)
@@ -778,6 +787,25 @@ def write_transect_regions(
         )
         contour_dicts.append(region)
         i_contour += 1
+    if verbose:
+        print(
+            "Outputting {} regions:"
+            " {} passive, {} removed blocks, {} removed patches".format(
+                len(rectangles) + len(contour_dicts),
+                i_passive - 1,
+                i_removed - 1,
+                i_contour - 1,
+            )
+        )
+        n_skipped = n_passive_skipped + n_removed_skipped + n_contour_skipped
+        if verbose > 1 or n_skipped > 0:
+            print(
+                "There were {} skipped (too small) regions:"
+                " {} passive, {} removed blocks, {} removed patches".format(
+                    n_skipped, n_passive_skipped, n_removed_skipped, n_contour_skipped
+                )
+            )
+
     # Write the output
     return evr_writer(
         fname,

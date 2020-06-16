@@ -644,6 +644,7 @@ def run_inference(
                 minimum_removed_length=minimum_removed_length,
                 minimum_patch_area=minimum_patch_area,
                 common_notes=common_notes,
+                verbose=verbose - 1,
             )
 
     if verbose >= 1:
