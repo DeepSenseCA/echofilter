@@ -656,13 +656,15 @@ def run_inference(
             top_depths += offset_top
             bottom_depths -= offset_bottom
             # Redact passive regions
-            is_passive = output["p_is_passive" + cs] < 0.5
+            is_passive = output["p_is_passive" + cs] > 0.5
             if lines_during_passive == "predict":
                 pass
             elif lines_during_passive == "redact":
+                surface_depths = surface_depths[~is_passive]
                 top_depths = top_depths[~is_passive]
                 bottom_depths = bottom_depths[~is_passive]
             elif lines_during_passive == "undefined":
+                surface_depths[is_passive] = EV_UNDEFINED_DEPTH
                 top_depths[is_passive] = EV_UNDEFINED_DEPTH
                 bottom_depths[is_passive] = EV_UNDEFINED_DEPTH
             elif lines_during_passive.startswith("interp"):
@@ -686,6 +688,9 @@ def run_inference(
                         )
                         warnings.warn(s)
                 else:
+                    surface_depths[is_passive] = np.interp(
+                        x[is_passive], x[~is_passive], surface_depths[~is_passive]
+                    )
                     top_depths[is_passive] = np.interp(
                         x[is_passive], x[~is_passive], top_depths[~is_passive]
                     )
