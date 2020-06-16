@@ -27,6 +27,7 @@ from tqdm.auto import tqdm
 
 import echofilter.data.transforms
 import echofilter.path
+import echofilter.nn
 from echofilter.nn.unet import UNet
 from echofilter.nn.wrapper import Echofilter
 import echofilter.raw
@@ -84,6 +85,7 @@ def run_inference(
     crop_depth_max=None,
     image_height=None,
     checkpoint=None,
+    logit_smoothing_sigma=1,
     device=None,
     hide_echoview="new",
     minimize_echoview=False,
@@ -250,6 +252,9 @@ def run_inference(
         A path to a checkpoint file, or name of a checkpoint known to this
         package (listed in `CHECKPOINT_RESOURCES`). If `None` (default),
         the first checkpoint in `CHECKPOINT_RESOURCES` is used.
+    logit_smoothing_sigma : float, optional
+        Standard deviation over which logits will be smoothed before being
+        converted into output. Default is `1`.
     device : str or torch.device or None, optional
         Name of device on which the model will be run. If `None`, the first
         available CUDA GPU is used if any are found, and otherwise the CPU is
@@ -331,8 +336,25 @@ def run_inference(
         print("Constructing U-Net model, with arguments:")
         pprint.pprint(checkpoint["model_parameters"])
     unet = UNet(**checkpoint["model_parameters"])
+    if hasattr(logit_smoothing_sigma, "__len__"):
+        max_logit_smoothing_sigma = max(logit_smoothing_sigma)
+    else:
+        max_logit_smoothing_sigma = logit_smoothing_sigma
+    if max_logit_smoothing_sigma > 0:
+        ks = max(11, int(np.round(max_logit_smoothing_sigma * 6)))
+        ks += (ks + 1) % 2  # Increment to odd number if even
+        model = torch.nn.Sequential(
+            unet,
+            echofilter.nn.modules.GaussianSmoothing(
+                channels=checkpoint["model_parameters"]["out_channels"],
+                kernel_size=ks,
+                sigma=logit_smoothing_sigma,
+            ),
+        )
+    else:
+        model = unet
     model = Echofilter(
-        unet,
+        model,
         mapping=checkpoint.get("wrapper_mapping", None),
         **checkpoint.get("wrapper_params", {})
     )
@@ -1428,6 +1450,26 @@ def main():
         """.format(
             DEFAULT_CHECKPOINT
         ),
+    )
+    group_model.add_argument(
+        "--logit-smoothing",
+        "--logit-smoothing-sigma",
+        dest="logit_smoothing_sigma",
+        type=float,
+        nargs="+",
+        default=[1],
+        help="""
+            Standard deviation of Gaussian smoothing kernel applied to the
+            logits provided as the model's output. The smoothing regularises
+            the output to make it smoother.
+            Multiple values can be given to use different kernel sizes for
+            each dimension, in which case the first value is for the timestamp
+            dimension and the second value is for the depth dimension. If a
+            single value is given, the kernel is symmetric. Values are relative
+            to the pixel space returned by the UNet model.
+            Set to 0 to disable.
+            Default: 1.
+        """,
     )
     group_model.add_argument(
         "--device",
