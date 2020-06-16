@@ -75,6 +75,7 @@ def run_inference(
     minimum_passive_length=10,
     minimum_removed_length=10,
     minimum_patch_area=25,
+    patch_mode=None,
     variable_name=DEFAULT_VARNAME,
     row_len_selector="mode",
     facing="auto",
@@ -200,6 +201,23 @@ def run_inference(
         (contour/polygon) region must have to be included in the output.
         Set to -1 to omit all detected patches from the output.
         Default is 25.
+    patch_mode : str or None, optional
+        Type of mask patches to use. Must be supported by the
+        model checkpoint used. Should be one of:
+            `"merged"`:
+                Target patches for training were determined
+                after merging as much as possible into the
+                top and bottom lines.
+            `"original"`:
+                Target patches for training were determined
+                using original lines, before expanding the
+                top and bottom lines.
+            `"ntob"`:
+                Target patches for training were determined
+                using the original bottom line and the merged
+                top line.
+        If `None` (default), `"merged"` is used if downfacing and `"ntob"` is
+        used if upfacing.
     variable_name : str, optional
         Name of the EchoView acoustic variable to load from EV files. Default
         is `'Fileset1: Sv pings T1'`.
@@ -634,10 +652,18 @@ def run_inference(
                     " interface, use the --force flag) to overwrite existing"
                     " outputs.".format(dest_file)
                 )
+
+            patches_key = "p_is_patch"
+            if patch_mode is None:
+                if output["is_upward_facing"]:
+                    patches_key += "-ntob"
+            elif patch_mode != "merged":
+                patches_key += "-" + patch_mode
+
             echofilter.raw.loader.write_transect_regions(
                 dest_file,
                 output,
-                patches_key="p_is_patch",
+                patches_key=patches_key,
                 passive_collate_length=passive_collate_length,
                 removed_collate_length=removed_collate_length,
                 minimum_passive_length=minimum_passive_length,
@@ -1259,6 +1285,30 @@ def main():
             (contour/polygon) region must have to be included in the output.
             Set to -1 to omit all detected patches from the output.
             Default is 25.
+        """,
+    )
+    group_outconfig.add_argument(
+        "--patch-mode",
+        dest="patch_mode",
+        type=str,
+        default=None,
+        help="""d|
+            Type of mask patches to use. Must be supported by the
+            model checkpoint used. Should be one of:
+              merged:
+                  Target patches for training were determined
+                  after merging as much as possible into the
+                  top and bottom lines.
+              original:
+                  Target patches for training were determined
+                  using original lines, before expanding the
+                  top and bottom lines.
+              ntob:
+                  Target patches for training were determined
+                  using the original bottom line and the merged
+                  top line.
+            Default: "merged" is used if downfacing; "ntob" if
+            upfacing.
         """,
     )
 
