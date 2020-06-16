@@ -771,6 +771,7 @@ def inference_transect(
                 "Data was autodetected as upward facing, and was flipped"
                 " vertically before being input into the model."
             )
+        is_upward_facing = True
     elif facing[:4] != "down" and facing[:4] != "auto":
         raise ValueError('facing should be one of "downward", "upward", and "auto"')
     elif facing[:4] == "down" and is_upward_facing:
@@ -779,6 +780,7 @@ def inference_transect(
                 facing
             )
         )
+        is_upward_facing = False
 
     # To reduce memory consumption, split into segments whenever the recording
     # interval is longer than normal
@@ -810,7 +812,9 @@ def inference_transect(
     if verbose >= 1:
         print()
 
-    return join_transect(outputs)
+    joined_output = join_transect(outputs)
+    joined_output["is_upward_facing"] = is_upward_facing
+    return joined_output
 
 
 def get_default_cache_dir():
