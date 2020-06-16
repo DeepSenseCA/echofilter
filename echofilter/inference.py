@@ -656,7 +656,7 @@ def run_inference(
             top_depths += offset_top
             bottom_depths -= offset_bottom
             # Redact passive regions
-            is_passive = output["p_is_passive" + cs] < 0.5
+            is_passive = output["p_is_passive" + cs] > 0.5
             if lines_during_passive == "predict":
                 pass
             elif lines_during_passive == "redact":
