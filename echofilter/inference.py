@@ -39,15 +39,23 @@ import echofilter.win
 CHECKPOINT_RESOURCES = OrderedDict(
     [
         (
-            "stationary_effunet_block6.xb.2-1_lc32_se2_v2.ckpt.tar",
-            {"gdrive": "1Rgr6y7SYEYrAq6tSF7tjqbKoZthKpMCb"},
+            # 2020-06-15_05.39.07_conditional_effunet6x.2-1_lc32-se2_bs12-lr0.016_mesa_mom.92-.98_w.1-.5_ep100_elastic_resume5
+            "conditional_mobile-stationary2_effunet6x2-1_lc32_v1.0.ckpt.tar",
+            {"gdrive": "1vEshqJbj906tCEA4KybUmlBXN9YEG_Fu"},
         ),
         (
-            "stationary_effunet_block6.xb.2-1_lc32_se2.ckpt.tar",
-            {"gdrive": "114vL-pAxrn9UDhaNG5HxZwjxNy7WMfW_"},
+            # 2020-06-14_14.24.21_effunet6x.2-1_lc32-se2_bs20-lr0.02_mesa_mom.92-.98_w.1-.5_ep150_elastic_epseed_resume2
+            "stationary2_effunet6x2-1_lc32_v1.0.ckpt.tar",
+            {"gdrive": "1qPg9lUbtLk_DOR86sPS-DAvOaAlnvAF_"},
+        ),
+        (
+            # 2020-06-14_13.53.10_effunet6x.2-1_lc32-se2_bs30-lr0.02_mesa_mom.92-.98_w.1-.5_ep300_elastic_epseed_resume2
+            "mobile_effunet6x2-1_lc32_v1.0.ckpt.tar",
+            {"gdrive": "1yODjTcRsGc3v8cNZqFZjqbtGHHwoAohU"},
         ),
     ]
 )
+
 DEFAULT_CHECKPOINT = next(iter(CHECKPOINT_RESOURCES))
 
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
