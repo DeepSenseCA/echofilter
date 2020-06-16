@@ -1114,6 +1114,13 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
 def main():
     import argparse
 
+    class ListCheckpoints(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string):
+            print("Currently available model checkpoints:")
+            for checkpoint, props in CHECKPOINT_RESOURCES.items():
+                print("    {}".format(checkpoint))
+            parser.exit()  # exits the program with no more arg parsing and checking
+
     prog = os.path.split(sys.argv[0])[1]
     if prog == "__main__.py":
         prog = "echofilter"
@@ -1139,6 +1146,12 @@ def main():
         action="version",
         version="%(prog)s {version}".format(version=echofilter.__version__),
         help="Show program's version number and exit.",
+    )
+    group_action.add_argument(
+        "--list-checkpoints",
+        nargs=0,
+        action=ListCheckpoints,
+        help="Show the available model checkpoints and exit.",
     )
 
     # Input files
@@ -1757,6 +1770,9 @@ def main():
     )
 
     kwargs = vars(parser.parse_args())
+
+    if kwargs.pop("list_checkpoints"):
+        return list_checkpoints()
 
     kwargs["verbose"] -= kwargs.pop("quiet", 0)
 
