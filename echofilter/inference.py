@@ -145,6 +145,32 @@ def run_inference(
     offset_bottom : float, optional
         Offset for bottom line, which moves the line to become more shallow.
          Default is `0`.
+     lines_during_passive : str, optional
+        Method used to handle line depths during collection
+        periods determined to be passive recording instead of
+        active recording.
+        Options are:
+            `"interpolate-time"`:
+                depths are linearly interpolated from active
+                recording periods, using the time at which
+                recordings where made.
+            `"interpolate-index"`:
+                depths are linearly interpolated from active
+                recording periods, using the index of the
+                recording.
+            `"predict"`:
+                the model's prediction for the lines during
+                passive data collection will be kept; the nature
+                of the prediction depends on how the model was
+                trained.
+            `"redact"`:
+                no depths are provided during periods determined
+                to be passive data collection.
+            `"undefined"`:
+                depths are replaced with the placeholder value
+                used by EchoView to denote undefined values,
+                which is `-10000.99`.
+        Default: "redact".
     variable_name : str, optional
         Name of the EchoView acoustic variable to load from EV files. Default
         is `'Fileset1: Sv pings T1'`.
