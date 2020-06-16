@@ -8,6 +8,7 @@ import pprint
 import shutil
 import sys
 import tempfile
+import textwrap
 import time
 import urllib
 import warnings
@@ -69,6 +70,12 @@ def run_inference(
     offset_top=0.0,
     offset_bottom=0.0,
     lines_during_passive="redact",
+    passive_collate_length=10,
+    removed_collate_length=10,
+    minimum_passive_length=10,
+    minimum_removed_length=10,
+    minimum_patch_area=25,
+    patch_mode=None,
     variable_name=DEFAULT_VARNAME,
     row_len_selector="mode",
     facing="auto",
@@ -145,6 +152,72 @@ def run_inference(
     offset_bottom : float, optional
         Offset for bottom line, which moves the line to become more shallow.
          Default is `0`.
+     lines_during_passive : str, optional
+        Method used to handle line depths during collection
+        periods determined to be passive recording instead of
+        active recording.
+        Options are:
+            `"interpolate-time"`:
+                depths are linearly interpolated from active
+                recording periods, using the time at which
+                recordings where made.
+            `"interpolate-index"`:
+                depths are linearly interpolated from active
+                recording periods, using the index of the
+                recording.
+            `"predict"`:
+                the model's prediction for the lines during
+                passive data collection will be kept; the nature
+                of the prediction depends on how the model was
+                trained.
+            `"redact"`:
+                no depths are provided during periods determined
+                to be passive data collection.
+            `"undefined"`:
+                depths are replaced with the placeholder value
+                used by EchoView to denote undefined values,
+                which is `-10000.99`.
+        Default: "redact".
+    passive_collate_length : int, optional
+        Maximum interval, in ping indices, between detected passive regions
+        which will removed to merge consecutive passive regions together
+        into a single, collated, region. Default is 10.
+    passive_collate_length : int, optional
+        Maximum interval, in ping indices, between detected blocks
+        (vertical rectangles) marked for removal which will also be removed
+        to merge consecutive removed blocks together into a single,
+        collated, region. Default is 10.
+    minimum_passive_length : int, optional
+        Minimum length, in ping indices, which a detected passive region
+        must have to be included in the output. Set to -1 to omit all
+        detected passive regions from the output. Default is 10.
+    minimum_removed_length : int, optional
+        Minimum length, in ping indices, which a detected removal block
+        (vertical rectangle) must have to be included in the output.
+        Set to -1 to omit all detected removal blocks from the output.
+        Default is 10.
+    minimum_patch_area : int, optional
+        Minimum area, in pixels, which a detected removal patch
+        (contour/polygon) region must have to be included in the output.
+        Set to -1 to omit all detected patches from the output.
+        Default is 25.
+    patch_mode : str or None, optional
+        Type of mask patches to use. Must be supported by the
+        model checkpoint used. Should be one of:
+            `"merged"`:
+                Target patches for training were determined
+                after merging as much as possible into the
+                top and bottom lines.
+            `"original"`:
+                Target patches for training were determined
+                using original lines, before expanding the
+                top and bottom lines.
+            `"ntob"`:
+                Target patches for training were determined
+                using the original bottom line and the merged
+                top line.
+        If `None` (default), `"merged"` is used if downfacing and `"ntob"` is
+        used if upfacing.
     variable_name : str, optional
         Name of the EchoView acoustic variable to load from EV files. Default
         is `'Fileset1: Sv pings T1'`.
@@ -329,6 +402,17 @@ def run_inference(
             )
         do_open = False
 
+    common_notes = textwrap.dedent(
+        """
+        Classified by echofilter {ver} at {dt}
+        Model checkpoint: {ckpt_name}
+        """.format(
+            ver=echofilter.__version__,
+            dt=datetime.datetime.now().astimezone().isoformat(timespec="seconds"),
+            ckpt_name=os.path.split(ckpt_name)[1],
+        )
+    )
+
     if len(files) == 1 or verbose <= 0:
         maybe_tqdm = lambda x: x
     else:
@@ -358,8 +442,11 @@ def run_inference(
             # Check whether to skip processing this file
             if skip_existing:
                 any_missing = False
+                dest_files = []
                 for name in ("top", "bottom"):
-                    dest_file = "{}.{}.evl".format(destination, name)
+                    dest_files.append("{}.{}.evl".format(destination, name))
+                dest_files.append("{}.{}.evr".format(destination, "regions"))
+                for dest_file in dest_files:
                     if not os.path.isfile(dest_file):
                         any_missing = True
                         break
@@ -554,6 +641,37 @@ def run_inference(
                 echofilter.raw.loader.evl_writer(
                     dest_file, timestamps, depths, status=line_status
                 )
+            # Export evr file
+            dest_file = "{}.{}.evr".format(destination, "regions")
+            if verbose >= 2:
+                print("Writing output {}".format(dest_file))
+            if os.path.exists(dest_file) and not overwrite_existing:
+                raise EnvironmentError(
+                    "Output {} already exists.\n"
+                    " Run with overwrite_existing=True (with the command line"
+                    " interface, use the --force flag) to overwrite existing"
+                    " outputs.".format(dest_file)
+                )
+
+            patches_key = "p_is_patch"
+            if patch_mode is None:
+                if output["is_upward_facing"]:
+                    patches_key += "-ntob"
+            elif patch_mode != "merged":
+                patches_key += "-" + patch_mode
+
+            echofilter.raw.loader.write_transect_regions(
+                dest_file,
+                output,
+                patches_key=patches_key,
+                passive_collate_length=passive_collate_length,
+                removed_collate_length=removed_collate_length,
+                minimum_passive_length=minimum_passive_length,
+                minimum_removed_length=minimum_removed_length,
+                minimum_patch_area=minimum_patch_area,
+                common_notes=common_notes,
+                verbose=verbose - 1,
+            )
 
     if verbose >= 1:
         s = "Finished {}processing {} file{}.".format(
@@ -679,6 +797,7 @@ def inference_transect(
                 "Data was autodetected as upward facing, and was flipped"
                 " vertically before being input into the model."
             )
+        is_upward_facing = True
     elif facing[:4] != "down" and facing[:4] != "auto":
         raise ValueError('facing should be one of "downward", "upward", and "auto"')
     elif facing[:4] == "down" and is_upward_facing:
@@ -687,6 +806,7 @@ def inference_transect(
                 facing
             )
         )
+        is_upward_facing = False
 
     # To reduce memory consumption, split into segments whenever the recording
     # interval is longer than normal
@@ -718,7 +838,9 @@ def inference_transect(
     if verbose >= 1:
         print()
 
-    return join_transect(outputs)
+    joined_output = join_transect(outputs)
+    joined_output["is_upward_facing"] = is_upward_facing
+    return joined_output
 
 
 def get_default_cache_dir():
@@ -1102,6 +1224,93 @@ def main():
             EV_UNDEFINED_DEPTH
         ),
     )
+    group_outconfig.add_argument(
+        "--passive-collate",
+        "--passive-collate-length",
+        dest="passive_collate_length",
+        type=int,
+        default=10,
+        help="""
+            Maximum interval, in ping indices, between detected passive regions
+            which will removed to merge consecutive passive regions together
+            into a single, collated, region. Default is 10.
+        """,
+    )
+    group_outconfig.add_argument(
+        "--removed-collate",
+        "--removed-collate-length",
+        dest="passive_collate_length",
+        type=int,
+        default=10,
+        help="""
+            Maximum interval, in ping indices, between detected blocks
+            (vertical rectangles) marked for removal which will also be removed
+            to merge consecutive removed blocks together into a single,
+            collated, region. Default is 10.
+        """,
+    )
+    group_outconfig.add_argument(
+        "--minimum-passive",
+        "--minimum-passive-length",
+        dest="minimum_passive_length",
+        type=int,
+        default=10,
+        help="""
+            Minimum length, in ping indices, which a detected passive region
+            must have to be included in the output. Set to -1 to omit all
+            detected passive regions from the output. Default is 10.
+        """,
+    )
+    group_outconfig.add_argument(
+        "--minimum-removed",
+        "--minimum-removed-length",
+        dest="minimum_removed_length",
+        type=int,
+        default=10,
+        help="""
+            Minimum length, in ping indices, which a detected removal block
+            (vertical rectangle) must have to be included in the output.
+            Set to -1 to omit all detected removal blocks from the output.
+            Default is 10.
+        """,
+    )
+    group_outconfig.add_argument(
+        "--minimum-patch",
+        "--minimum-patch-area",
+        dest="minimum_patch_area",
+        type=int,
+        default=25,
+        help="""
+            Minimum area, in pixels, which a detected removal patch
+            (contour/polygon) region must have to be included in the output.
+            Set to -1 to omit all detected patches from the output.
+            Default is 25.
+        """,
+    )
+    group_outconfig.add_argument(
+        "--patch-mode",
+        dest="patch_mode",
+        type=str,
+        default=None,
+        help="""d|
+            Type of mask patches to use. Must be supported by the
+            model checkpoint used. Should be one of:
+              merged:
+                  Target patches for training were determined
+                  after merging as much as possible into the
+                  top and bottom lines.
+              original:
+                  Target patches for training were determined
+                  using original lines, before expanding the
+                  top and bottom lines.
+              ntob:
+                  Target patches for training were determined
+                  using the original bottom line and the merged
+                  top line.
+            Default: "merged" is used if downfacing; "ntob" if
+            upfacing.
+        """,
+    )
 
     # Input data transforms
     group_inproc = parser.add_argument_group(
@@ -1195,7 +1404,7 @@ def main():
         """,
     )
 
-    # Input data transforms
+    # Model arguments
     group_model = parser.add_argument_group(
         "Model arguments",
         "Optional parameters specifying which model checkpoint will be used"

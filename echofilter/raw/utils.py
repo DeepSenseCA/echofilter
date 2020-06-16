@@ -104,3 +104,125 @@ def interp1d_preserve_nan(
     # and remove the points too close to a NaN in the input
     y_samples[influence > nan_threshold] = np.nan
     return y_samples
+
+
+def pad1d(array, pad_width, axis=0, **kwargs):
+    """
+    Pad an array along a single axis only.
+
+    Parameters
+    ----------
+    array : numpy.ndarary
+        Array to be padded.
+    pad_width : int or tuple
+        The amount to pad, either a length two tuple of values for each edge,
+        or an int if the padding should be the same for each side.
+    axis : int, optional
+        The axis to pad. Default is `0`.
+    **kwargs
+        As per `numpy.pad`.
+
+    Returns
+    -------
+    numpy.ndarary
+        Padded array.
+
+    See also
+    --------
+    numpy.pad
+    """
+    pads = [(0, 0) for _ in range(array.ndim)]
+    if hasattr(pad_width, "__len__"):
+        pads[axis] = pad_width
+    else:
+        pads[axis] = (pad_width, pad_width)
+    return np.pad(array, pads, **kwargs)
+
+
+def squash_gaps(mask, max_gap_squash, axis=-1, inplace=False):
+    """
+    Merge small gaps between zero values in a boolean array.
+
+    Parameters
+    ----------
+    mask : boolean array
+        The input mask, with small gaps between zero values which will be
+        squashed with zeros.
+    max_gap_squash : int
+        Maximum length of gap to squash.
+    axis : int, optional
+        Axis on which to operate. Default is `-1`.
+    inplace : bool, optional
+        Whether to operate on the original array. If `False`, a copy is
+        created and returned.
+
+    Returns
+    -------
+    merged_mask : boolean array
+        Mask as per the input, but with small gaps squashed.
+    """
+    if not inplace:
+        mask = mask.copy()
+    L = mask.shape[axis]
+    for i in range(min(max_gap_squash, L - 1), 1, -1):
+        check = np.stack(
+            [
+                pad1d(
+                    mask.take(range(i // 2, L), axis=axis),
+                    (0, i // 2),
+                    axis=axis,
+                    mode="constant",
+                ),
+                pad1d(
+                    mask.take(range(0, L - ((i + 1) // 2)), axis=axis),
+                    ((i + 1) // 2, 0),
+                    axis=axis,
+                    mode="constant",
+                ),
+            ]
+        )
+        li = ~np.any(check, axis=0)
+        mask[li] = 0
+    return mask
+
+
+def integrate_area_of_contour(x, y, closed=None, preserve_sign=False):
+    """
+    Compute the area within a contour, using Green's algorithm.
+
+    Parameters
+    ----------
+    x : array_like vector
+        x co-ordinates of nodes along the contour.
+    y : array_like vector
+        y co-ordinates of nodes along the contour.
+    closed : bool or None, optional
+        Whether the contour is already closed. If `False`, it will be closed
+        before deterimining the area. If `None` (default), it is automatically
+        determined as to whether the contour is already closed, and is closed
+        if necessary.
+    preserve_sign : bool, optional
+        Whether to preserve the sign of the area. If `True`, the area is
+        positive if the contour is anti-clockwise and negative if it is
+        clockwise oriented. Default is `False`, which always returns a positive
+        area.
+
+    Returns
+    -------
+    area : float
+        The integral of the area witihn the contour.
+
+    Notes
+    -----
+    https://en.wikipedia.org/wiki/Green%27s_theorem#Area_calculation
+    """
+    if closed is None:
+        closed = x[0] == x[-1] and y[0] == y[-1]
+    if not closed:
+        x = np.concatenate([x, x[[0]]])
+        y = np.concatenate([y, y[[0]]])
+    # Integrate to find the area
+    A = 0.5 * np.sum(y[:-1] * np.diff(x) - x[:-1] * np.diff(y))
+    # Take the abs in case the curve was clockwise instead of anti-clockwise
+    A = np.abs(A)
+    return A

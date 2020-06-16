@@ -6,12 +6,15 @@ from collections import OrderedDict
 import csv
 import datetime
 import os
+import textwrap
 import warnings
 
 import numpy as np
+import scipy.ndimage
+import skimage.measure
 import pandas as pd
 
-from .utils import interp1d_preserve_nan, mode
+from . import utils
 
 
 ROOT_DATA_DIR = "/data/dsforce/surveyExports"
@@ -265,7 +268,7 @@ def transect_loader(
         if n_depth_use not in row_depth_starts:
             n_depth_use = np.median(row_lengths[:-1])
     elif row_len_selector == "mode":
-        n_depth_use = mode(row_lengths)
+        n_depth_use = utils.mode(row_lengths)
     else:
         raise ValueError(
             "Unsupported row_len_selector value: {}".format(row_len_selector)
@@ -277,8 +280,8 @@ def transect_loader(
         d_start = np.median(row_depth_starts[row_lengths == n_depth_use])
         d_stop = np.median(row_depth_ends[row_lengths == n_depth_use])
     else:
-        d_start = mode(row_depth_starts[row_lengths == n_depth_use])
-        d_stop = mode(row_depth_ends[row_lengths == n_depth_use])
+        d_start = utils.mode(row_depth_starts[row_lengths == n_depth_use])
+        d_stop = utils.mode(row_depth_ends[row_lengths == n_depth_use])
     depths = np.linspace(d_start, d_stop, n_depth_use)
 
     # Interpolate depths to get a consistent sampling grid
@@ -287,11 +290,11 @@ def transect_loader(
         zip(row_lengths, row_depth_starts, row_depth_ends)
     ):
         if d0 < d1:
-            data[i_entry, :n_depth_use] = interp1d_preserve_nan(
+            data[i_entry, :n_depth_use] = utils.interp1d_preserve_nan(
                 np.linspace(d0, d1, nd), data[i_entry, :nd], depths, **interp_kwargs,
             )
         else:
-            data[i_entry, :n_depth_use] = interp1d_preserve_nan(
+            data[i_entry, :n_depth_use] = utils.interp1d_preserve_nan(
                 np.linspace(d1, d0, nd),
                 data[i_entry, :nd][::-1],
                 depths,
@@ -365,7 +368,33 @@ def evl_loader(fname):
     return np.array(timestamps), np.array(values)
 
 
-def evl_writer(fname, timestamps, depths, status=1):
+def timestamp2evdtstr(timestamp):
+    """
+    Converts a timestamp into an Echoview-compatible datetime string, in the
+    format "CCYYMMDD HHmmSSssss", where:
+        CC = century
+        YY = year
+        MM = month
+        DD = day
+        HH = hour
+        mm = minute
+        SS = second
+        ssss = 0.1 milliseconds
+
+    Parameters
+    ----------
+    timestamp : float
+        Number of seconds since Unix epoch.
+    """
+    # Datetime must be in the format CCYYMMDD HHmmSSssss
+    # where ssss = 0.1 milliseconds.
+    # We have to manually determine the number of "0.1 milliseconds"
+    # from the microsecond component.
+    dt = datetime.datetime.fromtimestamp(timestamp)
+    return "{}{:04d}".format(dt.strftime("%Y%m%d %H%M%S"), round(dt.microsecond / 100),)
+
+
+def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n"):
     """
     EVL file writer
 
@@ -385,6 +414,11 @@ def evl_writer(fname, timestamps, depths, status=1):
             `3` : good
         Default is `1` (unverified). For more details on line status, see:
         https://support.echoview.com/WebHelp/Using_Echoview/Echogram/Lines/About_Line_Status.htm
+    line_ending : str, optional
+        Line ending. Default is "\r\n" the standard line ending on Windows/DOS,
+        as per the specification for the file format.
+        https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm
+        Set to "\n" to get Unix-style line endings instead.
 
     Notes
     -----
@@ -393,9 +427,9 @@ def evl_writer(fname, timestamps, depths, status=1):
     """
     with open(fname, "w+", encoding="utf-8") as hf:
         # Write header
-        print("﻿EVBD 3 10.0.270.37090", file=hf)
+        print("﻿EVBD 3 10.0.270.37090", file=hf, end=line_ending)
         n_row = len(depths)
-        print(n_row, file=hf)
+        print(n_row, file=hf, end=line_ending)
         # Write each row
         for i_row, (timestamp, depth) in enumerate(zip(timestamps, depths)):
             # Datetime must be in the format CCYYMMDD HHmmSSssss
@@ -404,14 +438,382 @@ def evl_writer(fname, timestamps, depths, status=1):
             # from the microsecond component.
             dt = datetime.datetime.fromtimestamp(timestamp)
             print(
-                "{}{:04d}  {} {} ".format(
-                    dt.strftime("%Y%m%d %H%M%S"),
-                    round(dt.microsecond / 100),
+                "{}  {} {} ".format(
+                    timestamp2evdtstr(timestamp),
                     depth,
                     0 if i_row == n_row - 1 else status,
                 ),
                 file=hf,
+                end=line_ending,
             )
+
+
+def evr_writer(
+    fname,
+    rectangles=[],
+    contours=[],
+    common_notes="",
+    default_region_type=0,
+    line_ending="\r\n",
+):
+    """
+    EVR file writer.
+
+    Writes regions to an EchoView region file.
+
+    Parameters
+    ----------
+    fname : str
+        Destination of output file.
+    rectangles : list of dictionaries, optional
+        Rectangle region definitions. Default is an empty list. Each rectangle
+        region must implement fields `"depths"` and `"timestamps"`, which
+        indicate the extent of the rectangle. Optionally, `"creation_type"`,
+        `"region_name"`, `"region_type"`, and `"notes"` may be set.
+        If these are not given, the default creation_type is 4 and region_type
+        is set by `default_region_type`.
+    contours : list of dictionaries
+        Contour region definitions. Default is an empty list. Each contour
+        region must implement a `"points"` field containing a `numpy.ndarray`
+        shaped `(n, 2)` defining the co-ordinates of nodes along the (open)
+        contour in units of timestamp and depth. Optionally, `"creation_type"`,
+        `"region_name"`, `"region_type"`, and `"notes"` may be set.
+        If these are not given, the default creation_type is 2 and region_type
+        is set by `default_region_type`.
+    common_notes : str, optional
+        Notes to include for every region. Default is `""`.
+    default_region_type : int, optional
+        The region type to use for rectangles and contours which do not define
+        a `"region_type"` field. Possible region types are
+            `0` : bad (no data)
+            `1` : analysis
+            `2` : marker
+            `3` : fishtracks
+            `4` : bad (empty water)
+        Default is `0`.
+    line_ending : str, optional
+        Line ending. Default is "\r\n" the standard line ending on Windows/DOS,
+        as per the specification for the file format.
+        https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm
+        Set to "\n" to get Unix-style line endings instead.
+
+    Notes
+    -----
+    For more details on the format specification, see:
+    https://support.echoview.com/WebHelp/Reference/File_formats/Export_file_formats/2D_Region_definition_file_format.htm
+    """
+    common_notes = common_notes.strip("\n").replace("\n", line_ending)
+    if len(common_notes) == 0:
+        n_lines_common_notes = 0
+    else:
+        n_lines_common_notes = 1 + common_notes.count(line_ending)
+    n_regions = len(rectangles) + len(contours)
+    i_region = 0
+    with open(fname, "w+", encoding="utf-8") as hf:
+        # Common print arguments
+        pa = {"file": hf, "end": line_ending}
+        # Write header
+        print("﻿﻿EVRG 7 10.0.283.37689", **pa)
+        print(n_regions, **pa)
+
+        # Write each rectangle
+        for region in rectangles:
+            # Regions are indexed from 1, so increment the counter first
+            i_region += 1
+            print("", **pa)  # Blank line separates regions
+            # Determine extent of rectangle
+            left = timestamp2evdtstr(np.min(region["timestamps"]))
+            right = timestamp2evdtstr(np.max(region["timestamps"]))
+            top = np.min(region["depths"])
+            bottom = np.max(region["depths"])
+            # Region header
+            print(
+                "13 4 {i} 0 {type} -1 1 {left}  {top} {right}  {bottom}".format(
+                    i=i_region,
+                    type=region.get("creation_type", 4),
+                    left=left,
+                    right=right,
+                    top=top,
+                    bottom=bottom,
+                ),
+                **pa,
+            )
+            # Notes
+            notes = region.get("notes", "")
+            if len(notes) == 0:
+                notes = common_notes
+                n_lines_notes = n_lines_common_notes
+            else:
+                notes = notes.strip("\n").replace("\n", line_ending)
+                if len(common_notes) > 0:
+                    notes += line_ending + common_notes
+                n_lines_notes = 1 + notes.count(line_ending)
+            print(n_lines_notes, **pa)  # Number of lines of notes
+            if len(notes) > 0:
+                print(notes, **pa)
+            # Detection settings
+            print("0", **pa)  # Number of lines of detection settings
+            # Region classification string
+            print("Unclassified regions", **pa)
+            # The points defining the region itself
+            print(
+                "{left} {top} {left} {bottom} {right} {bottom} {right} {top}".format(
+                    left=left, right=right, top=top, bottom=bottom,
+                ),
+                file=hf,
+                end=" ",  # Terminates with a space, not a new line
+            )
+            # Region type
+            print(region.get("region_type", default_region_type), **pa)
+            # Region name
+            print(region.get("region_name", "Region {}".format(i_region)), **pa)
+
+        # Write each contour
+        for region in contours:
+            # Regions are indexed from 1, so increment the counter first
+            i_region += 1
+            print("", **pa)  # Blank line separates regions
+            # Header line
+            print(
+                "13 {n} {i} 0 {type} -1 1 {left}  {top} {right}  {bottom}".format(
+                    n=region["points"].shape[0],
+                    i=i_region,
+                    type=region.get("creation_type", 2),
+                    left=timestamp2evdtstr(np.min(region["points"][:, 0])),
+                    right=timestamp2evdtstr(np.max(region["points"][:, 0])),
+                    top=np.min(region["points"][:, 1]),
+                    bottom=np.max(region["points"][:, 1]),
+                ),
+                **pa,
+            )
+            # Notes
+            notes = region.get("notes", "")
+            if len(notes) == 0:
+                notes = common_notes
+                n_lines_notes = n_lines_common_notes
+            else:
+                notes = notes.rstrip("\n").replace("\n", line_ending)
+                if len(common_notes) > 0:
+                    notes += line_ending + common_notes
+                n_lines_notes = 1 + notes.count(line_ending)
+            print(n_lines_notes, **pa)  # Number of lines of notes
+            if len(notes) > 0:
+                print(notes, **pa)
+            # Detection settings
+            print("0", **pa)  # Number of lines of detection settings
+            # Region classification string
+            print("Unclassified regions", **pa)
+            # The region itself
+            for point in region["points"]:
+                print(
+                    "{} {}".format(timestamp2evdtstr(point[0]), point[1]),
+                    file=hf,
+                    end=" ",
+                )
+            # Region type
+            print(region.get("region_type", default_region_type), **pa)
+            # Region name
+            print(region.get("region_name", "Region {}".format(i_region)), **pa)
+
+
+def write_transect_regions(
+    fname,
+    transect,
+    patches_key="mask_patches",
+    passive_collate_length=0,
+    removed_collate_length=0,
+    minimum_passive_length=0,
+    minimum_removed_length=0,
+    minimum_patch_area=0,
+    common_notes="",
+    line_ending="\r\n",
+    verbose=0,
+):
+    """
+    Convert a transect dictionary to a set of regions and write as an EVR file.
+
+    Parameters
+    ----------
+    fname : str
+        Destination of output file.
+    transect : dict
+        Transect dictionary.
+    patches_key : str, optional
+        Field name to use for the mask of patch regions. Default is
+        `"mask_patches"`.
+    passive_collate_length : int, optional
+        Maximum distance (in indices) over which passive regions should be
+        merged together, closing small gaps between them. Default is `0`.
+    removed_collate_length : int, optional
+        Maximum distance (in indices) over which removed blocks should be
+        merged together, closing small gaps between them. Default is `0`.
+    minimum_passive_length : int, optional
+        Minimum length (in indices) a passive region must have to be included
+        in the output. Set to -1 to omit all passive regions from the output.
+        Default is `0`.
+    minimum_removed_length : int, optional
+        Minimum length (in indices) a removed block must have to be included in
+        the output. Set to -1 to omit all removed regions from the output.
+        Default is `0`.
+    minimum_patch_area : float, optional
+        Minimum amount of area (in input pixel space) that a patch must occupy
+        in order to be included in the output. Set to `0` to include all
+        patches, no matter their area. Set to -1 to omit all patches.
+        Default is `0`.
+    common_notes : str, optional
+        Notes to include for every region. Default is `""`.
+    line_ending : str, optional
+        Line ending. Default is "\r\n" the standard line ending on Windows/DOS,
+        as per the specification for the file format.
+        https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm
+        Set to "\n" to get Unix-style line endings instead.
+    verbose : int, optional
+        Verbosity level. Default is `0`.
+    """
+    rectangles = []
+    contours = []
+    # Regions around each period of passive data
+    key = "is_passive"
+    if key not in transect:
+        key = "p_" + key
+    if key not in transect:
+        raise ValueError("Key {} and {} not found in transect.".format(key[2:], key))
+    is_passive = transect[key] > 0.5
+    is_passive = ~utils.squash_gaps(~is_passive, passive_collate_length)
+    passive_starts, passive_ends = utils.get_indicator_onoffsets(is_passive)
+    i_passive = 1
+    n_passive_skipped = 0
+    for start_index, end_index in zip(passive_starts, passive_ends):
+        if minimum_passive_length == -1:
+            # No passive regions
+            break
+        if end_index - start_index + 1 <= minimum_passive_length:
+            n_passive_skipped += 1
+            continue
+        region = {}
+        region["region_name"] = "Passive data region {}".format(i_passive)
+        region["creation_type"] = 4
+        region["region_type"] = 0
+        region["depths"] = transect["depths"][[0, -1]]
+        region["timestamps"] = transect["timestamps"][[start_index, end_index]]
+        region["notes"] = textwrap.dedent(
+            """
+            Passive data
+            Length in pixels: {}
+            Duration in seconds: {}
+            """.format(
+                end_index - start_index + 1,
+                region["timestamps"][1] - region["timestamps"][0],
+            )
+        )
+        rectangles.append(region)
+        i_passive += 1
+    # Regions around each period of removed data
+    key = "is_removed"
+    if key not in transect:
+        key = "p_" + key
+    if key not in transect:
+        raise ValueError("Key {} and {} not found in transect.".format(key[2:], key))
+    is_removed = transect[key] > 0.5
+    is_removed = ~utils.squash_gaps(~is_removed, removed_collate_length)
+    removed_starts, removed_ends = utils.get_indicator_onoffsets(is_removed)
+    i_removed = 1
+    n_removed_skipped = 0
+    for start_index, end_index in zip(removed_starts, removed_ends):
+        if minimum_removed_length == -1:
+            # No passive regions
+            break
+        if end_index - start_index + 1 <= minimum_removed_length:
+            n_removed_skipped += 1
+            continue
+        region = {}
+        region["region_name"] = "Removed data block {}".format(i_removed)
+        region["creation_type"] = 4
+        region["region_type"] = 0
+        region["depths"] = transect["depths"][[0, -1]]
+        region["timestamps"] = transect["timestamps"][[start_index, end_index]]
+        region["notes"] = textwrap.dedent(
+            """
+            Removed data block
+            Length in pixels: {}
+            Duration in seconds: {}
+            """.format(
+                end_index - start_index + 1,
+                region["timestamps"][1] - region["timestamps"][0],
+            )
+        )
+        rectangles.append(region)
+        i_removed += 1
+    # Contours around each removed patch
+    if patches_key not in transect:
+        raise ValueError("Key {} not found in transect.".format(patches_key))
+    patches = transect[patches_key]
+    patches = scipy.ndimage.binary_fill_holes(patches > 0.5)
+    contours_coords = skimage.measure.find_contours(patches, 0.5)
+    contour_dicts = []
+    i_contour = 1
+    n_contour_skipped = 0
+    for contour in contours_coords:
+        if minimum_patch_area == -1:
+            # No patches
+            break
+        area = utils.integrate_area_of_contour(
+            contour[:, 0], contour[:, 1], closed=False
+        )
+        if area < minimum_patch_area:
+            n_contour_skipped += 1
+            continue
+        region = {}
+        region["region_name"] = "Removed patch {}".format(i_contour)
+        region["creation_type"] = 2
+        region["region_type"] = 0
+        x = np.interp(
+            contour[:, 0],
+            np.arange(len(transect["timestamps"])),
+            transect["timestamps"],
+        )
+        y = np.interp(
+            contour[:, 1], np.arange(len(transect["depths"])), transect["depths"]
+        )
+        region["points"] = np.stack([x, y], axis=-1)
+        region["notes"] = textwrap.dedent(
+            """
+            Removed patch
+            Area in pixels: {}
+            Area in meter-seconds: {}
+            """.format(
+                area, utils.integrate_area_of_contour(x, y, closed=False)
+            )
+        )
+        contour_dicts.append(region)
+        i_contour += 1
+    if verbose:
+        print(
+            "Outputting {} regions:"
+            " {} passive, {} removed blocks, {} removed patches".format(
+                len(rectangles) + len(contour_dicts),
+                i_passive - 1,
+                i_removed - 1,
+                i_contour - 1,
+            )
+        )
+        n_skipped = n_passive_skipped + n_removed_skipped + n_contour_skipped
+        if verbose > 1 or n_skipped > 0:
+            print(
+                "There were {} skipped (too small) regions:"
+                " {} passive, {} removed blocks, {} removed patches".format(
+                    n_skipped, n_passive_skipped, n_removed_skipped, n_contour_skipped
+                )
+            )
+
+    # Write the output
+    return evr_writer(
+        fname,
+        rectangles=rectangles,
+        contours=contour_dicts,
+        common_notes=common_notes,
+        line_ending=line_ending,
+    )
 
 
 def load_transect_data(transect_pth, dataset="mobile", root_data_dir=ROOT_DATA_DIR):
