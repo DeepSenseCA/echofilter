@@ -1,4 +1,5 @@
 numpy
+matplotlib
 pandas
 pywin32; platform_system=="Windows"
 scikit-image

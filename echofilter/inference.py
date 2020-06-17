@@ -15,6 +15,7 @@ import warnings
 
 import appdirs
 import numpy as np
+from matplotlib import colors as mcolors
 import pandas as pd
 import torch
 import torch.nn
@@ -80,6 +81,12 @@ def run_inference(
     import_into_evfile=True,
     suffix_file="",
     suffix_var=None,
+    color_top="orangered",
+    color_bottom="orangered",
+    color_surface="green",
+    thickness_top=2,
+    thickness_bottom=2,
+    thickness_surface=1,
     cache_dir=None,
     cache_csv=None,
     suffix_csv=".csv",
@@ -157,6 +164,33 @@ def run_inference(
         Suffix to append to lines imported back into EV file. If `None`
         (default), suffix_var will match `suffix_file` if it is set,
         and will be "_echofilter" otherwise.
+    color_top : str, optional
+        Color to use for the top line when it is imported into EchoView.
+        This can either be the name of a supported color from
+        matplotlib.colors, or a hexadecimal color, or a string representation
+        of an RGB color to supply directly to EchoView (such as "(0,255,0)").
+        Default is `"orangered"`.
+    color_bottom : str, optional
+        Color to use for the bottom line when it is imported into EchoView.
+        This can either be the name of a supported color from
+        matplotlib.colors, or a hexadecimal color, or a string representation
+        of an RGB color to supply directly to EchoView (such as "(0,255,0)").
+        Default is `"orangered"`.
+    color_surface : str, optional
+        Color to use for the surface line when it is imported into EchoView.
+        This can either be the name of a supported color from
+        matplotlib.colors, or a hexadecimal color, or a string representation
+        of an RGB color to supply directly to EchoView (such as "(0,255,0)").
+        Default is `"green"`.
+    thickness_top : int, optional
+        Thicknesses with which the top line will be displayed in EchoView.
+        Default is `2`.
+    thickness_bottom : int, optional
+        Thicknesses with which the top line will be displayed in EchoView.
+        Default is `2`.
+    thickness_surface : int, optional
+        Thicknesses with which the top line will be displayed in EchoView.
+        Default is `1`.
     cache_dir : str or None, optional
         Path to directory where downloaded checkpoint files should be cached.
         If `None` (default), an OS-appropriate application-specific default
@@ -335,6 +369,11 @@ def run_inference(
         suffix_var = suffix_file
     else:
         suffix_var = "_echofilter"
+
+    line_colors = dict(top=color_top, bottom=color_bottom, surface=color_surface)
+    line_thicknesses = dict(
+        top=thickness_top, bottom=thickness_bottom, surface=thickness_surface
+    )
 
     if checkpoint is None:
         # Use the first item from the list of checkpoints
@@ -839,6 +878,8 @@ def run_inference(
                 fname_full,
                 dest_files,
                 target_names={key: key + suffix_var for key in dest_files},
+                line_colors=line_colors,
+                line_thicknesses=line_thicknesses,
                 ev_app=ev_app,
                 overwrite=overwrite_ev_lines,
                 verbose=verbose,
@@ -1117,7 +1158,14 @@ def inference_transect(
 
 
 def import_lines_regions_to_ev(
-    ev_fname, files, target_names={}, ev_app=None, overwrite=False, verbose=1,
+    ev_fname,
+    files,
+    target_names={},
+    line_colors={},
+    line_thicknesses={},
+    ev_app=None,
+    overwrite=False,
+    verbose=1,
 ):
     """
     Write lines and regions to EV file.
@@ -1127,9 +1175,13 @@ def import_lines_regions_to_ev(
     ev_fname : str
         Path to EchoView file to import variables into.
     files : dict
-        Mapping from output types to filenames.
+        Mapping from output keys to filenames.
     target_names : dict, optional
-        Mapping from output types to output variable names.
+        Mapping from output keys to output variable names.
+    line_colors : dict, optional
+        Mapping from output keys to line colours.
+    line_thicknesses : dict, optional
+        Mapping from output keys to line thicknesses.
     ev_app : win32com.client.Dispatch object or None, optional
         An object which can be used to interface with the EchoView application,
         as returned by `win32com.client.Dispatch`. If `None` (default), a
@@ -1144,6 +1196,10 @@ def import_lines_regions_to_ev(
     """
     if verbose >= 2:
         print("Importing {} lines/regions into EV file {}".format(len(files), ev_fname))
+
+    # Assemble the color palette
+    colors = get_color_palette()
+
     with echofilter.win.open_ev_file(ev_fname, ev_app) as ev_file:
         for key, fname in files.items():
             # Import the line into the EV file
@@ -1215,8 +1271,62 @@ def import_lines_regions_to_ev(
                 variable.ShortName = target_name
                 line.Name = target_name
 
+            # Change the color and thickness of the line
+            if key in line_colors or key in line_thicknesses:
+                ev_app.Exec(
+                    "{} | UseDefaultLineDisplaySettings =| false".format(line.Name)
+                )
+            if key in line_colors:
+                color = line_colors[key]
+                if color in colors:
+                    color = colors[color]
+                color = hexcolor2rgb8(color)
+                color = repr(color).replace(" ", "")
+                ev_app.Exec("{} | CustomGoodLineColor =| {}".format(line.Name, color))
+            if key in line_thicknesses:
+                ev_app.Exec(
+                    "{} | CustomLineDisplayThickness =| {}".format(
+                        line.Name, line_thicknesses[key]
+                    )
+                )
+
         # Overwrite the EV file now the outputs have been imported
         ev_file.Save()
+
+
+def get_color_palette():
+    """
+    Provide a mapping of named colors from matplotlib.
+
+    Returns
+    -------
+    colors : dict
+        Mapping from names of colors as strings to color value, either as
+        an RGB tuple (fractional, 0 to 1 range) or a hexadecimal string.
+    """
+    return dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
+
+
+def hexcolor2rgb8(color):
+    """
+    Utility for mapping hexadecimal colors to uint8 RGB.
+
+    Parameters
+    ----------
+    color : str
+        A hexadecimal color string, with leading "#".
+        If the input is not a string beginning with "#", it is returned as-is
+        without raising an error.
+
+    Returns
+    -------
+    tuple
+        RGB color tuple, in uint8 format (0-255).
+    """
+    if color[0] is "#":
+        color = mcolors.to_rgba(color)[:3]
+        color = tuple(max(0, min(255, int(np.round(c * 255)))) for c in color)
+    return color
 
 
 def get_default_cache_dir():
@@ -1313,6 +1423,19 @@ def main():
                 print("    {}".format(checkpoint))
             parser.exit()  # exits the program with no more arg parsing and checking
 
+    class ListColors(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string):
+            print("Available line color names:")
+            colors = get_color_palette()
+            for key, value in colors.items():
+                extra = hexcolor2rgb8(value)
+                if extra == value:
+                    extra = ""
+                else:
+                    extra = "  (" + ", ".join(["{:3d}".format(x) for x in extra]) + ")"
+                print("{:>25s}: {}{}".format(key, value, extra))
+            parser.exit()  # exits the program with no more arg parsing and checking
+
     prog = os.path.split(sys.argv[0])[1]
     if prog == "__main__.py":
         prog = "echofilter"
@@ -1344,6 +1467,16 @@ def main():
         nargs=0,
         action=ListCheckpoints,
         help="Show the available model checkpoints and exit.",
+    )
+    group_action.add_argument(
+        "--list-colors",
+        nargs=0,
+        action=ListColors,
+        help="""
+            Show the available line color names and exit.
+            The available color palette can be viewed at
+            https://matplotlib.org/gallery/color/named_colors.html.
+        """,
     )
 
     # Input files
@@ -1523,6 +1656,69 @@ def main():
             Suffix to append to lines imported back into EV file. The default
             behaviour is to match SUFFIX_FILE if it is set, and use
             "_echofilter" otherwise.
+        """,
+    )
+    group_outfile.add_argument(
+        "--color-top",
+        type=str,
+        default="orangered",
+        help="""
+            Color to use for the top line when it is imported into EchoView.
+            This can either be the name of a supported color (see --list-colors
+            for options), or a a hexadecimal string, or a string representation
+            of an RGB color to supply directly to EchoView (such as
+            "(0,255,0)"). Default is "orangered".
+        """,
+    )
+    group_outfile.add_argument(
+        "--color-bottom",
+        type=str,
+        default="orangered",
+        help="""
+            Color to use for the bottom line when it is imported into EchoView.
+            This can either be the name of a supported color (see --list-colors
+            for options), or a a hexadecimal string, or a string representation
+            of an RGB color to supply directly to EchoView (such as
+            "(0,255,0)"). Default is "orangered".
+        """,
+    )
+    group_outfile.add_argument(
+        "--color-surface",
+        type=str,
+        default="green",
+        help="""
+            Color to use for the surface line when it is imported into EchoView.
+            This can either be the name of a supported color (see --list-colors
+            for options), or a a hexadecimal string, or a string representation
+            of an RGB color to supply directly to EchoView (such as
+            "(0,255,0)"). Default is "green".
+        """,
+    )
+    group_outfile.add_argument(
+        "--thickness-top",
+        type=int,
+        default=2,
+        help="""
+            Thicknesses with which the top line will be displayed in EchoView.
+            Default is 2.
+        """,
+    )
+    group_outfile.add_argument(
+        "--thickness-bottom",
+        type=int,
+        default=2,
+        help="""
+            Thicknesses with which the bottom line will be displayed in EchoView.
+            Default is 2.
+        """,
+    )
+    group_outfile.add_argument(
+        "--thickness-surface",
+        type=int,
+        default=1,
+        help="""
+            Thicknesses with which the surface line will be displayed in EchoView.
+            Default is 1.
         """,
     )
     DEFAULT_CACHE_DIR = get_default_cache_dir()
@@ -2013,8 +2209,8 @@ def main():
 
     kwargs = vars(parser.parse_args())
 
-    if kwargs.pop("list_checkpoints"):
-        return list_checkpoints()
+    kwargs.pop("list_checkpoints")
+    kwargs.pop("list_colors")
 
     kwargs["verbose"] -= kwargs.pop("quiet", 0)
 

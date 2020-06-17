@@ -1,5 +1,4 @@
 apex
-matplotlib
 seaborn
 tensorboard
 ranger @ git+https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer.git@8d636a560b71e740e9423aa10ba4c7f751bb9120#egg=ranger
