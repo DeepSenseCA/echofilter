@@ -777,7 +777,7 @@ def run_inference(
                 skip_total, " was" if skip_total == 1 else "s were", skip_count,
             )
             if not dry_run:
-                s += ", {} incompatible.".format(incompatible_count)
+                s += ", {} incompatible".format(incompatible_count)
             s += "."
         print(s)
 
