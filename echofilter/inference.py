@@ -82,7 +82,7 @@ def run_inference(
     suffix_var=None,
     cache_dir=None,
     cache_csv=None,
-    csv_suffix=".csv",
+    suffix_csv=".csv",
     keep_ext=False,
     line_status=3,
     offset_top=0.0,
@@ -167,7 +167,7 @@ def run_inference(
         are temporary files, deleted after this program has completed. If
         `cache_csv=''`, the CSV files are cached in the same directory as the
         input EV files.
-    csv_suffix : str, optional
+    suffix_csv : str, optional
         Suffix used for cached CSV files which are exported from EV files.
         Default is `'.csv'` (only the file extension is changed).
     keep_ext : bool, optional
@@ -605,7 +605,7 @@ def run_inference(
                     )
                     if not keep_ext:
                         csv_fname = os.path.splitext(csv_fname)[0]
-                    csv_fname += csv_suffix
+                    csv_fname += suffix_csv
 
                 if os.path.isfile(csv_fname):
                     # If CSV file is already cached, no need to re-export it
@@ -1551,7 +1551,7 @@ def main():
         """,
     )
     group_outfile.add_argument(
-        "--csv-suffix",
+        "--suffix-csv",
         type=str,
         default=".csv",
         help="""
