@@ -1505,6 +1505,8 @@ def main():
     )
     group_outfile.add_argument(
         "--suffix-file",
+        "--suffix",
+        dest="suffix_file",
         type=str,
         default="",
         help="""
