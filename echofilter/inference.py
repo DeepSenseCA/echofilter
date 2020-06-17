@@ -15,6 +15,7 @@ import warnings
 
 import appdirs
 import numpy as np
+from matplotlib import colors as mcolors
 import pandas as pd
 import torch
 import torch.nn
@@ -76,9 +77,19 @@ def run_inference(
     output_dir="",
     dry_run=False,
     overwrite_existing=False,
+    overwrite_ev_lines=False,
+    import_into_evfile=True,
+    suffix_file="",
+    suffix_var=None,
+    color_top="orangered",
+    color_bottom="orangered",
+    color_surface="green",
+    thickness_top=2,
+    thickness_bottom=2,
+    thickness_surface=1,
     cache_dir=None,
     cache_csv=None,
-    csv_suffix=".csv",
+    suffix_csv=".csv",
     keep_ext=False,
     line_status=3,
     offset_top=0.0,
@@ -139,6 +150,47 @@ def run_inference(
         Overwrite existing outputs without producing a warning message. If
         `False`, an error is generated if files would be overwritten.
         Default is `False`.
+    overwrite_ev_lines : bool, optional
+        Overwrite existing EV lines files without warning. If `False`
+        (default), the current datetime will be appended to line variable names
+        in the event of a collision.
+    import_into_evfile : bool, optional
+        Whether to import the output lines and regions into the EV file,
+        whenever the file being processed in an EV file. Default is `True`.
+    suffix_file : str, optional
+        Suffix to append to output artifacts (evl and evr files), between
+        the name of the file and the extension. Default is `""`.
+    suffix_var : str or None, optional
+        Suffix to append to lines imported back into EV file. If `None`
+        (default), suffix_var will match `suffix_file` if it is set,
+        and will be "_echofilter" otherwise.
+    color_top : str, optional
+        Color to use for the top line when it is imported into EchoView.
+        This can either be the name of a supported color from
+        matplotlib.colors, or a hexadecimal color, or a string representation
+        of an RGB color to supply directly to EchoView (such as "(0,255,0)").
+        Default is `"orangered"`.
+    color_bottom : str, optional
+        Color to use for the bottom line when it is imported into EchoView.
+        This can either be the name of a supported color from
+        matplotlib.colors, or a hexadecimal color, or a string representation
+        of an RGB color to supply directly to EchoView (such as "(0,255,0)").
+        Default is `"orangered"`.
+    color_surface : str, optional
+        Color to use for the surface line when it is imported into EchoView.
+        This can either be the name of a supported color from
+        matplotlib.colors, or a hexadecimal color, or a string representation
+        of an RGB color to supply directly to EchoView (such as "(0,255,0)").
+        Default is `"green"`.
+    thickness_top : int, optional
+        Thicknesses with which the top line will be displayed in EchoView.
+        Default is `2`.
+    thickness_bottom : int, optional
+        Thicknesses with which the top line will be displayed in EchoView.
+        Default is `2`.
+    thickness_surface : int, optional
+        Thicknesses with which the top line will be displayed in EchoView.
+        Default is `1`.
     cache_dir : str or None, optional
         Path to directory where downloaded checkpoint files should be cached.
         If `None` (default), an OS-appropriate application-specific default
@@ -149,7 +201,7 @@ def run_inference(
         are temporary files, deleted after this program has completed. If
         `cache_csv=''`, the CSV files are cached in the same directory as the
         input EV files.
-    csv_suffix : str, optional
+    suffix_csv : str, optional
         Suffix used for cached CSV files which are exported from EV files.
         Default is `'.csv'` (only the file extension is changed).
     keep_ext : bool, optional
@@ -169,7 +221,7 @@ def run_inference(
     offset_bottom : float, optional
         Offset for bottom line, which moves the line to become more shallow.
          Default is `0`.
-     lines_during_passive : str, optional
+    lines_during_passive : str, optional
         Method used to handle line depths during collection
         periods determined to be passive recording instead of
         active recording.
@@ -307,6 +359,21 @@ def run_inference(
         facing = "downward"
     if facing.startswith("up"):
         facing = "upward"
+
+    if suffix_file and suffix_file[0].isalpha():
+        suffix_file = "-" + suffix_file
+
+    if suffix_var is not None:
+        pass
+    elif suffix_file:
+        suffix_var = suffix_file
+    else:
+        suffix_var = "_echofilter"
+
+    line_colors = dict(top=color_top, bottom=color_bottom, surface=color_surface)
+    line_thicknesses = dict(
+        top=thickness_top, bottom=thickness_bottom, surface=thickness_surface
+    )
 
     if checkpoint is None:
         # Use the first item from the list of checkpoints
@@ -497,8 +564,10 @@ def run_inference(
             # Make a list of all the outputs we will produce
             dest_files = {}
             for name in ("top", "bottom", "surface"):
-                dest_files[name] = "{}.{}.evl".format(destination, name)
-            dest_files["regions"] = "{}.{}.evr".format(destination, "regions")
+                dest_files[name] = "{}.{}{}.evl".format(destination, name, suffix_file)
+            dest_files["regions"] = "{}.{}{}.evr".format(
+                destination, "regions", suffix_file
+            )
 
             # Check if any of them exists and if there is any missing
             any_exists = False
@@ -534,13 +603,13 @@ def run_inference(
             if len(ext) > 0:
                 ext = ext[1:].lower()
             if ext == "csv":
-                export_to_csv = False
+                process_as_ev = False
             elif ext == "ev":
-                export_to_csv = True
+                process_as_ev = True
             elif len(extensions) == 1 and "csv" in extensions:
-                export_to_csv = False
+                process_as_ev = False
             elif len(extensions) == 1 and "ev" in extensions:
-                export_to_csv = True
+                process_as_ev = True
             else:
                 error_str = "Unsure how to process file {} with unrecognised extension {}".format(
                     fname, ext
@@ -551,6 +620,11 @@ def run_inference(
                     print("  Skipping incompatible file {}".format(fname))
                 incompatible_count += 1
                 continue
+
+            # If we are processing an ev file, we need to export it as a raw
+            # csv file. Unless it has already been exported (which we will
+            # check for below).
+            export_to_csv = process_as_ev
 
             # Make a temporary directory in case we are not caching generated csvs
             # Directory and all its contents are deleted when we leave this context
@@ -570,7 +644,7 @@ def run_inference(
                     )
                     if not keep_ext:
                         csv_fname = os.path.splitext(csv_fname)[0]
-                    csv_fname += csv_suffix
+                    csv_fname += suffix_csv
 
                 if os.path.isfile(csv_fname):
                     # If CSV file is already cached, no need to re-export it
@@ -794,6 +868,21 @@ def run_inference(
                 minimum_patch_area=minimum_patch_area,
                 common_notes=common_notes,
                 verbose=verbose - 1,
+            )
+
+            if not process_as_ev or not import_into_evfile:
+                # Done with processing this file
+                continue
+
+            import_lines_regions_to_ev(
+                fname_full,
+                dest_files,
+                target_names={key: key + suffix_var for key in dest_files},
+                line_colors=line_colors,
+                line_thicknesses=line_thicknesses,
+                ev_app=ev_app,
+                overwrite=overwrite_ev_lines,
+                verbose=verbose,
             )
 
     if verbose >= 1:
@@ -1068,6 +1157,196 @@ def inference_transect(
     )
 
 
+def import_lines_regions_to_ev(
+    ev_fname,
+    files,
+    target_names={},
+    line_colors={},
+    line_thicknesses={},
+    ev_app=None,
+    overwrite=False,
+    verbose=1,
+):
+    """
+    Write lines and regions to EV file.
+
+    Parameters
+    ----------
+    ev_fname : str
+        Path to EchoView file to import variables into.
+    files : dict
+        Mapping from output keys to filenames.
+    target_names : dict, optional
+        Mapping from output keys to output variable names.
+    line_colors : dict, optional
+        Mapping from output keys to line colours.
+    line_thicknesses : dict, optional
+        Mapping from output keys to line thicknesses.
+    ev_app : win32com.client.Dispatch object or None, optional
+        An object which can be used to interface with the EchoView application,
+        as returned by `win32com.client.Dispatch`. If `None` (default), a
+        new instance of the application is opened (and closed on completion).
+    overwrite : bool, optional
+        Whether existing lines with target names should be replaced.
+        If a line with the target name already exists and `overwrite=False`,
+        the line is named with the current datetime to prevent collisions.
+        Default is `False`.
+    verbose : int, optional
+        Verbosity level. Default is `1`.
+    """
+    if verbose >= 2:
+        print("Importing {} lines/regions into EV file {}".format(len(files), ev_fname))
+
+    # Assemble the color palette
+    colors = get_color_palette()
+
+    with echofilter.win.open_ev_file(ev_fname, ev_app) as ev_file:
+        for key, fname in files.items():
+            # Import the line into the EV file
+            ev_file.Import(os.path.abspath(fname))
+
+            if os.path.splitext(fname)[1].lower() != ".evl":
+                # Further handling is only for lines, so skip if this wasn't
+                # a line
+                continue
+
+            # Identify line just imported, which is the last variable
+            variable = ev_file.Variables[ev_file.Variables.Count - 1]
+            lines = ev_file.Lines
+            line = lines.FindByName(variable.Name)
+            if not line:
+                print(
+                    "Warning: Could not find line which was just imported with"
+                    " name '{}'!".format(variable.Name)
+                )
+                print("Ignoring and continuing processing.".format(variable.Name))
+                continue
+
+            # Check whether we need to change the name of the line
+            target_name = target_names.get(key, None)
+
+            # Check if a line with this name already exists
+            old_line = None if target_name is None else lines.FindByName(target_name)
+
+            # Maybe try to overwrite existing line with new line
+            successful_overwrite = False
+            if old_line and overwrite:
+                # Overwrite the old line
+                if verbose >= 2:
+                    print(
+                        "Overwriting existing line '{}' with new {} line"
+                        " output".format(target_name, key)
+                    )
+                old_line_edit = old_line.AsLineEditable
+                if old_line_edit:
+                    # Overwrite the old line with the new line
+                    old_line_edit.OverwriteWith(line)
+                    # Delete the line we imported
+                    lines.Delete(line)
+                    # Update our reference to the line
+                    line = old_line
+                    successful_overwrite = True
+                elif verbose >= 0:
+                    # Line is not editable
+                    print(
+                        "Existing line '{}' is not editable and cannot be"
+                        " overwritten.".format(target_name, key)
+                    )
+
+            if old_line and not successful_overwrite:
+                # Change the name so there is no collision
+                target_name += "_{}".format(
+                    datetime.datetime.now().isoformat(timespec="seconds")
+                )
+                if verbose >= 1:
+                    print(
+                        "Target line name '{}' already exists. Will save"
+                        " new {} line with name '{}' instead.".format(
+                            target_names[key], key, target_name
+                        )
+                    )
+
+            if target_name and not successful_overwrite:
+                # Rename the line
+                variable.ShortName = target_name
+                line.Name = target_name
+
+            # Change the color and thickness of the line
+            if key in line_colors or key in line_thicknesses:
+                ev_app.Exec(
+                    "{} | UseDefaultLineDisplaySettings =| false".format(line.Name)
+                )
+            if key in line_colors:
+                color = line_colors[key]
+                if color in colors:
+                    color = colors[color]
+                elif not isinstance(color, str):
+                    pass
+                elif "xkcd:" + color in colors:
+                    color = colors["xkcd:" + color]
+                color = hexcolor2rgb8(color)
+                color = repr(color).replace(" ", "")
+                ev_app.Exec("{} | CustomGoodLineColor =| {}".format(line.Name, color))
+            if key in line_thicknesses:
+                ev_app.Exec(
+                    "{} | CustomLineDisplayThickness =| {}".format(
+                        line.Name, line_thicknesses[key]
+                    )
+                )
+
+        # Overwrite the EV file now the outputs have been imported
+        ev_file.Save()
+
+
+def get_color_palette(include_xkcd=True):
+    """
+    Provide a mapping of named colors from matplotlib.
+
+    Parameters
+    ----------
+    include_xkcd : bool, optional
+        Whether to include the XKCD color palette in the output.
+        Note that XKCD colors have `"xkcd:"` prepended to their names to
+        prevent collisions with official named colors from CSS4.
+        Default is `True`.
+        See https://xkcd.com/color/rgb/ and
+        https://blog.xkcd.com/2010/05/03/color-survey-results/
+        for the XKCD colors.
+
+    Returns
+    -------
+    colors : dict
+        Mapping from names of colors as strings to color value, either as
+        an RGB tuple (fractional, 0 to 1 range) or a hexadecimal string.
+    """
+    colors = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
+    if include_xkcd:
+        colors.update(**mcolors.XKCD_COLORS)
+    return colors
+
+
+def hexcolor2rgb8(color):
+    """
+    Utility for mapping hexadecimal colors to uint8 RGB.
+
+    Parameters
+    ----------
+    color : str
+        A hexadecimal color string, with leading "#".
+        If the input is not a string beginning with "#", it is returned as-is
+        without raising an error.
+
+    Returns
+    -------
+    tuple
+        RGB color tuple, in uint8 format (0-255).
+    """
+    if color[0] is "#":
+        color = mcolors.to_rgba(color)[:3]
+        color = tuple(max(0, min(255, int(np.round(c * 255)))) for c in color)
+    return color
+
+
 def get_default_cache_dir():
     """Determine the default cache directory."""
     return appdirs.user_cache_dir("echofilter", "DeepSense")
@@ -1162,6 +1441,22 @@ def main():
                 print("    {}".format(checkpoint))
             parser.exit()  # exits the program with no more arg parsing and checking
 
+    class ListColors(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string):
+            if values is None:
+                include_xkcd = False
+            else:
+                include_xkcd = values.lower() != "css4"
+            colors = get_color_palette(include_xkcd)
+            for key, value in colors.items():
+                extra = hexcolor2rgb8(value)
+                if extra == value:
+                    extra = ""
+                else:
+                    extra = "  (" + ", ".join(["{:3d}".format(x) for x in extra]) + ")"
+                print("{:>31s}: {}{}".format(key, value, extra))
+            parser.exit()  # exits the program with no more arg parsing and checking
+
     prog = os.path.split(sys.argv[0])[1]
     if prog == "__main__.py":
         prog = "echofilter"
@@ -1193,6 +1488,21 @@ def main():
         nargs=0,
         action=ListCheckpoints,
         help="Show the available model checkpoints and exit.",
+    )
+    group_action.add_argument(
+        "--list-colors",
+        nargs="?",
+        type=str,
+        choices=["css4", "full", "xkcd"],
+        action=ListColors,
+        help="""
+            Show the available line color names and exit.
+            The available color palette can be viewed at
+            https://matplotlib.org/gallery/color/named_colors.html.
+            The XKCD color palette is also available, but is not shown
+            in the output by default due to its size. To show
+            the full palette, run as `--list-colors full`.
+        """,
     )
 
     # Input files
@@ -1315,13 +1625,126 @@ def main():
         """,
     )
     group_outfile.add_argument(
-        "--force",
-        "-f",
+        "--overwrite-files",
         dest="overwrite_existing",
         action="store_true",
         help="""
             Overwrite existing files without warning. Default behaviour is to
             stop processing if an output file already exists.
+        """,
+    )
+    group_outfile.add_argument(
+        "--overwrite-ev-lines",
+        action="store_true",
+        help="""
+            Overwrite existing EV lines files without warning. Default
+            behaviour is to append the current datetime to the name of the
+            line in the event of a collision.
+        """,
+    )
+    group_outfile.add_argument(
+        "--force",
+        "-f",
+        dest="force",
+        action="store_true",
+        help="""
+            Short-hand equivalent to supplying both --overwrite-files and
+            --overwrite-ev-lines.
+        """,
+    )
+    group_outfile.add_argument(
+        "--no-ev-import",
+        dest="import_into_evfile",
+        action="store_false",
+        help="""
+            Do not import lines and regions back into any EV file inputs.
+            Default behaviour is to import lines and regions and then
+            save the file, overwriting the original EV file.
+        """,
+    )
+    group_outfile.add_argument(
+        "--suffix-file",
+        "--suffix",
+        dest="suffix_file",
+        type=str,
+        default="",
+        help="""
+            Suffix to append to output artifacts evl and evr files, between
+            the name of the file and the extension. The default behavior is
+            not to append a suffix.
+        """,
+    )
+    group_outfile.add_argument(
+        "--suffix-var",
+        type=str,
+        default=None,
+        help="""
+            Suffix to append to lines imported back into EV file. The default
+            behaviour is to match SUFFIX_FILE if it is set, and use
+            "_echofilter" otherwise.
+        """,
+    )
+    group_outfile.add_argument(
+        "--color-top",
+        type=str,
+        default="orangered",
+        help="""
+            Color to use for the top line when it is imported into EchoView.
+            This can either be the name of a supported color (see --list-colors
+            for options), or a a hexadecimal string, or a string representation
+            of an RGB color to supply directly to EchoView (such as
+            "(0,255,0)"). Default is "orangered".
+        """,
+    )
+    group_outfile.add_argument(
+        "--color-bottom",
+        type=str,
+        default="orangered",
+        help="""
+            Color to use for the bottom line when it is imported into EchoView.
+            This can either be the name of a supported color (see --list-colors
+            for options), or a a hexadecimal string, or a string representation
+            of an RGB color to supply directly to EchoView (such as
+            "(0,255,0)"). Default is "orangered".
+        """,
+    )
+    group_outfile.add_argument(
+        "--color-surface",
+        type=str,
+        default="green",
+        help="""
+            Color to use for the surface line when it is imported into EchoView.
+            This can either be the name of a supported color (see --list-colors
+            for options), or a a hexadecimal string, or a string representation
+            of an RGB color to supply directly to EchoView (such as
+            "(0,255,0)"). Default is "green".
+        """,
+    )
+    group_outfile.add_argument(
+        "--thickness-top",
+        type=int,
+        default=2,
+        help="""
+            Thicknesses with which the top line will be displayed in EchoView.
+            Default is 2.
+        """,
+    )
+    group_outfile.add_argument(
+        "--thickness-bottom",
+        type=int,
+        default=2,
+        help="""
+            Thicknesses with which the bottom line will be displayed in EchoView.
+            Default is 2.
+        """,
+    )
+    group_outfile.add_argument(
+        "--thickness-surface",
+        type=int,
+        default=1,
+        help="""
+            Thicknesses with which the surface line will be displayed in EchoView.
+            Default is 1.
         """,
     )
     DEFAULT_CACHE_DIR = get_default_cache_dir()
@@ -1352,7 +1775,7 @@ def main():
         """,
     )
     group_outfile.add_argument(
-        "--csv-suffix",
+        "--suffix-csv",
         type=str,
         default=".csv",
         help="""
@@ -1812,10 +2235,14 @@ def main():
 
     kwargs = vars(parser.parse_args())
 
-    if kwargs.pop("list_checkpoints"):
-        return list_checkpoints()
+    kwargs.pop("list_checkpoints")
+    kwargs.pop("list_colors")
 
     kwargs["verbose"] -= kwargs.pop("quiet", 0)
+
+    if kwargs.pop("force"):
+        kwargs["overwrite_existing"] = True
+        kwargs["overwrite_ev_lines"] = True
 
     default_offset = kwargs.pop("offset")
     if kwargs["offset_top"] is None:

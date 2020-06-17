@@ -83,6 +83,8 @@ def open_ev_file(filename, app=None):
     """
     if not os.path.isfile(filename):
         raise EnvironmentError("Missing file: {}".format(filename))
+    # Ensure the path is an absolute path
+    filename = os.path.abspath(filename)
     with maybe_open_echoview(app, hide="new") as app:
         ev_file = app.OpenFile(filename)
         if ev_file is None or ev_file is "None" or ev_file is "NoneValue":
