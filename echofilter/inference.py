@@ -169,7 +169,7 @@ def run_inference(
     offset_bottom : float, optional
         Offset for bottom line, which moves the line to become more shallow.
          Default is `0`.
-     lines_during_passive : str, optional
+    lines_during_passive : str, optional
         Method used to handle line depths during collection
         periods determined to be passive recording instead of
         active recording.
