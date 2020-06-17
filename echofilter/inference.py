@@ -76,6 +76,10 @@ def run_inference(
     output_dir="",
     dry_run=False,
     overwrite_existing=False,
+    overwrite_ev_lines=False,
+    import_into_evfile=True,
+    suffix_file="",
+    suffix_var=None,
     cache_dir=None,
     cache_csv=None,
     csv_suffix=".csv",
@@ -139,6 +143,20 @@ def run_inference(
         Overwrite existing outputs without producing a warning message. If
         `False`, an error is generated if files would be overwritten.
         Default is `False`.
+    overwrite_ev_lines : bool, optional
+        Overwrite existing EV lines files without warning. If `False`
+        (default), the current datetime will be appended to line variable names
+        in the event of a collision.
+    import_into_evfile : bool, optional
+        Whether to import the output lines and regions into the EV file,
+        whenever the file being processed in an EV file. Default is `True`.
+    suffix_file : str, optional
+        Suffix to append to output artifacts (evl and evr files), between
+        the name of the file and the extension. Default is `""`.
+    suffix_var : str or None, optional
+        Suffix to append to lines imported back into EV file. If `None`
+        (default), suffix_var will match `suffix_file` if it is set,
+        and will be "_echofilter" otherwise.
     cache_dir : str or None, optional
         Path to directory where downloaded checkpoint files should be cached.
         If `None` (default), an OS-appropriate application-specific default
@@ -307,6 +325,16 @@ def run_inference(
         facing = "downward"
     if facing.startswith("up"):
         facing = "upward"
+
+    if suffix_file and suffix_file[0].isalpha():
+        suffix_file = "-" + suffix_file
+
+    if suffix_var is not None:
+        pass
+    elif suffix_file:
+        suffix_var = suffix_file
+    else:
+        suffix_var = "_echofilter"
 
     if checkpoint is None:
         # Use the first item from the list of checkpoints
@@ -497,8 +525,10 @@ def run_inference(
             # Make a list of all the outputs we will produce
             dest_files = {}
             for name in ("top", "bottom", "surface"):
-                dest_files[name] = "{}.{}.evl".format(destination, name)
-            dest_files["regions"] = "{}.{}.evr".format(destination, "regions")
+                dest_files[name] = "{}.{}{}.evl".format(destination, name, suffix_file)
+            dest_files["regions"] = "{}.{}{}.evr".format(
+                destination, "regions", suffix_file
+            )
 
             # Check if any of them exists and if there is any missing
             any_exists = False
@@ -534,13 +564,13 @@ def run_inference(
             if len(ext) > 0:
                 ext = ext[1:].lower()
             if ext == "csv":
-                export_to_csv = False
+                process_as_ev = False
             elif ext == "ev":
-                export_to_csv = True
+                process_as_ev = True
             elif len(extensions) == 1 and "csv" in extensions:
-                export_to_csv = False
+                process_as_ev = False
             elif len(extensions) == 1 and "ev" in extensions:
-                export_to_csv = True
+                process_as_ev = True
             else:
                 error_str = "Unsure how to process file {} with unrecognised extension {}".format(
                     fname, ext
@@ -551,6 +581,11 @@ def run_inference(
                     print("  Skipping incompatible file {}".format(fname))
                 incompatible_count += 1
                 continue
+
+            # If we are processing an ev file, we need to export it as a raw
+            # csv file. Unless it has already been exported (which we will
+            # check for below).
+            export_to_csv = process_as_ev
 
             # Make a temporary directory in case we are not caching generated csvs
             # Directory and all its contents are deleted when we leave this context
@@ -794,6 +829,19 @@ def run_inference(
                 minimum_patch_area=minimum_patch_area,
                 common_notes=common_notes,
                 verbose=verbose - 1,
+            )
+
+            if not process_as_ev or not import_into_evfile:
+                # Done with processing this file
+                continue
+
+            import_lines_regions_to_ev(
+                fname_full,
+                dest_files,
+                target_names={key: key + suffix_var for key in dest_files},
+                ev_app=ev_app,
+                overwrite=overwrite_ev_lines,
+                verbose=verbose,
             )
 
     if verbose >= 1:
@@ -1068,6 +1116,109 @@ def inference_transect(
     )
 
 
+def import_lines_regions_to_ev(
+    ev_fname, files, target_names={}, ev_app=None, overwrite=False, verbose=1,
+):
+    """
+    Write lines and regions to EV file.
+
+    Parameters
+    ----------
+    ev_fname : str
+        Path to EchoView file to import variables into.
+    files : dict
+        Mapping from output types to filenames.
+    target_names : dict, optional
+        Mapping from output types to output variable names.
+    ev_app : win32com.client.Dispatch object or None, optional
+        An object which can be used to interface with the EchoView application,
+        as returned by `win32com.client.Dispatch`. If `None` (default), a
+        new instance of the application is opened (and closed on completion).
+    overwrite : bool, optional
+        Whether existing lines with target names should be replaced.
+        If a line with the target name already exists and `overwrite=False`,
+        the line is named with the current datetime to prevent collisions.
+        Default is `False`.
+    verbose : int, optional
+        Verbosity level. Default is `1`.
+    """
+    if verbose >= 2:
+        print("Importing {} lines/regions into EV file {}".format(len(files), ev_fname))
+    with echofilter.win.open_ev_file(ev_fname, ev_app) as ev_file:
+        for key, fname in files.items():
+            # Import the line into the EV file
+            ev_file.Import(os.path.abspath(fname))
+
+            if os.path.splitext(fname)[1].lower() != ".evl":
+                # Further handling is only for lines, so skip if this wasn't
+                # a line
+                continue
+
+            # Identify line just imported, which is the last variable
+            variable = ev_file.Variables[ev_file.Variables.Count - 1]
+            lines = ev_file.Lines
+            line = lines.FindByName(variable.Name)
+            if not line:
+                print(
+                    "Warning: Could not find line which was just imported with"
+                    " name '{}'!".format(variable.Name)
+                )
+                print("Ignoring and continuing processing.".format(variable.Name))
+                continue
+
+            # Check whether we need to change the name of the line
+            target_name = target_names.get(key, None)
+
+            # Check if a line with this name already exists
+            old_line = None if target_name is None else lines.FindByName(target_name)
+
+            # Maybe try to overwrite existing line with new line
+            successful_overwrite = False
+            if old_line and overwrite:
+                # Overwrite the old line
+                if verbose >= 2:
+                    print(
+                        "Overwriting existing line '{}' with new {} line"
+                        " output".format(target_name, key)
+                    )
+                old_line_edit = old_line.AsLineEditable
+                if old_line_edit:
+                    # Overwrite the old line with the new line
+                    old_line_edit.OverwriteWith(line)
+                    # Delete the line we imported
+                    lines.Delete(line)
+                    # Update our reference to the line
+                    line = old_line
+                    successful_overwrite = True
+                elif verbose >= 0:
+                    # Line is not editable
+                    print(
+                        "Existing line '{}' is not editable and cannot be"
+                        " overwritten.".format(target_name, key)
+                    )
+
+            if old_line and not successful_overwrite:
+                # Change the name so there is no collision
+                target_name += "_{}".format(
+                    datetime.datetime.now().isoformat(timespec="seconds")
+                )
+                if verbose >= 1:
+                    print(
+                        "Target line name '{}' already exists. Will save"
+                        " new {} line with name '{}' instead.".format(
+                            target_names[key], key, target_name
+                        )
+                    )
+
+            if target_name and not successful_overwrite:
+                # Rename the line
+                variable.ShortName = target_name
+                line.Name = target_name
+
+        # Overwrite the EV file now the outputs have been imported
+        ev_file.Save()
+
+
 def get_default_cache_dir():
     """Determine the default cache directory."""
     return appdirs.user_cache_dir("echofilter", "DeepSense")
@@ -1315,13 +1466,61 @@ def main():
         """,
     )
     group_outfile.add_argument(
-        "--force",
-        "-f",
+        "--overwrite-files",
         dest="overwrite_existing",
         action="store_true",
         help="""
             Overwrite existing files without warning. Default behaviour is to
             stop processing if an output file already exists.
+        """,
+    )
+    group_outfile.add_argument(
+        "--overwrite-ev-lines",
+        action="store_true",
+        help="""
+            Overwrite existing EV lines files without warning. Default
+            behaviour is to append the current datetime to the name of the
+            line in the event of a collision.
+        """,
+    )
+    group_outfile.add_argument(
+        "--force",
+        "-f",
+        dest="force",
+        action="store_true",
+        help="""
+            Short-hand equivalent to supplying both --overwrite-files and
+            --overwrite-ev-lines.
+        """,
+    )
+    group_outfile.add_argument(
+        "--no-ev-import",
+        dest="import_into_evfile",
+        action="store_false",
+        help="""
+            Do not import lines and regions back into any EV file inputs.
+            Default behaviour is to import lines and regions and then
+            save the file, overwriting the original EV file.
+        """,
+    )
+    group_outfile.add_argument(
+        "--suffix-file",
+        type=str,
+        default="",
+        help="""
+            Suffix to append to output artifacts evl and evr files, between
+            the name of the file and the extension. The default behavior is
+            not to append a suffix.
+        """,
+    )
+    group_outfile.add_argument(
+        "--suffix-var",
+        type=str,
+        default=None,
+        help="""
+            Suffix to append to lines imported back into EV file. The default
+            behaviour is to match SUFFIX_FILE if it is set, and use
+            "_echofilter" otherwise.
         """,
     )
     DEFAULT_CACHE_DIR = get_default_cache_dir()
@@ -1816,6 +2015,10 @@ def main():
         return list_checkpoints()
 
     kwargs["verbose"] -= kwargs.pop("quiet", 0)
+
+    if kwargs.pop("force"):
+        kwargs["overwrite_existing"] = True
+        kwargs["overwrite_ev_lines"] = True
 
     default_offset = kwargs.pop("offset")
     if kwargs["offset_top"] is None:
