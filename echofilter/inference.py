@@ -474,6 +474,7 @@ def run_inference(
 
     skip_count = 0
     incompatible_count = 0
+    error_msgs = []
 
     # Open EchoView connection
     with echofilter.win.maybe_open_echoview(
@@ -516,12 +517,17 @@ def run_inference(
                 continue
             # Check whether we would clobber a file we can't overwrite
             if any_exists and not overwrite_existing:
-                raise EnvironmentError(
+                msg = (
                     "Output for {} already exists.\n"
                     " Run with overwrite_existing=True (with the command line"
                     " interface, use the --force flag) to overwrite existing"
-                    " outputs.".format(fname)
-                )
+                    " outputs."
+                ).format(fname)
+                if dry_run:
+                    error_msgs.append("Error: " + msg)
+                    print(error_msgs[-1])
+                    continue
+                raise EnvironmentError(msg)
 
             # Determine whether we need to run ev2csv on this file
             ext = os.path.splitext(fname)[1]
@@ -805,6 +811,16 @@ def run_inference(
                 s += ", {} incompatible".format(incompatible_count)
             s += "."
         print(s)
+        if error_msgs:
+            print(
+                "There {} {} error{}:".format(
+                    "was" if len(error_msgs) == 1 else "were",
+                    len(error_msgs),
+                    "" if len(error_msgs) == 1 else "s",
+                )
+            )
+            for error_msg in error_msgs:
+                print(error_msg)
 
 
 def inference_transect(
