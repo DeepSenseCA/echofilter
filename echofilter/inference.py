@@ -595,9 +595,21 @@ def run_inference(
                         verbose=verbose - 1,
                     )
 
+                if (dry_run and verbose >= 1) or verbose >= 3:
+                    ww = "Would" if dry_run else "Will"
+                    print("  {} write files:".format(ww))
+                    for key, fname in dest_files.items():
+                        if os.path.isfile(fname) and overwrite_existing:
+                            over_txt = " (overwriting existing file)"
+                        else:
+                            over_txt = ""
+                        tp = "line" if os.path.splitext(fname)[1] == ".evl" else "file"
+                        print(
+                            "      {} export {} {} to: {}{}".format(
+                                ww, key, tp, fname, over_txt,
+                            )
+                        )
                 if dry_run:
-                    if verbose >= 1:
-                        print("  Would write files to {}.SUFFIX".format(destination))
                     continue
 
                 # Load the data
