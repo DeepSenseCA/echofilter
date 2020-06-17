@@ -1280,6 +1280,10 @@ def import_lines_regions_to_ev(
                 color = line_colors[key]
                 if color in colors:
                     color = colors[color]
+                elif not isinstance(color, str):
+                    pass
+                elif "xkcd:" + color in colors:
+                    color = colors["xkcd:" + color]
                 color = hexcolor2rgb8(color)
                 color = repr(color).replace(" ", "")
                 ev_app.Exec("{} | CustomGoodLineColor =| {}".format(line.Name, color))
@@ -1294,9 +1298,20 @@ def import_lines_regions_to_ev(
         ev_file.Save()
 
 
-def get_color_palette():
+def get_color_palette(include_xkcd=True):
     """
     Provide a mapping of named colors from matplotlib.
+
+    Parameters
+    ----------
+    include_xkcd : bool, optional
+        Whether to include the XKCD color palette in the output.
+        Note that XKCD colors have `"xkcd:"` prepended to their names to
+        prevent collisions with official named colors from CSS4.
+        Default is `True`.
+        See https://xkcd.com/color/rgb/ and
+        https://blog.xkcd.com/2010/05/03/color-survey-results/
+        for the XKCD colors.
 
     Returns
     -------
@@ -1304,7 +1319,10 @@ def get_color_palette():
         Mapping from names of colors as strings to color value, either as
         an RGB tuple (fractional, 0 to 1 range) or a hexadecimal string.
     """
-    return dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
+    colors = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
+    if include_xkcd:
+        colors.update(**mcolors.XKCD_COLORS)
+    return colors
 
 
 def hexcolor2rgb8(color):
@@ -1425,15 +1443,18 @@ def main():
 
     class ListColors(argparse.Action):
         def __call__(self, parser, namespace, values, option_string):
-            print("Available line color names:")
-            colors = get_color_palette()
+            if values is None:
+                include_xkcd = False
+            else:
+                include_xkcd = values.lower() != "css4"
+            colors = get_color_palette(include_xkcd)
             for key, value in colors.items():
                 extra = hexcolor2rgb8(value)
                 if extra == value:
                     extra = ""
                 else:
                     extra = "  (" + ", ".join(["{:3d}".format(x) for x in extra]) + ")"
-                print("{:>25s}: {}{}".format(key, value, extra))
+                print("{:>31s}: {}{}".format(key, value, extra))
             parser.exit()  # exits the program with no more arg parsing and checking
 
     prog = os.path.split(sys.argv[0])[1]
@@ -1470,12 +1491,17 @@ def main():
     )
     group_action.add_argument(
         "--list-colors",
-        nargs=0,
+        nargs="?",
+        type=str,
+        choices=["css4", "full", "xkcd"],
         action=ListColors,
         help="""
             Show the available line color names and exit.
             The available color palette can be viewed at
             https://matplotlib.org/gallery/color/named_colors.html.
+            The XKCD color palette is also available, but is not shown
+            in the output by default due to its size. To show
+            the full palette, run as `--list-colors full`.
         """,
     )
 
