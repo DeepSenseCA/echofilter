@@ -493,22 +493,35 @@ def run_inference(
             if not keep_ext:
                 destination = os.path.splitext(destination)[0]
 
+            # Make a list of all the outputs we will produce
+            dest_files = {}
+            for name in ("top", "bottom", "surface"):
+                dest_files[name] = "{}.{}.evl".format(destination, name)
+            dest_files["regions"] = "{}.{}.evr".format(destination, "regions")
+
+            # Check if any of them exists and if there is any missing
+            any_exists = False
+            any_missing = False
+            for k, dest_file in dest_files.items():
+                if os.path.isfile(dest_file):
+                    any_exists = True
+                else:
+                    any_missing = True
+
             # Check whether to skip processing this file
-            if skip_existing:
-                any_missing = False
-                dest_files = []
-                for name in ("top", "bottom", "surface"):
-                    dest_files.append("{}.{}.evl".format(destination, name))
-                dest_files.append("{}.{}.evr".format(destination, "regions"))
-                for dest_file in dest_files:
-                    if not os.path.isfile(dest_file):
-                        any_missing = True
-                        break
-                if not any_missing:
-                    if verbose >= 2:
-                        print("  Skipping {}".format(fname))
-                    skip_count += 1
-                    continue
+            if skip_existing and not any_missing:
+                if verbose >= 2:
+                    print("  Skipping {}".format(fname))
+                skip_count += 1
+                continue
+            # Check whether we would clobber a file we can't overwrite
+            if any_exists and not overwrite_existing:
+                raise EnvironmentError(
+                    "Output for {} already exists.\n"
+                    " Run with overwrite_existing=True (with the command line"
+                    " interface, use the --force flag) to overwrite existing"
+                    " outputs.".format(fname)
+                )
 
             # Determine whether we need to run ev2csv on this file
             ext = os.path.splitext(fname)[1]
