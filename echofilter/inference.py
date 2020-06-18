@@ -151,9 +151,9 @@ def run_inference(
         `False`, an error is generated if files would be overwritten.
         Default is `False`.
     overwrite_ev_lines : bool, optional
-        Overwrite existing EV lines files without warning. If `False`
-        (default), the current datetime will be appended to line variable names
-        in the event of a collision.
+        Overwrite existing lines within the EchoView file without warning.
+        If `False` (default), the current datetime will be appended to line
+        variable names in the event of a collision.
     import_into_evfile : bool, optional
         Whether to import the output lines and regions into the EV file,
         whenever the file being processed in an EV file. Default is `True`.
@@ -1652,9 +1652,9 @@ def main():
         "--overwrite-ev-lines",
         action="store_true",
         help="""
-            Overwrite existing EV lines files without warning. Default
-            behaviour is to append the current datetime to the name of the
-            line in the event of a collision.
+            Overwrite existing lines within the EchoView file without warning.
+            Default behaviour is to append the current datetime to the name of
+            the line in the event of a collision.
         """,
     )
     group_outfile.add_argument(
