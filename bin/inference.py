@@ -16,6 +16,9 @@ torch.jit.script = script
 
 
 if __name__ == "__main__":
+    import warnings
     import echofilter.inference
+
+    warnings.filterwarnings("ignore", "(?s).*MATPLOTLIBDATA.*", category=UserWarning)
 
     echofilter.inference.main()
