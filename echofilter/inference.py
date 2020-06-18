@@ -349,6 +349,14 @@ def run_inference(
         statements, or elevate to a higher number to increase verbosity.
     """
 
+    t_start_prog = time.time()
+    if verbose >= 1:
+        print(
+            "Starting inference routine. {}".format(
+                datetime.datetime.now().strftime("%A, %B %d, %Y at %H:%M:%S")
+            )
+        )
+
     if device is None:
         device = "cuda" if cuda_is_really_available() else "cpu"
     device = torch.device(device)
@@ -912,6 +920,11 @@ def run_inference(
             )
             for error_msg in error_msgs:
                 print(error_msg)
+        print(
+            "Total runtime: {}".format(
+                datetime.timedelta(seconds=time.time() - t_start_prog)
+            )
+        )
 
 
 def inference_transect(
