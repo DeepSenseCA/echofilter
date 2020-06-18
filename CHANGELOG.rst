@@ -16,7 +16,7 @@ Security.
 Unreleased
 ----------
 
-`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.4...master>`__.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0b1...master>`__.
 
 
 Version `1.0.0b1 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0b1>`__
@@ -45,7 +45,8 @@ Training
 -   Training augmentation stack.
     (`#79 <https://github.com/DeepSenseCA/echofilter/pull/79>`__,
     `#83 <https://github.com/DeepSenseCA/echofilter/pull/83>`__,
-    `#106 <https://github.com/DeepSenseCA/echofilter/pull/106>`__).
+    `#106 <https://github.com/DeepSenseCA/echofilter/pull/106>`__,
+    `#124 <https://github.com/DeepSenseCA/echofilter/pull/124>`__).
 -   Train using normalisation based on the 10th percentile as the zero point and standard deviation robustly estimated from the interdecile range.
     (`#80 <https://github.com/DeepSenseCA/echofilter/pull/80>`__).
 -   Use log-avg-exp for ``logit_is_passive`` and ``logit_is_removed``.
@@ -229,7 +230,7 @@ Inference
     `#143 <https://github.com/DeepSenseCA/echofilter/pull/143>`__).
 -   Add ``--logit-smoothing-sigma`` argument, which controls the kernel width for Gaussian smoothing applied to the logits before converting to predictions.
     (`#144 <https://github.com/DeepSenseCA/echofilter/pull/144>`__)
--   Generating outputs from conditional models, adding 
+-   Generating outputs from conditional models, adding ``--unconditioned`` argument to disable usage of conditional probability outputs.
     (`#147 <https://github.com/DeepSenseCA/echofilter/pull/147>`__).
 -   Add automatic cropping to zoom in on the depth range of interest.
     Add ``--auto-crop-threshold`` argument, which controls the threshold for when this occurs.
@@ -269,6 +270,9 @@ General
 Version `0.1.4 <https://github.com/DeepSenseCA/echofilter/tree/0.1.4>`__
 ------------------------------------------------------------------------
 
+Release date: 2020-05-19.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.3...0.1.4>`__.
+
 .. _v0.1.4 Added:
 
 Added
@@ -282,6 +286,9 @@ Added
 
 Version `0.1.3 <https://github.com/DeepSenseCA/echofilter/tree/0.1.3>`__
 ------------------------------------------------------------------------
+
+Release date: 2020-05-16.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.2...0.1.3>`__.
 
 .. _v0.1.3 Fixed:
 
@@ -305,6 +312,9 @@ Added
 
 Version `0.1.2 <https://github.com/DeepSenseCA/echofilter/tree/0.1.2>`__
 ------------------------------------------------------------------------
+
+Release date: 2020-05-14.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.1...0.1.2>`__.
 
 .. _v0.1.2 Fixed:
 
@@ -331,6 +341,9 @@ Added
 
 Version `0.1.1 <https://github.com/DeepSenseCA/echofilter/tree/0.1.1>`__
 ------------------------------------------------------------------------
+
+Release date: 2020-05-12.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.0...0.1.1>`__.
 
 .. _v0.1.1 Fixed:
 
