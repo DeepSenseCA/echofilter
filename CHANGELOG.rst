@@ -16,7 +16,73 @@ Security.
 Unreleased
 ----------
 
-`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0b1...master>`__.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0b2...master>`__.
+
+
+Version `1.0.0b2 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0b2>`__
+----------------------------------------------------------------------------
+
+Release date: 2020-06-18.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0b1...1.0.0b2>`__.
+
+This is a beta pre-release of v1.0.0.
+
+.. _v1.0.0b2 Changed:
+
+Changed
+~~~~~~~
+
+.. _v1.0.0b2 Changed Inference:
+
+Inference
+^^^^^^^^^
+
+-   Change default value of ``--offset`` to 1m.
+    (`#159 <https://github.com/DeepSenseCA/echofilter/pull/159>`__)
+-   Use a default ``--nearfield-cutoff`` of 1.7m.
+    (`#159 <https://github.com/DeepSenseCA/echofilter/pull/159>`__,
+    `#161 <https://github.com/DeepSenseCA/echofilter/pull/161>`__)
+-   Show total run time when inference is finished.
+    (`#156 <https://github.com/DeepSenseCA/echofilter/pull/156>`__)
+-   Only ever report number of skipped regions if there were some which were skipped.
+    (`#156 <https://github.com/DeepSenseCA/echofilter/pull/156>`__)
+
+.. _v1.0.0b2 Fixed:
+
+Fixed
+~~~~~
+
+.. _v1.0.0b2 Fixed Inference:
+
+Inference
+^^^^^^^^^
+
+-   When using the "redact" method for ``--lines-during-passive`` (the default option), depths were redacted but the timestamps were not, resulting in a temporal offset which accumulated with each passive region.
+    (`#155 <https://github.com/DeepSenseCA/echofilter/pull/155>`__).
+-   Fix behaviour with ``--suffix-file``, so files are written to the filename with the suffix.
+    (`#160 <https://github.com/DeepSenseCA/echofilter/pull/160>`__).
+-   Fix type of ``--offset-top`` and ``--offset-bottom`` arguments from ``int`` to ``float``.
+    (`#159 <https://github.com/DeepSenseCA/echofilter/pull/155>`__).
+-   Documentation for ``--overwrite-ev-lines`` argument.
+    (`#157 <https://github.com/DeepSenseCA/echofilter/pull/157>`__).
+
+.. _v1.0.0b2 Added:
+
+Added
+~~~~~
+
+.. _v1.0.0b2 Added Inference:
+
+Inference
+^^^^^^^^^
+
+-   Add ability to specify whether to use recursive search through subdirectory tree, or just files in the specified directory, to both inference.py and ev2csv.py.
+    Add ``--no-recursive-dir-search`` argument to enable the non-recursive mode.
+    (`#158 <https://github.com/DeepSenseCA/echofilter/pull/158>`__)
+-   Add option to cap the top or bottom line (depending on orientation) so it cannot go too close to the echosounder, with ``--nearfield-cutoff`` argument.
+    (`#159 <https://github.com/DeepSenseCA/echofilter/pull/159>`__)
+-   Add option to skip outputting individual evl lines, with ``--no-top-line``, ``--no-bottom-line``, ``--no-surface-line`` arguments.
+    (`#162 <https://github.com/DeepSenseCA/echofilter/pull/162>`__).
 
 
 Version `1.0.0b1 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0b1>`__
