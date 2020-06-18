@@ -94,6 +94,7 @@ def run_inference(
     line_status=3,
     offset_top=1.0,
     offset_bottom=1.0,
+    nearfield_cutoff=1.7,
     lines_during_passive="redact",
     collate_passive_length=10,
     collate_removed_length=10,
@@ -221,6 +222,13 @@ def run_inference(
     offset_bottom : float, optional
         Offset for bottom line, which moves the line to become more shallow.
         Default is `1.0`.
+    nearfield_cutoff : float or None, optional
+        Nearest approach distance for line adjacent to echosounder, in meters.
+        If the echosounder is downfacing, `nearfield_cutoff` is the minimum
+        depth for the top line. If the echosounder is upfacing, the maximum
+        depth for the bottom line will be
+        ``deepest_input_depth + interdepth_interval - nearfield_cutoff``.
+        Set to `None` to disable. Default is `1.7`.
     lines_during_passive : str, optional
         Method used to handle line depths during collection
         periods determined to be passive recording instead of
@@ -813,6 +821,14 @@ def run_inference(
                 raise ValueError(
                     "Unsupported passive line method: {}".format(lines_during_passive)
                 )
+            if nearfield_cutoff is None:
+                pass
+            elif output["is_upward_facing"]:
+                depth_intv = abs(depths[-1] - depths[-2])
+                max_depth = np.max(depths) + depth_intv - nearfield_cutoff
+                bottom_depths = np.min(max_depth, bottom_depths)
+            else:
+                top_depths = np.max(top_depths, nearfield_cutoff)
 
             # Export evl files
             destination_dir = os.path.dirname(destination)
@@ -1842,6 +1858,19 @@ def main():
             Offset for the bottom line, in metres. This shifts the bottom line
             upwards by some distance OFFSET_BOTTOM. If this is set, it
             overwrites the value provided by --offset.
+        """,
+    )
+    group_outconfig.add_argument(
+        "--nearfield-cutoff",
+        type=float,
+        default=1.7,
+        help="""
+            Nearest approach distance for line adjacent to echosounder, in
+            meters. If the echosounder is downfacing, NEARFIELD_CUTOFF is the
+            minimum depth for the top line. If the echosounder is upfacing,
+            the maximum depth for the bottom line will be NEARFIELD_CUTOFF
+            above the deepest depth in the input data, plus one inter-depth
+            interval. Default is 1.7.
         """,
     )
     group_outconfig.add_argument(
