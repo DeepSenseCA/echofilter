@@ -1826,7 +1826,7 @@ def main():
     )
     group_outconfig.add_argument(
         "--offset-top",
-        type=int,
+        type=float,
         default=None,
         help="""
             Offset for the top line, in metres. This shifts the top line
@@ -1836,7 +1836,7 @@ def main():
     )
     group_outconfig.add_argument(
         "--offset-bottom",
-        type=int,
+        type=float,
         default=None,
         help="""
             Offset for the bottom line, in metres. This shifts the bottom line
