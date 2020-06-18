@@ -805,7 +805,7 @@ def write_transect_regions(
             )
         )
         n_skipped = n_passive_skipped + n_removed_skipped + n_contour_skipped
-        if verbose >= 2 or n_skipped > 0:
+        if n_skipped > 0:
             print(
                 "There were {} skipped (too small) regions:"
                 " {} passive, {} removed blocks, {} removed patches".format(
