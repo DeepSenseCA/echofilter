@@ -80,6 +80,9 @@ def run_inference(
     overwrite_existing=False,
     overwrite_ev_lines=False,
     import_into_evfile=True,
+    generate_top_line=True,
+    generate_bottom_line=True,
+    generate_surface_line=True,
     suffix_file="",
     suffix_var=None,
     color_top="orangered",
@@ -164,6 +167,18 @@ def run_inference(
     import_into_evfile : bool, optional
         Whether to import the output lines and regions into the EV file,
         whenever the file being processed in an EV file. Default is `True`.
+    generate_top_line : bool, optional
+        Whether to output an evl file for the top line. If this is `False`,
+        the top line is also never imported into EchoView.
+        Default is `True`.
+    generate_bottom_line : bool, optional
+        Whether to output an evl file for the bottom line. If this is `False`,
+        the bottom line is also never imported into EchoView.
+        Default is `True`.
+    generate_surface_line : bool, optional
+        Whether to output an evl file for the surface line. If this is `False`,
+        the surface line is also never imported into EchoView.
+        Default is `True`.
     suffix_file : str, optional
         Suffix to append to output artifacts (evl and evr files), between
         the name of the file and the extension. Default is `""`.
@@ -591,6 +606,12 @@ def run_inference(
             dest_files = {}
             for name in ("top", "bottom", "surface"):
                 dest_files[name] = "{}.{}{}.evl".format(destination, name, suffix_file)
+            if not generate_top_line:
+                dest_files.pop("top")
+            if not generate_bottom_line:
+                dest_files.pop("bottom")
+            if not generate_surface_line:
+                dest_files.pop("surface")
             dest_files["regions"] = "{}.{}{}.evr".format(
                 destination, "regions", suffix_file
             )
@@ -859,6 +880,8 @@ def run_inference(
                 ("bottom", bottom_depths),
                 ("surface", surface_depths),
             ):
+                if name not in dest_files:
+                    continue
                 dest_file = dest_files[name]
                 if verbose >= 2:
                     print("Writing output {}".format(dest_file))
@@ -1724,6 +1747,33 @@ def main():
             Do not import lines and regions back into any EV file inputs.
             Default behaviour is to import lines and regions and then
             save the file, overwriting the original EV file.
+        """,
+    )
+    group_outfile.add_argument(
+        "--no-top-line",
+        dest="generate_top_line",
+        action="store_false",
+        help="""
+            Do not output an evl file for the top line, and do not impor
+            a top line into the ev file.
+        """,
+    )
+    group_outfile.add_argument(
+        "--no-bottom-line",
+        dest="generate_bottom_line",
+        action="store_false",
+        help="""
+            Do not output an evl file for the bottom line, and do not import
+            a bottom line into the ev file.
+        """,
+    )
+    group_outfile.add_argument(
+        "--no-surface-line",
+        dest="generate_surface_line",
+        action="store_false",
+        help="""
+            Do not output an evl file for the surface line, and do not import
+            a surface line into the ev file.
         """,
     )
     group_outfile.add_argument(
