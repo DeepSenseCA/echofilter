@@ -92,8 +92,8 @@ def run_inference(
     suffix_csv=".csv",
     keep_ext=False,
     line_status=3,
-    offset_top=0.0,
-    offset_bottom=0.0,
+    offset_top=1.0,
+    offset_bottom=1.0,
     lines_during_passive="redact",
     collate_passive_length=10,
     collate_removed_length=10,
@@ -217,10 +217,10 @@ def run_inference(
             `3` : good
         Default is `3`.
     offset_top : float, optional
-        Offset for top line, which moves the top line deeper. Default is `0`.
+        Offset for top line, which moves the top line deeper. Default is `1.0`.
     offset_bottom : float, optional
         Offset for bottom line, which moves the line to become more shallow.
-         Default is `0`.
+        Default is `1.0`.
     lines_during_passive : str, optional
         Method used to handle line depths during collection
         periods determined to be passive recording instead of
@@ -1817,11 +1817,11 @@ def main():
     group_outconfig.add_argument(
         "--offset",
         type=float,
-        default=0.0,
+        default=1.0,
         help="""
             Offset for both top and bottom lines, in metres. This will shift
             both lines towards each other by the same distance of OFFSET.
-            Default is 0.
+            Default is 1.0.
         """,
     )
     group_outconfig.add_argument(
