@@ -32,6 +32,7 @@ def run_ev2csv(
     paths,
     variable_name=DEFAULT_VARNAME,
     source_dir=".",
+    recursive_dir_search=True,
     output_dir="",
     suffix=None,
     keep_ext=False,
@@ -57,6 +58,11 @@ def run_ev2csv(
         `'Fileset1: Sv pings T1'`.
     source_dir : str, optional
         Path to directory where files are found. Default is `'.'`.
+    recursive_dir_search : bool, optional
+        How to handle directory inputs in `paths`. If `False`, only files
+        (with the correct extension) in the directory will be included.
+        If `True`, subdirectories will also be walked through to find input
+        files. Default is `True`.
     output_dir : str, optional
         Directory where output files will be written. If this is `''`, outputs
         are written to the same directory as each input file. Otherwise, they
@@ -105,7 +111,11 @@ def run_ev2csv(
     else:
         suffix = "_Sv_raw.csv"
 
-    files = list(echofilter.path.parse_files_in_folders(paths, source_dir, "ev"))
+    files = list(
+        echofilter.path.parse_files_in_folders(
+            paths, source_dir, "ev", recursive=recursive_dir_search
+        )
+    )
     if verbose >= 1:
         print("Processing {} file{}".format(len(files), "" if len(files) == 1 else "s"))
 
@@ -312,6 +322,29 @@ def main():
             Path to source directory which contains the files and folders
             specified by the paths argument. Default: "." (the current
             directory).
+        """,
+    )
+    group_infile.add_argument(
+        "--recursive-dir-search",
+        dest="recursive_dir_search",
+        action="store_true",
+        default=True,
+        help="""d|
+            For any directories provided in the FILE_OR_DIRECTORY
+            input, all subdirectories will also be recursively
+            walked through to find files to process.
+            This is the default behaviour.
+        """,
+    )
+    group_infile.add_argument(
+        "--no-recursive-dir-search",
+        dest="recursive_dir_search",
+        action="store_false",
+        help="""
+            For any directories provided in the FILE_OR_DIRECTORY
+            input, only files within the specified directory will
+            be included in the files to process. Subfolders within
+            the directory will not be included.
         """,
     )
     group_infile.add_argument(

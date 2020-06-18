@@ -71,6 +71,7 @@ EV_UNDEFINED_DEPTH = -10000.99
 def run_inference(
     paths,
     source_dir=".",
+    recursive_dir_search=True,
     extensions="csv",
     skip_existing=False,
     skip_incompatible=False,
@@ -129,6 +130,11 @@ def run_inference(
         will be processed.
     source_dir : str, optional
         Path to directory where files are found. Default is `'.'`.
+    recursive_dir_search : bool, optional
+        How to handle directory inputs in `paths`. If `False`, only files
+        (with the correct extension) in the directory will be included.
+        If `True`, subdirectories will also be walked through to find input
+        files. Default is `True`.
     extensions : iterable or str, optional
         File extensions to detect when running on a directory. Default is
         `'csv'`.
@@ -498,7 +504,11 @@ def run_inference(
     model.eval()
 
     files_input = paths
-    files = list(echofilter.path.parse_files_in_folders(paths, source_dir, extensions))
+    files = list(
+        echofilter.path.parse_files_in_folders(
+            paths, source_dir, extensions, recursive=recursive_dir_search
+        )
+    )
     if verbose >= 1:
         print("Processing {} file{}".format(len(files), "" if len(files) == 1 else "s"))
 
@@ -1547,6 +1557,29 @@ def main():
             Path to source directory which contains the files and folders
             specified by the paths argument. Default: "." (the current
             directory).
+        """,
+    )
+    group_infile.add_argument(
+        "--recursive-dir-search",
+        dest="recursive_dir_search",
+        action="store_true",
+        default=True,
+        help="""d|
+            For any directories provided in the FILE_OR_DIRECTORY
+            input, all subdirectories will also be recursively
+            walked through to find files to process.
+            This is the default behaviour.
+        """,
+    )
+    group_infile.add_argument(
+        "--no-recursive-dir-search",
+        dest="recursive_dir_search",
+        action="store_false",
+        help="""
+            For any directories provided in the FILE_OR_DIRECTORY
+            input, only files within the specified directory will
+            be included in the files to process. Subfolders within
+            the directory will not be included.
         """,
     )
     default_extensions = ["csv"]
