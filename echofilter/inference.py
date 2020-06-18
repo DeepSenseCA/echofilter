@@ -859,7 +859,7 @@ def run_inference(
                 ("bottom", bottom_depths),
                 ("surface", surface_depths),
             ):
-                dest_file = "{}.{}.evl".format(destination, name)
+                dest_file = dest_files[name]
                 if verbose >= 2:
                     print("Writing output {}".format(dest_file))
                 if os.path.exists(dest_file) and not overwrite_existing:
@@ -873,7 +873,7 @@ def run_inference(
                     dest_file, line_timestamps, depths, status=line_status
                 )
             # Export evr file
-            dest_file = "{}.{}.evr".format(destination, "regions")
+            dest_file = dest_files["regions"]
             if verbose >= 2:
                 print("Writing output {}".format(dest_file))
             if os.path.exists(dest_file) and not overwrite_existing:
