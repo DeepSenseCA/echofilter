@@ -846,9 +846,9 @@ def run_inference(
             elif output["is_upward_facing"]:
                 depth_intv = abs(depths[-1] - depths[-2])
                 max_depth = np.max(depths) + depth_intv - nearfield_cutoff
-                bottom_depths = np.min(max_depth, bottom_depths)
+                bottom_depths = np.minimum(max_depth, bottom_depths)
             else:
-                top_depths = np.max(top_depths, nearfield_cutoff)
+                top_depths = np.maximum(top_depths, nearfield_cutoff)
 
             # Export evl files
             destination_dir = os.path.dirname(destination)
