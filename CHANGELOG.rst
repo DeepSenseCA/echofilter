@@ -269,6 +269,9 @@ General
 Version `0.1.4 <https://github.com/DeepSenseCA/echofilter/tree/0.1.4>`__
 ------------------------------------------------------------------------
 
+Release date: 2020-05-19.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.3...0.1.4>`__.
+
 .. _v0.1.4 Added:
 
 Added
@@ -282,6 +285,9 @@ Added
 
 Version `0.1.3 <https://github.com/DeepSenseCA/echofilter/tree/0.1.3>`__
 ------------------------------------------------------------------------
+
+Release date: 2020-05-16.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.2...0.1.3>`__.
 
 .. _v0.1.3 Fixed:
 
@@ -305,6 +311,9 @@ Added
 
 Version `0.1.2 <https://github.com/DeepSenseCA/echofilter/tree/0.1.2>`__
 ------------------------------------------------------------------------
+
+Release date: 2020-05-14.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.1...0.1.2>`__.
 
 .. _v0.1.2 Fixed:
 
@@ -331,6 +340,9 @@ Added
 
 Version `0.1.1 <https://github.com/DeepSenseCA/echofilter/tree/0.1.1>`__
 ------------------------------------------------------------------------
+
+Release date: 2020-05-12.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.0...0.1.1>`__.
 
 .. _v0.1.1 Fixed:
 
