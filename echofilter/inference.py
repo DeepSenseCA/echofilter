@@ -768,6 +768,7 @@ def run_inference(
             top_depths += offset_top
             bottom_depths -= offset_bottom
             # Redact passive regions
+            line_timestamps = output["timestamps"].copy()
             is_passive = output["p_is_passive" + cs] > 0.5
             if lines_during_passive == "predict":
                 pass
@@ -775,15 +776,16 @@ def run_inference(
                 surface_depths = surface_depths[~is_passive]
                 top_depths = top_depths[~is_passive]
                 bottom_depths = bottom_depths[~is_passive]
+                line_timestamps = line_timestamps[~is_passive]
             elif lines_during_passive == "undefined":
                 surface_depths[is_passive] = EV_UNDEFINED_DEPTH
                 top_depths[is_passive] = EV_UNDEFINED_DEPTH
                 bottom_depths[is_passive] = EV_UNDEFINED_DEPTH
             elif lines_during_passive.startswith("interp"):
                 if lines_during_passive == "interpolate-time":
-                    x = output["timestamps"]
+                    x = line_timestamps
                 elif lines_during_passive == "interpolate-index":
-                    x = np.arange(len(output["timestamps"]))
+                    x = np.arange(len(line_timestamps))
                 else:
                     raise ValueError(
                         "Unsupported passive line interpolation method: {}".format(
@@ -834,7 +836,7 @@ def run_inference(
                         " outputs.".format(dest_file)
                     )
                 echofilter.raw.loader.evl_writer(
-                    dest_file, timestamps, depths, status=line_status
+                    dest_file, line_timestamps, depths, status=line_status
                 )
             # Export evr file
             dest_file = "{}.{}.evr".format(destination, "regions")
