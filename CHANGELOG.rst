@@ -16,7 +16,7 @@ Security.
 Unreleased
 ----------
 
-`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.4...master>`__.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0b1...master>`__.
 
 
 Version `1.0.0b1 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0b1>`__
