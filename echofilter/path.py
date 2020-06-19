@@ -18,7 +18,7 @@ def check_if_windows():
     return sys.platform.startswith("win")
 
 
-def parse_files_in_folders(files_or_folders, source_dir, extension):
+def parse_files_in_folders(files_or_folders, source_dir, extension, recursive=True):
     """
     Walk through folders and find suitable files.
 
@@ -33,6 +33,10 @@ def parse_files_in_folders(files_or_folders, source_dir, extension):
         Extension (or list of extensions) which files within directories must
         bear to be included, without leading `'.'`, for instance `'.csv'`.
         Note that explicitly given files are always used.
+    recursive : bool, optional
+        Whether to walk through the tree of files in a subfolders of a
+        directory input. If `False`, only files in the folder itself and
+        not its child folders will be included.
 
     Yields
     ------
@@ -56,16 +60,23 @@ def parse_files_in_folders(files_or_folders, source_dir, extension):
             folder = os.path.join(source_dir, path)
         else:
             raise EnvironmentError("Missing file or directory: {}".format(path))
-        for dirpath, dirnames, filenames in os.walk(folder):
-            for filename in filenames:
-                rel_file = os.path.join(dirpath, filename)
-                if not os.path.isfile(rel_file):
-                    continue
-                ext = os.path.splitext(filename)[1]
-                if extensions is None or (
-                    len(ext) > 0 and ext[1:].lower() in extensions
-                ):
-                    yield rel_file
+
+        if recursive:
+            full_filenames = []
+            for dirpath, dirnames, fnames in os.walk(folder):
+                for fname in fnames:
+                    full_filenames.append(os.path.join(dirpath, fname))
+        else:
+            full_filenames = (
+                os.path.join(folder, filename) for filename in os.listdir(folder)
+            )
+
+        for filename in full_filenames:
+            if not os.path.isfile(filename):
+                continue
+            ext = os.path.splitext(filename)[1]
+            if extensions is None or (len(ext) > 0 and ext[1:].lower() in extensions):
+                yield filename
 
 
 def determine_file_path(fname, source_dir):

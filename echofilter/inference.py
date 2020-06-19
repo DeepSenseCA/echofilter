@@ -71,6 +71,7 @@ EV_UNDEFINED_DEPTH = -10000.99
 def run_inference(
     paths,
     source_dir=".",
+    recursive_dir_search=True,
     extensions="csv",
     skip_existing=False,
     skip_incompatible=False,
@@ -79,6 +80,9 @@ def run_inference(
     overwrite_existing=False,
     overwrite_ev_lines=False,
     import_into_evfile=True,
+    generate_top_line=True,
+    generate_bottom_line=True,
+    generate_surface_line=True,
     suffix_file="",
     suffix_var=None,
     color_top="orangered",
@@ -92,8 +96,9 @@ def run_inference(
     suffix_csv=".csv",
     keep_ext=False,
     line_status=3,
-    offset_top=0.0,
-    offset_bottom=0.0,
+    offset_top=1.0,
+    offset_bottom=1.0,
+    nearfield_cutoff=1.7,
     lines_during_passive="redact",
     collate_passive_length=10,
     collate_removed_length=10,
@@ -129,6 +134,11 @@ def run_inference(
         will be processed.
     source_dir : str, optional
         Path to directory where files are found. Default is `'.'`.
+    recursive_dir_search : bool, optional
+        How to handle directory inputs in `paths`. If `False`, only files
+        (with the correct extension) in the directory will be included.
+        If `True`, subdirectories will also be walked through to find input
+        files. Default is `True`.
     extensions : iterable or str, optional
         File extensions to detect when running on a directory. Default is
         `'csv'`.
@@ -151,12 +161,24 @@ def run_inference(
         `False`, an error is generated if files would be overwritten.
         Default is `False`.
     overwrite_ev_lines : bool, optional
-        Overwrite existing EV lines files without warning. If `False`
-        (default), the current datetime will be appended to line variable names
-        in the event of a collision.
+        Overwrite existing lines within the EchoView file without warning.
+        If `False` (default), the current datetime will be appended to line
+        variable names in the event of a collision.
     import_into_evfile : bool, optional
         Whether to import the output lines and regions into the EV file,
         whenever the file being processed in an EV file. Default is `True`.
+    generate_top_line : bool, optional
+        Whether to output an evl file for the top line. If this is `False`,
+        the top line is also never imported into EchoView.
+        Default is `True`.
+    generate_bottom_line : bool, optional
+        Whether to output an evl file for the bottom line. If this is `False`,
+        the bottom line is also never imported into EchoView.
+        Default is `True`.
+    generate_surface_line : bool, optional
+        Whether to output an evl file for the surface line. If this is `False`,
+        the surface line is also never imported into EchoView.
+        Default is `True`.
     suffix_file : str, optional
         Suffix to append to output artifacts (evl and evr files), between
         the name of the file and the extension. Default is `""`.
@@ -217,10 +239,17 @@ def run_inference(
             `3` : good
         Default is `3`.
     offset_top : float, optional
-        Offset for top line, which moves the top line deeper. Default is `0`.
+        Offset for top line, which moves the top line deeper. Default is `1.0`.
     offset_bottom : float, optional
         Offset for bottom line, which moves the line to become more shallow.
-         Default is `0`.
+        Default is `1.0`.
+    nearfield_cutoff : float or None, optional
+        Nearest approach distance for line adjacent to echosounder, in meters.
+        If the echosounder is downfacing, `nearfield_cutoff` is the minimum
+        depth for the top line. If the echosounder is upfacing, the maximum
+        depth for the bottom line will be
+        ``deepest_input_depth + interdepth_interval - nearfield_cutoff``.
+        Set to `None` to disable. Default is `1.7`.
     lines_during_passive : str, optional
         Method used to handle line depths during collection
         periods determined to be passive recording instead of
@@ -348,6 +377,14 @@ def run_inference(
         Verbosity level. Default is `1`. Set to `0` to disable print
         statements, or elevate to a higher number to increase verbosity.
     """
+
+    t_start_prog = time.time()
+    if verbose >= 1:
+        print(
+            "Starting inference routine. {}".format(
+                datetime.datetime.now().strftime("%A, %B %d, %Y at %H:%M:%S")
+            )
+        )
 
     if device is None:
         device = "cuda" if cuda_is_really_available() else "cpu"
@@ -498,7 +535,11 @@ def run_inference(
     model.eval()
 
     files_input = paths
-    files = list(echofilter.path.parse_files_in_folders(paths, source_dir, extensions))
+    files = list(
+        echofilter.path.parse_files_in_folders(
+            paths, source_dir, extensions, recursive=recursive_dir_search
+        )
+    )
     if verbose >= 1:
         print("Processing {} file{}".format(len(files), "" if len(files) == 1 else "s"))
 
@@ -565,6 +606,12 @@ def run_inference(
             dest_files = {}
             for name in ("top", "bottom", "surface"):
                 dest_files[name] = "{}.{}{}.evl".format(destination, name, suffix_file)
+            if not generate_top_line:
+                dest_files.pop("top")
+            if not generate_bottom_line:
+                dest_files.pop("bottom")
+            if not generate_surface_line:
+                dest_files.pop("surface")
             dest_files["regions"] = "{}.{}{}.evr".format(
                 destination, "regions", suffix_file
             )
@@ -768,6 +815,7 @@ def run_inference(
             top_depths += offset_top
             bottom_depths -= offset_bottom
             # Redact passive regions
+            line_timestamps = output["timestamps"].copy()
             is_passive = output["p_is_passive" + cs] > 0.5
             if lines_during_passive == "predict":
                 pass
@@ -775,15 +823,16 @@ def run_inference(
                 surface_depths = surface_depths[~is_passive]
                 top_depths = top_depths[~is_passive]
                 bottom_depths = bottom_depths[~is_passive]
+                line_timestamps = line_timestamps[~is_passive]
             elif lines_during_passive == "undefined":
                 surface_depths[is_passive] = EV_UNDEFINED_DEPTH
                 top_depths[is_passive] = EV_UNDEFINED_DEPTH
                 bottom_depths[is_passive] = EV_UNDEFINED_DEPTH
             elif lines_during_passive.startswith("interp"):
                 if lines_during_passive == "interpolate-time":
-                    x = output["timestamps"]
+                    x = line_timestamps
                 elif lines_during_passive == "interpolate-index":
-                    x = np.arange(len(output["timestamps"]))
+                    x = np.arange(len(line_timestamps))
                 else:
                     raise ValueError(
                         "Unsupported passive line interpolation method: {}".format(
@@ -813,6 +862,14 @@ def run_inference(
                 raise ValueError(
                     "Unsupported passive line method: {}".format(lines_during_passive)
                 )
+            if nearfield_cutoff is None:
+                pass
+            elif output["is_upward_facing"]:
+                depth_intv = abs(depths[-1] - depths[-2])
+                max_depth = np.max(depths) + depth_intv - nearfield_cutoff
+                bottom_depths = np.minimum(max_depth, bottom_depths)
+            else:
+                top_depths = np.maximum(top_depths, nearfield_cutoff)
 
             # Export evl files
             destination_dir = os.path.dirname(destination)
@@ -823,7 +880,9 @@ def run_inference(
                 ("bottom", bottom_depths),
                 ("surface", surface_depths),
             ):
-                dest_file = "{}.{}.evl".format(destination, name)
+                if name not in dest_files:
+                    continue
+                dest_file = dest_files[name]
                 if verbose >= 2:
                     print("Writing output {}".format(dest_file))
                 if os.path.exists(dest_file) and not overwrite_existing:
@@ -834,10 +893,10 @@ def run_inference(
                         " outputs.".format(dest_file)
                     )
                 echofilter.raw.loader.evl_writer(
-                    dest_file, timestamps, depths, status=line_status
+                    dest_file, line_timestamps, depths, status=line_status
                 )
             # Export evr file
-            dest_file = "{}.{}.evr".format(destination, "regions")
+            dest_file = dest_files["regions"]
             if verbose >= 2:
                 print("Writing output {}".format(dest_file))
             if os.path.exists(dest_file) and not overwrite_existing:
@@ -910,6 +969,11 @@ def run_inference(
             )
             for error_msg in error_msgs:
                 print(error_msg)
+        print(
+            "Total runtime: {}".format(
+                datetime.timedelta(seconds=time.time() - t_start_prog)
+            )
+        )
 
 
 def inference_transect(
@@ -1549,6 +1613,29 @@ def main():
             directory).
         """,
     )
+    group_infile.add_argument(
+        "--recursive-dir-search",
+        dest="recursive_dir_search",
+        action="store_true",
+        default=True,
+        help="""d|
+            For any directories provided in the FILE_OR_DIRECTORY
+            input, all subdirectories will also be recursively
+            walked through to find files to process.
+            This is the default behaviour.
+        """,
+    )
+    group_infile.add_argument(
+        "--no-recursive-dir-search",
+        dest="recursive_dir_search",
+        action="store_false",
+        help="""
+            For any directories provided in the FILE_OR_DIRECTORY
+            input, only files within the specified directory will
+            be included in the files to process. Subfolders within
+            the directory will not be included.
+        """,
+    )
     default_extensions = ["csv"]
     if echofilter.path.check_if_windows():
         default_extensions.append("ev")
@@ -1637,9 +1724,9 @@ def main():
         "--overwrite-ev-lines",
         action="store_true",
         help="""
-            Overwrite existing EV lines files without warning. Default
-            behaviour is to append the current datetime to the name of the
-            line in the event of a collision.
+            Overwrite existing lines within the EchoView file without warning.
+            Default behaviour is to append the current datetime to the name of
+            the line in the event of a collision.
         """,
     )
     group_outfile.add_argument(
@@ -1660,6 +1747,33 @@ def main():
             Do not import lines and regions back into any EV file inputs.
             Default behaviour is to import lines and regions and then
             save the file, overwriting the original EV file.
+        """,
+    )
+    group_outfile.add_argument(
+        "--no-top-line",
+        dest="generate_top_line",
+        action="store_false",
+        help="""
+            Do not output an evl file for the top line, and do not impor
+            a top line into the ev file.
+        """,
+    )
+    group_outfile.add_argument(
+        "--no-bottom-line",
+        dest="generate_bottom_line",
+        action="store_false",
+        help="""
+            Do not output an evl file for the bottom line, and do not import
+            a bottom line into the ev file.
+        """,
+    )
+    group_outfile.add_argument(
+        "--no-surface-line",
+        dest="generate_surface_line",
+        action="store_false",
+        help="""
+            Do not output an evl file for the surface line, and do not import
+            a surface line into the ev file.
         """,
     )
     group_outfile.add_argument(
@@ -1817,16 +1931,16 @@ def main():
     group_outconfig.add_argument(
         "--offset",
         type=float,
-        default=0.0,
+        default=1.0,
         help="""
             Offset for both top and bottom lines, in metres. This will shift
             both lines towards each other by the same distance of OFFSET.
-            Default is 0.
+            Default is 1.0.
         """,
     )
     group_outconfig.add_argument(
         "--offset-top",
-        type=int,
+        type=float,
         default=None,
         help="""
             Offset for the top line, in metres. This shifts the top line
@@ -1836,12 +1950,25 @@ def main():
     )
     group_outconfig.add_argument(
         "--offset-bottom",
-        type=int,
+        type=float,
         default=None,
         help="""
             Offset for the bottom line, in metres. This shifts the bottom line
             upwards by some distance OFFSET_BOTTOM. If this is set, it
             overwrites the value provided by --offset.
+        """,
+    )
+    group_outconfig.add_argument(
+        "--nearfield-cutoff",
+        type=float,
+        default=1.7,
+        help="""
+            Nearest approach distance for line adjacent to echosounder, in
+            meters. If the echosounder is downfacing, NEARFIELD_CUTOFF is the
+            minimum depth for the top line. If the echosounder is upfacing,
+            the maximum depth for the bottom line will be NEARFIELD_CUTOFF
+            above the deepest depth in the input data, plus one inter-depth
+            interval. Default is 1.7.
         """,
     )
     group_outconfig.add_argument(

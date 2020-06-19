@@ -16,7 +16,73 @@ Security.
 Unreleased
 ----------
 
-`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.4...master>`__.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0b2...master>`__.
+
+
+Version `1.0.0b2 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0b2>`__
+----------------------------------------------------------------------------
+
+Release date: 2020-06-18.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0b1...1.0.0b2>`__.
+
+This is a beta pre-release of v1.0.0.
+
+.. _v1.0.0b2 Changed:
+
+Changed
+~~~~~~~
+
+.. _v1.0.0b2 Changed Inference:
+
+Inference
+^^^^^^^^^
+
+-   Change default value of ``--offset`` to 1m.
+    (`#159 <https://github.com/DeepSenseCA/echofilter/pull/159>`__)
+-   Use a default ``--nearfield-cutoff`` of 1.7m.
+    (`#159 <https://github.com/DeepSenseCA/echofilter/pull/159>`__,
+    `#161 <https://github.com/DeepSenseCA/echofilter/pull/161>`__)
+-   Show total run time when inference is finished.
+    (`#156 <https://github.com/DeepSenseCA/echofilter/pull/156>`__)
+-   Only ever report number of skipped regions if there were some which were skipped.
+    (`#156 <https://github.com/DeepSenseCA/echofilter/pull/156>`__)
+
+.. _v1.0.0b2 Fixed:
+
+Fixed
+~~~~~
+
+.. _v1.0.0b2 Fixed Inference:
+
+Inference
+^^^^^^^^^
+
+-   When using the "redact" method for ``--lines-during-passive`` (the default option), depths were redacted but the timestamps were not, resulting in a temporal offset which accumulated with each passive region.
+    (`#155 <https://github.com/DeepSenseCA/echofilter/pull/155>`__).
+-   Fix behaviour with ``--suffix-file``, so files are written to the filename with the suffix.
+    (`#160 <https://github.com/DeepSenseCA/echofilter/pull/160>`__).
+-   Fix type of ``--offset-top`` and ``--offset-bottom`` arguments from ``int`` to ``float``.
+    (`#159 <https://github.com/DeepSenseCA/echofilter/pull/155>`__).
+-   Documentation for ``--overwrite-ev-lines`` argument.
+    (`#157 <https://github.com/DeepSenseCA/echofilter/pull/157>`__).
+
+.. _v1.0.0b2 Added:
+
+Added
+~~~~~
+
+.. _v1.0.0b2 Added Inference:
+
+Inference
+^^^^^^^^^
+
+-   Add ability to specify whether to use recursive search through subdirectory tree, or just files in the specified directory, to both inference.py and ev2csv.py.
+    Add ``--no-recursive-dir-search`` argument to enable the non-recursive mode.
+    (`#158 <https://github.com/DeepSenseCA/echofilter/pull/158>`__)
+-   Add option to cap the top or bottom line (depending on orientation) so it cannot go too close to the echosounder, with ``--nearfield-cutoff`` argument.
+    (`#159 <https://github.com/DeepSenseCA/echofilter/pull/159>`__)
+-   Add option to skip outputting individual evl lines, with ``--no-top-line``, ``--no-bottom-line``, ``--no-surface-line`` arguments.
+    (`#162 <https://github.com/DeepSenseCA/echofilter/pull/162>`__).
 
 
 Version `1.0.0b1 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0b1>`__
@@ -45,7 +111,8 @@ Training
 -   Training augmentation stack.
     (`#79 <https://github.com/DeepSenseCA/echofilter/pull/79>`__,
     `#83 <https://github.com/DeepSenseCA/echofilter/pull/83>`__,
-    `#106 <https://github.com/DeepSenseCA/echofilter/pull/106>`__).
+    `#106 <https://github.com/DeepSenseCA/echofilter/pull/106>`__,
+    `#124 <https://github.com/DeepSenseCA/echofilter/pull/124>`__).
 -   Train using normalisation based on the 10th percentile as the zero point and standard deviation robustly estimated from the interdecile range.
     (`#80 <https://github.com/DeepSenseCA/echofilter/pull/80>`__).
 -   Use log-avg-exp for ``logit_is_passive`` and ``logit_is_removed``.
@@ -229,7 +296,7 @@ Inference
     `#143 <https://github.com/DeepSenseCA/echofilter/pull/143>`__).
 -   Add ``--logit-smoothing-sigma`` argument, which controls the kernel width for Gaussian smoothing applied to the logits before converting to predictions.
     (`#144 <https://github.com/DeepSenseCA/echofilter/pull/144>`__)
--   Generating outputs from conditional models, adding 
+-   Generating outputs from conditional models, adding ``--unconditioned`` argument to disable usage of conditional probability outputs.
     (`#147 <https://github.com/DeepSenseCA/echofilter/pull/147>`__).
 -   Add automatic cropping to zoom in on the depth range of interest.
     Add ``--auto-crop-threshold`` argument, which controls the threshold for when this occurs.
@@ -269,6 +336,9 @@ General
 Version `0.1.4 <https://github.com/DeepSenseCA/echofilter/tree/0.1.4>`__
 ------------------------------------------------------------------------
 
+Release date: 2020-05-19.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.3...0.1.4>`__.
+
 .. _v0.1.4 Added:
 
 Added
@@ -282,6 +352,9 @@ Added
 
 Version `0.1.3 <https://github.com/DeepSenseCA/echofilter/tree/0.1.3>`__
 ------------------------------------------------------------------------
+
+Release date: 2020-05-16.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.2...0.1.3>`__.
 
 .. _v0.1.3 Fixed:
 
@@ -305,6 +378,9 @@ Added
 
 Version `0.1.2 <https://github.com/DeepSenseCA/echofilter/tree/0.1.2>`__
 ------------------------------------------------------------------------
+
+Release date: 2020-05-14.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.1...0.1.2>`__.
 
 .. _v0.1.2 Fixed:
 
@@ -331,6 +407,9 @@ Added
 
 Version `0.1.1 <https://github.com/DeepSenseCA/echofilter/tree/0.1.1>`__
 ------------------------------------------------------------------------
+
+Release date: 2020-05-12.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/0.1.0...0.1.1>`__.
 
 .. _v0.1.1 Fixed:
 
