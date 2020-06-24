@@ -181,7 +181,8 @@ def run_inference(
         Default is `True`.
     suffix_file : str, optional
         Suffix to append to output artifacts (evl and evr files), between
-        the name of the file and the extension. Default is `""`.
+        the name of the file and the extension. If `suffix_file` begins with
+        an alphanumeric character, `"-"` is prepended. Default is `""`.
     suffix_var : str or None, optional
         Suffix to append to lines imported back into EV file. If `None`
         (default), suffix_var will match `suffix_file` if it is set,
@@ -1786,8 +1787,10 @@ def main():
         default="",
         help="""
             Suffix to append to output artifacts evl and evr files, between
-            the name of the file and the extension. The default behavior is
-            not to append a suffix.
+            the name of the file and the extension.
+            If SUFFIX_FILE begins with an alphanumeric character, "-" is
+            prepended to it to act as a delimiter.
+            The default behavior is not to append a suffix.
         """,
     )
     group_outfile.add_argument(
