@@ -1814,7 +1814,7 @@ def main():
             the name of the file and the extension.
             If SUFFIX_FILE begins with an alphanumeric character, "-" is
             prepended to it to act as a delimiter.
-            The default behavior is not to append a suffix.
+            The default behavior is to not append a suffix.
         """,
     )
     group_outfile.add_argument(
@@ -1934,10 +1934,10 @@ def main():
         "--keep-ext",
         action="store_true",
         help="""
-            If provided, the output file names maintain the input file
-            extension before their suffix (including a new file extension).
-            Default behaviour is to strip the input file name extension before
-            constructing the output path.
+            If provided, the output file names (evl, evr, csv) maintain the
+            input file extension before their suffix (including a new file
+            extension). Default behaviour is to strip the input file name
+            extension before constructing the output paths.
         """,
     )
 
