@@ -1267,7 +1267,11 @@ def import_lines_regions_to_ev(
     with echofilter.win.open_ev_file(ev_fname, ev_app) as ev_file:
         for key, fname in files.items():
             # Import the line into the EV file
-            ev_file.Import(os.path.abspath(fname))
+            is_imported = ev_file.Import(os.path.abspath(fname))
+            if not is_imported:
+                print("Warning: Unable to import file '{}'".format(fname))
+                print("Please consult EchoView for the Import error message.")
+                continue
 
             if os.path.splitext(fname)[1].lower() != ".evl":
                 # Further handling is only for lines, so skip if this wasn't
