@@ -1555,6 +1555,8 @@ def main():
     )
     group_action.add_argument(
         "--list-colors",
+        "--list-colours",
+        dest="list_colors",
         nargs="?",
         type=str,
         choices=["css4", "full", "xkcd"],
