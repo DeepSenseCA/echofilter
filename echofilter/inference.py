@@ -1594,7 +1594,8 @@ def main():
             Multiple files and directories can be specified,
             separated by spaces.
             This is a required argument. At least one input file
-            or directory must be given.
+            or directory must be given, unless one of the
+            arguments listed above under "Actions" is given.
             In order to process the directory given by SOURCE_DIR,
             specify "." for this argument, such as:
                 echofilter . --source-dir SOURCE_DIR
