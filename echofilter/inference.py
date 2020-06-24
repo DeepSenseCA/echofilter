@@ -2220,7 +2220,7 @@ def main():
     )
     group_model.add_argument(
         "--unconditioned",
-        "--force_unconditioned",
+        "--force-unconditioned",
         dest="force_unconditioned",
         action="store_true",
         help="""
