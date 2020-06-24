@@ -508,7 +508,12 @@ def evr_writer(
     For more details on the format specification, see:
     https://support.echoview.com/WebHelp/Reference/File_formats/Export_file_formats/2D_Region_definition_file_format.htm
     """
-    common_notes = common_notes.strip("\n").replace("\n", line_ending)
+    # Remove leading/trailing new lines, since we will join with our own line ending
+    common_notes = common_notes.strip("\r\n")
+    # Standardize line endings to be \n, regardless of input
+    common_notes = common_notes.replace("\r\n", "\n").replace("\r", "\n")
+    # Replace the Unix line ending (as per our standardization) with desired line ending
+    common_notes = common_notes.replace("\n", line_ending)
     if len(common_notes) == 0:
         n_lines_common_notes = 0
     else:
