@@ -1093,7 +1093,7 @@ def inference_transect(
                 " vertically before being input into the model."
             )
         is_upward_facing = True
-    elif facing[:4] != "down" and facing[:4] != "auto":
+    elif facing[:4] != "down" and facing != "auto":
         raise ValueError('facing should be one of "downward", "upward", and "auto"')
     elif facing[:4] == "down" and is_upward_facing:
         print(
