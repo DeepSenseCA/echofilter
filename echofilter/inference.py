@@ -1674,7 +1674,6 @@ def main():
     )
     group_infile.add_argument(
         "--skip-incompatible",
-        dest="skip_incompatible",
         action="store_true",
         help="""
             Skip over incompatible input CSV files, without raising an error.
@@ -2012,9 +2011,7 @@ def main():
         """,
     )
     group_outconfig.add_argument(
-        "--collate-passive",
         "--collate-passive-length",
-        dest="collate_passive_length",
         type=int,
         default=10,
         help="""
@@ -2024,9 +2021,7 @@ def main():
         """,
     )
     group_outconfig.add_argument(
-        "--collate-removed",
         "--collate-removed-length",
-        dest="collate_passive_length",
         type=int,
         default=10,
         help="""
@@ -2037,9 +2032,7 @@ def main():
         """,
     )
     group_outconfig.add_argument(
-        "--minimum-passive",
         "--minimum-passive-length",
-        dest="minimum_passive_length",
         type=int,
         default=10,
         help="""
@@ -2049,9 +2042,7 @@ def main():
         """,
     )
     group_outconfig.add_argument(
-        "--minimum-removed",
         "--minimum-removed-length",
-        dest="minimum_removed_length",
         type=int,
         default=10,
         help="""
@@ -2062,9 +2053,7 @@ def main():
         """,
     )
     group_outconfig.add_argument(
-        "--minimum-patch",
         "--minimum-patch-area",
-        dest="minimum_patch_area",
         type=int,
         default=25,
         help="""
@@ -2178,8 +2167,7 @@ def main():
     )
     group_inproc.add_argument(
         "--autocrop-threshold",
-        "--autocrop",
-        "--autozoom",
+        "--autozoom-threshold",
         dest="autocrop_threshold",
         type=float,
         default=0.35,
@@ -2244,9 +2232,7 @@ def main():
         """,
     )
     group_model.add_argument(
-        "--logit-smoothing",
         "--logit-smoothing-sigma",
-        dest="logit_smoothing_sigma",
         type=float,
         nargs="+",
         metavar="SIGMA",
