@@ -228,7 +228,8 @@ def run_inference(
         input EV files.
     suffix_csv : str, optional
         Suffix used for cached CSV files which are exported from EV files.
-        Default is `'.csv'` (only the file extension is changed).
+        If `suffix_file` begins with an alphanumeric character, `"-"` is
+        prepended. Default is `""`.
     keep_ext : bool, optional
         Whether to preserve the file extension in the input file name when
         generating output file name. Default is `False`, removing the
@@ -414,6 +415,9 @@ def run_inference(
         suffix_var = suffix_file
     else:
         suffix_var = "_echofilter"
+
+    if suffix_csv and suffix_csv[0].isalpha():
+        suffix_csv = "-" + suffix_csv
 
     line_colors = dict(top=color_top, bottom=color_bottom, surface=color_surface)
     line_thicknesses = dict(
@@ -699,7 +703,7 @@ def run_inference(
                     )
                     if not keep_ext:
                         csv_fname = os.path.splitext(csv_fname)[0]
-                    csv_fname += suffix_csv
+                    csv_fname += suffix_csv + ".csv"
 
                 if os.path.isfile(csv_fname):
                     # If CSV file is already cached, no need to re-export it
@@ -1912,12 +1916,14 @@ def main():
     group_outfile.add_argument(
         "--suffix-csv",
         type=str,
-        default=".csv",
+        default="",
         help="""
-            Suffix used for cached CSV files which are exported from EV files.
-            This should contain a file extension, including ".", but may
-            optionally contain additional text, for instance "_Sv_raw.csv".
-            Default: %(default)s.
+            Suffix to append to the file names of cached CSV files which are
+            exported from EV files. The suffix is inserted between the input
+            file name and the new file extension, ".csv".
+            If SUFFIX_CSV begins with an alphanumeric character, "-" is
+            prepended to it to act as a delimiter.
+            The default behavior is to not append a suffix.
         """,
     )
     group_outfile.add_argument(
