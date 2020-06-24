@@ -1224,9 +1224,9 @@ def inference_transect(
     # Crop and run again; and don't autocrop a second time!
     return inference_transect(
         model,
-        transect["timestamps"],
-        transect["depths"],
-        transect["signals"],
+        timestamps,
+        depths,
+        signals,
         device,
         image_height,
         facing=facing,
