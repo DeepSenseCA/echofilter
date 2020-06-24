@@ -98,6 +98,7 @@ def run_inference(
     line_status=3,
     offset_top=1.0,
     offset_bottom=1.0,
+    offset_surface=1.0,
     nearfield_cutoff=1.7,
     lines_during_passive="redact",
     collate_passive_length=10,
@@ -242,6 +243,9 @@ def run_inference(
         Offset for top line, which moves the top line deeper. Default is `1.0`.
     offset_bottom : float, optional
         Offset for bottom line, which moves the line to become more shallow.
+        Default is `1.0`.
+    offset_surface : float, optional
+        Offset for surface line, which moves the surface line deeper.
         Default is `1.0`.
     nearfield_cutoff : float or None, optional
         Nearest approach distance for line adjacent to echosounder, in meters.
@@ -814,6 +818,7 @@ def run_inference(
             # Offset lines
             top_depths += offset_top
             bottom_depths -= offset_bottom
+            surface_depths += offset_surface
             # Redact passive regions
             line_timestamps = output["timestamps"].copy()
             is_passive = output["p_is_passive" + cs] > 0.5
@@ -1934,8 +1939,9 @@ def main():
         type=float,
         default=1.0,
         help="""
-            Offset for both top and bottom lines, in metres. This will shift
-            both lines towards each other by the same distance of OFFSET.
+            Offset for top, bottom, and surface lines, in metres. This will
+            shift top and surface lines downwards and the bottom line upwards
+            by the same distance of OFFSET.
             Default: %(default)s.
         """,
     )
@@ -1956,6 +1962,16 @@ def main():
         help="""
             Offset for the bottom line, in metres. This shifts the bottom line
             upwards by some distance OFFSET_BOTTOM. If this is set, it
+            overwrites the value provided by --offset.
+        """,
+    )
+    group_outconfig.add_argument(
+        "--offset-surface",
+        type=float,
+        default=None,
+        help="""
+            Offset for the surface line, in metres. This shifts the surface
+            line downards by some distance OFFSET_SURFACE. If this is set, it
             overwrites the value provided by --offset.
         """,
     )
@@ -2360,6 +2376,8 @@ def main():
         kwargs["offset_top"] = default_offset
     if kwargs["offset_bottom"] is None:
         kwargs["offset_bottom"] = default_offset
+    if kwargs["offset_surface"] is None:
+        kwargs["offset_surface"] = default_offset
 
     if kwargs["hide_echoview"] is None:
         kwargs["hide_echoview"] = "never" if kwargs["minimize_echoview"] else "new"
