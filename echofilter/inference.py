@@ -1555,17 +1555,21 @@ def main():
     )
     group_action.add_argument(
         "--list-colors",
+        "--list-colours",
+        dest="list_colors",
         nargs="?",
         type=str,
         choices=["css4", "full", "xkcd"],
         action=ListColors,
-        help="""
+        help="""d|
             Show the available line color names and exit.
             The available color palette can be viewed at
             https://matplotlib.org/gallery/color/named_colors.html.
-            The XKCD color palette is also available, but is not shown
-            in the output by default due to its size. To show
-            the full palette, run as `--list-colors full`.
+            The XKCD color palette is also available, but is not
+            shown in the output by default due to its size.
+            To show the just main palette, run as `--list-colors`
+            without argument, or `--list-colors css4`. To show the
+            full palette, run as `--list-colors full`.
         """,
     )
 
@@ -1590,7 +1594,8 @@ def main():
             Multiple files and directories can be specified,
             separated by spaces.
             This is a required argument. At least one input file
-            or directory must be given.
+            or directory must be given, unless one of the
+            arguments listed above under "Actions" is given.
             In order to process the directory given by SOURCE_DIR,
             specify "." for this argument, such as:
                 echofilter . --source-dir SOURCE_DIR
@@ -1609,8 +1614,8 @@ def main():
         metavar="SOURCE_DIR",
         help="""
             Path to source directory which contains the files and folders
-            specified by the paths argument. Default: "." (the current
-            directory).
+            specified by the paths argument. Default: "%(default)s" (the
+            current directory).
         """,
     )
     group_infile.add_argument(
@@ -1653,12 +1658,10 @@ def main():
             within the directory (and all its recursive
             subdirectories) are filtered against this list of
             extensions to identify which files to process.
-            Default: {}.
+            Default: %(default)s.
             (Note that the default SEARCH_EXTENSION value is
             OS-specific.)
-        """.format(
-            default_extensions
-        ),
+        """,
     )
     group_infile.add_argument(
         "--skip-existing",
@@ -1671,7 +1674,6 @@ def main():
     )
     group_infile.add_argument(
         "--skip-incompatible",
-        dest="skip_incompatible",
         action="store_true",
         help="""
             Skip over incompatible input CSV files, without raising an error.
@@ -1807,7 +1809,7 @@ def main():
             This can either be the name of a supported color (see --list-colors
             for options), or a a hexadecimal string, or a string representation
             of an RGB color to supply directly to EchoView (such as
-            "(0,255,0)"). Default is "orangered".
+            "(0,255,0)"). Default: "%(default)s".
         """,
     )
     group_outfile.add_argument(
@@ -1819,7 +1821,7 @@ def main():
             This can either be the name of a supported color (see --list-colors
             for options), or a a hexadecimal string, or a string representation
             of an RGB color to supply directly to EchoView (such as
-            "(0,255,0)"). Default is "orangered".
+            "(0,255,0)"). Default: "%(default)s".
         """,
     )
     group_outfile.add_argument(
@@ -1831,7 +1833,7 @@ def main():
             This can either be the name of a supported color (see --list-colors
             for options), or a a hexadecimal string, or a string representation
             of an RGB color to supply directly to EchoView (such as
-            "(0,255,0)"). Default is "green".
+            "(0,255,0)"). Default: "%(default)s".
         """,
     )
     group_outfile.add_argument(
@@ -1840,7 +1842,7 @@ def main():
         default=2,
         help="""
             Thicknesses with which the top line will be displayed in EchoView.
-            Default is 2.
+            Default: %(default)s.
         """,
     )
     group_outfile.add_argument(
@@ -1849,7 +1851,7 @@ def main():
         default=2,
         help="""
             Thicknesses with which the bottom line will be displayed in EchoView.
-            Default is 2.
+            Default: %(default)s.
         """,
     )
     group_outfile.add_argument(
@@ -1858,7 +1860,7 @@ def main():
         default=1,
         help="""
             Thicknesses with which the surface line will be displayed in EchoView.
-            Default is 1.
+            Default: %(default)s.
         """,
     )
     DEFAULT_CACHE_DIR = get_default_cache_dir()
@@ -1868,10 +1870,8 @@ def main():
         default=DEFAULT_CACHE_DIR,
         help="""d|
             Path to checkpoint cache directory.
-            Default: "{}".
-        """.format(
-            DEFAULT_CACHE_DIR
-        ),
+            Default: "%(default)s".
+        """,
     )
     group_outfile.add_argument(
         "--cache-csv",
@@ -1896,7 +1896,7 @@ def main():
             Suffix used for cached CSV files which are exported from EV files.
             This should contain a file extension, including ".", but may
             optionally contain additional text, for instance "_Sv_raw.csv".
-            Default: ".csv".
+            Default: %(default)s.
         """,
     )
     group_outfile.add_argument(
@@ -1920,12 +1920,13 @@ def main():
         type=int,
         default=3,
         help="""d|
-            Status value for all the lines which are generated. Options are:
+            Status value for all the lines which are generated.
+            Options are:
               0: none
               1: unverified
               2: bad
               3: good
-            Default: 3.
+            Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
@@ -1935,7 +1936,7 @@ def main():
         help="""
             Offset for both top and bottom lines, in metres. This will shift
             both lines towards each other by the same distance of OFFSET.
-            Default is 1.0.
+            Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
@@ -1968,7 +1969,7 @@ def main():
             minimum depth for the top line. If the echosounder is upfacing,
             the maximum depth for the bottom line will be NEARFIELD_CUTOFF
             above the deepest depth in the input data, plus one inter-depth
-            interval. Default is 1.7.
+            interval. Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
@@ -2007,72 +2008,60 @@ def main():
                   depths are replaced with the placeholder value
                   used by EchoView to denote undefined values,
                   which is {}.
-            Default: "redact".
-        """.format(
-            EV_UNDEFINED_DEPTH
-        ),
+            Default: "%(default)s".
+        """,
     )
     group_outconfig.add_argument(
-        "--collate-passive",
         "--collate-passive-length",
-        dest="collate_passive_length",
         type=int,
         default=10,
         help="""
             Maximum interval, in ping indices, between detected passive regions
             which will removed to merge consecutive passive regions together
-            into a single, collated, region. Default is 10.
+            into a single, collated, region. Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
-        "--collate-removed",
         "--collate-removed-length",
-        dest="collate_passive_length",
         type=int,
         default=10,
         help="""
             Maximum interval, in ping indices, between detected blocks
             (vertical rectangles) marked for removal which will also be removed
             to merge consecutive removed blocks together into a single,
-            collated, region. Default is 10.
+            collated, region. Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
-        "--minimum-passive",
         "--minimum-passive-length",
-        dest="minimum_passive_length",
         type=int,
         default=10,
         help="""
             Minimum length, in ping indices, which a detected passive region
             must have to be included in the output. Set to -1 to omit all
-            detected passive regions from the output. Default is 10.
+            detected passive regions from the output. Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
-        "--minimum-removed",
         "--minimum-removed-length",
-        dest="minimum_removed_length",
         type=int,
         default=10,
         help="""
             Minimum length, in ping indices, which a detected removal block
             (vertical rectangle) must have to be included in the output.
             Set to -1 to omit all detected removal blocks from the output.
-            Default is 10.
+            Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
-        "--minimum-patch",
         "--minimum-patch-area",
-        dest="minimum_patch_area",
         type=int,
         default=25,
         help="""
             Minimum area, in pixels, which a detected removal patch
             (contour/polygon) region must have to be included in the output.
             Set to -1 to omit all detected patches from the output.
-            Default is 25.
+            Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
@@ -2115,10 +2104,8 @@ def main():
         help="""d|
             Name of the EchoView acoustic variable to load from
             EV files.
-            Default: "{}".
-        """.format(
-            DEFAULT_VARNAME
-        ),
+            Default: "%(default)s".
+        """,
     )
     group_inproc.add_argument(
         "--row-len-selector",
@@ -2131,9 +2118,9 @@ def main():
             samples and minimum and maximum depth. The Sv values for all
             timepoints are interpolated onto this range of depths in order to
             create an input which is sampled in a rectangular manner.
-            Default: "mode", the modal number of depths is used, and the modal
-            depth range is select amongst time samples which bear this number
-            of depths.
+            Default: "%(default)s", the modal number of depths is used, and the
+            modal depth range is select amongst time samples which bear this
+            number of depths.
         """,
     )
     group_inproc.add_argument(
@@ -2181,8 +2168,7 @@ def main():
     )
     group_inproc.add_argument(
         "--autocrop-threshold",
-        "--autocrop",
-        "--autozoom",
+        "--autozoom-threshold",
         dest="autocrop_threshold",
         type=float,
         default=0.35,
@@ -2195,7 +2181,7 @@ def main():
             The data will only be zoomed in and re-analysed at most once.
             To always run the model through once (never auto zoomed), set to 1.
             To always run the model through exactly twice (always one round
-            of auto-zoom), set to 0. Default is 0.35.
+            of auto-zoom), set to 0. Default: %(default)s.
         """,
     )
     group_inproc.add_argument(
@@ -2235,7 +2221,7 @@ def main():
     )
     group_model.add_argument(
         "--unconditioned",
-        "--force_unconditioned",
+        "--force-unconditioned",
         dest="force_unconditioned",
         action="store_true",
         help="""
@@ -2247,9 +2233,7 @@ def main():
         """,
     )
     group_model.add_argument(
-        "--logit-smoothing",
         "--logit-smoothing-sigma",
-        dest="logit_smoothing_sigma",
         type=float,
         nargs="+",
         metavar="SIGMA",
@@ -2264,7 +2248,7 @@ def main():
             single value is given, the kernel is symmetric. Values are relative
             to the pixel space returned by the UNet model.
             Set to 0 to disable.
-            Default: 1.
+            Default: %(default)s.
         """,
     )
     group_model.add_argument(
@@ -2345,7 +2329,7 @@ def main():
         help="""
             Increase the level of verbosity of the program. This can be
             specified multiple times, each will increase the amount of detail
-            printed to the terminal. The default verbosity level is 1.
+            printed to the terminal. The default verbosity level is %(default)s.
         """,
     )
     group_verb.add_argument(
