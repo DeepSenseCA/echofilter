@@ -182,10 +182,12 @@ def run_inference(
         Default is `True`.
     suffix_file : str, optional
         Suffix to append to output artifacts (evl and evr files), between
-        the name of the file and the extension. Default is `""`.
+        the name of the file and the extension. If `suffix_file` begins with
+        an alphanumeric character, `"-"` is prepended. Default is `""`.
     suffix_var : str or None, optional
-        Suffix to append to lines imported back into EV file. If `None`
-        (default), suffix_var will match `suffix_file` if it is set,
+        Suffix to append to lines imported back into EV file. If `suffix_var`
+        begins with an alphanumeric character, `"-"` is prepended.
+        If `None` (default), suffix_var will match `suffix_file` if it is set,
         and will be "_echofilter" otherwise.
     color_top : str, optional
         Color to use for the top line when it is imported into EchoView.
@@ -404,7 +406,9 @@ def run_inference(
     if suffix_file and suffix_file[0].isalpha():
         suffix_file = "-" + suffix_file
 
-    if suffix_var is not None:
+    if suffix_var and suffix_var[0].isalpha():
+        suffix_var = "-" + suffix_var
+    elif suffix_var is not None:
         pass
     elif suffix_file:
         suffix_var = suffix_file
@@ -1799,8 +1803,10 @@ def main():
         default="",
         help="""
             Suffix to append to output artifacts evl and evr files, between
-            the name of the file and the extension. The default behavior is
-            not to append a suffix.
+            the name of the file and the extension.
+            If SUFFIX_FILE begins with an alphanumeric character, "-" is
+            prepended to it to act as a delimiter.
+            The default behavior is not to append a suffix.
         """,
     )
     group_outfile.add_argument(
@@ -1808,8 +1814,10 @@ def main():
         type=str,
         default=None,
         help="""
-            Suffix to append to lines imported back into EV file. The default
-            behaviour is to match SUFFIX_FILE if it is set, and use
+            Suffix to append to lines imported back into EV file.
+            If SUFFIX_VAR begins with an alphanumeric character, "-" is
+            prepended to it to act as a delimiter.
+            The default behaviour is to match SUFFIX_FILE if it is set, and use
             "_echofilter" otherwise.
         """,
     )
