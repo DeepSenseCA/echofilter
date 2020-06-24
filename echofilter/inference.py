@@ -1092,14 +1092,18 @@ def inference_transect(
                 "Data was autodetected as upward facing, and was flipped"
                 " vertically before being input into the model."
             )
+        if not is_upward_facing:
+            print(
+                'Warning: facing = "{}" was provided, but data appears to be'
+                " downward facing".format(facing)
+            )
         is_upward_facing = True
-    elif facing[:4] != "down" and facing[:4] != "auto":
+    elif facing[:4] != "down" and facing != "auto":
         raise ValueError('facing should be one of "downward", "upward", and "auto"')
     elif facing[:4] == "down" and is_upward_facing:
         print(
-            'Warning: facing = "{}" was provided, but data appears to be upward facing'.format(
-                facing
-            )
+            'Warning: facing = "{}" was provided, but data appears to be'
+            " upward facing".format(facing)
         )
         is_upward_facing = False
 
