@@ -228,8 +228,9 @@ def run_inference(
         input EV files.
     suffix_csv : str, optional
         Suffix used for cached CSV files which are exported from EV files.
-        If `suffix_file` begins with an alphanumeric character, `"-"` is
-        prepended. Default is `""`.
+        If `suffix_file` begins with an alphanumeric character, a delimiter
+        is prepended. The delimiter is `"."` if `keep_ext=True` or `"-"` if
+        `keep_ext=False`. Default is `""`.
     keep_ext : bool, optional
         Whether to preserve the file extension in the input file name when
         generating output file name. Default is `False`, removing the
@@ -417,7 +418,10 @@ def run_inference(
         suffix_var = "_echofilter"
 
     if suffix_csv and suffix_csv[0].isalpha():
-        suffix_csv = "-" + suffix_csv
+        if keep_ext:
+            suffix_csv = "." + suffix_csv
+        else:
+            suffix_csv = "-" + suffix_csv
 
     line_colors = dict(top=color_top, bottom=color_bottom, surface=color_surface)
     line_thicknesses = dict(
@@ -1921,8 +1925,8 @@ def main():
             Suffix to append to the file names of cached CSV files which are
             exported from EV files. The suffix is inserted between the input
             file name and the new file extension, ".csv".
-            If SUFFIX_CSV begins with an alphanumeric character, "-" is
-            prepended to it to act as a delimiter.
+            If SUFFIX_CSV begins with an alphanumeric character, a delimiter
+            is prepended. The delimiter is "-", or "." if --keep-ext is given.
             The default behavior is to not append a suffix.
         """,
     )
