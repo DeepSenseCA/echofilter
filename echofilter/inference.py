@@ -1097,9 +1097,8 @@ def inference_transect(
         raise ValueError('facing should be one of "downward", "upward", and "auto"')
     elif facing[:4] == "down" and is_upward_facing:
         print(
-            'Warning: facing = "{}" was provided, but data appears to be upward facing'.format(
-                facing
-            )
+            'Warning: facing = "{}" was provided, but data appears to be'
+            " upward facing".format(facing)
         )
         is_upward_facing = False
 
