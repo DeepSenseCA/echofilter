@@ -1920,7 +1920,8 @@ def main():
         type=int,
         default=3,
         help="""d|
-            Status value for all the lines which are generated. Options are:
+            Status value for all the lines which are generated.
+            Options are:
               0: none
               1: unverified
               2: bad
