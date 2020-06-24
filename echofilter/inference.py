@@ -1559,13 +1559,15 @@ def main():
         type=str,
         choices=["css4", "full", "xkcd"],
         action=ListColors,
-        help="""
+        help="""d|
             Show the available line color names and exit.
             The available color palette can be viewed at
             https://matplotlib.org/gallery/color/named_colors.html.
-            The XKCD color palette is also available, but is not shown
-            in the output by default due to its size. To show
-            the full palette, run as `--list-colors full`.
+            The XKCD color palette is also available, but is not
+            shown in the output by default due to its size.
+            To show the just main palette, run as `--list-colors`
+            without argument, or `--list-colors css4`. To show the
+            full palette, run as `--list-colors full`.
         """,
     )
 
