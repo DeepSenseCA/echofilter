@@ -1285,9 +1285,9 @@ def import_lines_regions_to_ev(
             if not line:
                 print(
                     "Warning: Could not find line which was just imported with"
-                    " name '{}'!".format(variable.Name)
+                    " name '{}'".format(variable.Name)
                 )
-                print("Ignoring and continuing processing.".format(variable.Name))
+                print("Ignoring and continuing processing.")
                 continue
 
             # Check whether we need to change the name of the line
