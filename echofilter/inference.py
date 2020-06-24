@@ -1209,6 +1209,11 @@ def inference_transect(
         # surrounding content.
         new_crop_max += max(2, 10 * depth_intv)
 
+    if crop_depth_min is not None:
+        new_crop_min = max(new_crop_min, crop_depth_min)
+    if crop_depth_max is not None:
+        new_crop_max = min(new_crop_max, crop_depth_max)
+
     current_height = abs(transect["depths"][-1] - transect["depths"][0])
     new_height = abs(new_crop_max - new_crop_min)
     if (current_height - new_height) / current_height <= autocrop_threshold:
@@ -1224,9 +1229,9 @@ def inference_transect(
     # Crop and run again; and don't autocrop a second time!
     return inference_transect(
         model,
-        transect["timestamps"],
-        transect["depths"],
-        transect["signals"],
+        timestamps,
+        depths,
+        signals,
         device,
         image_height,
         facing=facing,
