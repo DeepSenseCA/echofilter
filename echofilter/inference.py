@@ -185,10 +185,10 @@ def run_inference(
         the name of the file and the extension. If `suffix_file` begins with
         an alphanumeric character, `"-"` is prepended. Default is `""`.
     suffix_var : str or None, optional
-        Suffix to append to lines imported back into EV file. If `suffix_var`
-        begins with an alphanumeric character, `"-"` is prepended.
-        If `None` (default), suffix_var will match `suffix_file` if it is set,
-        and will be "_echofilter" otherwise.
+        Suffix to append to line and region names when imported back into
+        EV file. If `suffix_var` begins with an alphanumeric character, `"-"`
+        is prepended. If `None` (default), suffix_var will match `suffix_file`
+        if it is set, and will be "_echofilter" otherwise.
     color_top : str, optional
         Color to use for the top line when it is imported into EchoView.
         This can either be the name of a supported color from
@@ -942,6 +942,7 @@ def run_inference(
                 minimum_passive_length=minimum_passive_length,
                 minimum_removed_length=minimum_removed_length,
                 minimum_patch_area=minimum_patch_area,
+                name_suffix=suffix_var,
                 common_notes=common_notes,
                 verbose=verbose - 1,
             )
@@ -1822,9 +1823,9 @@ def main():
         type=str,
         default=None,
         help="""
-            Suffix to append to lines imported back into EV file.
-            If SUFFIX_VAR begins with an alphanumeric character, "-" is
-            prepended to it to act as a delimiter.
+            Suffix to append to line and region names when  imported back into
+            EV file. If SUFFIX_VAR begins with an alphanumeric character, "-"
+            is prepended to it to act as a delimiter.
             The default behaviour is to match SUFFIX_FILE if it is set, and use
             "_echofilter" otherwise.
         """,
