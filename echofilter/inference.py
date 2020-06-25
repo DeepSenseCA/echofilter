@@ -93,7 +93,7 @@ def run_inference(
     thickness_surface=1,
     cache_dir=None,
     cache_csv=None,
-    suffix_csv=".csv",
+    suffix_csv="",
     keep_ext=False,
     line_status=3,
     offset_top=1.0,
