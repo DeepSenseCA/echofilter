@@ -477,7 +477,7 @@ def run_inference(
         deviation_param = checkpoint.get("deviation_method", "stdev")
     nan_value = checkpoint.get("nan_value", -3)
 
-    if verbose >= 2:
+    if verbose >= 4:
         print("Constructing U-Net model, with arguments:")
         pprint.pprint(checkpoint["model_parameters"])
     unet = UNet(**checkpoint["model_parameters"])
@@ -504,7 +504,7 @@ def run_inference(
         **checkpoint.get("wrapper_params", {})
     )
     is_conditional_model = model.params.get("conditional", False)
-    if verbose >= 1:
+    if verbose >= 3:
         print(
             "Built {}model with {} trainable parameters".format(
                 "conditional " if is_conditional_model else "",
@@ -513,21 +513,21 @@ def run_inference(
         )
     try:
         unet.load_state_dict(checkpoint["state_dict"])
-        if verbose >= 1:
+        if verbose >= 3:
             print(
                 "Loaded UNet state from checkpoint".format(
                     ckpt_path, checkpoint["epoch"]
                 )
             )
     except RuntimeError as err:
-        if verbose >= 2:
+        if verbose >= 5:
             print(
                 "Warning: Checkpoint doesn't seem to be for the UNet."
                 "Trying to load it as the whole model instead."
             )
         try:
             model.load_state_dict(checkpoint["state_dict"])
-            if verbose >= 1:
+            if verbose >= 3:
                 print(
                     "Loaded model state from checkpoint".format(
                         ckpt_path, checkpoint["epoch"]
@@ -733,7 +733,7 @@ def run_inference(
                         verbose=verbose - 1,
                     )
 
-                if (dry_run and verbose >= 1) or verbose >= 3:
+                if (dry_run and verbose >= 2) or verbose >= 3:
                     ww = "Would" if dry_run else "Will"
                     print("  {} write files:".format(ww))
                     for key, fname in dest_files.items():
@@ -751,9 +751,9 @@ def run_inference(
                     continue
 
                 # Load the data
-                if verbose >= 5:
+                if verbose >= 6:
                     warn_row_overflow = np.inf
-                elif verbose >= 4:
+                elif verbose >= 5:
                     warn_row_overflow = None
                 else:
                     warn_row_overflow = 0
@@ -789,7 +789,7 @@ def run_inference(
                 nan_value=nan_value,
                 verbose=verbose - 1,
             )
-            if verbose >= 4:
+            if verbose >= 5:
                 s = "\n    ".join([""] + list(str(k) for k in output.keys()))
                 print("Generated model output with fields:" + s)
 
@@ -798,7 +798,7 @@ def run_inference(
                     cs = "|upfacing"
                 else:
                     cs = "|downfacing"
-                if verbose >= 2:
+                if verbose >= 4:
                     print(
                         "Using conditional probability outputs from model:"
                         " p(state{})".format(cs)
@@ -895,7 +895,7 @@ def run_inference(
                 if name not in dest_files:
                     continue
                 dest_file = dest_files[name]
-                if verbose >= 2:
+                if verbose >= 3:
                     print("Writing output {}".format(dest_file))
                 if os.path.exists(dest_file) and not overwrite_existing:
                     raise EnvironmentError(
@@ -909,7 +909,7 @@ def run_inference(
                 )
             # Export evr file
             dest_file = dest_files["regions"]
-            if verbose >= 2:
+            if verbose >= 3:
                 print("Writing output {}".format(dest_file))
             if os.path.exists(dest_file) and not overwrite_existing:
                 raise EnvironmentError(
@@ -939,7 +939,7 @@ def run_inference(
                 minimum_patch_area=minimum_patch_area,
                 name_suffix=suffix_var,
                 common_notes=common_notes,
-                verbose=verbose - 1,
+                verbose=verbose - 2,
             )
 
             if not process_as_ev or not import_into_evfile:
@@ -1100,7 +1100,7 @@ def inference_transect(
     if facing[:2] == "up" or (facing == "auto" and is_upward_facing):
         transect["depths"] = transect["depths"][::-1].copy()
         transect["signals"] = transect["signals"][:, ::-1].copy()
-        if facing == "auto" and verbose >= 1:
+        if facing == "auto" and verbose >= 2:
             print(
                 "Data was autodetected as upward facing, and was flipped"
                 " vertically before being input into the model."
