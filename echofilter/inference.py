@@ -743,7 +743,7 @@ def run_inference(
                             over_txt = ""
                         tp = "line" if os.path.splitext(fname)[1] == ".evl" else "file"
                         print(
-                            "      {} export {} {} to: {}{}".format(
+                            "    {} export {} {} to: {}{}".format(
                                 ww, key, tp, fname, over_txt,
                             )
                         )
@@ -791,7 +791,7 @@ def run_inference(
             )
             if verbose >= 5:
                 s = "\n    ".join([""] + list(str(k) for k in output.keys()))
-                print("Generated model output with fields:" + s)
+                print("  Generated model output with fields:" + s)
 
             if is_conditional_model and not force_unconditioned:
                 if output["is_upward_facing"]:
@@ -800,7 +800,7 @@ def run_inference(
                     cs = "|downfacing"
                 if verbose >= 4:
                     print(
-                        "Using conditional probability outputs from model:"
+                        "  Using conditional probability outputs from model:"
                         " p(state{})".format(cs)
                     )
             else:
@@ -896,7 +896,7 @@ def run_inference(
                     continue
                 dest_file = dest_files[name]
                 if verbose >= 3:
-                    print("Writing output {}".format(dest_file))
+                    print("  Writing output {}".format(dest_file))
                 if os.path.exists(dest_file) and not overwrite_existing:
                     raise EnvironmentError(
                         "Output {} already exists.\n"
@@ -910,7 +910,7 @@ def run_inference(
             # Export evr file
             dest_file = dest_files["regions"]
             if verbose >= 3:
-                print("Writing output {}".format(dest_file))
+                print("  Writing output {}".format(dest_file))
             if os.path.exists(dest_file) and not overwrite_existing:
                 raise EnvironmentError(
                     "Output {} already exists.\n"
@@ -940,6 +940,7 @@ def run_inference(
                 name_suffix=suffix_var,
                 common_notes=common_notes,
                 verbose=verbose - 2,
+                verbose_indent=2,
             )
 
             if not process_as_ev or not import_into_evfile:
