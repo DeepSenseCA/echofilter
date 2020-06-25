@@ -444,7 +444,7 @@ def run_inference(
     if not os.path.isfile(ckpt_path):
         raise EnvironmentError("No checkpoint found at '{}'".format(ckpt_path))
     if verbose >= 1:
-        print("Loading checkpoint '{}'".format(ckpt_path))
+        print("Loading model from checkpoint:\n  '{}'".format(ckpt_path))
 
     load_args = {}
     if device is not None:
@@ -515,7 +515,7 @@ def run_inference(
         unet.load_state_dict(checkpoint["state_dict"])
         if verbose >= 3:
             print(
-                "Loaded UNet state from checkpoint".format(
+                "Loaded U-Net state from the checkpoint".format(
                     ckpt_path, checkpoint["epoch"]
                 )
             )
@@ -529,7 +529,7 @@ def run_inference(
             model.load_state_dict(checkpoint["state_dict"])
             if verbose >= 3:
                 print(
-                    "Loaded model state from checkpoint".format(
+                    "Loaded model state from the checkpoint".format(
                         ckpt_path, checkpoint["epoch"]
                     )
                 )
