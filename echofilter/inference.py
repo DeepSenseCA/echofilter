@@ -100,7 +100,7 @@ def run_inference(
     offset_bottom=1.0,
     offset_surface=1.0,
     nearfield_cutoff=1.7,
-    lines_during_passive="redact",
+    lines_during_passive="predict",
     collate_passive_length=10,
     collate_removed_length=10,
     minimum_passive_length=10,
@@ -2023,7 +2023,7 @@ def main():
     group_outconfig.add_argument(
         "--lines-during-passive",
         type=str,
-        default="redact",
+        default="predict",
         choices=[
             "interpolate-time",
             "interpolate-index",
