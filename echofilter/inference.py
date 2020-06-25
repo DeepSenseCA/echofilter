@@ -14,6 +14,7 @@ import urllib
 import warnings
 
 import appdirs
+import colorama
 import numpy as np
 from matplotlib import colors as mcolors
 import pandas as pd
@@ -382,11 +383,16 @@ def run_inference(
     """
 
     t_start_prog = time.time()
+
+    progress_color = colorama.Fore.BLUE if dry_run else colorama.Fore.GREEN
+
     if verbose >= 1:
         print(
-            "Starting inference routine. {}".format(
+            progress_color
+            + "Starting inference routine. {}".format(
                 datetime.datetime.now().strftime("%A, %B %d, %Y at %H:%M:%S")
             )
+            + colorama.Fore.RESET
         )
 
     if device is None:
@@ -457,7 +463,11 @@ def run_inference(
             # Direct path to checkpoint was given, so we shouldn't delete
             # the user's file
             print(
-                "Error: Unable to load checkpoint {}".format(os.path.abspath(ckpt_path))
+                colorama.Fore.RED
+                + "Error: Unable to load checkpoint {}".format(
+                    os.path.abspath(ckpt_path)
+                )
+                + colorama.Fore.RESET
             )
             raise
         # Delete the checkpoint and try again, in case it is just a
@@ -522,8 +532,9 @@ def run_inference(
     except RuntimeError as err:
         if verbose >= 5:
             print(
-                "Warning: Checkpoint doesn't seem to be for the UNet."
-                "Trying to load it as the whole model instead."
+                colorama.Fore.MAGENTA
+                + "Warning: Checkpoint doesn't seem to be for the UNet."
+                "Trying to load it as the whole model instead." + colorama.Fore.RESET
             )
         try:
             model.load_state_dict(checkpoint["state_dict"])
@@ -535,8 +546,9 @@ def run_inference(
                 )
         except RuntimeError:
             print(
-                "Could not load the checkpoint state as either the whole model"
-                "or the unet component."
+                colorama.Fore.RED
+                + "Could not load the checkpoint state as either the whole model"
+                "or the unet component." + colorama.Fore.RESET
             )
             raise err
 
@@ -601,7 +613,9 @@ def run_inference(
     ) as ev_app:
         for fname in maybe_tqdm(files):
             if verbose >= 2:
-                print("Processing {}".format(fname))
+                print(
+                    progress_color + "Processing {}".format(fname) + colorama.Fore.RESET
+                )
 
             # Check what the full path should be
             fname_full = echofilter.path.determine_file_path(fname, source_dir)
@@ -639,7 +653,11 @@ def run_inference(
             # Check whether to skip processing this file
             if skip_existing and not any_missing:
                 if verbose >= 2:
-                    print("  Skipping {}".format(fname))
+                    print(
+                        colorama.Fore.YELLOW
+                        + "  Skipping {}".format(fname)
+                        + colorama.Fore.RESET
+                    )
                 skip_count += 1
                 continue
             # Check whether we would clobber a file we can't overwrite
@@ -652,7 +670,7 @@ def run_inference(
                 ).format(fname)
                 if dry_run:
                     error_msgs.append("Error: " + msg)
-                    print(error_msgs[-1])
+                    print(colorama.Fore.RED + error_msgs[-1] + colorama.Fore.RESET)
                     continue
                 raise EnvironmentError(msg)
 
@@ -675,7 +693,11 @@ def run_inference(
                 if not skip_incompatible:
                     raise EnvironmentError(error_str)
                 if verbose >= 2:
-                    print("  Skipping incompatible file {}".format(fname))
+                    print(
+                        colorama.Fore.YELLOW
+                        + "  Skipping incompatible file {}".format(fname)
+                        + colorama.Fore.RESET
+                    )
                 incompatible_count += 1
                 continue
 
@@ -738,7 +760,11 @@ def run_inference(
                     print("  {} write files:".format(ww))
                     for key, fname in dest_files.items():
                         if os.path.isfile(fname) and overwrite_existing:
-                            over_txt = " (overwriting existing file)"
+                            over_txt = (
+                                colorama.Fore.CYAN
+                                + " (overwriting existing file)"
+                                + colorama.Fore.RESET
+                            )
                         else:
                             over_txt = ""
                         tp = "line" if os.path.splitext(fname)[1] == ".evl" else "file"
@@ -766,10 +792,18 @@ def run_inference(
                 except KeyError:
                     if skip_incompatible and fname not in files_input:
                         if verbose >= 2:
-                            print("  Skipping incompatible file {}".format(fname))
+                            print(
+                                colorama.Fore.YELLOW
+                                + "  Skipping incompatible file {}".format(fname)
+                                + colorama.Fore.RESET
+                            )
                         incompatible_count += 1
                         continue
-                    print("CSV file {} could not be loaded.".format(fname))
+                    print(
+                        colorama.Fore.RED
+                        + "CSV file {} could not be loaded.".format(fname)
+                        + colorama.Fore.RESET
+                    )
                     raise
 
             output = inference_transect(
@@ -959,30 +993,39 @@ def run_inference(
             )
 
     if verbose >= 1:
-        s = "Finished {}processing {} file{}.".format(
-            "simulating " if dry_run else "",
-            len(files),
-            "" if len(files) == 1 else "s",
+        print(
+            progress_color
+            + "Finished {}processing {} file{}.".format(
+                "simulating " if dry_run else "",
+                len(files),
+                "" if len(files) == 1 else "s",
+            )
+            + colorama.Fore.RESET
         )
         skip_total = skip_count + incompatible_count
         if skip_total > 0:
-            s += " Of these, {} file{} skipped: {} already processed".format(
-                skip_total, " was" if skip_total == 1 else "s were", skip_count,
+            s = ""
+            s += colorama.Fore.YELLOW
+            s += "Of these, {} file{} skipped: {} already processed".format(
+                skip_total, " was" if skip_total == 1 else "s were", skip_count
             )
             if not dry_run:
                 s += ", {} incompatible".format(incompatible_count)
             s += "."
-        print(s)
+            s += colorama.Fore.RESET
+            print(s)
         if error_msgs:
             print(
-                "There {} {} error{}:".format(
+                colorama.Fore.RED
+                + "There {} {} error{}:".format(
                     "was" if len(error_msgs) == 1 else "were",
                     len(error_msgs),
                     "" if len(error_msgs) == 1 else "s",
                 )
+                + colorama.Fore.RESET
             )
             for error_msg in error_msgs:
-                print(error_msg)
+                print(colorama.Fore.RED + error_msg + colorama.Fore.RESET)
         print(
             "Total runtime: {}".format(
                 datetime.timedelta(seconds=time.time() - t_start_prog)
@@ -1108,16 +1151,18 @@ def inference_transect(
             )
         if not is_upward_facing:
             print(
-                'Warning: facing = "{}" was provided, but data appears to be'
-                " downward facing".format(facing)
+                colorama.Fore.MAGENTA
+                + 'Warning: facing = "{}" was provided, but data appears to be'
+                " downward facing".format(facing) + colorama.Fore.RESET
             )
         is_upward_facing = True
     elif facing[:4] != "down" and facing != "auto":
         raise ValueError('facing should be one of "downward", "upward", and "auto"')
     elif facing[:4] == "down" and is_upward_facing:
         print(
-            'Warning: facing = "{}" was provided, but data appears to be'
-            " upward facing".format(facing)
+            colorama.Fore.MAGENTA
+            + 'Warning: facing = "{}" was provided, but data appears to be'
+            " upward facing".format(facing) + colorama.Fore.RESET
         )
         is_upward_facing = False
     elif facing == "auto" and verbose >= 2:
@@ -1293,12 +1338,21 @@ def import_lines_regions_to_ev(
             # Import the line into the EV file
             fname_full = os.path.abspath(fname)
             if not os.path.isfile(fname_full):
-                print("Warning: File '{}' could not be found".format(fname_full))
+                print(
+                    colorama.Fore.MAGENTA
+                    + "Warning: File '{}' could not be found".format(fname_full)
+                    + colorama.Fore.RESET
+                )
                 continue
             is_imported = ev_file.Import(fname_full)
             if not is_imported:
-                print("Warning: Unable to import file '{}'".format(fname))
-                print("Please consult EchoView for the Import error message.")
+                print(
+                    colorama.Fore.MAGENTA + "Warning: Unable to import file '{}'"
+                    "Please consult EchoView for the Import error message.".format(
+                        fname
+                    )
+                    + colorama.Fore.RESET
+                )
                 continue
 
             if os.path.splitext(fname)[1].lower() != ".evl":
@@ -1312,8 +1366,9 @@ def import_lines_regions_to_ev(
             line = lines.FindByName(variable.Name)
             if not line:
                 print(
-                    "Warning: Could not find line which was just imported with"
-                    " name '{}'".format(variable.Name)
+                    colorama.Fore.MAGENTA
+                    + "Warning: Could not find line which was just imported with"
+                    " name '{}'".format(variable.Name) + colorama.Fore.RESET
                 )
                 print("Ignoring and continuing processing.")
                 continue
@@ -1330,8 +1385,9 @@ def import_lines_regions_to_ev(
                 # Overwrite the old line
                 if verbose >= 2:
                     print(
-                        "Overwriting existing line '{}' with new {} line"
-                        " output".format(target_name, key)
+                        colorama.Fore.CYAN
+                        + "Overwriting existing line '{}' with new {} line"
+                        " output".format(target_name, key) + colorama.Fore.RESET
                     )
                 old_line_edit = old_line.AsLineEditable
                 if old_line_edit:
@@ -1345,8 +1401,9 @@ def import_lines_regions_to_ev(
                 elif verbose >= 0:
                     # Line is not editable
                     print(
-                        "Existing line '{}' is not editable and cannot be"
-                        " overwritten.".format(target_name, key)
+                        colorama.Fore.MAGENTA
+                        + "Existing line '{}' is not editable and cannot be"
+                        " overwritten.".format(target_name, key) + colorama.Fore.RESET
                     )
 
             if old_line and not successful_overwrite:
@@ -1495,9 +1552,11 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
             except (pickle.UnpicklingError, urllib.error.URLError):
                 if verbose >= 1:
                     print(
-                        "\nCould not download checkpoint {} from GDrive!".format(
+                        colorama.Fore.RED
+                        + "\nCould not download checkpoint {} from GDrive!".format(
                             checkpoint_name
                         )
+                        + colorama.Fore.RESET
                     )
         else:
             if verbose >= 1:
@@ -1513,9 +1572,11 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
             except (pickle.UnpicklingError, urllib.error.URLError):
                 if verbose >= 1:
                     print(
-                        "\nCould not download checkpoint {} from {}".format(
+                        colorama.Fore.RED
+                        + "\nCould not download checkpoint {} from {}".format(
                             checkpoint_name, url_or_id
                         )
+                        + colorama.Fore.RESET
                     )
 
     if not success:
@@ -1529,6 +1590,8 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
 
 def main():
     import argparse
+
+    colorama.init()
 
     class ListCheckpoints(argparse.Action):
         def __call__(self, parser, namespace, values, option_string):
