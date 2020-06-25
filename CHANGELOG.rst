@@ -590,7 +590,7 @@ Training
 -   Add option to exclude passive and removed blocks from line targets.
     (`#92 <https://github.com/DeepSenseCA/echofilter/pull/92>`__).
 -   Interpolation method option added to Rescale, randomly selected for training.
-    (`#79 <https://github.com/DeepSenseCA/echofilter/pull/79>`__,
+    (`#79 <https://github.com/DeepSenseCA/echofilter/pull/79>`__)
 -   More input scaling options.
     (`#80 <https://github.com/DeepSenseCA/echofilter/pull/80>`__).
 -   Add option to specify pooling operation for ``logit_is_passive`` and ``logit_is_removed``.
