@@ -1127,9 +1127,11 @@ def inference_transect(
     # interval is longer than normal
     segments = split_transect(**transect)
     if verbose >= 1:
-        segments = tqdm(list(segments), desc="Segments")
+        maybe_tqdm = lambda x: tqdm(list(x), desc="Segments", position=0)
+    else:
+        maybe_tqdm = lambda x: x
     outputs = []
-    for segment in segments:
+    for segment in maybe_tqdm(segments):
         # Preprocessing transform
         transform = torchvision.transforms.Compose(
             [
@@ -1149,10 +1151,6 @@ def inference_transect(
         output["timestamps"] = segment["timestamps"]
         output["depths"] = segment["depths"]
         outputs.append(output)
-
-    if verbose >= 1 and echofilter.path.check_if_windows():
-        # Need a new line here on Windows
-        print()
 
     output = join_transect(outputs)
     output["is_upward_facing"] = is_upward_facing
