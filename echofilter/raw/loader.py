@@ -633,6 +633,7 @@ def write_transect_regions(
     minimum_passive_length=0,
     minimum_removed_length=0,
     minimum_patch_area=0,
+    name_suffix="",
     common_notes="",
     line_ending="\r\n",
     verbose=0,
@@ -673,6 +674,8 @@ def write_transect_regions(
         in order to be included in the output. Set to `0` to include all
         patches, no matter their area. Set to -1 to omit all patches.
         Default is `0`.
+    name_suffix : str, optional
+        Suffix to append to variable names. Default is `""`.
     common_notes : str, optional
         Notes to include for every region. Default is `""`.
     line_ending : str, optional
@@ -704,7 +707,7 @@ def write_transect_regions(
             n_passive_skipped += 1
             continue
         region = {}
-        region["region_name"] = "Passive data region {}".format(i_passive)
+        region["region_name"] = "Passive{} {}".format(name_suffix, i_passive)
         region["creation_type"] = 4
         region["region_type"] = 0
         region["depths"] = transect["depths"][[0, -1]]
@@ -740,7 +743,7 @@ def write_transect_regions(
             n_removed_skipped += 1
             continue
         region = {}
-        region["region_name"] = "Removed data block {}".format(i_removed)
+        region["region_name"] = "Removed block{} {}".format(name_suffix, i_removed)
         region["creation_type"] = 4
         region["region_type"] = 0
         region["depths"] = transect["depths"][[0, -1]]
@@ -777,7 +780,7 @@ def write_transect_regions(
             n_contour_skipped += 1
             continue
         region = {}
-        region["region_name"] = "Removed patch {}".format(i_contour)
+        region["region_name"] = "Removed patch{} {}".format(name_suffix, i_contour)
         region["creation_type"] = 2
         region["region_type"] = 0
         x = np.interp(
