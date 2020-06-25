@@ -431,11 +431,12 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n"):
                 len(timestamps), len(depths)
             )
         )
-    with open(fname, "w+", encoding="utf-8") as hf:
+    # The file object will automatically replace \n with our chosen line ending
+    with open(fname, "w+", encoding="utf-8", newline=line_ending) as hf:
         # Write header
-        print("﻿EVBD 3 10.0.270.37090", file=hf, end=line_ending)
+        hf.write("﻿EVBD 3 10.0.270.37090" + "\n")
         n_row = len(depths)
-        print(n_row, file=hf, end=line_ending)
+        hf.write(str(n_row) + "\n")
         # Write each row
         for i_row, (timestamp, depth) in enumerate(zip(timestamps, depths)):
             # Datetime must be in the format CCYYMMDD HHmmSSssss
@@ -443,14 +444,13 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n"):
             # We have to manually determine the number of "0.1 milliseconds"
             # from the microsecond component.
             dt = datetime.datetime.fromtimestamp(timestamp)
-            print(
+            hf.write(
                 "{}  {} {} ".format(
                     timestamp2evdtstr(timestamp),
                     depth,
                     0 if i_row == n_row - 1 else status,
-                ),
-                file=hf,
-                end=line_ending,
+                )
+                + "\n"
             )
 
 
@@ -512,33 +512,30 @@ def evr_writer(
     common_notes = common_notes.strip("\r\n")
     # Standardize line endings to be \n, regardless of input
     common_notes = common_notes.replace("\r\n", "\n").replace("\r", "\n")
-    # Replace the Unix line ending (as per our standardization) with desired line ending
-    common_notes = common_notes.replace("\n", line_ending)
     if len(common_notes) == 0:
         n_lines_common_notes = 0
     else:
         n_lines_common_notes = 1 + common_notes.count(line_ending)
     n_regions = len(rectangles) + len(contours)
     i_region = 0
-    with open(fname, "w+", encoding="utf-8") as hf:
-        # Common print arguments
-        pa = {"file": hf, "end": line_ending}
+    # The file object will automatically replace \n with our chosen line ending
+    with open(fname, "w+", encoding="utf-8", newline=line_ending) as hf:
         # Write header
-        print("﻿﻿EVRG 7 10.0.283.37689", **pa)
-        print(n_regions, **pa)
+        hf.write("﻿﻿EVRG 7 10.0.283.37689" + "\n")
+        hf.write(str(n_regions) + "\n")
 
         # Write each rectangle
         for region in rectangles:
             # Regions are indexed from 1, so increment the counter first
             i_region += 1
-            print("", **pa)  # Blank line separates regions
+            hf.write("\n")  # Blank line separates regions
             # Determine extent of rectangle
             left = timestamp2evdtstr(np.min(region["timestamps"]))
             right = timestamp2evdtstr(np.max(region["timestamps"]))
             top = np.min(region["depths"])
             bottom = np.max(region["depths"])
             # Region header
-            print(
+            hf.write(
                 "13 4 {i} 0 {type} -1 1 {left}  {top} {right}  {bottom}".format(
                     i=i_region,
                     type=region.get("creation_type", 4),
@@ -546,8 +543,8 @@ def evr_writer(
                     right=right,
                     top=top,
                     bottom=bottom,
-                ),
-                **pa,
+                )
+                + "\n"
             )
             # Notes
             notes = region.get("notes", "")
@@ -555,37 +552,37 @@ def evr_writer(
                 notes = common_notes
                 n_lines_notes = n_lines_common_notes
             else:
-                notes = notes.strip("\n").replace("\n", line_ending)
+                notes = notes.strip("\n")
                 if len(common_notes) > 0:
-                    notes += line_ending + common_notes
-                n_lines_notes = 1 + notes.count(line_ending)
-            print(n_lines_notes, **pa)  # Number of lines of notes
+                    notes += "\n" + common_notes
+                n_lines_notes = 1 + notes.count("\n")
+            hf.write(str(n_lines_notes) + "\n")  # Number of lines of notes
             if len(notes) > 0:
-                print(notes, **pa)
+                hf.write(notes + "\n")
             # Detection settings
-            print("0", **pa)  # Number of lines of detection settings
+            hf.write("0" + "\n")  # Number of lines of detection settings
             # Region classification string
-            print("Unclassified regions", **pa)
+            hf.write("Unclassified regions" + "\n")
             # The points defining the region itself
-            print(
-                "{left} {top} {left} {bottom} {right} {bottom} {right} {top}".format(
+            hf.write(
+                "{left} {top} {left} {bottom} {right} {bottom} {right} {top} ".format(
                     left=left, right=right, top=top, bottom=bottom,
-                ),
-                file=hf,
-                end=" ",  # Terminates with a space, not a new line
+                )  # Terminates with a space, not a new line
             )
             # Region type
-            print(region.get("region_type", default_region_type), **pa)
+            hf.write(str(region.get("region_type", default_region_type)) + "\n")
             # Region name
-            print(region.get("region_name", "Region {}".format(i_region)), **pa)
+            hf.write(
+                str(region.get("region_name", "Region {}".format(i_region))) + "\n"
+            )
 
         # Write each contour
         for region in contours:
             # Regions are indexed from 1, so increment the counter first
             i_region += 1
-            print("", **pa)  # Blank line separates regions
+            hf.write("\n")  # Blank line separates regions
             # Header line
-            print(
+            hf.write(
                 "13 {n} {i} 0 {type} -1 1 {left}  {top} {right}  {bottom}".format(
                     n=region["points"].shape[0],
                     i=i_region,
@@ -594,8 +591,8 @@ def evr_writer(
                     right=timestamp2evdtstr(np.max(region["points"][:, 0])),
                     top=np.min(region["points"][:, 1]),
                     bottom=np.max(region["points"][:, 1]),
-                ),
-                **pa,
+                )
+                + "\n"
             )
             # Notes
             notes = region.get("notes", "")
@@ -603,28 +600,26 @@ def evr_writer(
                 notes = common_notes
                 n_lines_notes = n_lines_common_notes
             else:
-                notes = notes.strip("\n").replace("\n", line_ending)
+                notes = notes.strip("\n")
                 if len(common_notes) > 0:
-                    notes += line_ending + common_notes
-                n_lines_notes = 1 + notes.count(line_ending)
-            print(n_lines_notes, **pa)  # Number of lines of notes
+                    notes += "\n" + common_notes
+                n_lines_notes = 1 + notes.count("\n")
+            hf.write(str(n_lines_notes) + "\n")  # Number of lines of notes
             if len(notes) > 0:
-                print(notes, **pa)
+                hf.write(notes + "\n")
             # Detection settings
-            print("0", **pa)  # Number of lines of detection settings
+            hf.write("0" + "\n")  # Number of lines of detection settings
             # Region classification string
-            print("Unclassified regions", **pa)
+            hf.write("Unclassified regions" + "\n")
             # The region itself
             for point in region["points"]:
-                print(
-                    "{} {}".format(timestamp2evdtstr(point[0]), point[1]),
-                    file=hf,
-                    end=" ",
-                )
+                hf.write("{} {} ".format(timestamp2evdtstr(point[0]), point[1]))
             # Region type
-            print(region.get("region_type", default_region_type), **pa)
+            hf.write(str(region.get("region_type", default_region_type)) + "\n")
             # Region name
-            print(region.get("region_name", "Region {}".format(i_region)), **pa)
+            hf.write(
+                str(region.get("region_name", "Region {}".format(i_region))) + "\n"
+            )
 
 
 def write_transect_regions(
