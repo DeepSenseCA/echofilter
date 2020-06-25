@@ -1103,7 +1103,7 @@ def inference_transect(
         transect["signals"] = transect["signals"][:, ::-1].copy()
         if facing == "auto" and verbose >= 2:
             print(
-                "Data was autodetected as upward facing, and was flipped"
+                "  Data was autodetected as upward facing, and was flipped"
                 " vertically before being input into the model."
             )
         if not is_upward_facing:
@@ -1121,13 +1121,13 @@ def inference_transect(
         )
         is_upward_facing = False
     elif facing == "auto" and verbose >= 2:
-        print("Data was autodetected as downward facing.")
+        print("  Data was autodetected as downward facing.")
 
     # To reduce memory consumption, split into segments whenever the recording
     # interval is longer than normal
     segments = split_transect(**transect)
     if verbose >= 1:
-        maybe_tqdm = lambda x: tqdm(list(x), desc="Segments", position=0)
+        maybe_tqdm = lambda x: tqdm(list(x), desc="  Segments", position=0)
     else:
         maybe_tqdm = lambda x: x
     outputs = []
