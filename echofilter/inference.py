@@ -57,12 +57,7 @@ CHECKPOINT_RESOURCES = OrderedDict(
     ]
 )
 
-# Default checkpoint depends on facing
-DEFAULT_CHECKPOINTS = {
-    "auto": next(iter(CHECKPOINT_RESOURCES)),
-    "downward": "mobile_effunet6x2-1_lc32_v1.0.ckpt.tar",
-    "upward": "stationary2_effunet6x2-1_lc32_v1.0.ckpt.tar",
-}
+DEFAULT_CHECKPOINT = next(iter(CHECKPOINT_RESOURCES))
 
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
 EV_UNDEFINED_DEPTH = -10000.99
@@ -430,7 +425,7 @@ def run_inference(
 
     if checkpoint is None:
         # Use the first item from the list of checkpoints
-        checkpoint = DEFAULT_CHECKPOINTS[facing]
+        checkpoint = DEFAULT_CHECKPOINT
 
     ckpt_name = checkpoint
 
@@ -2254,17 +2249,13 @@ def main():
     group_model.add_argument(
         "--checkpoint",
         type=str,
-        default=None,
+        default=DEFAULT_CHECKPOINT,
         help="""d|
             Name of checkpoint to load, or path to a checkpoint
-            file. The default checkpoint depends on --facing:
-              auto    : "{auto}"
-              downward: "{downward}"
-              upward  : "{upward}"
+            file.
+            Default: "{}".
         """.format(
-            auto=DEFAULT_CHECKPOINTS["auto"],
-            downward=DEFAULT_CHECKPOINTS["downward"],
-            upward=DEFAULT_CHECKPOINTS["upward"],
+            DEFAULT_CHECKPOINT
         ),
     )
     group_model.add_argument(
