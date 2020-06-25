@@ -521,7 +521,7 @@ def evr_writer(
     # The file object will automatically replace \n with our chosen line ending
     with open(fname, "w+", encoding="utf-8", newline=line_ending) as hf:
         # Write header
-        hf.write("﻿﻿EVRG 7 10.0.283.37689" + "\n")
+        hf.write("﻿EVRG 7 10.0.283.37689" + "\n")
         hf.write(str(n_regions) + "\n")
 
         # Write each rectangle
