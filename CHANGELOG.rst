@@ -568,7 +568,8 @@ General
 ^^^^^^^
 
 -   Fixed behaviour when loading data from CSVs with different number of depth samples and range of depths for different rows in the CSV file.
-    (`#102 <https://github.com/DeepSenseCA/echofilter/pull/102>`__, `#103 <https://github.com/DeepSenseCA/echofilter/pull/103>`__)
+    (`#102 <https://github.com/DeepSenseCA/echofilter/pull/102>`__,
+    `#103 <https://github.com/DeepSenseCA/echofilter/pull/103>`__)
 
 
 .. _v1.0.0b1 Added:
@@ -732,7 +733,8 @@ Fixed
 -   In ``parse_files_in_folders`` (affecting ``ev2csv``), string inputs were not being handled correctly.
     (`#66 <https://github.com/DeepSenseCA/echofilter/pull/66>`__)
 -   Relative paths need to be converted to absolute paths before using them in Echoview.
-    (`#68 <https://github.com/DeepSenseCA/echofilter/pull/68>`__, `#69 <https://github.com/DeepSenseCA/echofilter/pull/69>`__)
+    (`#68 <https://github.com/DeepSenseCA/echofilter/pull/68>`__,
+    `#69 <https://github.com/DeepSenseCA/echofilter/pull/69>`__)
 
 .. _v0.1.2 Added:
 
