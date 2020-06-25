@@ -116,7 +116,7 @@ def run_inference(
     device=None,
     hide_echoview="new",
     minimize_echoview=False,
-    verbose=1,
+    verbose=2,
 ):
     """
     Perform inference on input files, and write output lines in evl format.
@@ -377,7 +377,7 @@ def run_inference(
         If `True`, the EchoView window being used will be minimized while this
         function is running. Default is `False`.
     verbose : int, optional
-        Verbosity level. Default is `1`. Set to `0` to disable print
+        Verbosity level. Default is `2`. Set to `0` to disable print
         statements, or elevate to a higher number to increase verbosity.
     """
 
@@ -2370,7 +2370,7 @@ def main():
         "--verbose",
         "-v",
         action="count",
-        default=1,
+        default=2,
         help="""
             Increase the level of verbosity of the program. This can be
             specified multiple times, each will increase the amount of detail
