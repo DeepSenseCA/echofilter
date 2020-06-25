@@ -1150,7 +1150,8 @@ def inference_transect(
         output["depths"] = segment["depths"]
         outputs.append(output)
 
-    if verbose >= 1:
+    if verbose >= 1 and echofilter.path.check_if_windows():
+        # Need a new line here on Windows
         print()
 
     output = join_transect(outputs)
