@@ -1292,7 +1292,11 @@ def import_lines_regions_to_ev(
     with echofilter.win.open_ev_file(ev_fname, ev_app) as ev_file:
         for key, fname in files.items():
             # Import the line into the EV file
-            is_imported = ev_file.Import(os.path.abspath(fname))
+            fname_full = os.path.abspath(fname)
+            if not os.path.isfile(fname_full):
+                print("Warning: File '{}' could not be found".format(fname_full))
+                continue
+            is_imported = ev_file.Import(fname_full)
             if not is_imported:
                 print("Warning: Unable to import file '{}'".format(fname))
                 print("Please consult EchoView for the Import error message.")
