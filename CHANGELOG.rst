@@ -336,7 +336,7 @@ Inference
     (`#172 <https://github.com/DeepSenseCA/echofilter/pull/172>`__)
 -   Remove duplicate leading byte order mark character from evr file output, which was preventing the file from importing into Echoview.
     (`#178 <https://github.com/DeepSenseCA/echofilter/pull/178>`__)
--   Fix \r\n line endings being mapped to \r\r\n on Windows in evl and evr output files.
+-   Fix \\r\\n line endings being mapped to \\r\\r\\n on Windows in evl and evr output files.
     (`#178 <https://github.com/DeepSenseCA/echofilter/pull/178>`__)
 -   Show error message when importing the evr file into the ev file fails.
     (`#169 <https://github.com/DeepSenseCA/echofilter/pull/169>`__)
