@@ -16,7 +16,88 @@ Security.
 Unreleased
 ----------
 
-`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0b2...master>`__.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0b3...master>`__.
+
+
+Version `1.0.0b3 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0b3>`__
+----------------------------------------------------------------------------
+
+Release date: 2020-06-25.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0b2...1.0.0b3>`__.
+
+This is a beta pre-release of v1.0.0.
+
+.. _v1.0.0b3 Changed:
+
+Changed
+~~~~~~~
+
+.. _v1.0.0b3 Changed Inference:
+
+Inference
+^^^^^^^^^
+
+-   Rename ``--crop-depth-min`` argument to ``--crop-min-depth``, and ``--crop-depth-max`` argument to ``--crop-max-depth``.
+    (`#174 <https://github.com/DeepSenseCA/echofilter/pull/174>`__)
+-   Rename ``--force_unconditioned`` argument to ``--force-unconditioned``.
+    (`#166 <https://github.com/DeepSenseCA/echofilter/pull/166>`__)
+-   Default offset of surface line is now 1m.
+    (`#168 <https://github.com/DeepSenseCA/echofilter/pull/168>`__)
+-   Change default ``--checkpoint`` so it is always the same (the conditional model), independent of the ``--facing`` argument.
+    (`#177 <https://github.com/DeepSenseCA/echofilter/pull/177>`__)
+-   Change default ``--lines-during-passive`` from ``"redact"`` to ``"predict"``.
+    (`#176 <https://github.com/DeepSenseCA/echofilter/pull/176>`__).
+-   Change ``--sufix-csv`` behaviour so it should no longer include ``".csv"`` extension, matching how ``--suffix-file`` is handled.
+    (`#171 <https://github.com/DeepSenseCA/echofilter/pull/171>`__,
+    `#175 <https://github.com/DeepSenseCA/echofilter/pull/175>`__)
+-   Change handling of ``--suffix-var`` and ``--sufix-csv`` to prepend with ``"-"`` as a delimiter if none is included in the string, as was already the case for ``--sufix-file``.
+    (`#170 <https://github.com/DeepSenseCA/echofilter/pull/170>`__,
+    `#171 <https://github.com/DeepSenseCA/echofilter/pull/171>`__)
+-   Include ``--suffix-var`` string in region names.
+    (`#173 <https://github.com/DeepSenseCA/echofilter/pull/173>`__)
+-   Improved UI help and verbosity messages.
+    (`#166 <https://github.com/DeepSenseCA/echofilter/pull/166>`__,
+    `#167 <https://github.com/DeepSenseCA/echofilter/pull/167>`__,
+    `#170 <https://github.com/DeepSenseCA/echofilter/pull/170>`__,
+    `#179 <https://github.com/DeepSenseCA/echofilter/pull/179>`__,
+    `#180 <https://github.com/DeepSenseCA/echofilter/pull/180>`__,
+    `#182 <https://github.com/DeepSenseCA/echofilter/pull/182>`__)
+-   Increase default verbosity level from 1 to 2.
+    (`#179 <https://github.com/DeepSenseCA/echofilter/pull/179>`__)
+
+.. _v1.0.0b3 Fixed:
+
+Fixed
+~~~~~
+
+.. _v1.0.0b3 Fixed Inference:
+
+Inference
+^^^^^^^^^
+
+-   Autocrop with upward facing was running with reflected data as its input, resulting in the data being processed upside down and by the wrong conditional model.
+    (`#172 <https://github.com/DeepSenseCA/echofilter/pull/172>`__)
+-   Remove duplicate leading byte order mark character from evr file output, which was preventing the file from importing into EchoView.
+    (`#178 <https://github.com/DeepSenseCA/echofilter/pull/178>`__)
+-   Fix \r\n line endings being mapped to \r\r\n on Windows in evl and evr output files.
+    (`#178 <https://github.com/DeepSenseCA/echofilter/pull/178>`__)
+-   Show error message when importing the evr file into the ev file fails.
+    (`#169 <https://github.com/DeepSenseCA/echofilter/pull/169>`__)
+-   Fix duplicated Segments tqdm progress bar.
+    (`#180 <https://github.com/DeepSenseCA/echofilter/pull/180>`__)
+
+.. _v1.0.0b3 Added:
+
+Added
+~~~~~
+
+.. _v1.0.0b3 Added Inference:
+
+Inference
+^^^^^^^^^
+
+-   Add ``--offset-surface`` argument, which allows the surface line to be adjusted by a fixed distance.
+    (`#168 <https://github.com/DeepSenseCA/echofilter/pull/168>`__)
 
 
 Version `1.0.0b2 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0b2>`__
