@@ -14,6 +14,7 @@ import urllib
 import warnings
 
 import appdirs
+import colorama
 import numpy as np
 from matplotlib import colors as mcolors
 import pandas as pd
@@ -57,12 +58,7 @@ CHECKPOINT_RESOURCES = OrderedDict(
     ]
 )
 
-# Default checkpoint depends on facing
-DEFAULT_CHECKPOINTS = {
-    "auto": next(iter(CHECKPOINT_RESOURCES)),
-    "downward": "mobile_effunet6x2-1_lc32_v1.0.ckpt.tar",
-    "upward": "stationary2_effunet6x2-1_lc32_v1.0.ckpt.tar",
-}
+DEFAULT_CHECKPOINT = next(iter(CHECKPOINT_RESOURCES))
 
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
 EV_UNDEFINED_DEPTH = -10000.99
@@ -93,13 +89,14 @@ def run_inference(
     thickness_surface=1,
     cache_dir=None,
     cache_csv=None,
-    suffix_csv=".csv",
+    suffix_csv="",
     keep_ext=False,
     line_status=3,
     offset_top=1.0,
     offset_bottom=1.0,
+    offset_surface=1.0,
     nearfield_cutoff=1.7,
-    lines_during_passive="redact",
+    lines_during_passive="predict",
     collate_passive_length=10,
     collate_removed_length=10,
     minimum_passive_length=10,
@@ -110,8 +107,8 @@ def run_inference(
     row_len_selector="mode",
     facing="auto",
     use_training_standardization=False,
-    crop_depth_min=None,
-    crop_depth_max=None,
+    crop_min_depth=None,
+    crop_max_depth=None,
     autocrop_threshold=0.35,
     image_height=None,
     checkpoint=None,
@@ -120,7 +117,7 @@ def run_inference(
     device=None,
     hide_echoview="new",
     minimize_echoview=False,
-    verbose=1,
+    verbose=2,
 ):
     """
     Perform inference on input files, and write output lines in evl format.
@@ -181,11 +178,13 @@ def run_inference(
         Default is `True`.
     suffix_file : str, optional
         Suffix to append to output artifacts (evl and evr files), between
-        the name of the file and the extension. Default is `""`.
+        the name of the file and the extension. If `suffix_file` begins with
+        an alphanumeric character, `"-"` is prepended. Default is `""`.
     suffix_var : str or None, optional
-        Suffix to append to lines imported back into EV file. If `None`
-        (default), suffix_var will match `suffix_file` if it is set,
-        and will be "_echofilter" otherwise.
+        Suffix to append to line and region names when imported back into
+        EV file. If `suffix_var` begins with an alphanumeric character, `"-"`
+        is prepended. If `None` (default), suffix_var will match `suffix_file`
+        if it is set, and will be "_echofilter" otherwise.
     color_top : str, optional
         Color to use for the top line when it is imported into EchoView.
         This can either be the name of a supported color from
@@ -225,7 +224,9 @@ def run_inference(
         input EV files.
     suffix_csv : str, optional
         Suffix used for cached CSV files which are exported from EV files.
-        Default is `'.csv'` (only the file extension is changed).
+        If `suffix_file` begins with an alphanumeric character, a delimiter
+        is prepended. The delimiter is `"."` if `keep_ext=True` or `"-"` if
+        `keep_ext=False`. Default is `""`.
     keep_ext : bool, optional
         Whether to preserve the file extension in the input file name when
         generating output file name. Default is `False`, removing the
@@ -242,6 +243,9 @@ def run_inference(
         Offset for top line, which moves the top line deeper. Default is `1.0`.
     offset_bottom : float, optional
         Offset for bottom line, which moves the line to become more shallow.
+        Default is `1.0`.
+    offset_surface : float, optional
+        Offset for surface line, which moves the surface line deeper.
         Default is `1.0`.
     nearfield_cutoff : float or None, optional
         Nearest approach distance for line adjacent to echosounder, in meters.
@@ -333,10 +337,10 @@ def run_inference(
         used during training. If `False` (default), the center and deviation
         are determined per sample, using the same method methodology as used
         to determine the center and deviation values for training.
-    crop_depth_min : float or None, optional
+    crop_min_depth : float or None, optional
         Minimum depth to include in input. If `None` (default), there is no
         minimum depth.
-    crop_depth_max : float or None, optional
+    crop_max_depth : float or None, optional
         Maxmimum depth to include in input. If `None` (default), there is no
         maximum depth.
     autocrop_threshold : float, optional
@@ -374,16 +378,21 @@ def run_inference(
         If `True`, the EchoView window being used will be minimized while this
         function is running. Default is `False`.
     verbose : int, optional
-        Verbosity level. Default is `1`. Set to `0` to disable print
+        Verbosity level. Default is `2`. Set to `0` to disable print
         statements, or elevate to a higher number to increase verbosity.
     """
 
     t_start_prog = time.time()
+
+    progress_color = colorama.Fore.BLUE if dry_run else colorama.Fore.GREEN
+
     if verbose >= 1:
         print(
-            "Starting inference routine. {}".format(
+            progress_color
+            + "Starting inference routine. {}".format(
                 datetime.datetime.now().strftime("%A, %B %d, %Y at %H:%M:%S")
             )
+            + colorama.Fore.RESET
         )
 
     if device is None:
@@ -400,12 +409,20 @@ def run_inference(
     if suffix_file and suffix_file[0].isalpha():
         suffix_file = "-" + suffix_file
 
-    if suffix_var is not None:
+    if suffix_var and suffix_var[0].isalpha():
+        suffix_var = "-" + suffix_var
+    elif suffix_var is not None:
         pass
     elif suffix_file:
         suffix_var = suffix_file
     else:
         suffix_var = "_echofilter"
+
+    if suffix_csv and suffix_csv[0].isalpha():
+        if keep_ext:
+            suffix_csv = "." + suffix_csv
+        else:
+            suffix_csv = "-" + suffix_csv
 
     line_colors = dict(top=color_top, bottom=color_bottom, surface=color_surface)
     line_thicknesses = dict(
@@ -414,7 +431,7 @@ def run_inference(
 
     if checkpoint is None:
         # Use the first item from the list of checkpoints
-        checkpoint = DEFAULT_CHECKPOINTS[facing]
+        checkpoint = DEFAULT_CHECKPOINT
 
     ckpt_name = checkpoint
 
@@ -433,7 +450,7 @@ def run_inference(
     if not os.path.isfile(ckpt_path):
         raise EnvironmentError("No checkpoint found at '{}'".format(ckpt_path))
     if verbose >= 1:
-        print("Loading checkpoint '{}'".format(ckpt_path))
+        print("Loading model from checkpoint:\n  '{}'".format(ckpt_path))
 
     load_args = {}
     if device is not None:
@@ -446,7 +463,11 @@ def run_inference(
             # Direct path to checkpoint was given, so we shouldn't delete
             # the user's file
             print(
-                "Error: Unable to load checkpoint {}".format(os.path.abspath(ckpt_path))
+                colorama.Fore.RED
+                + "Error: Unable to load checkpoint {}".format(
+                    os.path.abspath(ckpt_path)
+                )
+                + colorama.Fore.RESET
             )
             raise
         # Delete the checkpoint and try again, in case it is just a
@@ -466,7 +487,7 @@ def run_inference(
         deviation_param = checkpoint.get("deviation_method", "stdev")
     nan_value = checkpoint.get("nan_value", -3)
 
-    if verbose >= 2:
+    if verbose >= 4:
         print("Constructing U-Net model, with arguments:")
         pprint.pprint(checkpoint["model_parameters"])
     unet = UNet(**checkpoint["model_parameters"])
@@ -493,7 +514,7 @@ def run_inference(
         **checkpoint.get("wrapper_params", {})
     )
     is_conditional_model = model.params.get("conditional", False)
-    if verbose >= 1:
+    if verbose >= 3:
         print(
             "Built {}model with {} trainable parameters".format(
                 "conditional " if is_conditional_model else "",
@@ -502,30 +523,32 @@ def run_inference(
         )
     try:
         unet.load_state_dict(checkpoint["state_dict"])
-        if verbose >= 1:
+        if verbose >= 3:
             print(
-                "Loaded UNet state from checkpoint".format(
+                "Loaded U-Net state from the checkpoint".format(
                     ckpt_path, checkpoint["epoch"]
                 )
             )
     except RuntimeError as err:
-        if verbose >= 2:
+        if verbose >= 5:
             print(
-                "Warning: Checkpoint doesn't seem to be for the UNet."
-                "Trying to load it as the whole model instead."
+                colorama.Fore.MAGENTA
+                + "Warning: Checkpoint doesn't seem to be for the UNet."
+                "Trying to load it as the whole model instead." + colorama.Fore.RESET
             )
         try:
             model.load_state_dict(checkpoint["state_dict"])
-            if verbose >= 1:
+            if verbose >= 3:
                 print(
-                    "Loaded model state from checkpoint".format(
+                    "Loaded model state from the checkpoint".format(
                         ckpt_path, checkpoint["epoch"]
                     )
                 )
         except RuntimeError:
             print(
-                "Could not load the checkpoint state as either the whole model"
-                "or the unet component."
+                colorama.Fore.RED
+                + "Could not load the checkpoint state as either the whole model"
+                "or the unet component." + colorama.Fore.RESET
             )
             raise err
 
@@ -590,7 +613,9 @@ def run_inference(
     ) as ev_app:
         for fname in maybe_tqdm(files):
             if verbose >= 2:
-                print("Processing {}".format(fname))
+                print(
+                    progress_color + "Processing {}".format(fname) + colorama.Fore.RESET
+                )
 
             # Check what the full path should be
             fname_full = echofilter.path.determine_file_path(fname, source_dir)
@@ -628,7 +653,11 @@ def run_inference(
             # Check whether to skip processing this file
             if skip_existing and not any_missing:
                 if verbose >= 2:
-                    print("  Skipping {}".format(fname))
+                    print(
+                        colorama.Fore.YELLOW
+                        + "  Skipping {}".format(fname)
+                        + colorama.Fore.RESET
+                    )
                 skip_count += 1
                 continue
             # Check whether we would clobber a file we can't overwrite
@@ -641,7 +670,7 @@ def run_inference(
                 ).format(fname)
                 if dry_run:
                     error_msgs.append("Error: " + msg)
-                    print(error_msgs[-1])
+                    print(colorama.Fore.RED + error_msgs[-1] + colorama.Fore.RESET)
                     continue
                 raise EnvironmentError(msg)
 
@@ -664,7 +693,11 @@ def run_inference(
                 if not skip_incompatible:
                     raise EnvironmentError(error_str)
                 if verbose >= 2:
-                    print("  Skipping incompatible file {}".format(fname))
+                    print(
+                        colorama.Fore.YELLOW
+                        + "  Skipping incompatible file {}".format(fname)
+                        + colorama.Fore.RESET
+                    )
                 incompatible_count += 1
                 continue
 
@@ -691,7 +724,7 @@ def run_inference(
                     )
                     if not keep_ext:
                         csv_fname = os.path.splitext(csv_fname)[0]
-                    csv_fname += suffix_csv
+                    csv_fname += suffix_csv + ".csv"
 
                 if os.path.isfile(csv_fname):
                     # If CSV file is already cached, no need to re-export it
@@ -722,17 +755,21 @@ def run_inference(
                         verbose=verbose - 1,
                     )
 
-                if (dry_run and verbose >= 1) or verbose >= 3:
+                if (dry_run and verbose >= 2) or verbose >= 3:
                     ww = "Would" if dry_run else "Will"
                     print("  {} write files:".format(ww))
                     for key, fname in dest_files.items():
                         if os.path.isfile(fname) and overwrite_existing:
-                            over_txt = " (overwriting existing file)"
+                            over_txt = (
+                                colorama.Fore.CYAN
+                                + " (overwriting existing file)"
+                                + colorama.Fore.RESET
+                            )
                         else:
                             over_txt = ""
                         tp = "line" if os.path.splitext(fname)[1] == ".evl" else "file"
                         print(
-                            "      {} export {} {} to: {}{}".format(
+                            "    {} export {} {} to: {}{}".format(
                                 ww, key, tp, fname, over_txt,
                             )
                         )
@@ -740,9 +777,9 @@ def run_inference(
                     continue
 
                 # Load the data
-                if verbose >= 5:
+                if verbose >= 6:
                     warn_row_overflow = np.inf
-                elif verbose >= 4:
+                elif verbose >= 5:
                     warn_row_overflow = None
                 else:
                     warn_row_overflow = 0
@@ -755,10 +792,18 @@ def run_inference(
                 except KeyError:
                     if skip_incompatible and fname not in files_input:
                         if verbose >= 2:
-                            print("  Skipping incompatible file {}".format(fname))
+                            print(
+                                colorama.Fore.YELLOW
+                                + "  Skipping incompatible file {}".format(fname)
+                                + colorama.Fore.RESET
+                            )
                         incompatible_count += 1
                         continue
-                    print("CSV file {} could not be loaded.".format(fname))
+                    print(
+                        colorama.Fore.RED
+                        + "CSV file {} could not be loaded.".format(fname)
+                        + colorama.Fore.RESET
+                    )
                     raise
 
             output = inference_transect(
@@ -769,8 +814,8 @@ def run_inference(
                 device,
                 image_height,
                 facing=facing,
-                crop_depth_min=crop_depth_min,
-                crop_depth_max=crop_depth_max,
+                crop_min_depth=crop_min_depth,
+                crop_max_depth=crop_max_depth,
                 autocrop_threshold=autocrop_threshold,
                 force_unconditioned=force_unconditioned,
                 data_center=center_param,
@@ -778,23 +823,23 @@ def run_inference(
                 nan_value=nan_value,
                 verbose=verbose - 1,
             )
-            if verbose >= 4:
+            if verbose >= 5:
                 s = "\n    ".join([""] + list(str(k) for k in output.keys()))
-                print("Generated model output with fields:" + s)
+                print("  Generated model output with fields:" + s)
 
             if is_conditional_model and not force_unconditioned:
                 if output["is_upward_facing"]:
                     cs = "|upfacing"
                 else:
                     cs = "|downfacing"
-                if verbose >= 2:
+                if verbose >= 4:
                     print(
-                        "Using conditional probability outputs from model:"
+                        "  Using conditional probability outputs from model:"
                         " p(state{})".format(cs)
                     )
             else:
                 cs = ""
-                if is_conditional_model and force_unconditioned and verbose >= 2:
+                if is_conditional_model and verbose >= 4:
                     print("Using unconditioned output from conditional model")
 
             # Convert output into lines
@@ -814,6 +859,7 @@ def run_inference(
             # Offset lines
             top_depths += offset_top
             bottom_depths -= offset_bottom
+            surface_depths += offset_surface
             # Redact passive regions
             line_timestamps = output["timestamps"].copy()
             is_passive = output["p_is_passive" + cs] > 0.5
@@ -883,8 +929,8 @@ def run_inference(
                 if name not in dest_files:
                     continue
                 dest_file = dest_files[name]
-                if verbose >= 2:
-                    print("Writing output {}".format(dest_file))
+                if verbose >= 3:
+                    print("  Writing output {}".format(dest_file))
                 if os.path.exists(dest_file) and not overwrite_existing:
                     raise EnvironmentError(
                         "Output {} already exists.\n"
@@ -897,8 +943,8 @@ def run_inference(
                 )
             # Export evr file
             dest_file = dest_files["regions"]
-            if verbose >= 2:
-                print("Writing output {}".format(dest_file))
+            if verbose >= 3:
+                print("  Writing output {}".format(dest_file))
             if os.path.exists(dest_file) and not overwrite_existing:
                 raise EnvironmentError(
                     "Output {} already exists.\n"
@@ -925,8 +971,10 @@ def run_inference(
                 minimum_passive_length=minimum_passive_length,
                 minimum_removed_length=minimum_removed_length,
                 minimum_patch_area=minimum_patch_area,
+                name_suffix=suffix_var,
                 common_notes=common_notes,
-                verbose=verbose - 1,
+                verbose=verbose - 2,
+                verbose_indent=2,
             )
 
             if not process_as_ev or not import_into_evfile:
@@ -945,30 +993,39 @@ def run_inference(
             )
 
     if verbose >= 1:
-        s = "Finished {}processing {} file{}.".format(
-            "simulating " if dry_run else "",
-            len(files),
-            "" if len(files) == 1 else "s",
+        print(
+            progress_color
+            + "Finished {}processing {} file{}.".format(
+                "simulating " if dry_run else "",
+                len(files),
+                "" if len(files) == 1 else "s",
+            )
+            + colorama.Fore.RESET
         )
         skip_total = skip_count + incompatible_count
         if skip_total > 0:
-            s += " Of these, {} file{} skipped: {} already processed".format(
-                skip_total, " was" if skip_total == 1 else "s were", skip_count,
+            s = ""
+            s += colorama.Fore.YELLOW
+            s += "Of these, {} file{} skipped: {} already processed".format(
+                skip_total, " was" if skip_total == 1 else "s were", skip_count
             )
             if not dry_run:
                 s += ", {} incompatible".format(incompatible_count)
             s += "."
-        print(s)
+            s += colorama.Fore.RESET
+            print(s)
         if error_msgs:
             print(
-                "There {} {} error{}:".format(
+                colorama.Fore.RED
+                + "There {} {} error{}:".format(
                     "was" if len(error_msgs) == 1 else "were",
                     len(error_msgs),
                     "" if len(error_msgs) == 1 else "s",
                 )
+                + colorama.Fore.RESET
             )
             for error_msg in error_msgs:
-                print(error_msg)
+                print(colorama.Fore.RED + error_msg + colorama.Fore.RESET)
         print(
             "Total runtime: {}".format(
                 datetime.timedelta(seconds=time.time() - t_start_prog)
@@ -984,8 +1041,8 @@ def inference_transect(
     device,
     image_height,
     facing="auto",
-    crop_depth_min=None,
-    crop_depth_max=None,
+    crop_min_depth=None,
+    crop_max_depth=None,
     autocrop_threshold=0.35,
     force_unconditioned=False,
     data_center="mean",
@@ -1016,10 +1073,10 @@ def inference_transect(
         in which case the orientation is determined from the ordering of the
         depth values in the data (increasing = `"upward"`,
         decreasing = `"downward"`).
-    crop_depth_min : float or None, optional
+    crop_min_depth : float or None, optional
         Minimum depth to include in input. If `None` (default), there is no
         minimum depth.
-    crop_depth_max : float or None, optional
+    crop_max_depth : float or None, optional
         Maxmimum depth to include in input. If `None` (default), there is no
         maximum depth.
     autocrop_threshold : float, optional
@@ -1046,7 +1103,7 @@ def inference_transect(
     dtype : torch.dtype, optional
         Datatype to use for model input. Default is `torch.float`.
     verbose : int, optional
-        Level of verbosity. Default is `1`.
+        Level of verbosity. Default is `0`.
 
     Returns
     -------
@@ -1063,14 +1120,14 @@ def inference_transect(
         "depths": depths,
         "signals": signals,
     }
-    if crop_depth_min is not None:
+    if crop_min_depth is not None:
         # Apply minimum depth crop
-        depth_crop_mask = transect["depths"] >= crop_depth_min
+        depth_crop_mask = transect["depths"] >= crop_min_depth
         transect["depths"] = transect["depths"][depth_crop_mask]
         transect["signals"] = transect["signals"][:, depth_crop_mask]
-    if crop_depth_max is not None:
+    if crop_max_depth is not None:
         # Apply maximum depth crop
-        depth_crop_mask = transect["depths"] <= crop_depth_max
+        depth_crop_mask = transect["depths"] <= crop_max_depth
         transect["depths"] = transect["depths"][depth_crop_mask]
         transect["signals"] = transect["signals"][:, depth_crop_mask]
 
@@ -1087,29 +1144,39 @@ def inference_transect(
     if facing[:2] == "up" or (facing == "auto" and is_upward_facing):
         transect["depths"] = transect["depths"][::-1].copy()
         transect["signals"] = transect["signals"][:, ::-1].copy()
-        if facing == "auto" and verbose >= 1:
+        if facing == "auto" and verbose >= 2:
             print(
-                "Data was autodetected as upward facing, and was flipped"
+                "  Data was autodetected as upward facing, and was flipped"
                 " vertically before being input into the model."
             )
+        if not is_upward_facing:
+            print(
+                colorama.Fore.MAGENTA
+                + 'Warning: facing = "{}" was provided, but data appears to be'
+                " downward facing".format(facing) + colorama.Fore.RESET
+            )
         is_upward_facing = True
-    elif facing[:4] != "down" and facing[:4] != "auto":
+    elif facing[:4] != "down" and facing != "auto":
         raise ValueError('facing should be one of "downward", "upward", and "auto"')
     elif facing[:4] == "down" and is_upward_facing:
         print(
-            'Warning: facing = "{}" was provided, but data appears to be upward facing'.format(
-                facing
-            )
+            colorama.Fore.MAGENTA
+            + 'Warning: facing = "{}" was provided, but data appears to be'
+            " upward facing".format(facing) + colorama.Fore.RESET
         )
         is_upward_facing = False
+    elif facing == "auto" and verbose >= 2:
+        print("  Data was autodetected as downward facing.")
 
     # To reduce memory consumption, split into segments whenever the recording
     # interval is longer than normal
     segments = split_transect(**transect)
     if verbose >= 1:
-        segments = tqdm(list(segments), desc="Segments")
+        maybe_tqdm = lambda x: tqdm(list(x), desc="  Segments", position=0)
+    else:
+        maybe_tqdm = lambda x: x
     outputs = []
-    for segment in segments:
+    for segment in maybe_tqdm(segments):
         # Preprocessing transform
         transform = torchvision.transforms.Compose(
             [
@@ -1129,9 +1196,6 @@ def inference_transect(
         output["timestamps"] = segment["timestamps"]
         output["depths"] = segment["depths"]
         outputs.append(output)
-
-    if verbose >= 1:
-        print()
 
     output = join_transect(outputs)
     output["is_upward_facing"] = is_upward_facing
@@ -1188,6 +1252,11 @@ def inference_transect(
         # surrounding content.
         new_crop_max += max(2, 10 * depth_intv)
 
+    if crop_min_depth is not None:
+        new_crop_min = max(new_crop_min, crop_min_depth)
+    if crop_max_depth is not None:
+        new_crop_max = min(new_crop_max, crop_max_depth)
+
     current_height = abs(transect["depths"][-1] - transect["depths"][0])
     new_height = abs(new_crop_max - new_crop_min)
     if (current_height - new_height) / current_height <= autocrop_threshold:
@@ -1203,14 +1272,14 @@ def inference_transect(
     # Crop and run again; and don't autocrop a second time!
     return inference_transect(
         model,
-        transect["timestamps"],
-        transect["depths"],
-        transect["signals"],
+        timestamps,
+        depths,
+        signals,
         device,
         image_height,
         facing=facing,
-        crop_depth_min=new_crop_min,
-        crop_depth_max=new_crop_max,
+        crop_min_depth=new_crop_min,
+        crop_max_depth=new_crop_max,
         autocrop_threshold=1,  # Don't crop again
         force_unconditioned=force_unconditioned,
         data_center=data_center,
@@ -1267,7 +1336,24 @@ def import_lines_regions_to_ev(
     with echofilter.win.open_ev_file(ev_fname, ev_app) as ev_file:
         for key, fname in files.items():
             # Import the line into the EV file
-            ev_file.Import(os.path.abspath(fname))
+            fname_full = os.path.abspath(fname)
+            if not os.path.isfile(fname_full):
+                print(
+                    colorama.Fore.MAGENTA
+                    + "Warning: File '{}' could not be found".format(fname_full)
+                    + colorama.Fore.RESET
+                )
+                continue
+            is_imported = ev_file.Import(fname_full)
+            if not is_imported:
+                print(
+                    colorama.Fore.MAGENTA + "Warning: Unable to import file '{}'"
+                    "Please consult EchoView for the Import error message.".format(
+                        fname
+                    )
+                    + colorama.Fore.RESET
+                )
+                continue
 
             if os.path.splitext(fname)[1].lower() != ".evl":
                 # Further handling is only for lines, so skip if this wasn't
@@ -1280,10 +1366,11 @@ def import_lines_regions_to_ev(
             line = lines.FindByName(variable.Name)
             if not line:
                 print(
-                    "Warning: Could not find line which was just imported with"
-                    " name '{}'!".format(variable.Name)
+                    colorama.Fore.MAGENTA
+                    + "Warning: Could not find line which was just imported with"
+                    " name '{}'".format(variable.Name) + colorama.Fore.RESET
                 )
-                print("Ignoring and continuing processing.".format(variable.Name))
+                print("Ignoring and continuing processing.")
                 continue
 
             # Check whether we need to change the name of the line
@@ -1298,8 +1385,9 @@ def import_lines_regions_to_ev(
                 # Overwrite the old line
                 if verbose >= 2:
                     print(
-                        "Overwriting existing line '{}' with new {} line"
-                        " output".format(target_name, key)
+                        colorama.Fore.CYAN
+                        + "Overwriting existing line '{}' with new {} line"
+                        " output".format(target_name, key) + colorama.Fore.RESET
                     )
                 old_line_edit = old_line.AsLineEditable
                 if old_line_edit:
@@ -1313,8 +1401,9 @@ def import_lines_regions_to_ev(
                 elif verbose >= 0:
                     # Line is not editable
                     print(
-                        "Existing line '{}' is not editable and cannot be"
-                        " overwritten.".format(target_name, key)
+                        colorama.Fore.MAGENTA
+                        + "Existing line '{}' is not editable and cannot be"
+                        " overwritten.".format(target_name, key) + colorama.Fore.RESET
                     )
 
             if old_line and not successful_overwrite:
@@ -1450,7 +1539,7 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     success = False
     for key, url_or_id in sources.items():
         if key == "gdrive":
-            if verbose > 0:
+            if verbose >= 1:
                 print(
                     "Downloading checkpoint {} from GDrive...".format(checkpoint_name)
                 )
@@ -1461,14 +1550,16 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
                 success = True
                 continue
             except (pickle.UnpicklingError, urllib.error.URLError):
-                if verbose > 0:
+                if verbose >= 1:
                     print(
-                        "\nCould not download checkpoint {} from GDrive!".format(
+                        colorama.Fore.RED
+                        + "\nCould not download checkpoint {} from GDrive!".format(
                             checkpoint_name
                         )
+                        + colorama.Fore.RESET
                     )
         else:
-            if verbose > 0:
+            if verbose >= 1:
                 print(
                     "Downloading checkpoint {} from {}...".format(
                         checkpoint_name, url_or_id
@@ -1479,17 +1570,19 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
                 success = True
                 continue
             except (pickle.UnpicklingError, urllib.error.URLError):
-                if verbose > 0:
+                if verbose >= 1:
                     print(
-                        "\nCould not download checkpoint {} from {}".format(
+                        colorama.Fore.RED
+                        + "\nCould not download checkpoint {} from {}".format(
                             checkpoint_name, url_or_id
                         )
+                        + colorama.Fore.RESET
                     )
 
     if not success:
         raise OSError("Unable to download {} from {}".format(checkpoint_name, sources))
 
-    if verbose > 0:
+    if verbose >= 1:
         print("Downloaded checkpoint to {}".format(destination))
 
     return destination
@@ -1497,6 +1590,8 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
 
 def main():
     import argparse
+
+    colorama.init()
 
     class ListCheckpoints(argparse.Action):
         def __call__(self, parser, namespace, values, option_string):
@@ -1555,17 +1650,21 @@ def main():
     )
     group_action.add_argument(
         "--list-colors",
+        "--list-colours",
+        dest="list_colors",
         nargs="?",
         type=str,
         choices=["css4", "full", "xkcd"],
         action=ListColors,
-        help="""
+        help="""d|
             Show the available line color names and exit.
             The available color palette can be viewed at
             https://matplotlib.org/gallery/color/named_colors.html.
-            The XKCD color palette is also available, but is not shown
-            in the output by default due to its size. To show
-            the full palette, run as `--list-colors full`.
+            The XKCD color palette is also available, but is not
+            shown in the output by default due to its size.
+            To show the just main palette, run as `--list-colors`
+            without argument, or `--list-colors css4`. To show the
+            full palette, run as `--list-colors full`.
         """,
     )
 
@@ -1590,7 +1689,8 @@ def main():
             Multiple files and directories can be specified,
             separated by spaces.
             This is a required argument. At least one input file
-            or directory must be given.
+            or directory must be given, unless one of the
+            arguments listed above under "Actions" is given.
             In order to process the directory given by SOURCE_DIR,
             specify "." for this argument, such as:
                 echofilter . --source-dir SOURCE_DIR
@@ -1609,8 +1709,8 @@ def main():
         metavar="SOURCE_DIR",
         help="""
             Path to source directory which contains the files and folders
-            specified by the paths argument. Default: "." (the current
-            directory).
+            specified by the paths argument. Default: "%(default)s" (the
+            current directory).
         """,
     )
     group_infile.add_argument(
@@ -1653,12 +1753,10 @@ def main():
             within the directory (and all its recursive
             subdirectories) are filtered against this list of
             extensions to identify which files to process.
-            Default: {}.
+            Default: %(default)s.
             (Note that the default SEARCH_EXTENSION value is
             OS-specific.)
-        """.format(
-            default_extensions
-        ),
+        """,
     )
     group_infile.add_argument(
         "--skip-existing",
@@ -1671,7 +1769,6 @@ def main():
     )
     group_infile.add_argument(
         "--skip-incompatible",
-        dest="skip_incompatible",
         action="store_true",
         help="""
             Skip over incompatible input CSV files, without raising an error.
@@ -1784,8 +1881,10 @@ def main():
         default="",
         help="""
             Suffix to append to output artifacts evl and evr files, between
-            the name of the file and the extension. The default behavior is
-            not to append a suffix.
+            the name of the file and the extension.
+            If SUFFIX_FILE begins with an alphanumeric character, "-" is
+            prepended to it to act as a delimiter.
+            The default behavior is to not append a suffix.
         """,
     )
     group_outfile.add_argument(
@@ -1793,8 +1892,10 @@ def main():
         type=str,
         default=None,
         help="""
-            Suffix to append to lines imported back into EV file. The default
-            behaviour is to match SUFFIX_FILE if it is set, and use
+            Suffix to append to line and region names when  imported back into
+            EV file. If SUFFIX_VAR begins with an alphanumeric character, "-"
+            is prepended to it to act as a delimiter.
+            The default behaviour is to match SUFFIX_FILE if it is set, and use
             "_echofilter" otherwise.
         """,
     )
@@ -1807,7 +1908,7 @@ def main():
             This can either be the name of a supported color (see --list-colors
             for options), or a a hexadecimal string, or a string representation
             of an RGB color to supply directly to EchoView (such as
-            "(0,255,0)"). Default is "orangered".
+            "(0,255,0)"). Default: "%(default)s".
         """,
     )
     group_outfile.add_argument(
@@ -1819,7 +1920,7 @@ def main():
             This can either be the name of a supported color (see --list-colors
             for options), or a a hexadecimal string, or a string representation
             of an RGB color to supply directly to EchoView (such as
-            "(0,255,0)"). Default is "orangered".
+            "(0,255,0)"). Default: "%(default)s".
         """,
     )
     group_outfile.add_argument(
@@ -1831,7 +1932,7 @@ def main():
             This can either be the name of a supported color (see --list-colors
             for options), or a a hexadecimal string, or a string representation
             of an RGB color to supply directly to EchoView (such as
-            "(0,255,0)"). Default is "green".
+            "(0,255,0)"). Default: "%(default)s".
         """,
     )
     group_outfile.add_argument(
@@ -1840,7 +1941,7 @@ def main():
         default=2,
         help="""
             Thicknesses with which the top line will be displayed in EchoView.
-            Default is 2.
+            Default: %(default)s.
         """,
     )
     group_outfile.add_argument(
@@ -1849,7 +1950,7 @@ def main():
         default=2,
         help="""
             Thicknesses with which the bottom line will be displayed in EchoView.
-            Default is 2.
+            Default: %(default)s.
         """,
     )
     group_outfile.add_argument(
@@ -1858,7 +1959,7 @@ def main():
         default=1,
         help="""
             Thicknesses with which the surface line will be displayed in EchoView.
-            Default is 1.
+            Default: %(default)s.
         """,
     )
     DEFAULT_CACHE_DIR = get_default_cache_dir()
@@ -1868,10 +1969,8 @@ def main():
         default=DEFAULT_CACHE_DIR,
         help="""d|
             Path to checkpoint cache directory.
-            Default: "{}".
-        """.format(
-            DEFAULT_CACHE_DIR
-        ),
+            Default: "%(default)s".
+        """,
     )
     group_outfile.add_argument(
         "--cache-csv",
@@ -1891,22 +1990,24 @@ def main():
     group_outfile.add_argument(
         "--suffix-csv",
         type=str,
-        default=".csv",
+        default="",
         help="""
-            Suffix used for cached CSV files which are exported from EV files.
-            This should contain a file extension, including ".", but may
-            optionally contain additional text, for instance "_Sv_raw.csv".
-            Default: ".csv".
+            Suffix to append to the file names of cached CSV files which are
+            exported from EV files. The suffix is inserted between the input
+            file name and the new file extension, ".csv".
+            If SUFFIX_CSV begins with an alphanumeric character, a delimiter
+            is prepended. The delimiter is "-", or "." if --keep-ext is given.
+            The default behavior is to not append a suffix.
         """,
     )
     group_outfile.add_argument(
         "--keep-ext",
         action="store_true",
         help="""
-            If provided, the output file names maintain the input file
-            extension before their suffix (including a new file extension).
-            Default behaviour is to strip the input file name extension before
-            constructing the output path.
+            If provided, the output file names (evl, evr, csv) maintain the
+            input file extension before their suffix (including a new file
+            extension). Default behaviour is to strip the input file name
+            extension before constructing the output paths.
         """,
     )
 
@@ -1920,12 +2021,13 @@ def main():
         type=int,
         default=3,
         help="""d|
-            Status value for all the lines which are generated. Options are:
+            Status value for all the lines which are generated.
+            Options are:
               0: none
               1: unverified
               2: bad
               3: good
-            Default: 3.
+            Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
@@ -1933,9 +2035,10 @@ def main():
         type=float,
         default=1.0,
         help="""
-            Offset for both top and bottom lines, in metres. This will shift
-            both lines towards each other by the same distance of OFFSET.
-            Default is 1.0.
+            Offset for top, bottom, and surface lines, in metres. This will
+            shift top and surface lines downwards and the bottom line upwards
+            by the same distance of OFFSET.
+            Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
@@ -1959,6 +2062,16 @@ def main():
         """,
     )
     group_outconfig.add_argument(
+        "--offset-surface",
+        type=float,
+        default=None,
+        help="""
+            Offset for the surface line, in metres. This shifts the surface
+            line downards by some distance OFFSET_SURFACE. If this is set, it
+            overwrites the value provided by --offset.
+        """,
+    )
+    group_outconfig.add_argument(
         "--nearfield-cutoff",
         type=float,
         default=1.7,
@@ -1968,13 +2081,13 @@ def main():
             minimum depth for the top line. If the echosounder is upfacing,
             the maximum depth for the bottom line will be NEARFIELD_CUTOFF
             above the deepest depth in the input data, plus one inter-depth
-            interval. Default is 1.7.
+            interval. Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
         "--lines-during-passive",
         type=str,
-        default="redact",
+        default="predict",
         choices=[
             "interpolate-time",
             "interpolate-index",
@@ -2007,72 +2120,60 @@ def main():
                   depths are replaced with the placeholder value
                   used by EchoView to denote undefined values,
                   which is {}.
-            Default: "redact".
-        """.format(
-            EV_UNDEFINED_DEPTH
-        ),
+            Default: "%(default)s".
+        """,
     )
     group_outconfig.add_argument(
-        "--collate-passive",
         "--collate-passive-length",
-        dest="collate_passive_length",
         type=int,
         default=10,
         help="""
             Maximum interval, in ping indices, between detected passive regions
             which will removed to merge consecutive passive regions together
-            into a single, collated, region. Default is 10.
+            into a single, collated, region. Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
-        "--collate-removed",
         "--collate-removed-length",
-        dest="collate_passive_length",
         type=int,
         default=10,
         help="""
             Maximum interval, in ping indices, between detected blocks
             (vertical rectangles) marked for removal which will also be removed
             to merge consecutive removed blocks together into a single,
-            collated, region. Default is 10.
+            collated, region. Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
-        "--minimum-passive",
         "--minimum-passive-length",
-        dest="minimum_passive_length",
         type=int,
         default=10,
         help="""
             Minimum length, in ping indices, which a detected passive region
             must have to be included in the output. Set to -1 to omit all
-            detected passive regions from the output. Default is 10.
+            detected passive regions from the output. Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
-        "--minimum-removed",
         "--minimum-removed-length",
-        dest="minimum_removed_length",
         type=int,
         default=10,
         help="""
             Minimum length, in ping indices, which a detected removal block
             (vertical rectangle) must have to be included in the output.
             Set to -1 to omit all detected removal blocks from the output.
-            Default is 10.
+            Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
-        "--minimum-patch",
         "--minimum-patch-area",
-        dest="minimum_patch_area",
         type=int,
         default=25,
         help="""
             Minimum area, in pixels, which a detected removal patch
             (contour/polygon) region must have to be included in the output.
             Set to -1 to omit all detected patches from the output.
-            Default is 25.
+            Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
@@ -2115,10 +2216,8 @@ def main():
         help="""d|
             Name of the EchoView acoustic variable to load from
             EV files.
-            Default: "{}".
-        """.format(
-            DEFAULT_VARNAME
-        ),
+            Default: "%(default)s".
+        """,
     )
     group_inproc.add_argument(
         "--row-len-selector",
@@ -2131,9 +2230,9 @@ def main():
             samples and minimum and maximum depth. The Sv values for all
             timepoints are interpolated onto this range of depths in order to
             create an input which is sampled in a rectangular manner.
-            Default: "mode", the modal number of depths is used, and the modal
-            depth range is select amongst time samples which bear this number
-            of depths.
+            Default: "%(default)s", the modal number of depths is used, and the
+            modal depth range is select amongst time samples which bear this
+            number of depths.
         """,
     )
     group_inproc.add_argument(
@@ -2160,7 +2259,7 @@ def main():
         """,
     )
     group_inproc.add_argument(
-        "--crop-depth-min",
+        "--crop-min-depth",
         type=float,
         default=None,
         help="""
@@ -2170,7 +2269,7 @@ def main():
         """,
     )
     group_inproc.add_argument(
-        "--crop-depth-max",
+        "--crop-max-depth",
         type=float,
         default=None,
         help="""
@@ -2181,8 +2280,7 @@ def main():
     )
     group_inproc.add_argument(
         "--autocrop-threshold",
-        "--autocrop",
-        "--autozoom",
+        "--autozoom-threshold",
         dest="autocrop_threshold",
         type=float,
         default=0.35,
@@ -2195,7 +2293,7 @@ def main():
             The data will only be zoomed in and re-analysed at most once.
             To always run the model through once (never auto zoomed), set to 1.
             To always run the model through exactly twice (always one round
-            of auto-zoom), set to 0. Default is 0.35.
+            of auto-zoom), set to 0. Default: %(default)s.
         """,
     )
     group_inproc.add_argument(
@@ -2220,22 +2318,16 @@ def main():
     group_model.add_argument(
         "--checkpoint",
         type=str,
-        default=None,
+        default=DEFAULT_CHECKPOINT,
         help="""d|
             Name of checkpoint to load, or path to a checkpoint
-            file. The default checkpoint depends on --facing:
-              auto    : "{auto}"
-              downward: "{downward}"
-              upward  : "{upward}"
-        """.format(
-            auto=DEFAULT_CHECKPOINTS["auto"],
-            downward=DEFAULT_CHECKPOINTS["downward"],
-            upward=DEFAULT_CHECKPOINTS["upward"],
-        ),
+            file.
+            Default: "%(default)s".
+        """,
     )
     group_model.add_argument(
         "--unconditioned",
-        "--force_unconditioned",
+        "--force-unconditioned",
         dest="force_unconditioned",
         action="store_true",
         help="""
@@ -2247,9 +2339,7 @@ def main():
         """,
     )
     group_model.add_argument(
-        "--logit-smoothing",
         "--logit-smoothing-sigma",
-        dest="logit_smoothing_sigma",
         type=float,
         nargs="+",
         metavar="SIGMA",
@@ -2264,7 +2354,7 @@ def main():
             single value is given, the kernel is symmetric. Values are relative
             to the pixel space returned by the UNet model.
             Set to 0 to disable.
-            Default: 1.
+            Default: %(default)s.
         """,
     )
     group_model.add_argument(
@@ -2341,11 +2431,11 @@ def main():
         "--verbose",
         "-v",
         action="count",
-        default=1,
+        default=2,
         help="""
             Increase the level of verbosity of the program. This can be
             specified multiple times, each will increase the amount of detail
-            printed to the terminal. The default verbosity level is 1.
+            printed to the terminal. The default verbosity level is %(default)s.
         """,
     )
     group_verb.add_argument(
@@ -2376,6 +2466,8 @@ def main():
         kwargs["offset_top"] = default_offset
     if kwargs["offset_bottom"] is None:
         kwargs["offset_bottom"] = default_offset
+    if kwargs["offset_surface"] is None:
+        kwargs["offset_surface"] = default_offset
 
     if kwargs["hide_echoview"] is None:
         kwargs["hide_echoview"] = "never" if kwargs["minimize_echoview"] else "new"

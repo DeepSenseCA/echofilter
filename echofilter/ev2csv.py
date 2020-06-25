@@ -320,8 +320,8 @@ def main():
         metavar="SOURCE_DIR",
         help="""
             Path to source directory which contains the files and folders
-            specified by the paths argument. Default: "." (the current
-            directory).
+            specified by the paths argument. Default: "%(default)s" (the
+            current directory).
         """,
     )
     group_infile.add_argument(
@@ -422,10 +422,8 @@ def main():
         default=DEFAULT_VARNAME,
         help="""
             Name of the EchoView acoustic variable to load from EV files.
-            Default: "{}".
-        """.format(
-            DEFAULT_VARNAME
-        ),
+            Default: "%(default)s".
+        """,
     )
 
     # EchoView interaction arguments
@@ -494,7 +492,7 @@ def main():
         help="""
             Increase the level of verbosity of the program. This can be
             specified multiple times, each will increase the amount of detail
-            printed to the terminal. The default verbosity level is 1.
+            printed to the terminal. The default verbosity level is %(default)s.
         """,
     )
     group_verb.add_argument(

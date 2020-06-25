@@ -1535,20 +1535,20 @@ def main():
         nargs=2,
         type=int,
         default=(128, 512),
-        help="input shape [W, H] (default: (128, 512))",
+        help="input shape [W, H] (default: %(default)s)",
     )
     group_data.add_argument(
         "--crop-depth",
         type=float,
         default=None,
-        help="depth, in metres, at which data should be truncated (default: None)",
+        help="depth, in metres, at which data should be truncated (default: %(default)s)",
     )
     group_data.add_argument(
         "--resume",
         default="",
         type=str,
         metavar="PATH",
-        help="path to latest checkpoint (default: none)",
+        help='path to latest checkpoint (default: "%(default)s")',
     )
     group_data.add_argument(
         "--log",
@@ -1581,20 +1581,20 @@ def main():
         dest="n_block",
         type=int,
         default=6,
-        help="number of blocks down and up in the UNet (default: 6)",
+        help="number of blocks down and up in the UNet (default: %(default)s)",
     )
     group_model.add_argument(
         "--latent-channels",
         type=int,
         default=32,
-        help="number of initial/final latent channels to use in the model (default: 32)",
+        help="number of initial/final latent channels to use in the model (default: %(default)s)",
     )
     group_model.add_argument(
         "--expansion-factor",
         type=float,
         default=1.0,
         help="expansion for number of channels as model becomes deeper"
-        " (default: 1., constant number of channels)",
+        " (default: %(default)s, constant number of channels)",
     )
     group_model.add_argument(
         "--expand-only-on-down",
@@ -1607,7 +1607,7 @@ def main():
         type=int,
         default=(2, 1),
         help="for each dim (time, depth), number of blocks between downsample"
-        " steps (default: [2, 1])",
+        " steps (default: %(default)s)",
     )
     group_model.add_argument(
         "--blocks-before-first-downsample",
@@ -1615,7 +1615,7 @@ def main():
         type=int,
         default=(2, 1),
         help="for each dim (time, depth), number of blocks before first"
-        " downsample step (default: [2, 1])",
+        " downsample step (default: %(default)s)",
     )
     group_model.add_argument(
         "--only-skip-connection-on-downsample",
@@ -1634,7 +1634,7 @@ def main():
         "--intrablock-expansion",
         type=float,
         default=6.0,
-        help="expansion within inverse residual blocks (default: 6.)",
+        help="expansion within inverse residual blocks (default: %(default)s)",
     )
     group_model.add_argument(
         "--se-reduction",
@@ -1642,21 +1642,21 @@ def main():
         dest="se_reduction",
         type=float,
         default=4.0,
-        help="reduction within squeeze-and-excite blocks (default: 4.)",
+        help="reduction within squeeze-and-excite blocks (default: %(default)s)",
     )
     group_model.add_argument(
         "--downsampling-modes",
         nargs="+",
         type=str,
         default="max",
-        help='for each downsampling step, the method to use (default: "max")',
+        help='for each downsampling step, the method to use (default: "%(default)s")',
     )
     group_model.add_argument(
         "--upsampling-modes",
         nargs="+",
         type=str,
         default="bilinear",
-        help='for each upsampling step, the method to use (default: "bilinear")',
+        help='for each upsampling step, the method to use (default: "%(default)s")',
     )
     group_model.add_argument(
         "--fused-conv",
@@ -1678,7 +1678,7 @@ def main():
         dest="kernel_size",
         type=int,
         default=5,
-        help="convolution kernel size (default: 5)",
+        help="convolution kernel size (default: %(default)s)",
     )
 
     # Training methodology parameters
@@ -1687,7 +1687,7 @@ def main():
         "--device",
         type=str,
         default="cuda",
-        help='device to use (default: "cuda", using first gpu)',
+        help='device to use (default: "%(default)s", using first gpu)',
     )
     group_training.add_argument(
         "--multigpu", action="store_true", help="train on multiple GPUs",
@@ -1703,7 +1703,7 @@ def main():
         "--amp-opt",
         type=str,
         default="O1",
-        help='optimizer level for apex automatic mixed precision (default: "O1")',
+        help='optimizer level for apex automatic mixed precision (default: "%(default)s")',
     )
     group_training.add_argument(
         "-j",
@@ -1712,21 +1712,21 @@ def main():
         type=int,
         default=8,
         metavar="N",
-        help="number of data loading workers (default: 8)",
+        help="number of data loading workers (default: %(default)s)",
     )
     group_training.add_argument(
         "-p",
         "--print-freq",
         type=int,
         default=50,
-        help="print frequency (default: 50)",
+        help="print frequency (default: %(default)s)",
     )
     group_training.add_argument(
         "-b",
         "--batch-size",
         type=int,
         default=16,
-        help="mini-batch size (default: 16)",
+        help="mini-batch size (default: %(default)s)",
     )
     group_training.add_argument(
         "--no-stratify",
@@ -1739,7 +1739,7 @@ def main():
         dest="n_epoch",
         type=int,
         default=20,
-        help="number of total epochs to run (default: 20)",
+        help="number of total epochs to run (default: %(default)s)",
     )
     group_training.add_argument(
         "--seed", default=None, type=int, help="seed for initializing training.",
@@ -1754,13 +1754,13 @@ def main():
         dest="optimizer",
         type=str,
         default="rangerva",
-        help='optimizer name (default: "rangerva")',
+        help='optimizer name (default: "%(default)s")',
     )
     group_optim.add_argument(
         "--schedule",
         type=str,
         default="constant",
-        help='LR schedule (default: "constant")',
+        help='LR schedule (default: "%(default)s")',
     )
     group_optim.add_argument(
         "--lr",
@@ -1769,10 +1769,10 @@ def main():
         type=float,
         default=0.1,
         metavar="LR",
-        help="initial learning rate (default: 0.1)",
+        help="initial learning rate (default: %(default)s)",
     )
     group_optim.add_argument(
-        "--momentum", type=float, default=0.9, help="momentum (default: 0.9)",
+        "--momentum", type=float, default=0.9, help="momentum (default: %(default)s)",
     )
     group_optim.add_argument(
         "--base-momentum",
@@ -1786,33 +1786,33 @@ def main():
         dest="weight_decay",
         type=float,
         default=1e-5,
-        help="weight decay (default: 1e-5)",
+        help="weight decay (default: %(default)s)",
     )
     group_optim.add_argument(
         "--warmup-pct",
         type=float,
         default=0.2,
         help="fraction of training to spend warming up LR; only used for"
-        " OneCycle MesaOneCycle schedules (default: 0.2)",
+        " OneCycle MesaOneCycle schedules (default: %(default)s)",
     )
     group_optim.add_argument(
         "--warmdown-pct",
         type=float,
         default=0.7,
         help="fraction of training before warming down LR; only used for"
-        " MesaOneCycle schedule (default: 0.7)",
+        " MesaOneCycle schedule (default: %(default)s)",
     )
     group_optim.add_argument(
         "--anneal-strategy",
         type=str,
         default="cos",
-        help='annealing strategy; only used for OneCycle schedule (default: "cos")',
+        help='annealing strategy; only used for OneCycle schedule (default: "%(default)s")',
     )
     group_optim.add_argument(
         "--overall-loss-weight",
         type=float,
         default=0.0,
-        help="weighting for overall loss term (default: 0.)",
+        help="weighting for overall loss term (default: %(default)s)",
     )
 
     # Use seaborn to set matplotlib plotting defaults
