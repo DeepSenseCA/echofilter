@@ -1103,7 +1103,7 @@ def inference_transect(
         transect["signals"] = transect["signals"][:, ::-1].copy()
         if facing == "auto" and verbose >= 2:
             print(
-                "Data was autodetected as upward facing, and was flipped"
+                "  Data was autodetected as upward facing, and was flipped"
                 " vertically before being input into the model."
             )
         if not is_upward_facing:
@@ -1121,15 +1121,17 @@ def inference_transect(
         )
         is_upward_facing = False
     elif facing == "auto" and verbose >= 2:
-        print("Data was autodetected as downward facing.")
+        print("  Data was autodetected as downward facing.")
 
     # To reduce memory consumption, split into segments whenever the recording
     # interval is longer than normal
     segments = split_transect(**transect)
     if verbose >= 1:
-        segments = tqdm(list(segments), desc="Segments")
+        maybe_tqdm = lambda x: tqdm(list(x), desc="  Segments", position=0)
+    else:
+        maybe_tqdm = lambda x: x
     outputs = []
-    for segment in segments:
+    for segment in maybe_tqdm(segments):
         # Preprocessing transform
         transform = torchvision.transforms.Compose(
             [
@@ -1149,10 +1151,6 @@ def inference_transect(
         output["timestamps"] = segment["timestamps"]
         output["depths"] = segment["depths"]
         outputs.append(output)
-
-    if verbose >= 1 and echofilter.path.check_if_windows():
-        # Need a new line here on Windows
-        print()
 
     output = join_transect(outputs)
     output["is_upward_facing"] = is_upward_facing
