@@ -805,7 +805,7 @@ def run_inference(
                     )
             else:
                 cs = ""
-                if is_conditional_model and force_unconditioned and verbose >= 2:
+                if is_conditional_model and verbose >= 4:
                     print("Using unconditioned output from conditional model")
 
             # Convert output into lines
