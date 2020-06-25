@@ -116,7 +116,7 @@ def run_inference(
     device=None,
     hide_echoview="new",
     minimize_echoview=False,
-    verbose=1,
+    verbose=2,
 ):
     """
     Perform inference on input files, and write output lines in evl format.
@@ -377,7 +377,7 @@ def run_inference(
         If `True`, the EchoView window being used will be minimized while this
         function is running. Default is `False`.
     verbose : int, optional
-        Verbosity level. Default is `1`. Set to `0` to disable print
+        Verbosity level. Default is `2`. Set to `0` to disable print
         statements, or elevate to a higher number to increase verbosity.
     """
 
@@ -444,7 +444,7 @@ def run_inference(
     if not os.path.isfile(ckpt_path):
         raise EnvironmentError("No checkpoint found at '{}'".format(ckpt_path))
     if verbose >= 1:
-        print("Loading checkpoint '{}'".format(ckpt_path))
+        print("Loading model from checkpoint:\n  '{}'".format(ckpt_path))
 
     load_args = {}
     if device is not None:
@@ -477,7 +477,7 @@ def run_inference(
         deviation_param = checkpoint.get("deviation_method", "stdev")
     nan_value = checkpoint.get("nan_value", -3)
 
-    if verbose >= 2:
+    if verbose >= 4:
         print("Constructing U-Net model, with arguments:")
         pprint.pprint(checkpoint["model_parameters"])
     unet = UNet(**checkpoint["model_parameters"])
@@ -504,7 +504,7 @@ def run_inference(
         **checkpoint.get("wrapper_params", {})
     )
     is_conditional_model = model.params.get("conditional", False)
-    if verbose >= 1:
+    if verbose >= 3:
         print(
             "Built {}model with {} trainable parameters".format(
                 "conditional " if is_conditional_model else "",
@@ -513,23 +513,23 @@ def run_inference(
         )
     try:
         unet.load_state_dict(checkpoint["state_dict"])
-        if verbose >= 1:
+        if verbose >= 3:
             print(
-                "Loaded UNet state from checkpoint".format(
+                "Loaded U-Net state from the checkpoint".format(
                     ckpt_path, checkpoint["epoch"]
                 )
             )
     except RuntimeError as err:
-        if verbose >= 2:
+        if verbose >= 5:
             print(
                 "Warning: Checkpoint doesn't seem to be for the UNet."
                 "Trying to load it as the whole model instead."
             )
         try:
             model.load_state_dict(checkpoint["state_dict"])
-            if verbose >= 1:
+            if verbose >= 3:
                 print(
-                    "Loaded model state from checkpoint".format(
+                    "Loaded model state from the checkpoint".format(
                         ckpt_path, checkpoint["epoch"]
                     )
                 )
@@ -733,7 +733,7 @@ def run_inference(
                         verbose=verbose - 1,
                     )
 
-                if (dry_run and verbose >= 1) or verbose >= 3:
+                if (dry_run and verbose >= 2) or verbose >= 3:
                     ww = "Would" if dry_run else "Will"
                     print("  {} write files:".format(ww))
                     for key, fname in dest_files.items():
@@ -743,7 +743,7 @@ def run_inference(
                             over_txt = ""
                         tp = "line" if os.path.splitext(fname)[1] == ".evl" else "file"
                         print(
-                            "      {} export {} {} to: {}{}".format(
+                            "    {} export {} {} to: {}{}".format(
                                 ww, key, tp, fname, over_txt,
                             )
                         )
@@ -751,9 +751,9 @@ def run_inference(
                     continue
 
                 # Load the data
-                if verbose >= 5:
+                if verbose >= 6:
                     warn_row_overflow = np.inf
-                elif verbose >= 4:
+                elif verbose >= 5:
                     warn_row_overflow = None
                 else:
                     warn_row_overflow = 0
@@ -789,23 +789,23 @@ def run_inference(
                 nan_value=nan_value,
                 verbose=verbose - 1,
             )
-            if verbose >= 4:
+            if verbose >= 5:
                 s = "\n    ".join([""] + list(str(k) for k in output.keys()))
-                print("Generated model output with fields:" + s)
+                print("  Generated model output with fields:" + s)
 
             if is_conditional_model and not force_unconditioned:
                 if output["is_upward_facing"]:
                     cs = "|upfacing"
                 else:
                     cs = "|downfacing"
-                if verbose >= 2:
+                if verbose >= 4:
                     print(
-                        "Using conditional probability outputs from model:"
+                        "  Using conditional probability outputs from model:"
                         " p(state{})".format(cs)
                     )
             else:
                 cs = ""
-                if is_conditional_model and force_unconditioned and verbose >= 2:
+                if is_conditional_model and verbose >= 4:
                     print("Using unconditioned output from conditional model")
 
             # Convert output into lines
@@ -895,8 +895,8 @@ def run_inference(
                 if name not in dest_files:
                     continue
                 dest_file = dest_files[name]
-                if verbose >= 2:
-                    print("Writing output {}".format(dest_file))
+                if verbose >= 3:
+                    print("  Writing output {}".format(dest_file))
                 if os.path.exists(dest_file) and not overwrite_existing:
                     raise EnvironmentError(
                         "Output {} already exists.\n"
@@ -909,8 +909,8 @@ def run_inference(
                 )
             # Export evr file
             dest_file = dest_files["regions"]
-            if verbose >= 2:
-                print("Writing output {}".format(dest_file))
+            if verbose >= 3:
+                print("  Writing output {}".format(dest_file))
             if os.path.exists(dest_file) and not overwrite_existing:
                 raise EnvironmentError(
                     "Output {} already exists.\n"
@@ -939,7 +939,8 @@ def run_inference(
                 minimum_patch_area=minimum_patch_area,
                 name_suffix=suffix_var,
                 common_notes=common_notes,
-                verbose=verbose - 1,
+                verbose=verbose - 2,
+                verbose_indent=2,
             )
 
             if not process_as_ev or not import_into_evfile:
@@ -1059,7 +1060,7 @@ def inference_transect(
     dtype : torch.dtype, optional
         Datatype to use for model input. Default is `torch.float`.
     verbose : int, optional
-        Level of verbosity. Default is `1`.
+        Level of verbosity. Default is `0`.
 
     Returns
     -------
@@ -1100,7 +1101,7 @@ def inference_transect(
     if facing[:2] == "up" or (facing == "auto" and is_upward_facing):
         transect["depths"] = transect["depths"][::-1].copy()
         transect["signals"] = transect["signals"][:, ::-1].copy()
-        if facing == "auto" and verbose >= 1:
+        if facing == "auto" and verbose >= 2:
             print(
                 "Data was autodetected as upward facing, and was flipped"
                 " vertically before being input into the model."
@@ -1119,6 +1120,8 @@ def inference_transect(
             " upward facing".format(facing)
         )
         is_upward_facing = False
+    elif facing == "auto" and verbose >= 2:
+        print("Data was autodetected as downward facing.")
 
     # To reduce memory consumption, split into segments whenever the recording
     # interval is longer than normal
@@ -1147,7 +1150,8 @@ def inference_transect(
         output["depths"] = segment["depths"]
         outputs.append(output)
 
-    if verbose >= 1:
+    if verbose >= 1 and echofilter.path.check_if_windows():
+        # Need a new line here on Windows
         print()
 
     output = join_transect(outputs)
@@ -1289,7 +1293,11 @@ def import_lines_regions_to_ev(
     with echofilter.win.open_ev_file(ev_fname, ev_app) as ev_file:
         for key, fname in files.items():
             # Import the line into the EV file
-            is_imported = ev_file.Import(os.path.abspath(fname))
+            fname_full = os.path.abspath(fname)
+            if not os.path.isfile(fname_full):
+                print("Warning: File '{}' could not be found".format(fname_full))
+                continue
+            is_imported = ev_file.Import(fname_full)
             if not is_imported:
                 print("Warning: Unable to import file '{}'".format(fname))
                 print("Please consult EchoView for the Import error message.")
@@ -1476,7 +1484,7 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     success = False
     for key, url_or_id in sources.items():
         if key == "gdrive":
-            if verbose > 0:
+            if verbose >= 1:
                 print(
                     "Downloading checkpoint {} from GDrive...".format(checkpoint_name)
                 )
@@ -1487,14 +1495,14 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
                 success = True
                 continue
             except (pickle.UnpicklingError, urllib.error.URLError):
-                if verbose > 0:
+                if verbose >= 1:
                     print(
                         "\nCould not download checkpoint {} from GDrive!".format(
                             checkpoint_name
                         )
                     )
         else:
-            if verbose > 0:
+            if verbose >= 1:
                 print(
                     "Downloading checkpoint {} from {}...".format(
                         checkpoint_name, url_or_id
@@ -1505,7 +1513,7 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
                 success = True
                 continue
             except (pickle.UnpicklingError, urllib.error.URLError):
-                if verbose > 0:
+                if verbose >= 1:
                     print(
                         "\nCould not download checkpoint {} from {}".format(
                             checkpoint_name, url_or_id
@@ -1515,7 +1523,7 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     if not success:
         raise OSError("Unable to download {} from {}".format(checkpoint_name, sources))
 
-    if verbose > 0:
+    if verbose >= 1:
         print("Downloaded checkpoint to {}".format(destination))
 
     return destination
@@ -2362,7 +2370,7 @@ def main():
         "--verbose",
         "-v",
         action="count",
-        default=1,
+        default=2,
         help="""
             Increase the level of verbosity of the program. This can be
             specified multiple times, each will increase the amount of detail

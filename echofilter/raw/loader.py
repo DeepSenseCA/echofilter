@@ -637,6 +637,7 @@ def write_transect_regions(
     common_notes="",
     line_ending="\r\n",
     verbose=0,
+    verbose_indent=0,
 ):
     """
     Convert a transect dictionary to a set of regions and write as an EVR file.
@@ -685,6 +686,9 @@ def write_transect_regions(
         Set to "\n" to get Unix-style line endings instead.
     verbose : int, optional
         Verbosity level. Default is `0`.
+    verbose_indent : int, optional
+        Level of indentation (number of preceding spaces) before verbosity
+        messages. Default is `0`.
     """
     rectangles = []
     contours = []
@@ -805,7 +809,7 @@ def write_transect_regions(
         i_contour += 1
     if verbose >= 1:
         print(
-            "Outputting {} regions:"
+            " " * verbose_indent + "Outputting {} regions:"
             " {} passive, {} removed blocks, {} removed patches".format(
                 len(rectangles) + len(contour_dicts),
                 i_passive - 1,
@@ -816,7 +820,7 @@ def write_transect_regions(
         n_skipped = n_passive_skipped + n_removed_skipped + n_contour_skipped
         if n_skipped > 0:
             print(
-                "There were {} skipped (too small) regions:"
+                " " * verbose_indent + "There were {} skipped (too small) regions:"
                 " {} passive, {} removed blocks, {} removed patches".format(
                     n_skipped, n_passive_skipped, n_removed_skipped, n_contour_skipped
                 )
