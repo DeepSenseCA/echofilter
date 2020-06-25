@@ -51,6 +51,11 @@ def parse_files_in_folders(files_or_folders, source_dir, extension, recursive=Tr
     if extensions is not None:
         extensions = {ext.lower() for ext in extensions}
     for path in files_or_folders:
+        if check_if_windows():
+            # Remove trailing slashes on Windows, because isdir("some\path\")
+            # fails even though isdir("some\path") would succeed.
+            path = path.rstrip("\\")
+
         if os.path.isfile(path) or os.path.isfile(os.path.join(source_dir, path)):
             yield path
             continue
