@@ -2253,10 +2253,8 @@ def main():
         help="""d|
             Name of checkpoint to load, or path to a checkpoint
             file.
-            Default: "{}".
-        """.format(
-            DEFAULT_CHECKPOINT
-        ),
+            Default: "%(default)s".
+        """,
     )
     group_model.add_argument(
         "--unconditioned",
