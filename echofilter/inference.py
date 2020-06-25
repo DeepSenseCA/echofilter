@@ -1059,7 +1059,7 @@ def inference_transect(
     dtype : torch.dtype, optional
         Datatype to use for model input. Default is `torch.float`.
     verbose : int, optional
-        Level of verbosity. Default is `1`.
+        Level of verbosity. Default is `0`.
 
     Returns
     -------
