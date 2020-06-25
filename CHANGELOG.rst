@@ -571,7 +571,6 @@ General
     (`#102 <https://github.com/DeepSenseCA/echofilter/pull/102>`__,
     `#103 <https://github.com/DeepSenseCA/echofilter/pull/103>`__)
 
-
 .. _v1.0.0b1 Added:
 
 Added
@@ -712,7 +711,6 @@ Added
     (`#71 <https://github.com/DeepSenseCA/echofilter/pull/71>`__)
 -   Add ``--variable-name`` argument to ``inference.py`` (the main command line interface).
     (`#74 <https://github.com/DeepSenseCA/echofilter/pull/74>`__)
-
 
 
 Version `0.1.2 <https://github.com/DeepSenseCA/echofilter/tree/0.1.2>`__
