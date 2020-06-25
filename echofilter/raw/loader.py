@@ -432,9 +432,9 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n"):
             )
         )
     # The file object will automatically replace \n with our chosen line ending
-    with open(fname, "w+", encoding="utf-8", newline=line_ending) as hf:
+    with open(fname, "w+", encoding="utf-8-sig", newline=line_ending) as hf:
         # Write header
-        hf.write("﻿EVBD 3 10.0.270.37090" + "\n")
+        hf.write("EVBD 3 10.0.270.37090" + "\n")
         n_row = len(depths)
         hf.write(str(n_row) + "\n")
         # Write each row
@@ -519,9 +519,9 @@ def evr_writer(
     n_regions = len(rectangles) + len(contours)
     i_region = 0
     # The file object will automatically replace \n with our chosen line ending
-    with open(fname, "w+", encoding="utf-8", newline=line_ending) as hf:
+    with open(fname, "w+", encoding="utf-8-sig", newline=line_ending) as hf:
         # Write header
-        hf.write("﻿EVRG 7 10.0.283.37689" + "\n")
+        hf.write("EVRG 7 10.0.283.37689" + "\n")
         hf.write(str(n_regions) + "\n")
 
         # Write each rectangle
