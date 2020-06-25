@@ -1476,7 +1476,7 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     success = False
     for key, url_or_id in sources.items():
         if key == "gdrive":
-            if verbose > 0:
+            if verbose >= 1:
                 print(
                     "Downloading checkpoint {} from GDrive...".format(checkpoint_name)
                 )
@@ -1487,14 +1487,14 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
                 success = True
                 continue
             except (pickle.UnpicklingError, urllib.error.URLError):
-                if verbose > 0:
+                if verbose >= 1:
                     print(
                         "\nCould not download checkpoint {} from GDrive!".format(
                             checkpoint_name
                         )
                     )
         else:
-            if verbose > 0:
+            if verbose >= 1:
                 print(
                     "Downloading checkpoint {} from {}...".format(
                         checkpoint_name, url_or_id
@@ -1505,7 +1505,7 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
                 success = True
                 continue
             except (pickle.UnpicklingError, urllib.error.URLError):
-                if verbose > 0:
+                if verbose >= 1:
                     print(
                         "\nCould not download checkpoint {} from {}".format(
                             checkpoint_name, url_or_id
@@ -1515,7 +1515,7 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     if not success:
         raise OSError("Unable to download {} from {}".format(checkpoint_name, sources))
 
-    if verbose > 0:
+    if verbose >= 1:
         print("Downloaded checkpoint to {}".format(destination))
 
     return destination
