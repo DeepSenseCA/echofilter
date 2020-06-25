@@ -1120,6 +1120,8 @@ def inference_transect(
             " upward facing".format(facing)
         )
         is_upward_facing = False
+    elif facing == "auto" and verbose >= 2:
+        print("Data was autodetected as downward facing.")
 
     # To reduce memory consumption, split into segments whenever the recording
     # interval is longer than normal
