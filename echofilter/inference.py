@@ -111,8 +111,8 @@ def run_inference(
     row_len_selector="mode",
     facing="auto",
     use_training_standardization=False,
-    crop_depth_min=None,
-    crop_depth_max=None,
+    crop_min_depth=None,
+    crop_max_depth=None,
     autocrop_threshold=0.35,
     image_height=None,
     checkpoint=None,
@@ -341,10 +341,10 @@ def run_inference(
         used during training. If `False` (default), the center and deviation
         are determined per sample, using the same method methodology as used
         to determine the center and deviation values for training.
-    crop_depth_min : float or None, optional
+    crop_min_depth : float or None, optional
         Minimum depth to include in input. If `None` (default), there is no
         minimum depth.
-    crop_depth_max : float or None, optional
+    crop_max_depth : float or None, optional
         Maxmimum depth to include in input. If `None` (default), there is no
         maximum depth.
     autocrop_threshold : float, optional
@@ -785,8 +785,8 @@ def run_inference(
                 device,
                 image_height,
                 facing=facing,
-                crop_depth_min=crop_depth_min,
-                crop_depth_max=crop_depth_max,
+                crop_min_depth=crop_min_depth,
+                crop_max_depth=crop_max_depth,
                 autocrop_threshold=autocrop_threshold,
                 force_unconditioned=force_unconditioned,
                 data_center=center_param,
@@ -1002,8 +1002,8 @@ def inference_transect(
     device,
     image_height,
     facing="auto",
-    crop_depth_min=None,
-    crop_depth_max=None,
+    crop_min_depth=None,
+    crop_max_depth=None,
     autocrop_threshold=0.35,
     force_unconditioned=False,
     data_center="mean",
@@ -1034,10 +1034,10 @@ def inference_transect(
         in which case the orientation is determined from the ordering of the
         depth values in the data (increasing = `"upward"`,
         decreasing = `"downward"`).
-    crop_depth_min : float or None, optional
+    crop_min_depth : float or None, optional
         Minimum depth to include in input. If `None` (default), there is no
         minimum depth.
-    crop_depth_max : float or None, optional
+    crop_max_depth : float or None, optional
         Maxmimum depth to include in input. If `None` (default), there is no
         maximum depth.
     autocrop_threshold : float, optional
@@ -1081,14 +1081,14 @@ def inference_transect(
         "depths": depths,
         "signals": signals,
     }
-    if crop_depth_min is not None:
+    if crop_min_depth is not None:
         # Apply minimum depth crop
-        depth_crop_mask = transect["depths"] >= crop_depth_min
+        depth_crop_mask = transect["depths"] >= crop_min_depth
         transect["depths"] = transect["depths"][depth_crop_mask]
         transect["signals"] = transect["signals"][:, depth_crop_mask]
-    if crop_depth_max is not None:
+    if crop_max_depth is not None:
         # Apply maximum depth crop
-        depth_crop_mask = transect["depths"] <= crop_depth_max
+        depth_crop_mask = transect["depths"] <= crop_max_depth
         transect["depths"] = transect["depths"][depth_crop_mask]
         transect["signals"] = transect["signals"][:, depth_crop_mask]
 
@@ -1210,10 +1210,10 @@ def inference_transect(
         # surrounding content.
         new_crop_max += max(2, 10 * depth_intv)
 
-    if crop_depth_min is not None:
-        new_crop_min = max(new_crop_min, crop_depth_min)
-    if crop_depth_max is not None:
-        new_crop_max = min(new_crop_max, crop_depth_max)
+    if crop_min_depth is not None:
+        new_crop_min = max(new_crop_min, crop_min_depth)
+    if crop_max_depth is not None:
+        new_crop_max = min(new_crop_max, crop_max_depth)
 
     current_height = abs(transect["depths"][-1] - transect["depths"][0])
     new_height = abs(new_crop_max - new_crop_min)
@@ -1236,8 +1236,8 @@ def inference_transect(
         device,
         image_height,
         facing=facing,
-        crop_depth_min=new_crop_min,
-        crop_depth_max=new_crop_max,
+        crop_min_depth=new_crop_min,
+        crop_max_depth=new_crop_max,
         autocrop_threshold=1,  # Don't crop again
         force_unconditioned=force_unconditioned,
         data_center=data_center,
@@ -2195,7 +2195,7 @@ def main():
         """,
     )
     group_inproc.add_argument(
-        "--crop-depth-min",
+        "--crop-min-depth",
         type=float,
         default=None,
         help="""
@@ -2205,7 +2205,7 @@ def main():
         """,
     )
     group_inproc.add_argument(
-        "--crop-depth-max",
+        "--crop-max-depth",
         type=float,
         default=None,
         help="""
