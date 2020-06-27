@@ -1059,8 +1059,13 @@ def run_inference(
         if skip_total > 0:
             s = ""
             s += colorama.Fore.YELLOW
-            s += "Of these, {} file{} skipped: {} already processed".format(
-                skip_total, " was" if skip_total == 1 else "s were", skip_count
+            s += "Of these, {}{}{} file{} skipped{}: {} already processed".format(
+                "all " if skip_total == len(files) else "",
+                colorama.Style.BRIGHT,
+                skip_total,
+                " was" if skip_total == 1 else "s were",
+                colorama.Style.NORMAL,
+                skip_count,
             )
             if not dry_run:
                 s += ", {} incompatible".format(incompatible_count)
