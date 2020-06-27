@@ -1310,7 +1310,7 @@ def inference_transect(
 
     if verbose >= 1:
         print(
-            "Automatically zooming in on the {:.2f}m to {:.2f}m depth range"
+            "  Automatically zooming in on the {:.2f}m to {:.2f}m depth range"
             " and re-doing model inference.".format(new_crop_min, new_crop_max)
         )
 
