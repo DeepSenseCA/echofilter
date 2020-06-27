@@ -390,11 +390,13 @@ def run_inference(
 
     if verbose >= 1:
         print(
-            progress_color
-            + "Starting inference routine. {}".format(
-                datetime.datetime.now().strftime("%A, %B %d, %Y at %H:%M:%S")
+            "{}Starting inference {}.{} {}{}".format(
+                progress_color + colorama.Style.BRIGHT,
+                "dry-run" if dry_run else "routine",
+                colorama.Style.NORMAL,
+                datetime.datetime.now().strftime("%A, %B %d, %Y at %H:%M:%S"),
+                colorama.Style.RESET_ALL,
             )
-            + colorama.Fore.RESET
         )
 
     if device is None:
@@ -566,7 +568,15 @@ def run_inference(
         )
     )
     if verbose >= 1:
-        print("Processing {} file{}".format(len(files), "" if len(files) == 1 else "s"))
+        print(
+            "{}Processing {}{} file{}{}".format(
+                progress_color,
+                colorama.Style.BRIGHT,
+                len(files),
+                "" if len(files) == 1 else "s",
+                colorama.Style.RESET_ALL,
+            )
+        )
 
     if len(extensions) == 1 and "ev" in extensions:
         do_open = True
@@ -616,7 +626,10 @@ def run_inference(
         for fname in maybe_tqdm(files):
             if verbose >= 2:
                 print(
-                    progress_color + "Processing {}".format(fname) + colorama.Fore.RESET
+                    progress_color
+                    + "Processing {}{}{}".format(
+                        colorama.Style.BRIGHT, fname, colorama.Style.RESET_ALL,
+                    )
                 )
 
             # Check what the full path should be
@@ -997,10 +1010,12 @@ def run_inference(
     if verbose >= 1:
         print(
             progress_color
-            + "Finished {}processing {} file{}.".format(
+            + "Finished {}processing {}{} file{}{}.".format(
                 "simulating " if dry_run else "",
+                colorama.Style.BRIGHT,
                 len(files),
                 "" if len(files) == 1 else "s",
+                colorama.Style.NORMAL,
             )
             + colorama.Fore.RESET
         )
