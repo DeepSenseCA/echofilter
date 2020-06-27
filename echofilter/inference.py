@@ -2074,6 +2074,8 @@ def main():
     group_outconfig.add_argument(
         "--nearfield-cutoff",
         type=float,
+        nargs="?",
+        const=None,
         default=1.7,
         help="""
             Nearest approach distance for line adjacent to echosounder, in
@@ -2081,7 +2083,9 @@ def main():
             minimum depth for the top line. If the echosounder is upfacing,
             the maximum depth for the bottom line will be NEARFIELD_CUTOFF
             above the deepest depth in the input data, plus one inter-depth
-            interval. Default: %(default)s.
+            interval. If the --nearfield-cutoff argument is given without
+            a value, no nearfield cut off will be applied.
+            Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
