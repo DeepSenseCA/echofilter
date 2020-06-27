@@ -1657,7 +1657,11 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     return destination
 
 
-def main():
+def cli():
+    """
+    Run `run_inference` with arguments taken from the command line using
+    argparse.
+    """
     import argparse
 
     class ListCheckpoints(argparse.Action):
@@ -2544,6 +2548,31 @@ def main():
         kwargs["hide_echoview"] = "never" if kwargs["minimize_echoview"] else "new"
 
     run_inference(**kwargs)
+
+
+def main():
+    """
+    Run `cli`, with encapsulation for error messages.
+    """
+    try:
+        cli()
+    except KeyboardInterrupt as err:
+        # Don't show stack traceback when KeyboardInterrupt is given.
+        print(
+            "{}Interrupted by user while processing: {}{}".format(
+                colorama.Fore.CYAN,
+                colorama.Style.BRIGHT + " ".join(sys.argv) + colorama.Style.NORMAL,
+                colorama.Style.RESET_ALL,
+            )
+        )
+        try:
+            sys.exit(1)
+        except SystemExit:
+            os._exit(1)
+    except:
+        # Ensure all other errors are shown in red.
+        with echofilter.utils.error_styling():
+            raise
 
 
 if __name__ == "__main__":
