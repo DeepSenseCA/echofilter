@@ -620,7 +620,7 @@ def run_inference(
     if len(files) == 1 or verbose <= 0:
         maybe_tqdm = lambda x: x
     else:
-        maybe_tqdm = lambda x: tqdm(x, desc="Files")
+        maybe_tqdm = lambda x: tqdm(x, desc="Files", ascii=True)
 
     skip_count = 0
     incompatible_count = 0
@@ -1217,7 +1217,7 @@ def inference_transect(
     # interval is longer than normal
     segments = split_transect(**transect)
     if verbose >= 1:
-        maybe_tqdm = lambda x: tqdm(list(x), desc="  Segments", position=0)
+        maybe_tqdm = lambda x: tqdm(list(x), desc="  Segments", position=0, ascii=True)
     else:
         maybe_tqdm = lambda x: x
     outputs = []
