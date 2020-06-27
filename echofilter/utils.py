@@ -3,6 +3,8 @@ General utility functions.
 """
 
 import argparse
+import colorama
+import contextlib
 
 import numpy as np
 
@@ -140,3 +142,50 @@ class FlexibleHelpFormatter(argparse.HelpFormatter):
         if text[0] == "d":
             return DedentTextHelpFormatter._fill_text(self, text[2:], *args, **kwargs)
         raise ValueError("Invalid format code: {}".format(text[0]))
+
+
+class error_styling(contextlib.AbstractContextManager):
+    """
+    Wrap an error message in ANSI codes to stylise its appearance in the
+    terminal as red and bold (bright). If the context is exited with an error,
+    that error message will be red.
+
+    Parameters
+    ----------
+    message : str
+        Text of the error message to stylise.
+
+    Returns
+    -------
+    str
+        Stylised message.
+    """
+
+    def __init__(self, message=""):
+        # Make the error message be bold and red
+        if message:
+            # Bold for the message, then return to normal font weight
+            message = colorama.Style.BRIGHT + message + colorama.Style.NORMAL
+            # Make the error message, and everything which comes after it, be
+            # red. We don't reset the colour in case we are inside a larger
+            # error message, which should also be red.
+            message = colorama.Fore.RED + message
+        self.message = message
+
+    def __enter__(self):
+        # Change all text sent to the terminal to be red, until we leave this
+        # context
+        print(colorama.Fore.RED, end="")
+        return self.message
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is None:
+            # If we leave the context normally, reset the text color and
+            # introduce a new line.
+            # Now all changes we have made when we entered the context have
+            # been reset.
+            print(colorama.Fore.RESET)
+        else:
+            # If we leave the context with an error, ensure the error message
+            # is definitely red.
+            print(colorama.Fore.RED, end="")
