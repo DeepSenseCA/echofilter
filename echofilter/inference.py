@@ -921,14 +921,14 @@ def run_inference(
             destination_dir = os.path.dirname(destination)
             if destination_dir != "":
                 os.makedirs(destination_dir, exist_ok=True)
-            for name, depths in (
+            for line_name, line_depths in (
                 ("top", top_depths),
                 ("bottom", bottom_depths),
                 ("surface", surface_depths),
             ):
-                if name not in dest_files:
+                if line_name not in dest_files:
                     continue
-                dest_file = dest_files[name]
+                dest_file = dest_files[line_name]
                 if verbose >= 3:
                     print("  Writing output {}".format(dest_file))
                 if os.path.exists(dest_file) and not overwrite_existing:
@@ -939,7 +939,7 @@ def run_inference(
                         " outputs.".format(dest_file)
                     )
                 echofilter.raw.loader.evl_writer(
-                    dest_file, line_timestamps, depths, status=line_status
+                    dest_file, line_timestamps, line_depths, status=line_status
                 )
             # Export evr file
             dest_file = dest_files["regions"]
