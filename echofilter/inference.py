@@ -38,6 +38,8 @@ import echofilter.utils
 import echofilter.win
 
 
+colorama.init()
+
 CHECKPOINT_RESOURCES = OrderedDict(
     [
         (
@@ -1590,8 +1592,6 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
 
 def main():
     import argparse
-
-    colorama.init()
 
     class ListCheckpoints(argparse.Action):
         def __call__(self, parser, namespace, values, option_string):
