@@ -576,11 +576,12 @@ def run_inference(
     )
     if verbose >= 1:
         print(
-            "{}Processing {}{} file{}{}".format(
+            "{}Processing {}{} file{}{}...{}".format(
                 progress_color,
                 colorama.Style.BRIGHT,
                 len(files),
                 "" if len(files) == 1 else "s",
+                colorama.Style.NORMAL,
                 colorama.Style.RESET_ALL,
             )
         )
