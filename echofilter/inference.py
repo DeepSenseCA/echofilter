@@ -1786,6 +1786,7 @@ def cli():
     )
     group_infile.add_argument(
         "--recursive-dir-search",
+        "-r",
         dest="recursive_dir_search",
         action="store_true",
         default=True,
@@ -1798,6 +1799,7 @@ def cli():
     )
     group_infile.add_argument(
         "--no-recursive-dir-search",
+        "-R",
         dest="recursive_dir_search",
         action="store_false",
         help="""
@@ -1832,6 +1834,7 @@ def cli():
     group_infile.add_argument(
         "--skip-existing",
         "--skip",
+        "-s",
         dest="skip_existing",
         action="store_true",
         help="""
