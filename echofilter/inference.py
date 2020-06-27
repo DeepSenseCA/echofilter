@@ -854,13 +854,18 @@ def run_inference(
                     cs = "|downfacing"
                 if verbose >= 4:
                     print(
-                        "  Using conditional probability outputs from model:"
-                        " p(state{})".format(cs)
+                        colorama.Style.DIM
+                        + "  Using conditional probability outputs from model:"
+                        " p(state{})".format(cs) + colorama.Style.NORMAL
                     )
             else:
                 cs = ""
                 if is_conditional_model and verbose >= 4:
-                    print("Using unconditioned output from conditional model")
+                    print(
+                        colorama.Style.DIM
+                        + "Using unconditioned output from conditional model"
+                        + colorama.Style.NORMAL
+                    )
 
             # Convert output into lines
             surface_depths = output["depths"][
@@ -1179,8 +1184,9 @@ def inference_transect(
         transect["signals"] = transect["signals"][:, ::-1].copy()
         if facing == "auto" and verbose >= 2:
             print(
-                "  Data was autodetected as upward facing, and was flipped"
-                " vertically before being input into the model."
+                colorama.Style.DIM
+                + "  Data was autodetected as upward facing, and was flipped"
+                " vertically before being input into the model." + colorama.Style.NORMAL
             )
         if not is_upward_facing:
             print(
@@ -1201,7 +1207,11 @@ def inference_transect(
         )
         is_upward_facing = False
     elif facing == "auto" and verbose >= 2:
-        print("  Data was autodetected as downward facing.")
+        print(
+            colorama.Style.DIM
+            + "  Data was autodetected as downward facing."
+            + colorama.Style.NORMAL
+        )
 
     # To reduce memory consumption, split into segments whenever the recording
     # interval is longer than normal
