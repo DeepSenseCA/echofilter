@@ -1200,7 +1200,7 @@ def inference_transect(
         if facing == "auto" and verbose >= 2:
             print(
                 colorama.Style.DIM
-                + "  Data was autodetected as upward facing, and was flipped"
+                + "  Echogram was autodetected as upward facing, and was flipped"
                 " vertically before being input into the model." + colorama.Style.NORMAL
             )
         if not is_upward_facing:
@@ -1224,7 +1224,7 @@ def inference_transect(
     elif facing == "auto" and verbose >= 2:
         print(
             colorama.Style.DIM
-            + "  Data was autodetected as downward facing."
+            + "  Echogram was autodetected as downward facing."
             + colorama.Style.NORMAL
         )
 
