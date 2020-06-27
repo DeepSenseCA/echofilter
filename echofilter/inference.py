@@ -388,6 +388,12 @@ def run_inference(
 
     progress_color = colorama.Fore.BLUE if dry_run else colorama.Fore.GREEN
 
+    existing_file_msg = (
+        "Run with overwrite_existing=True (with the command line"
+        " interface, use the --force flag) to overwrite existing"
+        " outputs."
+    )
+
     if verbose >= 1:
         print(
             "{}Starting inference {}.{} {}{}".format(
@@ -444,15 +450,17 @@ def run_inference(
     elif ckpt_name in CHECKPOINT_RESOURCES:
         ckpt_path = download_checkpoint(ckpt_name, cache_dir=cache_dir)
     else:
-        raise ValueError(
-            "The checkpoint parameter should either be a path to a file or "
-            "one of \n{},\nbut {} was provided.".format(
-                list(CHECKPOINT_RESOURCES.keys()), ckpt_name
-            )
+        msg = "The checkpoint parameter should either be a path to a file or "
+        "one of \n{},\nbut {} was provided.".format(
+            list(CHECKPOINT_RESOURCES.keys()), ckpt_name
         )
+        with echofilter.utils.error_styling(msg) as msg:
+            raise ValueError(msg)
 
     if not os.path.isfile(ckpt_path):
-        raise EnvironmentError("No checkpoint found at '{}'".format(ckpt_path))
+        msg = "No checkpoint found at '{}'".format(ckpt_path)
+        with echofilter.utils.error_styling(msg) as msg:
+            raise EnvironmentError(msg)
     if verbose >= 1:
         print("Loading model from checkpoint:\n  '{}'".format(ckpt_path))
 
@@ -466,14 +474,12 @@ def run_inference(
         if ckpt_name not in CHECKPOINT_RESOURCES or ckpt_name == ckpt_path:
             # Direct path to checkpoint was given, so we shouldn't delete
             # the user's file
-            print(
-                colorama.Fore.RED
-                + "Error: Unable to load checkpoint {}".format(
-                    os.path.abspath(ckpt_path)
-                )
-                + colorama.Fore.RESET
+            msg = "Error: Unable to load checkpoint {}".format(
+                os.path.abspath(ckpt_path)
             )
-            raise
+            with echofilter.utils.error_styling(msg) as msg:
+                print(msg)
+                raise
         # Delete the checkpoint and try again, in case it is just a
         # malformed download (interrupted download, etc)
         os.remove(ckpt_path)
@@ -549,12 +555,13 @@ def run_inference(
                     )
                 )
         except RuntimeError:
-            print(
-                colorama.Fore.RED
-                + "Could not load the checkpoint state as either the whole model"
-                "or the unet component." + colorama.Fore.RESET
+            msg = (
+                "Could not load the checkpoint state as either the whole model"
+                "or the unet component."
             )
-            raise err
+            with echofilter.utils.error_styling(msg) as msg:
+                print(msg)
+                raise err
 
     # Ensure model is on correct device
     model.to(device)
@@ -677,17 +684,13 @@ def run_inference(
                 continue
             # Check whether we would clobber a file we can't overwrite
             if any_exists and not overwrite_existing:
-                msg = (
-                    "Output for {} already exists.\n"
-                    " Run with overwrite_existing=True (with the command line"
-                    " interface, use the --force flag) to overwrite existing"
-                    " outputs."
-                ).format(fname)
-                if dry_run:
-                    error_msgs.append("Error: " + msg)
-                    print(colorama.Fore.RED + error_msgs[-1] + colorama.Fore.RESET)
-                    continue
-                raise EnvironmentError(msg)
+                msg = "Output for {} already exists.".format(fname)
+                with echofilter.utils.error_styling(msg) as msg:
+                    if dry_run:
+                        error_msgs.append("Error: " + msg + "\n  " + existing_file_msg)
+                        print(error_msgs[-1])
+                        continue
+                    raise EnvironmentError(msg + "\n  " + existing_file_msg)
 
             # Determine whether we need to run ev2csv on this file
             ext = os.path.splitext(fname)[1]
@@ -702,11 +705,12 @@ def run_inference(
             elif len(extensions) == 1 and "ev" in extensions:
                 process_as_ev = True
             else:
-                error_str = "Unsure how to process file {} with unrecognised extension {}".format(
+                msg = "Unsure how to process file {} with unrecognised extension {}".format(
                     fname, ext
                 )
                 if not skip_incompatible:
-                    raise EnvironmentError(error_str)
+                    with echofilter.utils.error_styling(msg) as msg:
+                        raise EnvironmentError(msg)
                 if verbose >= 2:
                     print(
                         colorama.Fore.YELLOW
@@ -814,12 +818,10 @@ def run_inference(
                             )
                         incompatible_count += 1
                         continue
-                    print(
-                        colorama.Fore.RED
-                        + "CSV file {} could not be loaded.".format(fname)
-                        + colorama.Fore.RESET
-                    )
-                    raise
+                    msg = "CSV file {} could not be loaded.".format(fname)
+                    with echofilter.utils.error_styling(msg) as msg:
+                        print(msg)
+                        raise
 
             output = inference_transect(
                 model,
@@ -895,11 +897,12 @@ def run_inference(
                 elif lines_during_passive == "interpolate-index":
                     x = np.arange(len(line_timestamps))
                 else:
-                    raise ValueError(
-                        "Unsupported passive line interpolation method: {}".format(
-                            lines_during_passive
-                        )
+                    msg = "Unsupported passive line interpolation method: {}".format(
+                        lines_during_passive
                     )
+                    with echofilter.utils.error_styling(msg) as msg:
+                        raise ValueError(msg)
+
                 if len(x[~is_passive]) == 0:
                     if verbose >= 0:
                         s = (
@@ -920,9 +923,10 @@ def run_inference(
                         x[is_passive], x[~is_passive], bottom_depths[~is_passive]
                     )
             else:
-                raise ValueError(
-                    "Unsupported passive line method: {}".format(lines_during_passive)
-                )
+                msg = "Unsupported passive line method: {}".format(lines_during_passive)
+                with echofilter.utils.error_styling(msg) as msg:
+                    raise ValueError(msg)
+
             if nearfield_cutoff is None:
                 pass
             elif output["is_upward_facing"]:
@@ -945,28 +949,37 @@ def run_inference(
                     continue
                 dest_file = dest_files[name]
                 if verbose >= 3:
-                    print("  Writing output {}".format(dest_file))
+                    s = "  Writing output {}".format(dest_file)
+                    if not os.path.exists(dest_file):
+                        pass
+                    elif not overwrite_existing:
+                        s = colorama.Fore.RED + s + colorama.Fore.RESET
+                    else:
+                        s = colorama.Fore.CYAN + s + colorama.Fore.RESET
+                    print(s)
                 if os.path.exists(dest_file) and not overwrite_existing:
-                    raise EnvironmentError(
-                        "Output {} already exists.\n"
-                        " Run with overwrite_existing=True (with the command line"
-                        " interface, use the --force flag) to overwrite existing"
-                        " outputs.".format(dest_file)
-                    )
+                    msg = "Output {} already exists.".format(dest_file)
+                    with echofilter.utils.error_styling(msg) as msg:
+                        raise EnvironmentError(msg + "\n  " + existing_file_msg)
+
                 echofilter.raw.loader.evl_writer(
                     dest_file, line_timestamps, depths, status=line_status
                 )
             # Export evr file
             dest_file = dest_files["regions"]
             if verbose >= 3:
-                print("  Writing output {}".format(dest_file))
+                s = "  Writing output {}".format(dest_file)
+                if not os.path.exists(dest_file):
+                    pass
+                elif not overwrite_existing:
+                    s = colorama.Fore.RED + s + colorama.Fore.RESET
+                else:
+                    s = colorama.Fore.CYAN + s + colorama.Fore.RESET
+                print(s)
             if os.path.exists(dest_file) and not overwrite_existing:
-                raise EnvironmentError(
-                    "Output {} already exists.\n"
-                    " Run with overwrite_existing=True (with the command line"
-                    " interface, use the --force flag) to overwrite existing"
-                    " outputs.".format(dest_file)
-                )
+                msg = "Output {} already exists.".format(dest_file)
+                with echofilter.utils.error_styling(msg) as msg:
+                    raise EnvironmentError(msg + "\n  " + existing_file_msg)
 
             patches_key = "p_is_patch"
             if patch_mode is None:
@@ -1174,7 +1187,9 @@ def inference_transect(
             )
         is_upward_facing = True
     elif facing[:4] != "down" and facing != "auto":
-        raise ValueError('facing should be one of "downward", "upward", and "auto"')
+        msg = 'facing should be one of "downward", "upward", and "auto"'
+        with echofilter.utils.error_styling(msg) as msg:
+            raise ValueError(msg)
     elif facing[:4] == "down" and is_upward_facing:
         print(
             colorama.Fore.MAGENTA
@@ -1597,7 +1612,9 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
                     )
 
     if not success:
-        raise OSError("Unable to download {} from {}".format(checkpoint_name, sources))
+        msg = "Unable to download {} from {}".format(checkpoint_name, sources)
+        with echofilter.utils.error_styling(msg) as msg:
+            raise OSError(msg)
 
     if verbose >= 1:
         print("Downloaded checkpoint to {}".format(destination))
