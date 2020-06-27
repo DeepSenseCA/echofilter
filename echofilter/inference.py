@@ -2564,6 +2564,10 @@ def main():
             sys.exit(1)
         except SystemExit:
             os._exit(1)
+    except:
+        # Ensure all other errors are shown in red.
+        with echofilter.utils.error_styling():
+            raise
 
 
 if __name__ == "__main__":
