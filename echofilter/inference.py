@@ -386,7 +386,7 @@ def run_inference(
 
     t_start_prog = time.time()
 
-    progress_color = colorama.Fore.BLUE if dry_run else colorama.Fore.GREEN
+    progress_color = colorama.Fore.MAGENTA if dry_run else colorama.Fore.GREEN
 
     existing_file_msg = (
         "Run with overwrite_existing=True (with the command line"
@@ -542,7 +542,7 @@ def run_inference(
     except RuntimeError as err:
         if verbose >= 5:
             print(
-                colorama.Fore.MAGENTA
+                colorama.Fore.CYAN
                 + "Warning: Checkpoint doesn't seem to be for the UNet."
                 "Trying to load it as the whole model instead." + colorama.Fore.RESET
             )
@@ -784,9 +784,11 @@ def run_inference(
                     for key, fname in dest_files.items():
                         if os.path.isfile(fname) and overwrite_existing:
                             over_txt = (
-                                colorama.Fore.CYAN
-                                + " (overwriting existing file)"
-                                + colorama.Fore.RESET
+                                " "
+                                + colorama.Fore.BLUE
+                                + colorama.Style.BRIGHT
+                                + "(overwriting existing file)"
+                                + colorama.Style.RESET_ALL
                             )
                         else:
                             over_txt = ""
@@ -958,13 +960,19 @@ def run_inference(
                     continue
                 dest_file = dest_files[name]
                 if verbose >= 3:
-                    s = "  Writing output {}".format(dest_file)
+                    s = "  Writing output"
                     if not os.path.exists(dest_file):
                         pass
                     elif not overwrite_existing:
                         s = colorama.Fore.RED + s + colorama.Fore.RESET
                     else:
-                        s = colorama.Fore.CYAN + s + colorama.Fore.RESET
+                        s = (
+                            colorama.Fore.BLUE
+                            + colorama.Style.BRIGHT
+                            + s
+                            + colorama.Style.RESET_ALL
+                        )
+                    s += " {}".format(dest_file)
                     print(s)
                 if os.path.exists(dest_file) and not overwrite_existing:
                     msg = "Output {} already exists.".format(dest_file)
@@ -977,13 +985,19 @@ def run_inference(
             # Export evr file
             dest_file = dest_files["regions"]
             if verbose >= 3:
-                s = "  Writing output {}".format(dest_file)
+                s = "  Writing output"
                 if not os.path.exists(dest_file):
                     pass
                 elif not overwrite_existing:
                     s = colorama.Fore.RED + s + colorama.Fore.RESET
                 else:
-                    s = colorama.Fore.CYAN + s + colorama.Fore.RESET
+                    s = (
+                        colorama.Fore.BLUE
+                        + colorama.Style.BRIGHT
+                        + s
+                        + colorama.Style.RESET_ALL
+                    )
+                s += " {}".format(dest_file)
                 print(s)
             if os.path.exists(dest_file) and not overwrite_existing:
                 msg = "Output {} already exists.".format(dest_file)
@@ -1039,7 +1053,7 @@ def run_inference(
                 "" if len(files) == 1 else "s",
                 colorama.Style.NORMAL,
             )
-            + colorama.Fore.RESET
+            + colorama.Style.RESET_ALL
         )
         skip_total = skip_count + incompatible_count
         if skip_total > 0:
@@ -1191,7 +1205,7 @@ def inference_transect(
             )
         if not is_upward_facing:
             print(
-                colorama.Fore.MAGENTA
+                colorama.Fore.CYAN
                 + 'Warning: facing = "{}" was provided, but data appears to be'
                 " downward facing".format(facing) + colorama.Fore.RESET
             )
@@ -1202,7 +1216,7 @@ def inference_transect(
             raise ValueError(msg)
     elif facing[:4] == "down" and is_upward_facing:
         print(
-            colorama.Fore.MAGENTA
+            colorama.Fore.CYAN
             + 'Warning: facing = "{}" was provided, but data appears to be'
             " upward facing".format(facing) + colorama.Fore.RESET
         )
@@ -1385,7 +1399,7 @@ def import_lines_regions_to_ev(
             fname_full = os.path.abspath(fname)
             if not os.path.isfile(fname_full):
                 print(
-                    colorama.Fore.MAGENTA
+                    colorama.Fore.CYAN
                     + "Warning: File '{}' could not be found".format(fname_full)
                     + colorama.Fore.RESET
                 )
@@ -1393,7 +1407,7 @@ def import_lines_regions_to_ev(
             is_imported = ev_file.Import(fname_full)
             if not is_imported:
                 print(
-                    colorama.Fore.MAGENTA + "Warning: Unable to import file '{}'"
+                    colorama.Fore.CYAN + "Warning: Unable to import file '{}'"
                     "Please consult EchoView for the Import error message.".format(
                         fname
                     )
@@ -1412,7 +1426,7 @@ def import_lines_regions_to_ev(
             line = lines.FindByName(variable.Name)
             if not line:
                 print(
-                    colorama.Fore.MAGENTA
+                    colorama.Fore.CYAN
                     + "Warning: Could not find line which was just imported with"
                     " name '{}'".format(variable.Name) + colorama.Fore.RESET
                 )
@@ -1431,9 +1445,10 @@ def import_lines_regions_to_ev(
                 # Overwrite the old line
                 if verbose >= 2:
                     print(
-                        colorama.Fore.CYAN
+                        colorama.Fore.BLUE
+                        + colorama.Style.BRIGHT
                         + "Overwriting existing line '{}' with new {} line"
-                        " output".format(target_name, key) + colorama.Fore.RESET
+                        " output".format(target_name, key) + colorama.Style.RESET_ALL
                     )
                 old_line_edit = old_line.AsLineEditable
                 if old_line_edit:
@@ -1447,7 +1462,7 @@ def import_lines_regions_to_ev(
                 elif verbose >= 0:
                     # Line is not editable
                     print(
-                        colorama.Fore.MAGENTA
+                        colorama.Fore.CYAN
                         + "Existing line '{}' is not editable and cannot be"
                         " overwritten.".format(target_name, key) + colorama.Fore.RESET
                     )
