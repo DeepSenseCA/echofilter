@@ -495,7 +495,7 @@ class EchofilterLoss(_Loss):
                     continue
                 elif "logit_is_boundary_bottom" + sfx in input:
                     # Load cross-entropy class target
-                    C = target["index_bot" + sfx].to(
+                    C = target["index_bottom" + sfx].to(
                         device=input["logit_is_boundary_bottom" + sfx + cs].device,
                         dtype=torch.long,
                     )
@@ -524,7 +524,7 @@ class EchofilterLoss(_Loss):
                     )
                     loss_term = F.binary_cross_entropy_with_logits(
                         input["logit_is_below_bottom" + sfx + cs],
-                        target["mask_bot" + sfx].to(
+                        target["mask_bottom" + sfx].to(
                             input["logit_is_below_bottom" + sfx + cs].device,
                             input["logit_is_below_bottom" + sfx + cs].dtype,
                         ),
@@ -550,7 +550,7 @@ class EchofilterLoss(_Loss):
                         )
                     )
                 if torch.isnan(loss_term).any():
-                    print("Loss term mask_bot{} is NaN".format(sfx))
+                    print("Loss term mask_bottom{} is NaN".format(sfx))
                 else:
                     closs += weight * loss_term
 

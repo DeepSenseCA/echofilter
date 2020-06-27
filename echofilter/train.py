@@ -1065,7 +1065,7 @@ def train_epoch(
                     target_k = 1 - metadata["mask_surface"]
                 elif chn.startswith("bottom"):
                     output_k = output["p_is_above_bottom" + cs]
-                    target_k = 1 - metadata["mask_bot"]
+                    target_k = 1 - metadata["mask_bottom"]
                 elif chn.startswith("removedseg"):
                     output_k = output["p_is_removed" + cs]
                     target_k = metadata["is_removed"]
@@ -1273,7 +1273,7 @@ def validate(
                     target_k = 1 - metadata["mask_surface"]
                 elif chn.startswith("bottom"):
                     output_k = output["p_is_above_bottom" + cs]
-                    target_k = 1 - metadata["mask_bot"]
+                    target_k = 1 - metadata["mask_bottom"]
                 elif chn.startswith("removedseg"):
                     output_k = output["p_is_removed" + cs]
                     target_k = metadata["is_removed"]
@@ -1429,13 +1429,15 @@ def _generate_from_loaded(transect, model, *args, crop_depth=None, **kwargs):
     transect["mask_turbulence"] = np.single(
         ddepths < np.expand_dims(transect["turbulence"], -1)
     )
-    transect["mask_bot"] = np.single(ddepths > np.expand_dims(transect["bottom"], -1))
+    transect["mask_bottom"] = np.single(
+        ddepths > np.expand_dims(transect["bottom"], -1)
+    )
     # Add mask_patches to the data, for plotting
     transect["mask_patches"] = 1 - transect["mask"]
     transect["mask_patches"][transect["is_passive"] > 0.5] = 0
     transect["mask_patches"][transect["is_removed"] > 0.5] = 0
     transect["mask_patches"][transect["mask_turbulence"] > 0.5] = 0
-    transect["mask_patches"][transect["mask_bot"] > 0.5] = 0
+    transect["mask_patches"][transect["mask_bottom"] > 0.5] = 0
 
     # Generate predictions for the transect
     transect["signals"] = transect.pop("Sv")

@@ -155,10 +155,10 @@ class TransectDataset(torch.utils.data.Dataset):
             pad_mode="reflect",
         )
         sample["d_turbulence"] = sample.pop("turbulence")
-        sample["d_bot"] = sample.pop("bottom")
+        sample["d_bottom"] = sample.pop("bottom")
         sample["d_surface"] = sample.pop("surface")
         sample["d_turbulence-original"] = sample.pop("turbulence-original")
-        sample["d_bot-original"] = sample.pop("bottom-original")
+        sample["d_bottom-original"] = sample.pop("bottom-original")
         sample["signals"] = sample.pop("Sv")
         if sample["depths"][-1] < sample["depths"][0]:
             # Found some upward-facing data that needs to be reflected
@@ -177,7 +177,7 @@ class TransectDataset(torch.utils.data.Dataset):
         # by Echoview and not adjusted by human annotator, so are not
         # guaranteed to be sane). In particular, values of -10000.990000
         # indicate no surface depth given and this occurs during passive data.
-        if np.any(sample["d_surface"] >= sample["d_bot"]):
+        if np.any(sample["d_surface"] >= sample["d_bottom"]):
             sample["d_surface"] = np.min(sample["depths"]) * np.ones_like(
                 sample["d_surface"]
             )
@@ -198,10 +198,10 @@ class TransectDataset(torch.utils.data.Dataset):
                     - depth_intv / 5
                     - self.nearfield_distance * 1.001
                 )
-                was_in_nearfield = sample["d_bot"] >= nearfield_threshold
-                sample["d_bot"][was_in_nearfield] = max_bot_depth
-                was_in_nearfield_og = sample["d_bot-original"] >= nearfield_threshold
-                sample["d_bot-original"][was_in_nearfield_og] = max_bot_depth
+                was_in_nearfield = sample["d_bottom"] >= nearfield_threshold
+                sample["d_bottom"][was_in_nearfield] = max_bot_depth
+                was_in_nearfield_og = sample["d_bottom-original"] >= nearfield_threshold
+                sample["d_bottom-original"][was_in_nearfield_og] = max_bot_depth
                 # Extend/contract mask_patches where necessary
                 idx_search = utils.last_nonzero(sample["depths"] < nearfield_threshold)
                 idx_fillto = utils.first_nonzero(sample["depths"] > max_bot_depth)
@@ -277,24 +277,24 @@ class TransectDataset(torch.utils.data.Dataset):
         if self.remove_offset_bottom:
             # Check the mask beforehand
             _ddepths = np.broadcast_to(sample["depths"], sample["signals"].shape)
-            _in_mask = _ddepths > np.expand_dims(sample["d_bot"], -1)
-            _in_mask_og = _ddepths > np.expand_dims(sample["d_bot-original"], -1)
+            _in_mask = _ddepths > np.expand_dims(sample["d_bottom"], -1)
+            _in_mask_og = _ddepths > np.expand_dims(sample["d_bottom-original"], -1)
             # Shift lines down lower (more deep)
-            sample["d_bot"][
+            sample["d_bottom"][
                 (~was_in_nearfield) | ~sample["is_upward_facing"]
             ] += self.remove_offset_bottom
-            sample["d_bot-original"][
+            sample["d_bottom-original"][
                 (~was_in_nearfield_og) | sample["is_upward_facing"]
             ] += self.remove_offset_bottom
             # Extend mask_patches where necessary
-            _fx_mask = _ddepths > np.expand_dims(sample["d_bot"], -1)
+            _fx_mask = _ddepths > np.expand_dims(sample["d_bottom"], -1)
             _df_mask = _in_mask * (_in_mask ^ _fx_mask)
             is_close_patch = np.any(
                 _df_mask[:, 1:] * sample["mask_patches"][:, :-1], -1
             )
             sample["mask_patches"][is_close_patch, :] += _df_mask[is_close_patch, :]
             # ... and extend og mask patches too
-            _fx_mask_og = _ddepths > np.expand_dims(sample["d_bot-original"], -1)
+            _fx_mask_og = _ddepths > np.expand_dims(sample["d_bottom-original"], -1)
             _df_mask = _in_mask_og * (_in_mask_og ^ _fx_mask_og)
             is_close_patch = np.any(
                 _df_mask[:, 1:] * sample["mask_patches-original"][:, :-1], -1
@@ -327,7 +327,9 @@ class TransectDataset(torch.utils.data.Dataset):
                 sample["d_turbulence" + sfx][
                     ~np.isfinite(sample["d_turbulence" + sfx])
                 ] = min_top_depth
-            sample["d_bot" + sfx][~np.isfinite(sample["d_bot" + sfx])] = max_bot_depth
+            sample["d_bottom" + sfx][
+                ~np.isfinite(sample["d_bottom" + sfx])
+            ] = max_bot_depth
 
         # Apply depth crop
         if self.crop_depth is not None:
@@ -344,18 +346,18 @@ class TransectDataset(torch.utils.data.Dataset):
             sample["mask_turbulence" + suffix] = ddepths < np.expand_dims(
                 sample["d_turbulence" + suffix], -1
             )
-            sample["mask_bot" + suffix] = ddepths > np.expand_dims(
-                sample["d_bot" + suffix], -1
+            sample["mask_bottom" + suffix] = ddepths > np.expand_dims(
+                sample["d_bottom" + suffix], -1
             )
         sample["mask_surface"] = ddepths < np.expand_dims(sample["d_surface"], -1)
 
         depth_range = abs(sample["depths"][-1] - sample["depths"][0])
         for key in [
             "d_turbulence",
-            "d_bot",
+            "d_bottom",
             "d_surface",
             "d_turbulence-original",
-            "d_bot-original",
+            "d_bottom-original",
         ]:
             sample["r" + key[1:]] = sample[key] / depth_range
 
@@ -365,7 +367,7 @@ class TransectDataset(torch.utils.data.Dataset):
         sample["mask"][sample["is_passive"] > 0.5] = 0
         sample["mask"][sample["is_removed"] > 0.5] = 0
         sample["mask"][sample["mask_turbulence"] > 0.5] = 0
-        sample["mask"][sample["mask_bot"] > 0.5] = 0
+        sample["mask"][sample["mask_bottom"] > 0.5] = 0
         sample["mask"][sample["mask_patches"] > 0.5] = 0
 
         # Determine the boundary index for depths
@@ -379,7 +381,7 @@ class TransectDataset(torch.utils.data.Dataset):
             sample["index_" + sfx] = np.maximum(
                 0, np.minimum(len(sample["depths"]) - 1, sample["index_" + sfx])
             )
-        for sfx in {"bot", "bot-original"}:
+        for sfx in {"bottom", "bottom-original"}:
             # Ties are broken to the larger index
             sample["index_" + sfx] = np.searchsorted(
                 sample["depths"], sample["d_" + sfx], side="right"

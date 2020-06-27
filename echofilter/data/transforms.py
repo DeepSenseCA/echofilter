@@ -17,9 +17,11 @@ _fields_2d = (
     "mask",
     "mask_turbulence",
     "mask_top",
+    "mask_bottom",
     "mask_bot",
     "mask_turbulence-original",
     "mask_top-original",
+    "mask_bottom-original",
     "mask_bot-original",
     "mask_surface",
     "mask_surf",
@@ -39,15 +41,19 @@ _fields_1d_timelike = (
     "surf",
     "d_turbulence",
     "d_top",
+    "d_bottom",
     "d_bot",
     "r_turbulence",
     "r_top",
+    "r_bottom",
     "r_bot",
     "d_turbulence-original",
     "d_top-original",
+    "d_bottom-original",
     "d_bot-original",
     "r_turbulence-original",
     "r_top-original",
+    "r_bottom-original",
     "r_bot-original",
     "d_surface",
     "d_surf",
@@ -573,7 +579,14 @@ def optimal_crop_depth(transect):
 
     deepest_depth = None
     if not transect["is_upward_facing"]:
-        for key in ("d_bot-original", "d_bot", "bottom-original", "bottom"):
+        for key in (
+            "d_bottom-original",
+            "d_bot-original",
+            "d_bottom",
+            "d_bot",
+            "bottom-original",
+            "bottom",
+        ):
             if key not in transect:
                 continue
             d = np.max(transect[key])
@@ -671,12 +684,12 @@ class RandomCropDepth(object):
 
         lim_top_shallowest = np.min(sample["depths"])
         lim_top_deepest = max(
-            lim_top_shallowest + depth_intv, np.min(sample["d_bot"]) - depth_intv
+            lim_top_shallowest + depth_intv, np.min(sample["d_bottom"]) - depth_intv
         )
         lim_bot_deepest = np.max(sample["depths"])
         lim_bot_shallowest = min(
             lim_bot_deepest - depth_intv,
-            max(np.max(sample["d_turbulence"]), np.min(sample["d_bot"])),
+            max(np.max(sample["d_turbulence"]), np.min(sample["d_bottom"])),
         )
 
         if sample["is_upward_facing"]:
@@ -688,7 +701,7 @@ class RandomCropDepth(object):
             opt_bot_depth = lim_bot_deepest
         else:
             opt_top_depth = lim_top_shallowest
-            opt_bot_depth = np.max(sample["d_bot-original"])
+            opt_bot_depth = np.max(sample["d_bottom-original"])
 
         depth_range = abs(opt_bot_depth - opt_top_depth)
         close_dist_grow = self.fraction_close * depth_range
@@ -712,7 +725,7 @@ class RandomCropDepth(object):
             close_bot_shallowest = max(
                 lim_bot_shallowest,
                 opt_bot_depth - close_dist_shrink,
-                np.percentile(sample["d_bot-original"], 50),
+                np.percentile(sample["d_bottom-original"], 50),
             )
         close_bot_shallowest = min(lim_bot_deepest, close_bot_shallowest)
         close_bot_deepest = min(
@@ -754,7 +767,7 @@ class RandomCropDepth(object):
             rand_bot_shallowest = close_bot_shallowest
         else:
             rand_bot_shallowest = max(
-                lim_bot_shallowest, np.percentile(sample["d_bot-original"], 50),
+                lim_bot_shallowest, np.percentile(sample["d_bottom-original"], 50),
             )
         rand_bot_shallowest = min(lim_bot_deepest, rand_bot_shallowest)
         rand_bot_deepest = lim_bot_deepest

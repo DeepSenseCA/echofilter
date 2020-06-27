@@ -875,11 +875,11 @@ def load_transect_data(transect_pth, dataset="mobile", root_data_dir=ROOT_DATA_D
     """
     dirname = os.path.join(root_data_dir, dataset)
     raw_fname = os.path.join(dirname, transect_pth + "_Sv_raw.csv")
-    bot_fname = os.path.join(dirname, transect_pth + "_bottom.evl")
+    bottom_fname = os.path.join(dirname, transect_pth + "_bottom.evl")
     turbulence_fname = os.path.join(dirname, transect_pth + "_turbulence.evl")
 
     timestamps, depths, signals = transect_loader(raw_fname)
-    t_bot, d_bot = evl_loader(bot_fname)
+    t_bottom, d_bottom = evl_loader(bottom_fname)
     t_turbulence, d_turbulence = evl_loader(turbulence_fname)
 
     return (
@@ -887,7 +887,7 @@ def load_transect_data(transect_pth, dataset="mobile", root_data_dir=ROOT_DATA_D
         depths,
         signals,
         np.interp(timestamps, t_turbulence, d_turbulence),
-        np.interp(timestamps, t_bot, d_bot),
+        np.interp(timestamps, t_bottom, d_bottom),
     )
 
 

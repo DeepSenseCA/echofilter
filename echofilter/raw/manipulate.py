@@ -168,7 +168,7 @@ def make_lines_from_mask(mask, depths=None, max_gap_squash=1.0):
         separates the `False` region of `mask` from the central region of
         `True` values. (If `depths` is monotonically increasing, this is
         for the start of the columns of `mask`, otherwise it is at the end.)
-    d_bot : numpy.ndarray
+    d_bottom : numpy.ndarray
         Depth of bottom line. As for `d_turbulence`, but for the other end of the
         array.
     """
@@ -199,9 +199,9 @@ def make_lines_from_mask(mask, depths=None, max_gap_squash=1.0):
         d_turbulence = np.nanmin(nonremoved_depths, axis=1) - depth_intv / 2
         # Bottom line is the largest non-removed depth at each timepoint,
         # offset similarly.
-        d_bot = np.nanmax(nonremoved_depths, axis=1) + depth_intv / 2
+        d_bottom = np.nanmax(nonremoved_depths, axis=1) + depth_intv / 2
 
-    return d_turbulence, d_bot
+    return d_turbulence, d_bottom
 
 
 def make_lines_from_masked_csv(fname):
@@ -220,17 +220,17 @@ def make_lines_from_masked_csv(fname):
         Sample timestamps.
     d_turbulence : numpy.ndarray
         Depth of turbulence line.
-    d_bot : numpy.ndarray
+    d_bottom : numpy.ndarray
         Depth of bottom line.
     """
     # Load the masked data
     timestamps, depths, signals_mskd = loader.transect_loader(fname)
     mask = ~np.isnan(signals_mskd)
-    d_turbulence, d_bot = make_lines_from_mask(mask, depths)
-    return timestamps, d_turbulence, d_bot
+    d_turbulence, d_bottom = make_lines_from_mask(mask, depths)
+    return timestamps, d_turbulence, d_bottom
 
 
-def write_lines_for_masked_csv(fname_mask, fname_turbulence=None, fname_bot=None):
+def write_lines_for_masked_csv(fname_mask, fname_turbulence=None, fname_bottom=None):
     """
     Write new turbulence and bottom lines based on csv containing masked echoview
     output.
@@ -245,24 +245,24 @@ def write_lines_for_masked_csv(fname_mask, fname_turbulence=None, fname_bot=None
         (default), the output name is `<fname_base>_mask-turbulence.evl`, where
         `<fname_base>` is `fname_mask` without extension and without any
         occurence of the substrings `_Sv_raw` or `_Sv` in the base file name.
-    fname_bot : str
+    fname_bottom : str
         Destination of generated bottom line, written in evl format. If `None`
         (default), the output name is `<fname_base>_mask-bottom.evl`.
     """
-    if fname_turbulence is None or fname_bot is None:
+    if fname_turbulence is None or fname_bottom is None:
         fname_base = os.path.splitext(fname_mask)[0]
         dirname, fname_base = os.path.split(fname_base)
         fname_base = fname_base.replace("_Sv_raw", "").replace("_Sv", "")
         fname_base = os.path.join(dirname, fname_base)
     if fname_turbulence is None:
         fname_turbulence = fname_base + "_mask-turbulence.evl"
-    if fname_bot is None:
-        fname_bot = fname_base + "_mask-bottom.evl"
+    if fname_bottom is None:
+        fname_bottom = fname_base + "_mask-bottom.evl"
     # Generate the new lines.
-    timestamps, d_turbulence, d_bot = make_lines_from_masked_csv(fname_mask)
+    timestamps, d_turbulence, d_bottom = make_lines_from_masked_csv(fname_mask)
     # Write the new lines to their output files.
     loader.evl_writer(fname_turbulence, timestamps, d_turbulence)
-    loader.evl_writer(fname_bot, timestamps, d_bot)
+    loader.evl_writer(fname_bottom, timestamps, d_bottom)
 
 
 def find_nonzero_region_boundaries(v):
@@ -310,8 +310,8 @@ def fixup_lines(
     mask,
     t_turbulence=None,
     d_turbulence=None,
-    t_bot=None,
-    d_bot=None,
+    t_bottom=None,
+    d_bottom=None,
 ):
     """
     Extend existing turbulence/bottom lines based on masked target Sv output.
@@ -329,16 +329,16 @@ def fixup_lines(
         Sampling times for existing turbulence line.
     d_turbulence : array_like, optional
         Depth of existing turbulence line.
-    t_bot : array_like, optional
+    t_bottom : array_like, optional
         Sampling times for existing bottom line.
-    d_bot : array_like, optional
+    d_bottom : array_like, optional
         Depth of existing bottom line.
 
     Returns
     -------
     d_turbulence_new : numpy.ndarray
         Depth of new turbulence line.
-    d_bot_new : numpy.ndarray
+    d_bottom_new : numpy.ndarray
         Depth of new bottom line.
     """
     # Handle different sampling grids
@@ -349,13 +349,13 @@ def fixup_lines(
             )
         d_turbulence = np.interp(timestamps, t_turbulence, d_turbulence)
 
-    if d_bot is not None:
-        if t_bot is None:
-            raise ValueError("t_bot must be provided if d_bot is provided")
-        d_bot = np.interp(timestamps, t_bot, d_bot)
+    if d_bottom is not None:
+        if t_bottom is None:
+            raise ValueError("t_bottom must be provided if d_bottom is provided")
+        d_bottom = np.interp(timestamps, t_bottom, d_bottom)
 
     # Generate fresh lines corresponding to said mask
-    d_turbulence_new, d_bot_new = make_lines_from_mask(mask, depths)
+    d_turbulence_new, d_bottom_new = make_lines_from_mask(mask, depths)
 
     # Ensure nans in the lines are replaced with prior values, if possible
     li = np.isnan(d_turbulence_new)
@@ -365,17 +365,19 @@ def fixup_lines(
         d_turbulence_new[li] = np.interp(
             timestamps[li], timestamps[~li], d_turbulence_new[~li],
         )
-    li = np.isnan(d_bot_new)
-    if d_bot is not None:
-        d_bot_new[li] = d_bot[li]
+    li = np.isnan(d_bottom_new)
+    if d_bottom is not None:
+        d_bottom_new[li] = d_bottom[li]
     elif np.any(~li):
-        d_bot_new[li] = np.interp(timestamps[li], timestamps[~li], d_bot_new[~li],)
+        d_bottom_new[li] = np.interp(
+            timestamps[li], timestamps[~li], d_bottom_new[~li],
+        )
 
     # Ensure that the lines cover at least as much material as they did before
     if d_turbulence is not None:
         d_turbulence_new = np.maximum(d_turbulence, d_turbulence_new)
-    if d_bot is not None:
-        d_bot_new = np.minimum(d_bot, d_bot_new)
+    if d_bottom is not None:
+        d_bottom_new = np.minimum(d_bottom, d_bottom_new)
 
     # This mask can't handle regions where all the data was removed.
     # Find those and replace them with the original lines, if they were
@@ -399,16 +401,18 @@ def fixup_lines(
 
     if not any_all_removed:
         pass
-    elif d_bot is not None:
-        d_bot_new[all_removed] = d_bot[all_removed]
+    elif d_bottom is not None:
+        d_bottom_new[all_removed] = d_bottom[all_removed]
     elif ~everything_removed:
-        d_bot_new[all_removed] = np.interp(
-            timestamps[all_removed], timestamps[~all_removed], d_bot_new[~all_removed],
+        d_bottom_new[all_removed] = np.interp(
+            timestamps[all_removed],
+            timestamps[~all_removed],
+            d_bottom_new[~all_removed],
         )
     else:
-        d_bot_new[all_removed] = np.nan
+        d_bottom_new[all_removed] = np.nan
 
-    return d_turbulence_new, d_bot_new
+    return d_turbulence_new, d_bottom_new
 
 
 def load_decomposed_transect_mask(sample_path):
@@ -473,7 +477,7 @@ def load_decomposed_transect_mask(sample_path):
 
     fname_turbulence1 = os.path.join(sample_path + "_turbulence.evl")
     fname_turbulence2 = os.path.join(sample_path + "_air.evl")
-    fname_bot = os.path.join(sample_path + "_bottom.evl")
+    fname_bottom = os.path.join(sample_path + "_bottom.evl")
     fname_surface = os.path.join(sample_path + "_surface.evl")
 
     if os.path.isfile(fname_turbulence1):
@@ -492,14 +496,14 @@ def load_decomposed_transect_mask(sample_path):
         )
     t_turbulence, d_turbulence = loader.evl_loader(fname_turbulence)
 
-    if os.path.isfile(fname_bot):
-        t_bot, d_bot = loader.evl_loader(fname_bot)
+    if os.path.isfile(fname_bottom):
+        t_bottom, d_bottom = loader.evl_loader(fname_bottom)
     elif not is_upward_facing:
         raise ValueError(
-            "Expected {} to exist when transect is downfacing.".format(fname_bot)
+            "Expected {} to exist when transect is downfacing.".format(fname_bottom)
         )
     else:
-        t_bot = d_bot = None
+        t_bottom = d_bottom = None
 
     if os.path.isfile(fname_surface):
         t_surface, d_surface = loader.evl_loader(fname_surface)
@@ -511,14 +515,14 @@ def load_decomposed_transect_mask(sample_path):
         t_surface = d_surface = None
 
     # Generate new lines from mask
-    d_turbulence_new, d_bot_new = fixup_lines(
+    d_turbulence_new, d_bottom_new = fixup_lines(
         ts_mskd,
         depths_mskd,
         mask,
         t_turbulence=t_turbulence,
         d_turbulence=d_turbulence,
-        t_bot=t_bot,
-        d_bot=d_bot,
+        t_bottom=t_bottom,
+        d_bottom=d_bottom,
     )
 
     def tidy_up_line(t, d):
@@ -539,7 +543,7 @@ def load_decomposed_transect_mask(sample_path):
     ):
         # Interpolate depth lines to timestamps used for raw data
         d_turbulence_new = tidy_up_line(ts_mskd, d_turbulence_new)
-        d_bot_new = tidy_up_line(ts_mskd, d_bot_new)
+        d_bottom_new = tidy_up_line(ts_mskd, d_bottom_new)
         # Interpolate mask
         if is_upward_facing:
             mask = scipy.interpolate.RectBivariateSpline(
@@ -566,7 +570,7 @@ def load_decomposed_transect_mask(sample_path):
         # Use lines to create a mask
         ddepths = np.broadcast_to(depths_mskd, signals_mskd.shape)
         mask[ddepths < np.expand_dims(d_turbulence_new, -1)] = 0
-        mask[ddepths > np.expand_dims(d_bot_new, -1)] = 0
+        mask[ddepths > np.expand_dims(d_bottom_new, -1)] = 0
         mask[is_passive] = 0
     allnan = np.all(~mask, axis=1)
 
@@ -582,7 +586,7 @@ def load_decomposed_transect_mask(sample_path):
         # Check how many points in the fully removed region don't have
         # overlapping turbulence and bottom lines
         n_without_overlap = np.sum(
-            d_turbulence_new[r_start : r_end + 1] < d_bot_new[r_start : r_end + 1]
+            d_turbulence_new[r_start : r_end + 1] < d_bottom_new[r_start : r_end + 1]
         )
         if n_without_overlap == 0:
             # Region is removed only by virtue of the lines crossing; we
@@ -607,11 +611,11 @@ def load_decomposed_transect_mask(sample_path):
     depth_intv = abs(depths_raw[1] - depths_raw[0])
     if d_turbulence is not None:
         d_turbulence += depth_intv / 4
-    if d_bot is not None:
-        d_bot -= depth_intv / 4
+    if d_bottom is not None:
+        d_bottom -= depth_intv / 4
 
     d_turbulence = tidy_up_line(t_turbulence, d_turbulence)
-    d_bot = tidy_up_line(t_bot, d_bot)
+    d_bottom = tidy_up_line(t_bottom, d_bottom)
     d_surface = tidy_up_line(t_surface, d_surface)
 
     # Make a mask indicating left-over patches. This is 0 everywhere,
@@ -625,11 +629,11 @@ def load_decomposed_transect_mask(sample_path):
     mask_patches_ntob = mask_patches.copy()
     ddepths = np.broadcast_to(depths_raw, signals_raw.shape)
     mask_patches[ddepths <= np.expand_dims(d_turbulence_new, -1)] = 0
-    mask_patches[ddepths >= np.expand_dims(d_bot_new, -1)] = 0
+    mask_patches[ddepths >= np.expand_dims(d_bottom_new, -1)] = 0
     mask_patches_og[ddepths <= np.expand_dims(d_turbulence, -1)] = 0
-    mask_patches_og[ddepths >= np.expand_dims(d_bot, -1)] = 0
+    mask_patches_og[ddepths >= np.expand_dims(d_bottom, -1)] = 0
     mask_patches_ntob[ddepths <= np.expand_dims(d_turbulence_new, -1)] = 0
-    mask_patches_ntob[ddepths >= np.expand_dims(d_bot, -1)] = 0
+    mask_patches_ntob[ddepths >= np.expand_dims(d_bottom, -1)] = 0
     # Remove trivial mask patches. If the pixel above and below are both empty,
     # delete a mask with a height of only one-pixel.
     mask_patches[
@@ -697,10 +701,10 @@ def load_decomposed_transect_mask(sample_path):
     transect["mask_patches-original"] = mask_patches_og
     transect["mask_patches-ntob"] = mask_patches_ntob
     transect["turbulence"] = d_turbulence_new
-    transect["bottom"] = d_bot_new
+    transect["bottom"] = d_bottom_new
     transect["surface"] = d_surface
     transect["turbulence-original"] = d_turbulence
-    transect["bottom-original"] = d_bot
+    transect["bottom-original"] = d_bottom
     transect["is_passive"] = is_passive
     transect["is_removed"] = is_removed
     transect["is_upward_facing"] = is_upward_facing

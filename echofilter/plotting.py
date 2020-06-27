@@ -161,7 +161,7 @@ def plot_transect(
     x_scale="index",
     show_regions=True,
     turbulence_color=TOP_COLOR,
-    bot_color=BOT_COLOR,
+    bottom_color=BOT_COLOR,
     passive_color=PASSIVE_COLOR,
     removed_color=None,
     linewidth=1,
@@ -188,7 +188,7 @@ def plot_transect(
         timestamps with `'\'` oriented lines. Default is `True`.
     turbulence_color : color, optional
         Color of turbulence line. Default is `'#a6cee3'`.
-    bot_color : color, optional
+    bottom_color : color, optional
         Color of bottom line. Default is `'#b2df8a'`.
     passive_color : color, optional
         Color of passive segment hatching. Default is `[.4, .4, .4]`.
@@ -229,10 +229,10 @@ def plot_transect(
             turbulence_key = k
             break
 
-    bot_key = None
-    for k in ("bottom", "d_bot", "bot"):
+    bottom_key = None
+    for k in ("bottom", "d_bottom", "bot", "d_bot"):
         if k in transect:
-            bot_key = k
+            bottom_key = k
             break
 
     if x_scale == "index":
@@ -259,8 +259,8 @@ def plot_transect(
         plt.set_cmap(cmap)
     if turbulence_key is not None:
         plt.plot(tt, transect[turbulence_key], turbulence_color, linewidth=linewidth)
-    if bot_key is not None:
-        plt.plot(tt, transect[bot_key], bot_color, linewidth=linewidth)
+    if bottom_key is not None:
+        plt.plot(tt, transect[bottom_key], bottom_color, linewidth=linewidth)
 
     if show_regions:
         plot_indicator_hatch(
@@ -326,7 +326,7 @@ def plot_transect_predictions(transect, prediction, linewidth=1, cmap=None):
         transect,
         x_scale="index",
         turbulence_color="k",
-        bot_color="k",
+        bottom_color="k",
         passive_color="k",
         removed_color="k",
         linewidth=linewidth,
