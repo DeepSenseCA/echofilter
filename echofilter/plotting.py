@@ -160,7 +160,7 @@ def plot_transect(
     signal_type=None,
     x_scale="index",
     show_regions=True,
-    top_color=TOP_COLOR,
+    turbulence_color=TOP_COLOR,
     bot_color=BOT_COLOR,
     passive_color=PASSIVE_COLOR,
     removed_color=None,
@@ -186,8 +186,8 @@ def plot_transect(
         Whether to show segments of data maked as removed or passive with
         hatching. Passive data is shown with `'/'` oriented lines, other removed
         timestamps with `'\'` oriented lines. Default is `True`.
-    top_color : color, optional
-        Color of top line. Default is `'#a6cee3'`.
+    turbulence_color : color, optional
+        Color of turbulence line. Default is `'#a6cee3'`.
     bot_color : color, optional
         Color of bottom line. Default is `'#b2df8a'`.
     passive_color : color, optional
@@ -223,10 +223,10 @@ def plot_transect(
             )
         )
 
-    top_key = None
-    for k in ("top", "d_top"):
+    turbulence_key = None
+    for k in ("turbulence", "d_turbulence", "top", "d_top"):
         if k in transect:
-            top_key = k
+            turbulence_key = k
             break
 
     bot_key = None
@@ -257,8 +257,8 @@ def plot_transect(
     )
     if cmap is not None:
         plt.set_cmap(cmap)
-    if top_key is not None:
-        plt.plot(tt, transect[top_key], top_color, linewidth=linewidth)
+    if turbulence_key is not None:
+        plt.plot(tt, transect[turbulence_key], turbulence_color, linewidth=linewidth)
     if bot_key is not None:
         plt.plot(tt, transect[bot_key], bot_color, linewidth=linewidth)
 
@@ -325,7 +325,7 @@ def plot_transect_predictions(transect, prediction, linewidth=1, cmap=None):
     plot_transect(
         transect,
         x_scale="index",
-        top_color="k",
+        turbulence_color="k",
         bot_color="k",
         passive_color="k",
         removed_color="k",
@@ -335,20 +335,20 @@ def plot_transect_predictions(transect, prediction, linewidth=1, cmap=None):
 
     # Convert output into lines
     for shape_y in (
-        prediction["p_is_above_top"].shape[-1],
+        prediction["p_is_above_turbulence"].shape[-1],
         prediction["p_is_below_bottom"].shape[-1],
     ):
         if not np.allclose(prediction["depths"].shape, shape_y):
             print("Shape mismatch: {} {}".format(prediction["depths"].shape, shape_y))
-    top_depths = prediction["depths"][
-        utils.last_nonzero(prediction["p_is_above_top"] > 0.5, -1)
+    turbulence_depths = prediction["depths"][
+        utils.last_nonzero(prediction["p_is_above_turbulence"] > 0.5, -1)
     ]
     bottom_depths = prediction["depths"][
         utils.first_nonzero(prediction["p_is_below_bottom"] > 0.5, -1)
     ]
 
-    tt = np.linspace(0, len(transect["timestamps"]) - 1, len(top_depths))
-    plt.plot(tt, top_depths, "w", linewidth=linewidth)
+    tt = np.linspace(0, len(transect["timestamps"]) - 1, len(turbulence_depths))
+    plt.plot(tt, turbulence_depths, "w", linewidth=linewidth)
     plt.plot(tt, bottom_depths, "w", linewidth=linewidth)
 
     # Mark removed areas

@@ -15,8 +15,10 @@ _fields_2d = (
     "Sv",
     "signals",
     "mask",
+    "mask_turbulence",
     "mask_top",
     "mask_bot",
+    "mask_turbulence-original",
     "mask_top-original",
     "mask_bot-original",
     "mask_surf",
@@ -26,17 +28,23 @@ _fields_2d = (
 )
 _fields_1d_timelike = (
     "timestamps",
+    "turbulence",
     "top",
     "bottom",
+    "turbulence-original",
     "top-original",
     "bottom-original",
     "surface",
+    "d_turbulence",
     "d_top",
     "d_bot",
+    "r_turbulence",
     "r_top",
     "r_bot",
+    "d_turbulence-original",
     "d_top-original",
     "d_bot-original",
+    "r_turbulence-original",
     "r_top-original",
     "r_bot-original",
     "d_surf",
@@ -664,7 +672,7 @@ class RandomCropDepth(object):
         lim_bot_deepest = np.max(sample["depths"])
         lim_bot_shallowest = min(
             lim_bot_deepest - depth_intv,
-            max(np.max(sample["d_top"]), np.min(sample["d_bot"])),
+            max(np.max(sample["d_turbulence"]), np.min(sample["d_bot"])),
         )
 
         if sample["is_upward_facing"]:
@@ -690,7 +698,7 @@ class RandomCropDepth(object):
         close_top_deepest = min(
             lim_top_deepest,
             opt_top_depth + close_dist_shrink,
-            np.percentile(sample["d_top"], 25),
+            np.percentile(sample["d_turbulence"], 25),
         )
         if sample["is_upward_facing"]:
             close_bot_shallowest = max(
@@ -732,7 +740,10 @@ class RandomCropDepth(object):
         rand_top_shallowest = lim_top_shallowest
         rand_top_deepest = min(
             lim_top_deepest,
-            max(np.percentile(sample["d_top"], 50), opt_top_depth + close_dist_shrink),
+            max(
+                np.percentile(sample["d_turbulence"], 50),
+                opt_top_depth + close_dist_shrink,
+            ),
         )
         rand_top_deepest = max(lim_top_shallowest, rand_top_deepest)
         if sample["is_upward_facing"]:

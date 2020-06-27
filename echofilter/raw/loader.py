@@ -868,25 +868,25 @@ def load_transect_data(transect_pth, dataset="mobile", root_data_dir=ROOT_DATA_D
         to each column in the `signals` data.
     signals : numpy.ndarray
         Echogram Sv data, shaped (num_timestamps, num_depths).
-    top : numpy.ndarray
-        Depth of top line, shaped (num_timestamps, ).
+    turbulence : numpy.ndarray
+        Depth of turbulence line, shaped (num_timestamps, ).
     bottom : numpy.ndarray
         Depth of bottom line, shaped (num_timestamps, ).
     """
     dirname = os.path.join(root_data_dir, dataset)
     raw_fname = os.path.join(dirname, transect_pth + "_Sv_raw.csv")
     bot_fname = os.path.join(dirname, transect_pth + "_bottom.evl")
-    top_fname = os.path.join(dirname, transect_pth + "_turbulence.evl")
+    turbulence_fname = os.path.join(dirname, transect_pth + "_turbulence.evl")
 
     timestamps, depths, signals = transect_loader(raw_fname)
     t_bot, d_bot = evl_loader(bot_fname)
-    t_top, d_top = evl_loader(top_fname)
+    t_turbulence, d_turbulence = evl_loader(turbulence_fname)
 
     return (
         timestamps,
         depths,
         signals,
-        np.interp(timestamps, t_top, d_top),
+        np.interp(timestamps, t_turbulence, d_turbulence),
         np.interp(timestamps, t_bot, d_bot),
     )
 

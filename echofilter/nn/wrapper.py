@@ -42,8 +42,10 @@ class Echofilter(nn.Module):
         Whether to build a conditional model as well as an unconditional model.
         If `True`, there are additional logits in the call output named
         `"x|downfacing"` and `"x|upfacing"`, in addition to
-        `"x"`. For instance, `"p_is_above_top|downfacing"`. Default is `False`.
+        `"x"`. For instance, `"p_is_above_turbulence|downfacing"`. Default is `False`.
     """
+
+    aliases = [("top", "turbulence")]
 
     def __init__(
         self,
@@ -66,8 +68,8 @@ class Echofilter(nn.Module):
         }
         if mapping is None:
             mapping = {
-                "logit_is_above_top": 0,
-                "logit_is_boundary_top": 0,
+                "logit_is_above_turbulence": 0,
+                "logit_is_boundary_turbulence": 0,
                 "logit_is_below_bottom": 1,
                 "logit_is_boundary_bottom": 1,
                 "logit_is_removed": 2,
@@ -75,20 +77,20 @@ class Echofilter(nn.Module):
                 "logit_is_patch": 4,
                 "logit_is_above_surface": 5,
                 "logit_is_boundary_surface": 5,
-                "logit_is_above_top-original": 6,
-                "logit_is_boundary_top-original": 6,
+                "logit_is_above_turbulence-original": 6,
+                "logit_is_boundary_turbulence-original": 6,
                 "logit_is_below_bottom-original": 7,
                 "logit_is_boundary_bottom-original": 7,
                 "logit_is_patch-original": 8,
                 "logit_is_patch-ntob": 9,
             }
             if top == "boundary":
-                mapping.pop("logit_is_above_top")
-                mapping.pop("logit_is_above_top-original")
+                mapping.pop("logit_is_above_turbulence")
+                mapping.pop("logit_is_above_turbulence-original")
                 mapping.pop("logit_is_above_surface")
             else:
-                mapping.pop("logit_is_boundary_top")
-                mapping.pop("logit_is_boundary_top-original")
+                mapping.pop("logit_is_boundary_turbulence")
+                mapping.pop("logit_is_boundary_turbulence-original")
                 mapping.pop("logit_is_boundary_surface")
             if bottom == "boundary":
                 mapping.pop("logit_is_below_bottom")
@@ -97,6 +99,18 @@ class Echofilter(nn.Module):
                 mapping.pop("logit_is_boundary_bottom")
                 mapping.pop("logit_is_boundary_bottom-original")
         self.mapping = mapping
+        # Ensure all references for aliases are set
+        mapping_extra = {}
+        for key in mapping:
+            for alias_map in self.aliases:
+                for (alias_a, alias_b) in [alias_map, alias_map[::-1]]:
+                    if "_" + alias_a not in key:
+                        continue
+                    alt_key = key.replace("_" + alias_a, "_" + alias_b)
+                    if alt_key not in mapping:
+                        mapping_extra[alt_key] = mapping[key]
+        mapping.update(mapping_extra)
+
         self.conditions = [""]
         if conditional:
             self.conditions += ["downfacing", "upfacing"]
@@ -157,7 +171,7 @@ class Echofilter(nn.Module):
                 outputs["logit_is_passive" + cs]
             )
 
-            for sfx in ("top", "top-original", "surface"):
+            for sfx in ("turbulence", "turbulence-original", "surface"):
                 if self.params["top"] == "mask":
                     outputs["p_is_above_" + sfx + cs] = torch.sigmoid(
                         outputs["logit_is_above_" + sfx + cs]
@@ -234,8 +248,8 @@ class Echofilter(nn.Module):
                 1.0
                 * 0.5
                 * (
-                    (1 - outputs["p_is_above_top" + cs])
-                    + outputs["p_is_below_top" + cs]
+                    (1 - outputs["p_is_above_turbulence" + cs])
+                    + outputs["p_is_below_turbulence" + cs]
                 )
                 * 0.5
                 * (
@@ -248,7 +262,7 @@ class Echofilter(nn.Module):
             ).clamp_(0, 1)
             outputs["mask_keep_pixel" + cs] = (
                 1.0
-                * (outputs["p_is_above_top" + cs] < 0.5)
+                * (outputs["p_is_above_turbulence" + cs] < 0.5)
                 * (outputs["p_is_below_bottom" + cs] < 0.5)
                 * (outputs["p_is_removed" + cs].unsqueeze(-1) < 0.5)
                 * (outputs["p_is_passive" + cs].unsqueeze(-1) < 0.5)
@@ -266,8 +280,8 @@ class EchofilterLoss(_Loss):
     reduction : `"mean"` or `"sum"`, optional
         The reduction method, which is used to collapse batch and timestamp
         dimensions. Default is `"mean"`.
-    top_mask : float, optional
-        Weighting for top line/mask loss term. Default is `1.0`.
+    turbulence_mask : float, optional
+        Weighting for turbulence line/mask loss term. Default is `1.0`.
     bottom_mask : float, optional
         Weighting for bottom line/mask loss term. Default is `1.0`.
     removed_segment : float, optional
@@ -281,7 +295,7 @@ class EchofilterLoss(_Loss):
     surface : float, optional
         Weighting for surface line/mask loss term. Default is `1.0`.
     auxiliary : float, optional
-        Weighting for auxiliary loss terms `"top-original"`,
+        Weighting for auxiliary loss terms `"turbulence-original"`,
         `"bottom-original"`, `"mask_patches-original"`, and
         `"mask_patches-ntob"`. Default is `1.0`.
     ignore_lines_during_passive : bool, optional
@@ -302,7 +316,7 @@ class EchofilterLoss(_Loss):
         self,
         reduction="mean",
         conditional=False,
-        top_mask=1.0,
+        turbulence_mask=1.0,
         bottom_mask=1.0,
         removed_segment=1.0,
         passive=1.0,
@@ -317,7 +331,7 @@ class EchofilterLoss(_Loss):
     ):
         super(EchofilterLoss, self).__init__(None, None, reduction)
         self.conditional = conditional
-        self.top_mask = top_mask
+        self.turbulence_mask = turbulence_mask
         self.bottom_mask = bottom_mask
         self.removed_segment = removed_segment
         self.passive = passive
@@ -378,7 +392,7 @@ class EchofilterLoss(_Loss):
 
             n_conditions_in_loss += 1
 
-            for sfx in ("top", "top-original", "surface"):
+            for sfx in ("turbulence", "turbulence-original", "surface"):
                 with torch.no_grad():
                     loss_inclusion_mask = torch.ones_like(target["is_passive"])
                     if sfx == "surface":
@@ -393,8 +407,8 @@ class EchofilterLoss(_Loss):
                     else:
                         target_key = "mask_" + sfx
                         target_i_key = "index_" + sfx
-                        weight = self.top_mask
-                        if sfx != "top":
+                        weight = self.turbulence_mask
+                        if sfx != "turbulence":
                             weight *= self.auxiliary
                         # Check whether line is masked out
                         if self.ignore_lines_during_passive:

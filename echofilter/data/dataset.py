@@ -41,14 +41,14 @@ class TransectDataset(torch.utils.data.Dataset):
         away. Default is `None`.
     transform : callable
         Operations to perform to the dictionary containing a single sample.
-        These are performed before generating the top/bottom/overall mask.
-        Default is `None`.
+        These are performed before generating the turbulence/bottom/overall
+        mask. Default is `None`.
     remove_nearfield : bool, optional
-        Whether to remove top and bottom lines affected by nearfield
+        Whether to remove turbulence and bottom lines affected by nearfield
         removal. If `True` (default), targets for the line near to the
-        sounder (bottom if upward facing, top otherwise) which are closer
-        than or equal to a distance of `nearfield_distance` become reduced
-        to `nearfield_visible_dist`.
+        sounder (bottom if upward facing, turbulence otherwise) which are
+        closer than or equal to a distance of `nearfield_distance` become
+        reduced to `nearfield_visible_dist`.
     nearfield_distance : float, optional
         Nearfield distance in metres. Regions closer than the nearfield
         may have been masked out from the dataset, but their effect will
@@ -57,8 +57,8 @@ class TransectDataset(torch.utils.data.Dataset):
     nearfield_visible_dist : float, optional
         The distance at which the effect of being to close to the sounder
         is obvious to the naked eye. Default is `0.5`.
-    remove_offset_top : float, optional
-        Line offset built in to the top line. If given, this will be
+    remove_offset_turbulence : float, optional
+        Line offset built in to the turbulence line. If given, this will be
         removed from the samples within the dataset. Default is `0`.
     remove_offset_bottom : float, optional
         Line offset built in to the bottom line. If given, this will be
@@ -78,7 +78,7 @@ class TransectDataset(torch.utils.data.Dataset):
         remove_nearfield=True,
         nearfield_distance=1.7,
         nearfield_visible_dist=0.5,
-        remove_offset_top=0,
+        remove_offset_turbulence=0,
         remove_offset_bottom=0,
     ):
         super(TransectDataset, self).__init__()
@@ -93,7 +93,7 @@ class TransectDataset(torch.utils.data.Dataset):
         self.remove_nearfield = remove_nearfield
         self.nearfield_distance = nearfield_distance
         self.nearfield_visible_dist = nearfield_visible_dist
-        self.remove_offset_top = remove_offset_top
+        self.remove_offset_turbulence = remove_offset_turbulence
         self.remove_offset_bottom = remove_offset_bottom
         self.initialise_datapoints()
 
@@ -154,10 +154,10 @@ class TransectDataset(torch.utils.data.Dataset):
             center_idx - int(win_len / 2) + win_len,
             pad_mode="reflect",
         )
-        sample["d_top"] = sample.pop("top")
+        sample["d_turbulence"] = sample.pop("turbulence")
         sample["d_bot"] = sample.pop("bottom")
         sample["d_surf"] = sample.pop("surface")
-        sample["d_top-original"] = sample.pop("top-original")
+        sample["d_turbulence-original"] = sample.pop("turbulence-original")
         sample["d_bot-original"] = sample.pop("bottom-original")
         sample["signals"] = sample.pop("Sv")
         if sample["depths"][-1] < sample["depths"][0]:
@@ -179,7 +179,7 @@ class TransectDataset(torch.utils.data.Dataset):
         # indicate no surface depth given and this occurs during passive data.
         if np.any(sample["d_surf"] >= sample["d_bot"]):
             sample["d_surf"] = np.min(sample["depths"]) * np.ones_like(sample["d_surf"])
-        sample["d_surf"] = np.minimum(sample["d_surf"], sample["d_top"])
+        sample["d_surf"] = np.minimum(sample["d_surf"], sample["d_turbulence"])
 
         if sample["is_upward_facing"]:
             min_top_depth = np.min(sample["depths"])
@@ -212,8 +212,8 @@ class TransectDataset(torch.utils.data.Dataset):
                 sample["mask_patches-original"][:, idx_search:] = is_close_patch_og
                 sample["mask_patches-ntob"][:, idx_search:] = is_close_patch_og
             else:
-                was_in_nearfield = sample["d_top"] <= self.nearfield_distance
-                sample["d_top"][was_in_nearfield] = min_top_depth
+                was_in_nearfield = sample["d_turbulence"] <= self.nearfield_distance
+                sample["d_turbulence"][was_in_nearfield] = min_top_depth
                 was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
                 # Extend/contract mask_patches where necessary
                 idx_search = utils.first_nonzero(
@@ -239,20 +239,20 @@ class TransectDataset(torch.utils.data.Dataset):
             was_in_nearfield = np.zeros_like(sample["is_removed"], dtype="bool")
             was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
 
-        if self.remove_offset_top:
+        if self.remove_offset_turbulence:
             # Check the mask beforehand
             _ddepths = np.broadcast_to(sample["depths"], sample["signals"].shape)
-            _in_mask = _ddepths < np.expand_dims(sample["d_top"], -1)
-            _in_mask_og = _ddepths < np.expand_dims(sample["d_top-original"], -1)
+            _in_mask = _ddepths < np.expand_dims(sample["d_turbulence"], -1)
+            _in_mask_og = _ddepths < np.expand_dims(sample["d_turbulence-original"], -1)
             # Shift lines up higher (less deep)
-            sample["d_top"][
+            sample["d_turbulence"][
                 (~was_in_nearfield) | sample["is_upward_facing"]
-            ] -= self.remove_offset_top
-            sample["d_top-original"][
+            ] -= self.remove_offset_turbulence
+            sample["d_turbulence-original"][
                 (~was_in_nearfield_og) | sample["is_upward_facing"]
-            ] -= self.remove_offset_top
+            ] -= self.remove_offset_turbulence
             # Extend mask_patches where necessary
-            _fx_mask = _ddepths < np.expand_dims(sample["d_top"], -1)
+            _fx_mask = _ddepths < np.expand_dims(sample["d_turbulence"], -1)
             _df_mask = _in_mask * (_in_mask ^ _fx_mask)
             is_close_patch = np.any(
                 _df_mask[:, :-1] * sample["mask_patches"][:, 1:], -1
@@ -263,7 +263,7 @@ class TransectDataset(torch.utils.data.Dataset):
                 is_close_patch, :
             ]
             # ... and extend og mask patches too
-            _fx_mask_og = _ddepths < np.expand_dims(sample["d_top-original"], -1)
+            _fx_mask_og = _ddepths < np.expand_dims(sample["d_turbulence-original"], -1)
             _df_mask = _in_mask_og * (_in_mask_og ^ _fx_mask_og)
             is_close_patch = np.any(
                 _df_mask[:, :-1] * sample["mask_patches-original"][:, 1:], -1
@@ -305,7 +305,7 @@ class TransectDataset(torch.utils.data.Dataset):
                 is_close_patch, :
             ]
 
-        if self.remove_offset_top or self.remove_offset_bottom:
+        if self.remove_offset_turbulence or self.remove_offset_bottom:
             # Change any 2s in the mask to be 1s
             for suffix in ("", "-original", "-ntob"):
                 sample["mask_patches" + suffix] = (
@@ -315,11 +315,13 @@ class TransectDataset(torch.utils.data.Dataset):
         sample["d_surf"][~np.isfinite(sample["d_surf"])] = np.min(sample["depths"])
         for sfx in ("", "-original"):
             if sample["is_upward_facing"]:
-                where_invalid = ~np.isfinite(sample["d_top" + sfx])
-                sample["d_top" + sfx][where_invalid] = sample["d_surf"][where_invalid]
+                where_invalid = ~np.isfinite(sample["d_turbulence" + sfx])
+                sample["d_turbulence" + sfx][where_invalid] = sample["d_surf"][
+                    where_invalid
+                ]
             else:
-                sample["d_top" + sfx][
-                    ~np.isfinite(sample["d_top" + sfx])
+                sample["d_turbulence" + sfx][
+                    ~np.isfinite(sample["d_turbulence" + sfx])
                 ] = min_top_depth
             sample["d_bot" + sfx][~np.isfinite(sample["d_bot" + sfx])] = max_bot_depth
 
@@ -335,8 +337,8 @@ class TransectDataset(torch.utils.data.Dataset):
         # Convert lines to masks and relative lines
         ddepths = np.broadcast_to(sample["depths"], sample["signals"].shape)
         for suffix in ["", "-original"]:
-            sample["mask_top" + suffix] = ddepths < np.expand_dims(
-                sample["d_top" + suffix], -1
+            sample["mask_turbulence" + suffix] = ddepths < np.expand_dims(
+                sample["d_turbulence" + suffix], -1
             )
             sample["mask_bot" + suffix] = ddepths > np.expand_dims(
                 sample["d_bot" + suffix], -1
@@ -344,7 +346,13 @@ class TransectDataset(torch.utils.data.Dataset):
         sample["mask_surf"] = ddepths < np.expand_dims(sample["d_surf"], -1)
 
         depth_range = abs(sample["depths"][-1] - sample["depths"][0])
-        for key in ["d_top", "d_bot", "d_surf", "d_top-original", "d_bot-original"]:
+        for key in [
+            "d_turbulence",
+            "d_bot",
+            "d_surf",
+            "d_turbulence-original",
+            "d_bot-original",
+        ]:
             sample["r" + key[1:]] = sample[key] / depth_range
 
         # Create mask corresponding to the aggregate of all elements we need
@@ -352,18 +360,18 @@ class TransectDataset(torch.utils.data.Dataset):
         sample["mask"] = np.ones_like(sample["signals"])
         sample["mask"][sample["is_passive"] > 0.5] = 0
         sample["mask"][sample["is_removed"] > 0.5] = 0
-        sample["mask"][sample["mask_top"] > 0.5] = 0
+        sample["mask"][sample["mask_turbulence"] > 0.5] = 0
         sample["mask"][sample["mask_bot"] > 0.5] = 0
         sample["mask"][sample["mask_patches"] > 0.5] = 0
 
         # Determine the boundary index for depths
-        for sfx in {"top", "top-original", "surf"}:
+        for sfx in {"turbulence", "turbulence-original", "surf"}:
             # Ties are broken to the smaller index
             sample["index_" + sfx] = np.searchsorted(
                 sample["depths"], sample["d_" + sfx], side="left"
             )
-            # It is possible for the top line to be above the field of view,
-            # and impossible for the top line to below
+            # It is possible for the turbulence line to be above the field of
+            # view, and impossible for the turbulence line to below
             sample["index_" + sfx] = np.maximum(
                 0, np.minimum(len(sample["depths"]) - 1, sample["index_" + sfx])
             )
