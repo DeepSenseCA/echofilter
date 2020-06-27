@@ -21,6 +21,7 @@ _fields_2d = (
     "mask_turbulence-original",
     "mask_top-original",
     "mask_bot-original",
+    "mask_surface",
     "mask_surf",
     "mask_patches",
     "mask_patches-original",
@@ -35,6 +36,7 @@ _fields_1d_timelike = (
     "top-original",
     "bottom-original",
     "surface",
+    "surf",
     "d_turbulence",
     "d_top",
     "d_bot",
@@ -47,7 +49,9 @@ _fields_1d_timelike = (
     "r_turbulence-original",
     "r_top-original",
     "r_bot-original",
+    "d_surface",
     "d_surf",
+    "r_surface",
     "r_surf",
     "is_passive",
     "is_removed",
@@ -552,7 +556,7 @@ def optimal_crop_depth(transect):
     depth_intv = abs(transect["depths"][1] - transect["depths"][0])
     shallowest_depth = None
     if transect["is_upward_facing"]:
-        for key in ("d_surf", "surface"):
+        for key in ("d_surface", "surface", "d_surf", "surf"):
             if key not in transect:
                 continue
             surf_options = transect[key][transect[key] > d0]
@@ -676,7 +680,7 @@ class RandomCropDepth(object):
         )
 
         if sample["is_upward_facing"]:
-            surf_options = sample["d_surf"][sample["d_surf"] > lim_top_shallowest]
+            surf_options = sample["d_surface"][sample["d_surface"] > lim_top_shallowest]
             if len(surf_options) == 0:
                 opt_top_depth = lim_top_shallowest
             else:

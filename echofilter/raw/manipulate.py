@@ -474,7 +474,7 @@ def load_decomposed_transect_mask(sample_path):
     fname_turbulence1 = os.path.join(sample_path + "_turbulence.evl")
     fname_turbulence2 = os.path.join(sample_path + "_air.evl")
     fname_bot = os.path.join(sample_path + "_bottom.evl")
-    fname_surf = os.path.join(sample_path + "_surface.evl")
+    fname_surface = os.path.join(sample_path + "_surface.evl")
 
     if os.path.isfile(fname_turbulence1):
         fname_turbulence = fname_turbulence1
@@ -501,14 +501,14 @@ def load_decomposed_transect_mask(sample_path):
     else:
         t_bot = d_bot = None
 
-    if os.path.isfile(fname_surf):
-        t_surf, d_surf = loader.evl_loader(fname_surf)
+    if os.path.isfile(fname_surface):
+        t_surface, d_surface = loader.evl_loader(fname_surface)
     elif is_upward_facing:
         raise ValueError(
-            "Expected {} to exist when transect is upfacing.".format(fname_surf)
+            "Expected {} to exist when transect is upfacing.".format(fname_surface)
         )
     else:
-        t_surf = d_surf = None
+        t_surface = d_surface = None
 
     # Generate new lines from mask
     d_turbulence_new, d_bot_new = fixup_lines(
@@ -612,7 +612,7 @@ def load_decomposed_transect_mask(sample_path):
 
     d_turbulence = tidy_up_line(t_turbulence, d_turbulence)
     d_bot = tidy_up_line(t_bot, d_bot)
-    d_surf = tidy_up_line(t_surf, d_surf)
+    d_surface = tidy_up_line(t_surface, d_surface)
 
     # Make a mask indicating left-over patches. This is 0 everywhere,
     # except 1s wherever pixels in the overall mask are removed for
@@ -698,7 +698,7 @@ def load_decomposed_transect_mask(sample_path):
     transect["mask_patches-ntob"] = mask_patches_ntob
     transect["turbulence"] = d_turbulence_new
     transect["bottom"] = d_bot_new
-    transect["surface"] = d_surf
+    transect["surface"] = d_surface
     transect["turbulence-original"] = d_turbulence
     transect["bottom-original"] = d_bot
     transect["is_passive"] = is_passive

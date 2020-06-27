@@ -304,7 +304,7 @@ class EchofilterLoss(_Loss):
     ignore_lines_during_removed : bool, optional
         Whether targets for lines should be excluded from the loss during
         entirely removed sections. Default is `True`.
-    ignore_surf_during_removed : bool, optional
+    ignore_surface_during_removed : bool, optional
         Whether target for the surface line should be excluded from the loss
         during entirely removed sections. If `None`, the value from
         `ignore_lines_during_removed` is used. Default is `False`.
@@ -326,8 +326,8 @@ class EchofilterLoss(_Loss):
         auxiliary=1.0,
         ignore_lines_during_passive=False,
         ignore_lines_during_removed=True,
-        ignore_surf_during_passive=False,
-        ignore_surf_during_removed=False,
+        ignore_surface_during_passive=False,
+        ignore_surface_during_removed=False,
     ):
         super(EchofilterLoss, self).__init__(None, None, reduction)
         self.conditional = conditional
@@ -341,8 +341,8 @@ class EchofilterLoss(_Loss):
         self.auxiliary = auxiliary
         self.ignore_lines_during_passive = ignore_lines_during_passive
         self.ignore_lines_during_removed = ignore_lines_during_removed
-        self.ignore_surf_during_passive = ignore_surf_during_passive
-        self.ignore_surf_during_removed = ignore_surf_during_removed
+        self.ignore_surface_during_passive = ignore_surface_during_passive
+        self.ignore_surface_during_removed = ignore_surface_during_removed
 
         self.conditions = [""]
         if conditional:
@@ -396,13 +396,13 @@ class EchofilterLoss(_Loss):
                 with torch.no_grad():
                     loss_inclusion_mask = torch.ones_like(target["is_passive"])
                     if sfx == "surface":
-                        target_key = "mask_surf"
-                        target_i_key = "index_surf"
+                        target_key = "mask_surface"
+                        target_i_key = "index_surface"
                         weight = self.surface
                         # Check whether surface line is masked out
-                        if self.ignore_surf_during_passive:
+                        if self.ignore_surface_during_passive:
                             loss_inclusion_mask *= 1 - target["is_passive"]
-                        if self.ignore_surf_during_removed:
+                        if self.ignore_surface_during_removed:
                             loss_inclusion_mask *= 1 - target["is_removed"]
                     else:
                         target_key = "mask_" + sfx

@@ -1062,7 +1062,7 @@ def train_epoch(
                     target_k = 1 - metadata["mask_turbulence"]
                 elif chn.startswith("surf"):
                     output_k = output["p_is_below_surface" + cs]
-                    target_k = 1 - metadata["mask_surf"]
+                    target_k = 1 - metadata["mask_surface"]
                 elif chn.startswith("bottom"):
                     output_k = output["p_is_above_bottom" + cs]
                     target_k = 1 - metadata["mask_bot"]
@@ -1270,7 +1270,7 @@ def validate(
                     target_k = 1 - metadata["mask_turbulence"]
                 elif chn.startswith("surf"):
                     output_k = output["p_is_below_surface" + cs]
-                    target_k = 1 - metadata["mask_surf"]
+                    target_k = 1 - metadata["mask_surface"]
                 elif chn.startswith("bottom"):
                     output_k = output["p_is_above_bottom" + cs]
                     target_k = 1 - metadata["mask_bot"]

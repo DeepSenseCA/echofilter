@@ -156,7 +156,7 @@ class TransectDataset(torch.utils.data.Dataset):
         )
         sample["d_turbulence"] = sample.pop("turbulence")
         sample["d_bot"] = sample.pop("bottom")
-        sample["d_surf"] = sample.pop("surface")
+        sample["d_surface"] = sample.pop("surface")
         sample["d_turbulence-original"] = sample.pop("turbulence-original")
         sample["d_bot-original"] = sample.pop("bottom-original")
         sample["signals"] = sample.pop("Sv")
@@ -177,9 +177,11 @@ class TransectDataset(torch.utils.data.Dataset):
         # by Echoview and not adjusted by human annotator, so are not
         # guaranteed to be sane). In particular, values of -10000.990000
         # indicate no surface depth given and this occurs during passive data.
-        if np.any(sample["d_surf"] >= sample["d_bot"]):
-            sample["d_surf"] = np.min(sample["depths"]) * np.ones_like(sample["d_surf"])
-        sample["d_surf"] = np.minimum(sample["d_surf"], sample["d_turbulence"])
+        if np.any(sample["d_surface"] >= sample["d_bot"]):
+            sample["d_surface"] = np.min(sample["depths"]) * np.ones_like(
+                sample["d_surface"]
+            )
+        sample["d_surface"] = np.minimum(sample["d_surface"], sample["d_turbulence"])
 
         if sample["is_upward_facing"]:
             min_top_depth = np.min(sample["depths"])
@@ -312,11 +314,13 @@ class TransectDataset(torch.utils.data.Dataset):
                     sample["mask_patches" + suffix] > 0.5
                 ).astype(np.float32)
 
-        sample["d_surf"][~np.isfinite(sample["d_surf"])] = np.min(sample["depths"])
+        sample["d_surface"][~np.isfinite(sample["d_surface"])] = np.min(
+            sample["depths"]
+        )
         for sfx in ("", "-original"):
             if sample["is_upward_facing"]:
                 where_invalid = ~np.isfinite(sample["d_turbulence" + sfx])
-                sample["d_turbulence" + sfx][where_invalid] = sample["d_surf"][
+                sample["d_turbulence" + sfx][where_invalid] = sample["d_surface"][
                     where_invalid
                 ]
             else:
@@ -343,13 +347,13 @@ class TransectDataset(torch.utils.data.Dataset):
             sample["mask_bot" + suffix] = ddepths > np.expand_dims(
                 sample["d_bot" + suffix], -1
             )
-        sample["mask_surf"] = ddepths < np.expand_dims(sample["d_surf"], -1)
+        sample["mask_surface"] = ddepths < np.expand_dims(sample["d_surface"], -1)
 
         depth_range = abs(sample["depths"][-1] - sample["depths"][0])
         for key in [
             "d_turbulence",
             "d_bot",
-            "d_surf",
+            "d_surface",
             "d_turbulence-original",
             "d_bot-original",
         ]:
@@ -365,7 +369,7 @@ class TransectDataset(torch.utils.data.Dataset):
         sample["mask"][sample["mask_patches"] > 0.5] = 0
 
         # Determine the boundary index for depths
-        for sfx in {"turbulence", "turbulence-original", "surf"}:
+        for sfx in {"turbulence", "turbulence-original", "surface"}:
             # Ties are broken to the smaller index
             sample["index_" + sfx] = np.searchsorted(
                 sample["depths"], sample["d_" + sfx], side="left"
