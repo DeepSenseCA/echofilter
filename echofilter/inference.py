@@ -1834,6 +1834,7 @@ def cli():
     group_infile.add_argument(
         "--skip-existing",
         "--skip",
+        "-s",
         dest="skip_existing",
         action="store_true",
         help="""
