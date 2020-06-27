@@ -963,6 +963,7 @@ def run_inference(
             echofilter.raw.loader.write_transect_regions(
                 dest_file,
                 output,
+                depth_range=depths,
                 passive_key="p_is_passive" + cs,
                 removed_key="p_is_removed" + cs,
                 patches_key=patches_key + cs,
