@@ -625,6 +625,7 @@ def evr_writer(
 def write_transect_regions(
     fname,
     transect,
+    depth_range=None,
     passive_key="is_passive",
     removed_key="is_removed",
     patches_key="mask_patches",
@@ -648,6 +649,10 @@ def write_transect_regions(
         Destination of output file.
     transect : dict
         Transect dictionary.
+    depth_range : array_like or None, optional
+        The minimum and maximum depth extents (in any order) of the passive and
+        removed block regions. If this is `None` (default), the minimum and
+        maximum of `transect["depths"]` is used.
     passive_key : str, optional
         Field name to use for passive data identification. Default is
         `"is_passive"`.
@@ -690,6 +695,10 @@ def write_transect_regions(
         Level of indentation (number of preceding spaces) before verbosity
         messages. Default is `0`.
     """
+    if depth_range is None:
+        depth_range = transect["depths"]
+    depth_range = [np.min(depth_range), np.max(depth_range)]
+
     rectangles = []
     contours = []
     # Regions around each period of passive data
@@ -714,7 +723,7 @@ def write_transect_regions(
         region["region_name"] = "Passive{} {}".format(name_suffix, i_passive)
         region["creation_type"] = 4
         region["region_type"] = 0
-        region["depths"] = transect["depths"][[0, -1]]
+        region["depths"] = depth_range
         region["timestamps"] = transect["timestamps"][[start_index, end_index]]
         region["notes"] = textwrap.dedent(
             """
@@ -750,7 +759,7 @@ def write_transect_regions(
         region["region_name"] = "Removed block{} {}".format(name_suffix, i_removed)
         region["creation_type"] = 4
         region["region_type"] = 0
-        region["depths"] = transect["depths"][[0, -1]]
+        region["depths"] = depth_range
         region["timestamps"] = transect["timestamps"][[start_index, end_index]]
         region["notes"] = textwrap.dedent(
             """
