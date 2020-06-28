@@ -394,7 +394,7 @@ class EchofilterLoss(_Loss):
 
             for sfx in ("turbulence", "turbulence-original", "surface"):
                 with torch.no_grad():
-                    loss_inclusion_mask = torch.ones_like(target["is_passive"])
+                    loss_inclusion_mask = 1 - target["is_bad_labels"]
                     if sfx == "surface":
                         target_key = "mask_surface"
                         target_i_key = "index_surface"
@@ -484,7 +484,7 @@ class EchofilterLoss(_Loss):
                     weight *= self.auxiliary
 
                 with torch.no_grad():
-                    loss_inclusion_mask = torch.ones_like(target["is_passive"])
+                    loss_inclusion_mask = 1 - target["is_bad_labels"]
                     # Check whether line is masked out
                     if self.ignore_lines_during_passive:
                         loss_inclusion_mask *= 1 - target["is_passive"]
