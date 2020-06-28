@@ -1059,9 +1059,9 @@ def run_inference(
     if verbose >= 1:
         print(
             progress_fmt(
-                "Finished {}processing {}{} file{}{}.".format(
-                    "simulating " if dry_run else "",
+                "{}Finished {}processing {} file{}{}.".format(
                     echofilter.ui.style.HighlightStyle.start,
+                    "simulating " if dry_run else "",
                     len(files),
                     "" if len(files) == 1 else "s",
                     echofilter.ui.style.HighlightStyle.reset,
