@@ -782,15 +782,37 @@ def load_decomposed_transect_mask(sample_path):
         # Binarise
         mask = mask > 0.5
 
-    # Find passive data
-    if is_upward_facing:
-        passive_starts, passive_ends = find_passive_data_v2(signals_raw)
+    # Find location of passive data.
+    # Try to determine passive data as whenever the surface line is undefined.
+    is_passive = np.isnan(d_surface)
+    # Apart from one file, the MinasPassage/december2017 dataset has no passive
+    # data regions. So we manually exclude this dataset (apart from one file)
+    # from going through the automatic passive data detection.
+    sample_parts = os.path.normpath(sample_path).split(os.path.sep)
+    is_known_no_passive = (
+        is_upward_facing
+        and "MinasPassage" in sample_parts
+        and "december2017" in sample_parts
+        and "december2017_D20180222-T145219_D20180222-T142214" not in sample_path
+    )
+    if np.any(is_passive) or is_known_no_passive:
+        # We got accurate passive data from the times when the surface line was
+        # "undefined". We just need to interpolate onto to the correct sampling
+        # grid.
+        is_passive = tidy_up_line(t_surface, is_passive.astype(np.float))
     else:
-        passive_starts, passive_ends = find_passive_data(signals_raw)
-    # Determine whether each timestamp is for a period of passive recording
-    is_passive = np.zeros(ts_raw.shape, dtype=bool)
-    for pass_start, pass_end in zip(passive_starts, passive_ends):
-        is_passive[pass_start:pass_end] = True
+        # We couldn't discern the passive data timing from undefined points
+        # in the surface line, so we use an algorithm to detect when passive
+        # recording occurs. Which algorithm to use depends on the echosounder
+        # orientation.
+        if is_upward_facing:
+            passive_starts, passive_ends = find_passive_data_v2(signals_raw)
+        else:
+            passive_starts, passive_ends = find_passive_data(signals_raw)
+        # Determine whether each timestamp is for a period of passive recording
+        is_passive = np.zeros(ts_raw.shape, dtype=bool)
+        for pass_start, pass_end in zip(passive_starts, passive_ends):
+            is_passive[pass_start:pass_end] = True
 
     # Determine whether each timestamp is for recording which was completely
     # removed from analysis (but not because it is passive recording)
