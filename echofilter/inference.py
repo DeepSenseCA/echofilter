@@ -651,7 +651,8 @@ def run_inference(
         for fname in maybe_tqdm(files):
             if verbose >= 2:
                 print(
-                    progress_fmt(
+                    "\n"
+                    + progress_fmt(
                         "Processing {}".format(
                             echofilter.ui.style.highlight_fmt(fname),
                         )
