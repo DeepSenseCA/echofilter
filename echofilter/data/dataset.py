@@ -56,7 +56,8 @@ class TransectDataset(torch.utils.data.Dataset):
         Default is `1.7`.
     nearfield_visible_dist : float, optional
         The distance at which the effect of being to close to the sounder
-        is obvious to the naked eye. Default is `0.5`.
+        is obvious to the naked eye, and hence the distance which nearfield
+        will be mapped to if `remove_nearfield=True`. Default is `0.0`.
     remove_offset_turbulence : float, optional
         Line offset built in to the turbulence line. If given, this will be
         removed from the samples within the dataset. Default is `0`.
@@ -77,7 +78,7 @@ class TransectDataset(torch.utils.data.Dataset):
         transform=None,
         remove_nearfield=True,
         nearfield_distance=1.7,
-        nearfield_visible_dist=0.5,
+        nearfield_visible_dist=0.0,
         remove_offset_turbulence=0,
         remove_offset_bottom=0,
     ):
