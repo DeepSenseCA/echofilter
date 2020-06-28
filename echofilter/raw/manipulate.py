@@ -779,7 +779,10 @@ def load_decomposed_transect_mask(sample_path):
         mask = mask > 0.5
 
     # Find passive data
-    passive_starts, passive_ends = find_passive_data(signals_raw)
+    if is_upward_facing:
+        passive_starts, passive_ends = find_passive_data_v2(signals_raw)
+    else:
+        passive_starts, passive_ends = find_passive_data(signals_raw)
     # Determine whether each timestamp is for a period of passive recording
     is_passive = np.zeros(ts_raw.shape, dtype=bool)
     for pass_start, pass_end in zip(passive_starts, passive_ends):
