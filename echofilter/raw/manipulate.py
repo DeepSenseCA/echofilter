@@ -734,7 +734,9 @@ def load_decomposed_transect_mask(sample_path):
             "Expected {} to exist when transect is upfacing.".format(fname_surface)
         )
     else:
-        t_surface = d_surface = None
+        # Default surface depth of 0m for downward facing data
+        t_surface = ts_raw
+        d_surface = np.zeros_like(ts_raw)
 
     # Generate new lines from mask
     d_turbulence_new, d_bottom_new = fixup_lines(
