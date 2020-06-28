@@ -749,10 +749,12 @@ def load_decomposed_transect_mask(sample_path):
 
     def tidy_up_line(t, d):
         if d is None:
-            d = np.nan * np.ones_like(ts_raw)
-        else:
-            d = np.interp(ts_raw, t, d)
-        return d
+            return np.nan * np.ones_like(ts_raw)
+        is_usable = np.isfinite(d)
+        if np.sum(is_usable) > 0:
+            t = t[is_usable]
+            d = d[is_usable]
+        return np.interp(ts_raw, t, d)
 
     # Mask and data derived from it is sampled at the correct timestamps and
     # depths for the raw data. It should be, but might not be if either of the
