@@ -912,7 +912,13 @@ def build_dataset(
         dataset_args["remove_offset_bottom"] = 1.0
     elif dataset_name == "MinasPassage":
         dataset_args["remove_nearfield"] = True
-        dataset_args["nearfield_distance"] = 1.7
+        # NB: Nearfield distance is 1.7, except for the samples:
+        # march2018_D20180502-T045216_D20180502-T102215
+        # march2018_D20180502-T105216_D20180502-T162215
+        # march2018_D20180502-T165215_D20180502-T222216
+        # march2018_D20180502-T225214_D20180503-T042215
+        # For which it is 1.744
+        dataset_args["nearfield_distance"] = 1.745
         dataset_args["remove_offset_turbulence"] = 0
         dataset_args["remove_offset_bottom"] = 0
     elif dataset_name == "GrandPassage":
