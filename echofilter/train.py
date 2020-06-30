@@ -67,11 +67,11 @@ import echofilter.raw.shardloader
 # NAN_VALUE = -1
 
 # Normalise each sample independently, based on its own intensity distribution
-CENTER_METHOD = "pc10"
+CENTER_METHOD = "median"
 DEVIATION_METHOD = "idr"
 DATA_CENTER = CENTER_METHOD
 DATA_DEVIATION = DEVIATION_METHOD
-NAN_VALUE = -1
+NAN_VALUE = -3
 
 # Transects to plot for debugging
 PLOT_TRANSECTS = {
