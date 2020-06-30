@@ -59,6 +59,7 @@ _fields_1d_timelike = (
     "d_surf",
     "r_surface",
     "r_surf",
+    "is_surrogate_surface",
     "is_bad_labels",
     "is_passive",
     "is_removed",

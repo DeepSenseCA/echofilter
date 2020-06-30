@@ -638,6 +638,150 @@ def fixup_lines(
     return d_turbulence_new, d_bottom_new
 
 
+def remove_anomalies_1d(
+    signal, thr=5, thr2=4, kernel=201, kernel2=31, return_filtered=False
+):
+    """
+    Remove anomalies from a temporal signal.
+
+    Applies a median filter to the data, and replaces datapoints which
+    deviate from the median filtered signal by more than some threshold
+    with the median filtered data. This process is repeated until no
+    datapoints deviate from the filtered line by more than the threshold.
+
+    Parameters
+    ----------
+    signal : array_like
+        The signal to filter.
+    thr : float, optional
+        The initial threshold will be `thr` times the standard deviation of the
+        residuals. The standard deviation is robustly estimated from the
+        interquartile range. Default is `5`.
+    thr2 : float, optional
+        The threshold for repeated iterations will be `thr2` times the standard
+        deviation of the remaining residuals. The standard deviation is
+        robustly estimated from interdecile range. Default is `4`.
+    kernel : int, optional
+        The kernel size for the initial median filter. Default is `201`.
+    kernel2 : int, optional
+        The kernel size for subsequent median filters. Default is `31`.
+    return_filtered : bool, optional
+        If `True`, the median filtered signal is also returned.
+        Default is `False`.
+
+    Returns
+    -------
+    signal : numpy.ndarray like signal
+        The input signal with anomalies replaced with median values.
+    is_replaced : bool numpy.ndarray shaped like signal
+        Indicator for which datapoints were replaced.
+    filtered : numpy.ndarray like signal, optional
+        The final median filtered signal. Returned if `return_filtered=True`.
+
+    See also
+    --------
+    `echofilter.raw.utils.medfilt1d`
+    """
+    signal = np.copy(signal)
+
+    # Median filtering, with reflection padding
+    filtered = utils.medfilt1d(signal, kernel)
+    # Measure the residual between the original and median filtered signal
+    residual = signal - filtered
+    # Replace datapoints more than thr sigma away from the median filter
+    # with the filtered signal. We use a robust estimate of the standard
+    # deviation, using the central 50% of datapoints.
+    stdev = np.diff(np.percentile(residual, [25, 75])).item() / 1.35
+    is_replaced = np.abs(residual) > thr * stdev
+    signal[is_replaced] = filtered[is_replaced]
+
+    # Filter again, with a narrower kernel but tighter threshold
+    while True:
+        filtered = utils.medfilt1d(signal, kernel2)
+        # Mesure new residual
+        residual = signal - filtered
+        # Make sure to only include original data points when determining
+        # the standard deviation. We use the interdecile range.
+        stdev = np.diff(np.percentile(residual[~is_replaced], [10, 90])).item() / 2.56
+        is_replaced_now = np.abs(residual) > thr2 * stdev
+        is_replaced |= is_replaced_now
+        signal[is_replaced] = filtered[is_replaced]
+        # We are done when no more datapoints had to be replaced
+        if not np.any(is_replaced_now):
+            break
+
+    if return_filtered:
+        return signal, is_replaced, filtered
+    return signal, is_replaced
+
+
+def fix_surface_line(timestamps, d_surface, is_passive):
+    """
+    Fix anomalies in the surface line.
+
+    Parameters
+    ----------
+    timestamps : array_like sized (N, )
+        Timestamps for each ping.
+    d_surface : array_like sized (N, )
+        Surface line depths.
+    is_passive : array_like sized (N, )
+        Indicator for passive data. Values for the surface line during passive
+        data collection will not be used.
+
+    Returns
+    -------
+    fixed_surface : numpy.ndarray
+        Surface line depths, with anomalies replaced with median filtered
+        values and passive data replaced with linear interpolation.
+        Has the same size and dtype as `d_surface`.
+    is_replaced : boolean numpy.ndarray sized (N, )
+        Indicates which datapoints were replaced. Note that passive data is
+        always replaced and is marked as such.
+    """
+    # Ensure is_passive is a boolean array
+    is_passive = is_passive > 0.5
+
+    # Initialise
+    out_timestamps = []
+    out_surface = []
+    out_is_replaced = []
+    out_filtered = []
+
+    # Process each segment separately. We divide up into segments after
+    # removing any passive data.
+    for segment in split_transect(
+        timestamps[~is_passive], d_surface=d_surface[~is_passive]
+    ):
+        fixed, is_replaced, filtered = remove_anomalies_1d(
+            segment["d_surface"], return_filtered=True
+        )
+        out_timestamps.append(segment["d_surface"])
+        out_surface.append(fixed)
+        out_is_replaced.append(is_replaced)
+        out_filtered.append(filtered)
+
+    # Merge segments into a single array for each output
+    out_timestamps = np.concatenate(out_timestamps)
+    out_surface = np.concatenate(out_surface)
+    out_is_replaced = np.concatenate(out_is_replaced)
+    out_filtered = np.concatenate(out_filtered)
+
+    # Add back datapoints during passive by interpolating the filtered signal
+    # over time
+    fixed_surface = np.zeros_like(d_surface)
+    fixed_surface[~is_passive] = out_surface
+    fixed_surface[is_passive] = np.interp(
+        timestamps[is_passive], timestamps[~is_passive], out_filtered
+    )
+    # Include indication that passive data was always replaced as well as other
+    # datapoints
+    is_replaced = np.ones_like(is_passive)
+    is_replaced[~is_passive] = out_is_replaced
+
+    return fixed_surface, is_replaced
+
+
 def load_decomposed_transect_mask(sample_path):
     """
     Loads a raw and masked transect and decomposes the mask into turbulence and bottom
@@ -851,6 +995,9 @@ def load_decomposed_transect_mask(sample_path):
     d_bottom = tidy_up_line(t_bottom, d_bottom)
     d_surface = tidy_up_line(t_surface, d_surface)
 
+    # Fix up surface line, removing anomalies
+    d_surface, is_surrogate_surface = fix_surface_line(ts_raw, d_surface, is_passive)
+
     # Make a mask indicating left-over patches. This is 0 everywhere,
     # except 1s wherever pixels in the overall mask are removed for
     # reasons not explained by the turbulence and bottom lines, and is_passive and
@@ -934,10 +1081,11 @@ def load_decomposed_transect_mask(sample_path):
     transect["mask_patches-original"] = mask_patches_og
     transect["mask_patches-ntob"] = mask_patches_ntob
     transect["turbulence"] = d_turbulence_new
-    transect["bottom"] = d_bottom_new
-    transect["surface"] = d_surface
     transect["turbulence-original"] = d_turbulence
+    transect["bottom"] = d_bottom_new
     transect["bottom-original"] = d_bottom
+    transect["surface"] = d_surface
+    transect["is_surrogate_surface"] = is_surrogate_surface
     transect["is_passive"] = is_passive
     transect["is_removed"] = is_removed
     transect["is_upward_facing"] = is_upward_facing
