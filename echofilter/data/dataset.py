@@ -366,6 +366,9 @@ class TransectDataset(torch.utils.data.Dataset):
         ]:
             sample["r" + key[1:]] = sample[key] / depth_range
 
+        # Change is_surrogate_surface to exclude passive data
+        sample["is_surrogate_surface"][sample["is_passive"] > 0.5] = 0
+
         # Create mask corresponding to the aggregate of all elements we need
         # masked in/out
         sample["mask"] = np.ones_like(sample["signals"])

@@ -399,6 +399,8 @@ class EchofilterLoss(_Loss):
                         target_key = "mask_surface"
                         target_i_key = "index_surface"
                         weight = self.surface
+                        # Don't include surrogate surface datapoints in loss
+                        loss_inclusion_mask *= 1 - target["is_surrogate_surface"]
                         # Check whether surface line is masked out
                         if self.ignore_surface_during_passive:
                             loss_inclusion_mask *= 1 - target["is_passive"]
