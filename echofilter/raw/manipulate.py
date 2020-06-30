@@ -518,10 +518,10 @@ def find_nonzero_region_boundaries(v):
     ends = np.nonzero(np.diff(v) < 0)[0] + 1
 
     if v[0]:
-        starts = np.concatenate(([0], starts))
+        starts = np.r_[0, starts]
 
     if v[-1]:
-        ends = np.concatenate((ends, [len(vector)]))
+        ends = np.r_[ends, len(vector)]
 
     return starts, ends
 
