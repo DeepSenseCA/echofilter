@@ -10,14 +10,14 @@ import matplotlib.pyplot as plt
 from . import utils
 
 
-TOP_COLOR = "c"
-BOT_COLOR = "#00ee00"
+TURBULENCE_COLOR = "c"
+BOTTOM_COLOR = "#00ee00"
 
 # ColorBrewer Paired values
-TOP_COLOR = "#a6cee3"
-BOT_COLOR = "#b2df8a"
-TOP_COLOR_DARK = "#1f78b4"
-BOT_COLOR_DARK = "#33a02c"
+TURBULENCE_COLOR = "#a6cee3"
+BOTTOM_COLOR = "#b2df8a"
+TURBULENCE_COLOR_DARK = "#1f78b4"
+BOTTOM_COLOR_DARK = "#33a02c"
 
 PASSIVE_COLOR = [0.4, 0.4, 0.4]
 REMOVED_COLOR = "b"
@@ -160,8 +160,8 @@ def plot_transect(
     signal_type=None,
     x_scale="index",
     show_regions=True,
-    turbulence_color=TOP_COLOR,
-    bottom_color=BOT_COLOR,
+    turbulence_color=TURBULENCE_COLOR,
+    bottom_color=BOTTOM_COLOR,
     passive_color=PASSIVE_COLOR,
     removed_color=None,
     linewidth=1,
