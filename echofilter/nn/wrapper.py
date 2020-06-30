@@ -307,7 +307,7 @@ class EchofilterLoss(_Loss):
     ignore_surface_during_removed : bool, optional
         Whether target for the surface line should be excluded from the loss
         during entirely removed sections. If `None`, the value from
-        `ignore_lines_during_removed` is used. Default is `False`.
+        `ignore_lines_during_removed` is used. Default is `True`.
     """
 
     __constants__ = ["reduction"]
@@ -327,7 +327,7 @@ class EchofilterLoss(_Loss):
         ignore_lines_during_passive=False,
         ignore_lines_during_removed=True,
         ignore_surface_during_passive=False,
-        ignore_surface_during_removed=False,
+        ignore_surface_during_removed=True,
     ):
         super(EchofilterLoss, self).__init__(None, None, reduction)
         self.conditional = conditional
