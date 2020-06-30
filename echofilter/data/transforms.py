@@ -66,6 +66,14 @@ _fields_1d_timelike = (
 )
 _fields_1d_depthlike = ("depths",)
 _fields_0d = ("is_upward_facing",)
+_fields_needing_linear = (
+    "timestamps",
+    "depths",
+    "is_surrogate_surface",
+    "is_bad_labels",
+    "is_passive",
+    "is_removed",
+)
 
 
 class Rescale(object):
@@ -136,7 +144,7 @@ class Rescale(object):
             if sample[key].shape == self.output_size[:1]:
                 continue
             _kind = "linear" if key == "timestamps" else kind
-            if key in {"is_passive", "is_removed"} and order > 1:
+            if order > 1 and key in _fields_needing_linear:
                 _kind = "linear"
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
@@ -239,7 +247,7 @@ class RandomGridSampling(Rescale):
             if key not in sample:
                 continue
             _kind = "linear" if key == "timestamps" else kind
-            if key in {"is_passive", "is_removed"} and order > 1:
+            if order > 1 and key in _fields_needing_linear:
                 _kind = "linear"
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
