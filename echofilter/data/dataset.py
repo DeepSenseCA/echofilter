@@ -200,8 +200,8 @@ class TransectDataset(torch.utils.data.Dataset):
             if sample["is_upward_facing"]:
                 nearfield_threshold = (
                     np.max(sample["depths"])
-                    - depth_intv / 5
-                    - self.nearfield_distance * 1.001
+                    - depth_intv * 2.5
+                    - self.nearfield_distance
                 )
                 was_in_nearfield = sample["d_bottom"] >= nearfield_threshold
                 sample["d_bottom"][was_in_nearfield] = max_bot_depth
@@ -219,7 +219,9 @@ class TransectDataset(torch.utils.data.Dataset):
                 sample["mask_patches-original"][:, idx_search:] = is_close_patch_og
                 sample["mask_patches-ntob"][:, idx_search:] = is_close_patch_og
             else:
-                was_in_nearfield = sample["d_turbulence"] <= self.nearfield_distance
+                was_in_nearfield = (
+                    sample["d_turbulence"] < self.nearfield_distance + depth_intv
+                )
                 sample["d_turbulence"][was_in_nearfield] = min_top_depth
                 was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
                 # Extend/contract mask_patches where necessary
