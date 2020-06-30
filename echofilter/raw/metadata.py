@@ -7,16 +7,28 @@ import os
 import numpy as np
 
 
-def passive_edges(sample_path, timestamps):
+def recall_passive_edges(sample_path, timestamps):
     """
-    Defines passive data edges
+    Defines passive data edges for samples within known datasets.
 
     Parameters
     ----------
+    sample_path : str
+        Path to sample.
+    timestamps : array_like vector
+        Vector of timestamps in sample.
 
     Returns
     -------
-
+    passive_starts : numpy.ndarray or None
+        Indices indicating the onset of passive data collection periods, or
+        `None` if passive metadata is unavailable for this sample.
+    passive_ends : numpy.ndarray or None
+        Indices indicating the offset of passive data collection periods, or
+        `None` if passive metadata is unavailable for this sample.
+    finder_version : absent or str
+        If `passive_starts` and `passive_ends`, this string may be present to
+        indicate which passive finder algorithm works best for this dataset.
     """
 
     sample_path = sample_path.lower()
@@ -72,7 +84,7 @@ def passive_edges(sample_path, timestamps):
                 "WBAT_2B_20200131_UTC140022_floodhigh",
                 "WBAT_2B_20200202_UTC040019_floodhigh",
                 "WBAT_2B_20200202_UTC100022_ebblow",
-                # "WBAT_2B_20200130_UTC020017_floodhigh", # broken csv file
+                # "WBAT_2B_20200130_UTC020017_floodhigh",  # broken csv encoding
             ]:
                 if name in sample_path:
                     like_phase1 = True
