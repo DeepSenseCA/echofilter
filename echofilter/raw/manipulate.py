@@ -726,7 +726,9 @@ def load_decomposed_transect_mask(sample_path):
             "Expected {} to exist when transect is downfacing.".format(fname_bottom)
         )
     else:
-        t_bottom = d_bottom = None
+        # Default bottom depth is the bottom of the field of view
+        t_bottom = ts_raw
+        d_bottom = np.ones_like(ts_raw) * np.max(depths_raw)
 
     if os.path.isfile(fname_surface):
         t_surface, d_surface = loader.evl_loader(fname_surface)
