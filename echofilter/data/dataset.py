@@ -321,22 +321,21 @@ class TransectDataset(torch.utils.data.Dataset):
                     sample["mask_patches" + suffix] > 0.5
                 ).astype(np.float32)
 
-        sample["d_surface"][~np.isfinite(sample["d_surface"])] = np.min(
-            sample["depths"]
-        )
-        for sfx in ("", "-original"):
-            if sample["is_upward_facing"]:
-                where_invalid = ~np.isfinite(sample["d_turbulence" + sfx])
-                sample["d_turbulence" + sfx][where_invalid] = sample["d_surface"][
-                    where_invalid
-                ]
-            else:
-                sample["d_turbulence" + sfx][
-                    ~np.isfinite(sample["d_turbulence" + sfx])
-                ] = min_top_depth
-            sample["d_bottom" + sfx][
-                ~np.isfinite(sample["d_bottom" + sfx])
-            ] = max_bot_depth
+        # Ensure all line values are finite
+        for key in [
+            "d_surface",
+            "d_turbulence",
+            "d_turbulence-original",
+            "d_bottom",
+            "d_bottom-original",
+        ]:
+            where_invalid = ~np.isfinite(sample[key])
+            if np.sum(where_invalid) > 0 and np.sum(where_invalid) < len(sample[key]):
+                sample[key][where_invalid] = np.interp(
+                    sample["timestamps"][where_invalid],
+                    sample["timestamps"][~where_invalid],
+                    sample[key][~where_invalid],
+                )
 
         # Apply depth crop
         if self.crop_depth is not None:
