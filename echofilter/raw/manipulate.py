@@ -697,10 +697,10 @@ def load_decomposed_transect_mask(sample_path):
     # Determine whether depths are ascending or descending
     is_upward_facing = depths_raw[-1] < depths_raw[0]
 
-    fname_turbulence1 = os.path.join(sample_path + "_turbulence.evl")
-    fname_turbulence2 = os.path.join(sample_path + "_air.evl")
-    fname_bottom = os.path.join(sample_path + "_bottom.evl")
-    fname_surface = os.path.join(sample_path + "_surface.evl")
+    fname_turbulence1 = sample_path + "_turbulence.evl"
+    fname_turbulence2 = sample_path + "_air.evl"
+    fname_bottom = sample_path + "_bottom.evl"
+    fname_surface = sample_path + "_surface.evl"
 
     if os.path.isfile(fname_turbulence1):
         fname_turbulence = fname_turbulence1
