@@ -454,8 +454,12 @@ def train(
         t_val_end = time.time()
 
         print(
-            "Completed {} of {} epochs in {}".format(
-                epoch, n_epoch, datetime.timedelta(seconds=time.time() - t_start)
+            "{}/{}\nCompleted {} of {} epochs in {}".format(
+                dataset_name,
+                log_name,
+                epoch,
+                n_epoch,
+                datetime.timedelta(seconds=time.time() - t_start),
             )
         )
         # Print metrics to terminal
