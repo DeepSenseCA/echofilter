@@ -3,7 +3,7 @@
 # Take a list of dates, and separate them into test/train/validate sets
 #
 # One way to get that list would be something like:
-# for survey in december2017 march2018 september2018 ; do ls -1 $survey/evExports/*.csv ; done | sed "s:-.*::g" >dates.txt
+# for survey in december2017 march2018 september2018 ; do ls -1 $survey/*.csv ; done | sed "s:-.*::g" >dates.txt
 
 wdir="/data/dsforce/surveyExports/MinasPassage/sets/temp"
 

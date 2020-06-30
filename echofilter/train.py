@@ -76,10 +76,10 @@ PLOT_TRANSECTS = {
         "mobile/Survey17/Survey17_GR4_N5W_E",
     ],
     "MinasPassage": [
-        "MinasPassage/december2017/evExports/december2017_D20180213-T115216_D20180213-T172216",
-        "MinasPassage/march2018/evExports/march2018_D20180513-T195216_D20180514-T012216",
-        "MinasPassage/september2018/evExports/september2018_D20181027-T202217_D20181028-T015217",
-        "MinasPassage/september2018/evExports/september2018_D20181107-T122220_D20181107-T175217",
+        "MinasPassage/december2017/december2017_D20180213-T115216_D20180213-T172216",
+        "MinasPassage/march2018/march2018_D20180513-T195216_D20180514-T012216",
+        "MinasPassage/september2018/september2018_D20181027-T202217_D20181028-T015217",
+        "MinasPassage/september2018/september2018_D20181107-T122220_D20181107-T175217",
     ],
     "GrandPassage": [
         "GrandPassage/phase2/GrandPassage_WBAT_2B_20200125_UTC160020_ebblow",
