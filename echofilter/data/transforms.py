@@ -144,7 +144,10 @@ class Rescale(object):
             if sample[key].shape == self.output_size[:1]:
                 continue
             _kind = "linear" if key == "timestamps" else kind
-            if order > 1 and key in _fields_needing_linear:
+            if order > 1 and (
+                key in _fields_needing_linear
+                or ("bot" in key and sample["is_upward_facing"])
+            ):
                 _kind = "linear"
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
@@ -247,7 +250,10 @@ class RandomGridSampling(Rescale):
             if key not in sample:
                 continue
             _kind = "linear" if key == "timestamps" else kind
-            if order > 1 and key in _fields_needing_linear:
+            if order > 1 and (
+                key in _fields_needing_linear
+                or ("bot" in key and sample["is_upward_facing"])
+            ):
                 _kind = "linear"
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
