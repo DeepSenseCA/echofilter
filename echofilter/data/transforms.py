@@ -442,15 +442,15 @@ class Normalize(object):
             if self.robust2stdev:
                 deviation *= 1.4826
         elif self.deviation.lower() == "iqr":
-            deviation = np.diff(np.nanpercentile(sample["signals"], [25, 75]))[0]
+            deviation = np.diff(np.nanpercentile(sample["signals"], [25, 75])).item()
             if self.robust2stdev:
                 deviation /= 1.35
         elif self.deviation.lower() == "idr":
-            deviation = np.diff(np.nanpercentile(sample["signals"], [10, 90]))[0]
+            deviation = np.diff(np.nanpercentile(sample["signals"], [10, 90])).item()
             if self.robust2stdev:
                 deviation /= 2.56
         elif self.deviation.lower() == "i7r":
-            deviation = np.diff(np.nanpercentile(sample["signals"], [7, 93]))[0]
+            deviation = np.diff(np.nanpercentile(sample["signals"], [7, 93])).item()
             if self.robust2stdev:
                 deviation /= 3.0
         else:
