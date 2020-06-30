@@ -688,6 +688,7 @@ def train(
             "nan_value": NAN_VALUE,
             "wrapper_mapping": model.mapping,
             "wrapper_params": model.params,
+            "training_routine": "echofilter-train {}".format(echofilter.__version__),
         }
         if use_mixed_precision:
             checkpoint["amp"] = apex.amp.state_dict()
