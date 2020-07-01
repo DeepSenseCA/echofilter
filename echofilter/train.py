@@ -391,6 +391,25 @@ def train(
             if use_mixed_precision and "amp" in checkpoint:
                 apex.amp.load_state_dict(checkpoint["amp"])
         if restart == "warm":
+            # We loaded the optimizer state from the checkpoint to get the
+            # current buffer values (the weighted history of updates).
+            # However, this also changed our schedule settings to the ones
+            # used to train the model in the checkpoint, so we need to
+            # overwrite it with the schedule initialisation step now.
+            for group in optimizer.param_groups:
+                if "onecycle" in schedule:
+                    group["lr"] = group["initial_lr"] = lr / lr_initial_div_factor
+                    group["max_lr"] = lr
+                    group["min_lr"] = group["initial_lr"] / lr_final_div_factor
+                    group["base_momentum"] = base_momentum
+                    group["max_momentum"] = momentum
+                else:
+                    group["lr"] = lr
+                    if "betas" in group:
+                        _, beta2 = group["betas"]
+                        group["betas"] = (momentum, beta2)
+                    else:
+                        group["momentum"] = momentum
             print("Loaded checkpoint '{}' for warm restart".format(resume))
         elif not restart:
             start_epoch = checkpoint["epoch"] + 1
