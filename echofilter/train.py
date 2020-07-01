@@ -289,6 +289,8 @@ def train(
     )
 
     schedule_data = {"name": schedule}
+    lr_initial_div_factor = 1e3
+    lr_final_div_factor = 1e5
     if schedule == "lrfinder":
         pass
     elif schedule == "constant":
@@ -304,8 +306,8 @@ def train(
             cycle_momentum=True,
             base_momentum=base_momentum,
             max_momentum=momentum,
-            div_factor=1e3,
-            final_div_factor=1e5,
+            div_factor=lr_initial_div_factor,
+            final_div_factor=lr_final_div_factor,
         )
     elif schedule == "mesaonecycle":
         schedule_data["scheduler"] = schedulers.MesaOneCycleLR(
@@ -319,8 +321,8 @@ def train(
             cycle_momentum=True,
             base_momentum=base_momentum,
             max_momentum=momentum,
-            div_factor=1e3,
-            final_div_factor=1e5,
+            div_factor=lr_initial_div_factor,
+            final_div_factor=lr_final_div_factor,
         )
     else:
         raise ValueError("Unsupported schedule: {}".format(schedule))
