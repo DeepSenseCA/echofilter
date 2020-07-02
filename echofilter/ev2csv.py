@@ -10,6 +10,7 @@ import warnings
 from tqdm.auto import tqdm
 
 import echofilter.path
+import echofilter.ui
 import echofilter.utils
 import echofilter.win
 
@@ -259,7 +260,7 @@ def main():
     parser = argparse.ArgumentParser(
         prog=prog,
         description="EchoView to raw CSV exporter",
-        formatter_class=echofilter.utils.FlexibleHelpFormatter,
+        formatter_class=echofilter.ui.formatters.FlexibleHelpFormatter,
         add_help=False,
     )
 

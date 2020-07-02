@@ -14,7 +14,6 @@ import urllib
 import warnings
 
 import appdirs
-import colorama
 import numpy as np
 from matplotlib import colors as mcolors
 import pandas as pd
@@ -34,11 +33,10 @@ from echofilter.nn.wrapper import Echofilter
 import echofilter.path
 import echofilter.raw
 from echofilter.raw.manipulate import join_transect, split_transect
+import echofilter.ui
 import echofilter.utils
 import echofilter.win
 
-
-colorama.init()
 
 CHECKPOINT_RESOURCES = OrderedDict(
     [
@@ -386,7 +384,9 @@ def run_inference(
 
     t_start_prog = time.time()
 
-    progress_color = colorama.Fore.MAGENTA if dry_run else colorama.Fore.GREEN
+    progress_fmt = (
+        echofilter.ui.style.dryrun_fmt if dry_run else echofilter.ui.style.progress_fmt
+    )
 
     existing_file_msg = (
         "Run with overwrite_existing=True (with the command line"
@@ -396,12 +396,13 @@ def run_inference(
 
     if verbose >= 1:
         print(
-            "{}Starting inference {}.{} {}{}".format(
-                progress_color + colorama.Style.BRIGHT,
-                "dry-run" if dry_run else "routine",
-                colorama.Style.NORMAL,
-                datetime.datetime.now().strftime("%A, %B %d, %Y at %H:%M:%S"),
-                colorama.Style.RESET_ALL,
+            progress_fmt(
+                "{}Starting inference {}.{} {}".format(
+                    echofilter.ui.style.HighlightStyle.start,
+                    "dry-run" if dry_run else "routine",
+                    echofilter.ui.style.HighlightStyle.reset,
+                    datetime.datetime.now().strftime("%A, %B %d, %Y at %H:%M:%S"),
+                )
             )
         )
 
@@ -458,12 +459,12 @@ def run_inference(
         "one of \n{},\nbut {} was provided.".format(
             list(CHECKPOINT_RESOURCES.keys()), ckpt_name
         )
-        with echofilter.utils.error_styling(msg) as msg:
+        with echofilter.ui.style.error_message(msg) as msg:
             raise ValueError(msg)
 
     if not os.path.isfile(ckpt_path):
         msg = "No checkpoint found at '{}'".format(ckpt_path)
-        with echofilter.utils.error_styling(msg) as msg:
+        with echofilter.ui.style.error_message(msg) as msg:
             raise EnvironmentError(msg)
     if verbose >= 1:
         print("Loading model from checkpoint:\n  '{}'".format(ckpt_path))
@@ -481,7 +482,7 @@ def run_inference(
             msg = "Error: Unable to load checkpoint {}".format(
                 os.path.abspath(ckpt_path)
             )
-            with echofilter.utils.error_styling(msg) as msg:
+            with echofilter.ui.style.error_message(msg) as msg:
                 print(msg)
                 raise
         # Delete the checkpoint and try again, in case it is just a
@@ -546,9 +547,10 @@ def run_inference(
     except RuntimeError as err:
         if verbose >= 5:
             print(
-                colorama.Fore.CYAN
-                + "Warning: Checkpoint doesn't seem to be for the UNet."
-                "Trying to load it as the whole model instead." + colorama.Fore.RESET
+                echofilter.ui.style.warning_fmt(
+                    "Warning: Checkpoint doesn't seem to be for the UNet."
+                    "Trying to load it as the whole model instead."
+                )
             )
         try:
             model.load_state_dict(checkpoint["state_dict"])
@@ -563,7 +565,7 @@ def run_inference(
                 "Could not load the checkpoint state as either the whole model"
                 "or the unet component."
             )
-            with echofilter.utils.error_styling(msg) as msg:
+            with echofilter.ui.style.error_message(msg) as msg:
                 print(msg)
                 raise err
 
@@ -580,13 +582,13 @@ def run_inference(
     )
     if verbose >= 1:
         print(
-            "{}Processing {}{} file{}{}...{}".format(
-                progress_color,
-                colorama.Style.BRIGHT,
-                len(files),
-                "" if len(files) == 1 else "s",
-                colorama.Style.NORMAL,
-                colorama.Style.RESET_ALL,
+            progress_fmt(
+                "Processing {}{} file{}{}...".format(
+                    echofilter.ui.style.HighlightStyle.start,
+                    len(files),
+                    "" if len(files) == 1 else "s",
+                    echofilter.ui.style.HighlightStyle.reset,
+                )
             )
         )
 
@@ -638,9 +640,10 @@ def run_inference(
         for fname in maybe_tqdm(files):
             if verbose >= 2:
                 print(
-                    progress_color
-                    + "Processing {}{}{}".format(
-                        colorama.Style.BRIGHT, fname, colorama.Style.RESET_ALL,
+                    progress_fmt(
+                        "Processing {}".format(
+                            echofilter.ui.style.highlight_fmt(fname),
+                        )
                     )
                 )
 
@@ -683,17 +686,13 @@ def run_inference(
             # Check whether to skip processing this file
             if skip_existing and not any_missing:
                 if verbose >= 2:
-                    print(
-                        colorama.Fore.YELLOW
-                        + "  Skipping {}".format(fname)
-                        + colorama.Fore.RESET
-                    )
+                    print(echofilter.ui.style.skip_fmt("  Skipping {}".format(fname)))
                 skip_count += 1
                 continue
             # Check whether we would clobber a file we can't overwrite
             if any_exists and not overwrite_existing:
                 msg = "Output {} for {} already exists.".format(first_clobber, fname)
-                with echofilter.utils.error_styling(msg) as msg:
+                with echofilter.ui.style.error_message(msg) as msg:
                     if dry_run:
                         error_msgs.append("Error: " + msg + "\n  " + existing_file_msg)
                         print(error_msgs[-1])
@@ -717,13 +716,13 @@ def run_inference(
                     fname, ext
                 )
                 if not skip_incompatible:
-                    with echofilter.utils.error_styling(msg) as msg:
+                    with echofilter.ui.style.error_message(msg) as msg:
                         raise EnvironmentError(msg)
                 if verbose >= 2:
                     print(
-                        colorama.Fore.YELLOW
-                        + "  Skipping incompatible file {}".format(fname)
-                        + colorama.Fore.RESET
+                        echofilter.ui.style.skip_fmt(
+                            "  Skipping incompatible file {}".format(fname)
+                        )
                     )
                 incompatible_count += 1
                 continue
@@ -787,12 +786,8 @@ def run_inference(
                     print("  {} write files:".format(ww))
                     for key, fname in dest_files.items():
                         if os.path.isfile(fname) and overwrite_existing:
-                            over_txt = (
-                                " "
-                                + colorama.Fore.BLUE
-                                + colorama.Style.BRIGHT
-                                + "(overwriting existing file)"
-                                + colorama.Style.RESET_ALL
+                            over_txt = " " + echofilter.ui.style.overwrite_fmt(
+                                "(overwriting existing file)"
                             )
                         else:
                             over_txt = ""
@@ -822,14 +817,14 @@ def run_inference(
                     if skip_incompatible and fname not in files_input:
                         if verbose >= 2:
                             print(
-                                colorama.Fore.YELLOW
-                                + "  Skipping incompatible file {}".format(fname)
-                                + colorama.Fore.RESET
+                                echofilter.ui.style.skip_fmt(
+                                    "  Skipping incompatible file {}".format(fname)
+                                )
                             )
                         incompatible_count += 1
                         continue
                     msg = "CSV file {} could not be loaded.".format(fname)
-                    with echofilter.utils.error_styling(msg) as msg:
+                    with echofilter.ui.style.error_message(msg) as msg:
                         print(msg)
                         raise
 
@@ -861,17 +856,18 @@ def run_inference(
                     cs = "|downfacing"
                 if verbose >= 4:
                     print(
-                        colorama.Style.DIM
-                        + "  Using conditional probability outputs from model:"
-                        " p(state{})".format(cs) + colorama.Style.NORMAL
+                        echofilter.ui.style.aside_fmt(
+                            "  Using conditional probability outputs from model:"
+                            " p(state{})".format(cs)
+                        )
                     )
             else:
                 cs = ""
                 if is_conditional_model and verbose >= 4:
                     print(
-                        colorama.Style.DIM
-                        + "Using unconditioned output from conditional model"
-                        + colorama.Style.NORMAL
+                        echofilter.ui.style.aside_fmt(
+                            "Using unconditioned output from conditional model"
+                        )
                     )
 
             # Convert output into lines
@@ -917,7 +913,7 @@ def run_inference(
                     msg = "Unsupported passive line interpolation method: {}".format(
                         lines_during_passive
                     )
-                    with echofilter.utils.error_styling(msg) as msg:
+                    with echofilter.ui.style.error_message(msg) as msg:
                         raise ValueError(msg)
 
                 if len(x[~is_passive]) == 0:
@@ -941,7 +937,7 @@ def run_inference(
                     )
             else:
                 msg = "Unsupported passive line method: {}".format(lines_during_passive)
-                with echofilter.utils.error_styling(msg) as msg:
+                with echofilter.ui.style.error_message(msg) as msg:
                     raise ValueError(msg)
 
             if nearfield_cutoff is None:
@@ -970,19 +966,14 @@ def run_inference(
                     if not os.path.exists(dest_file):
                         pass
                     elif not overwrite_existing:
-                        s = colorama.Fore.RED + s + colorama.Fore.RESET
+                        s = echofilter.ui.style.error_fmt(s)
                     else:
-                        s = (
-                            colorama.Fore.BLUE
-                            + colorama.Style.BRIGHT
-                            + s
-                            + colorama.Style.RESET_ALL
-                        )
+                        s = echofilter.ui.style.overwrite_fmt(s)
                     s += " {}".format(dest_file)
                     print(s)
                 if os.path.exists(dest_file) and not overwrite_existing:
                     msg = "Output {} already exists.".format(dest_file)
-                    with echofilter.utils.error_styling(msg) as msg:
+                    with echofilter.ui.style.error_message(msg) as msg:
                         raise EnvironmentError(msg + "\n  " + existing_file_msg)
 
                 echofilter.raw.loader.evl_writer(
@@ -995,19 +986,14 @@ def run_inference(
                 if not os.path.exists(dest_file):
                     pass
                 elif not overwrite_existing:
-                    s = colorama.Fore.RED + s + colorama.Fore.RESET
+                    s = echofilter.ui.style.error_fmt(s)
                 else:
-                    s = (
-                        colorama.Fore.BLUE
-                        + colorama.Style.BRIGHT
-                        + s
-                        + colorama.Style.RESET_ALL
-                    )
+                    s = echofilter.ui.style.overwrite_fmt(s)
                 s += " {}".format(dest_file)
                 print(s)
             if os.path.exists(dest_file) and not overwrite_existing:
                 msg = "Output {} already exists.".format(dest_file)
-                with echofilter.utils.error_styling(msg) as msg:
+                with echofilter.ui.style.error_message(msg) as msg:
                     raise EnvironmentError(msg + "\n  " + existing_file_msg)
 
             patches_key = "p_is_patch"
@@ -1052,45 +1038,44 @@ def run_inference(
 
     if verbose >= 1:
         print(
-            progress_color
-            + "Finished {}processing {}{} file{}{}.".format(
-                "simulating " if dry_run else "",
-                colorama.Style.BRIGHT,
-                len(files),
-                "" if len(files) == 1 else "s",
-                colorama.Style.NORMAL,
+            progress_fmt(
+                "Finished {}processing {}{} file{}{}.".format(
+                    "simulating " if dry_run else "",
+                    echofilter.ui.style.HighlightStyle.start,
+                    len(files),
+                    "" if len(files) == 1 else "s",
+                    echofilter.ui.style.HighlightStyle.reset,
+                )
             )
-            + colorama.Style.RESET_ALL
         )
         skip_total = skip_count + incompatible_count
         if skip_total > 0:
             s = ""
-            s += colorama.Fore.YELLOW
             s += "Of these, {}{}{} file{} skipped{}: {} already processed".format(
                 "all " if skip_total == len(files) else "",
-                colorama.Style.BRIGHT,
+                echofilter.ui.style.HighlightStyle.start,
                 skip_total,
                 " was" if skip_total == 1 else "s were",
-                colorama.Style.NORMAL,
+                echofilter.ui.style.HighlightStyle.reset,
                 skip_count,
             )
             if not dry_run:
                 s += ", {} incompatible".format(incompatible_count)
             s += "."
-            s += colorama.Fore.RESET
+            s = echofilter.ui.style.skip_fmt(s)
             print(s)
         if error_msgs:
             print(
-                colorama.Fore.RED
-                + "There {} {} error{}:".format(
-                    "was" if len(error_msgs) == 1 else "were",
-                    len(error_msgs),
-                    "" if len(error_msgs) == 1 else "s",
+                echofilter.ui.style.error_fmt(
+                    "There {} {} error{}:".format(
+                        "was" if len(error_msgs) == 1 else "were",
+                        len(error_msgs),
+                        "" if len(error_msgs) == 1 else "s",
+                    )
                 )
-                + colorama.Fore.RESET
             )
             for error_msg in error_msgs:
-                print(colorama.Fore.RED + error_msg + colorama.Fore.RESET)
+                print(echofilter.ui.style.error_fmt(error_msg))
         print(
             "Total runtime: {}".format(
                 datetime.timedelta(seconds=time.time() - t_start_prog)
@@ -1211,33 +1196,36 @@ def inference_transect(
         transect["signals"] = transect["signals"][:, ::-1].copy()
         if facing == "auto" and verbose >= 2:
             print(
-                colorama.Style.DIM
-                + "  Echogram was autodetected as upward facing, and was flipped"
-                " vertically before being input into the model." + colorama.Style.NORMAL
+                echofilter.ui.style.aside_fmt(
+                    "  Echogram was autodetected as upward facing, and was flipped"
+                    " vertically before being input into the model."
+                )
             )
         if not is_upward_facing:
             print(
-                colorama.Fore.CYAN
-                + 'Warning: facing = "{}" was provided, but data appears to be'
-                " downward facing".format(facing) + colorama.Fore.RESET
+                echofilter.ui.style.warning_fmt(
+                    'Warning: facing = "{}" was provided, but data appears to be'
+                    " downward facing".format(facing)
+                )
             )
         is_upward_facing = True
     elif facing[:4] != "down" and facing != "auto":
         msg = 'facing should be one of "downward", "upward", and "auto"'
-        with echofilter.utils.error_styling(msg) as msg:
+        with echofilter.ui.style.error_message(msg) as msg:
             raise ValueError(msg)
     elif facing[:4] == "down" and is_upward_facing:
         print(
-            colorama.Fore.CYAN
-            + 'Warning: facing = "{}" was provided, but data appears to be'
-            " upward facing".format(facing) + colorama.Fore.RESET
+            echofilter.ui.style.warning_fmt(
+                'Warning: facing = "{}" was provided, but data appears to be'
+                " upward facing".format(facing)
+            )
         )
         is_upward_facing = False
     elif facing == "auto" and verbose >= 2:
         print(
-            colorama.Style.DIM
-            + "  Echogram was autodetected as downward facing."
-            + colorama.Style.NORMAL
+            echofilter.ui.style.aside_fmt(
+                "  Echogram was autodetected as downward facing."
+            )
         )
 
     # To reduce memory consumption, split into segments whenever the recording
@@ -1411,19 +1399,20 @@ def import_lines_regions_to_ev(
             fname_full = os.path.abspath(fname)
             if not os.path.isfile(fname_full):
                 print(
-                    colorama.Fore.CYAN
-                    + "Warning: File '{}' could not be found".format(fname_full)
-                    + colorama.Fore.RESET
+                    echofilter.ui.style.warning_fmt(
+                        "Warning: File '{}' could not be found".format(fname_full)
+                    )
                 )
                 continue
             is_imported = ev_file.Import(fname_full)
             if not is_imported:
                 print(
-                    colorama.Fore.CYAN + "Warning: Unable to import file '{}'"
-                    "Please consult EchoView for the Import error message.".format(
-                        fname
+                    echofilter.ui.style.warning_fmt(
+                        "Warning: Unable to import file '{}'"
+                        "Please consult EchoView for the Import error message.".format(
+                            fname
+                        )
                     )
-                    + colorama.Fore.RESET
                 )
                 continue
 
@@ -1438,9 +1427,10 @@ def import_lines_regions_to_ev(
             line = lines.FindByName(variable.Name)
             if not line:
                 print(
-                    colorama.Fore.CYAN
-                    + "Warning: Could not find line which was just imported with"
-                    " name '{}'".format(variable.Name) + colorama.Fore.RESET
+                    echofilter.ui.style.warning_fmt(
+                        "Warning: Could not find line which was just imported with"
+                        " name '{}'".format(variable.Name)
+                    )
                 )
                 print("Ignoring and continuing processing.")
                 continue
@@ -1457,10 +1447,10 @@ def import_lines_regions_to_ev(
                 # Overwrite the old line
                 if verbose >= 2:
                     print(
-                        colorama.Fore.BLUE
-                        + colorama.Style.BRIGHT
-                        + "Overwriting existing line '{}' with new {} line"
-                        " output".format(target_name, key) + colorama.Style.RESET_ALL
+                        echofilter.ui.style.overwrite_fmt(
+                            "Overwriting existing line '{}' with new {} line"
+                            " output".format(target_name, key)
+                        )
                     )
                 old_line_edit = old_line.AsLineEditable
                 if old_line_edit:
@@ -1474,9 +1464,10 @@ def import_lines_regions_to_ev(
                 elif verbose >= 0:
                     # Line is not editable
                     print(
-                        colorama.Fore.CYAN
-                        + "Existing line '{}' is not editable and cannot be"
-                        " overwritten.".format(target_name, key) + colorama.Fore.RESET
+                        echofilter.ui.style.warning_fmt(
+                            "Existing line '{}' is not editable and cannot be"
+                            " overwritten.".format(target_name, key)
+                        )
                     )
 
             if old_line and not successful_overwrite:
@@ -1625,11 +1616,11 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
             except (pickle.UnpicklingError, urllib.error.URLError):
                 if verbose >= 1:
                     print(
-                        colorama.Fore.RED
-                        + "\nCould not download checkpoint {} from GDrive!".format(
-                            checkpoint_name
+                        echofilter.ui.style.error_fmt(
+                            "\nCould not download checkpoint {} from GDrive!".format(
+                                checkpoint_name
+                            )
                         )
-                        + colorama.Fore.RESET
                     )
         else:
             if verbose >= 1:
@@ -1645,16 +1636,16 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
             except (pickle.UnpicklingError, urllib.error.URLError):
                 if verbose >= 1:
                     print(
-                        colorama.Fore.RED
-                        + "\nCould not download checkpoint {} from {}".format(
-                            checkpoint_name, url_or_id
+                        echofilter.ui.style.error_fmt(
+                            "\nCould not download checkpoint {} from {}".format(
+                                checkpoint_name, url_or_id
+                            )
                         )
-                        + colorama.Fore.RESET
                     )
 
     if not success:
         msg = "Unable to download {} from {}".format(checkpoint_name, sources)
-        with echofilter.utils.error_styling(msg) as msg:
+        with echofilter.ui.style.error_message(msg) as msg:
             raise OSError(msg)
 
     if verbose >= 1:
@@ -1699,7 +1690,7 @@ def cli():
     parser = argparse.ArgumentParser(
         prog=prog,
         description=echofilter.__meta__.description,
-        formatter_class=echofilter.utils.FlexibleHelpFormatter,
+        formatter_class=echofilter.ui.formatters.FlexibleHelpFormatter,
         add_help=False,
     )
 
@@ -2568,10 +2559,10 @@ def main():
     except KeyboardInterrupt as err:
         # Don't show stack traceback when KeyboardInterrupt is given.
         print(
-            "{}Interrupted by user while processing: {}{}".format(
-                colorama.Fore.CYAN,
-                colorama.Style.BRIGHT + " ".join(sys.argv) + colorama.Style.NORMAL,
-                colorama.Style.RESET_ALL,
+            echofilter.ui.style.warning_fmt(
+                "Interrupted by user while processing: {}".format(
+                    echofilter.ui.style.highlight_fmt(" ".join(sys.argv)),
+                )
             )
         )
         try:
@@ -2580,7 +2571,7 @@ def main():
             os._exit(1)
     except:
         # Ensure all other errors are shown in red.
-        with echofilter.utils.error_styling():
+        with echofilter.ui.style.error_message():
             raise
 
 
