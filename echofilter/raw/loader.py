@@ -454,14 +454,7 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n"):
             # We have to manually determine the number of "0.1 milliseconds"
             # from the microsecond component.
             dt = datetime.datetime.fromtimestamp(timestamp)
-            hf.write(
-                "{}  {} {} ".format(
-                    timestamp2evdtstr(timestamp),
-                    depth,
-                    0 if i_row == n_row - 1 else status,
-                )
-                + "\n"
-            )
+            hf.write("{}  {} {} \n".format(timestamp2evdtstr(timestamp), depth, status))
 
 
 def evr_writer(
