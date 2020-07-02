@@ -347,6 +347,14 @@ def cli():
         """,
     )
     group_outfile.add_argument(
+        "--no-nearfield-line",
+        dest="add_nearfield_line",
+        action="store_false",
+        help="""
+            Do not add a nearfield line to the ev file.
+        """,
+    )
+    group_outfile.add_argument(
         "--suffix-file",
         "--suffix",
         dest="suffix_file",
@@ -409,6 +417,18 @@ def cli():
         """,
     )
     group_outfile.add_argument(
+        "--color-nearfield",
+        type=str,
+        default="mediumseagreen",
+        help="""
+            Color to use for the nearfield line when it is created in
+            EchoView. This can either be the name of a supported color (see
+            --list-colors for options), or a a hexadecimal string, or a string
+            representation of an RGB color to supply directly to EchoView (such
+            as "(0,255,0)"). Default: "%(default)s".
+        """,
+    )
+    group_outfile.add_argument(
         "--thickness-turbulence",
         type=int,
         default=2,
@@ -432,6 +452,15 @@ def cli():
         default=1,
         help="""
             Thicknesses with which the surface line will be displayed in
+            EchoView. Default: %(default)s.
+        """,
+    )
+    group_outfile.add_argument(
+        "--thickness-nearfield",
+        type=int,
+        default=1,
+        help="""
+            Thicknesses with which the nearfield line will be displayed in
             EchoView. Default: %(default)s.
         """,
     )
@@ -545,20 +574,29 @@ def cli():
         """,
     )
     group_outconfig.add_argument(
-        "--nearfield-cutoff",
+        "--nearfield",
         type=float,
-        nargs="?",
-        const=None,
         default=1.7,
         help="""
-            Nearest approach distance for line adjacent to echosounder, in
-            meters. If the echosounder is downfacing, NEARFIELD_CUTOFF is the
-            minimum depth for the turbulence line. If the echosounder is
-            upfacing, the maximum depth for the bottom line will be
-            NEARFIELD_CUTOFF above the deepest depth in the input data, plus
-            one inter-depth interval. If the --nearfield-cutoff argument is
-            given without a value, no nearfield cut off will be applied.
-            Default: %(default)s.
+            Nearfield distance, in metres. Default: %(default)s.
+            If the echogram is downward facing, the nearfield cutoff depth
+            will be at a depth equal to the nearfield distance.
+            If the echogram is upward facing, the nearfield cutoff will be
+            NEARFIELD meters above the deepest depth recorded in the input
+            data.
+            When processing an EV file, by default a nearfield line will be
+            added at the nearfield cutoff depth. To prevent this behaviour,
+            use the --no-nearfield-line argument.
+        """,
+    )
+    group_outconfig.add_argument(
+        "--no-cutoff-at-nearfield",
+        dest="cutoff_at_nearfield",
+        action="store_false",
+        help="""
+            By default, turbulence and bottom lines cannot extend closer to the
+            echosounder than the nearfield line.
+            Supply this argument to disable this feature.
         """,
     )
     group_outconfig.add_argument(

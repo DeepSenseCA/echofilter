@@ -63,14 +63,17 @@ def run_inference(
     generate_turbulence_line=True,
     generate_bottom_line=True,
     generate_surface_line=True,
+    add_nearfield_line=True,
     suffix_file="",
     suffix_var=None,
     color_turbulence="orangered",
     color_bottom="orangered",
     color_surface="green",
+    color_nearfield="mediumseagreen",
     thickness_turbulence=2,
     thickness_bottom=2,
     thickness_surface=1,
+    thickness_nearfield=1,
     cache_dir=None,
     cache_csv=None,
     suffix_csv="",
@@ -79,7 +82,8 @@ def run_inference(
     offset_turbulence=1.0,
     offset_bottom=1.0,
     offset_surface=1.0,
-    nearfield_cutoff=1.7,
+    nearfield=1.7,
+    cutoff_at_nearfield=True,
     lines_during_passive="predict",
     collate_passive_length=10,
     collate_removed_length=10,
@@ -160,6 +164,9 @@ def run_inference(
         Whether to output an evl file for the surface line. If this is `False`,
         the surface line is also never imported into EchoView.
         Default is `True`.
+    add_nearfield_line : bool, optional
+        Whether to add a nearfield line to the EV file in EchoView.
+        Default is `True`.
     suffix_file : str, optional
         Suffix to append to output artifacts (evl and evr files), between
         the name of the file and the extension. If `suffix_file` begins with
@@ -187,14 +194,23 @@ def run_inference(
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to EchoView (such as "(0,255,0)").
         Default is `"green"`.
+    color_nearfield : str, optional
+        Color to use for the nearfield line when it is created in EchoView.
+        This can either be the name of a supported color from
+        matplotlib.colors, or a hexadecimal color, or a string representation
+        of an RGB color to supply directly to EchoView (such as "(0,255,0)").
+        Default is `"mediumseagreen"`.
     thickness_turbulence : int, optional
         Thicknesses with which the turbulence line will be displayed in EchoView.
         Default is `2`.
     thickness_bottom : int, optional
-        Thicknesses with which the turbulence line will be displayed in EchoView.
+        Thicknesses with which the bottom line will be displayed in EchoView.
         Default is `2`.
     thickness_surface : int, optional
-        Thicknesses with which the turbulence line will be displayed in EchoView.
+        Thicknesses with which the surface line will be displayed in EchoView.
+        Default is `1`.
+    thickness_nearfield : int, optional
+        Thicknesses with which the nearfield line will be displayed in EchoView.
         Default is `1`.
     cache_dir : str or None, optional
         Path to directory where downloaded checkpoint files should be cached.
@@ -231,13 +247,20 @@ def run_inference(
     offset_surface : float, optional
         Offset for surface line, which moves the surface line deeper.
         Default is `1.0`.
-    nearfield_cutoff : float or None, optional
-        Nearest approach distance for line adjacent to echosounder, in meters.
-        If the echosounder is downfacing, `nearfield_cutoff` is the minimum
-        depth for the turbulence line. If the echosounder is upfacing, the maximum
-        depth for the bottom line will be
-        ``deepest_input_depth + interdepth_interval - nearfield_cutoff``.
-        Set to `None` to disable. Default is `1.7`.
+    nearfield : float, optional
+        Nearfield approach distance, in metres.
+        If the echogram is downward facing, the nearfield cutoff depth
+        will be at a depth equal to the nearfield distance.
+        If the echogram is upward facing, the nearfield cutoff will be
+        `nearfield` meters above the deepest depth recorded in the input
+        data.
+        When processing an EV file, by default a nearfield line will be
+        added at the nearfield cutoff depth. To prevent this behaviour,
+        use the --no-nearfield-line argument.
+        Default is `1.7`.
+    cutoff_at_nearfield : bool, optional
+        Whether to cut-off the turbulence/bottom line when it is closer to the
+        echosounder than the `nearfield` distance. Default is `True`.
     lines_during_passive : str, optional
         Method used to handle line depths during collection
         periods determined to be passive recording instead of
@@ -420,12 +443,16 @@ def run_inference(
             suffix_csv = "-" + suffix_csv
 
     line_colors = dict(
-        turbulence=color_turbulence, bottom=color_bottom, surface=color_surface
+        turbulence=color_turbulence,
+        bottom=color_bottom,
+        surface=color_surface,
+        nearfield=color_nearfield,
     )
     line_thicknesses = dict(
         turbulence=thickness_turbulence,
         bottom=thickness_bottom,
         surface=thickness_surface,
+        nearfield=thickness_nearfield,
     )
 
     if checkpoint is None:
@@ -924,14 +951,15 @@ def run_inference(
                 with echofilter.ui.style.error_message(msg) as msg:
                     raise ValueError(msg)
 
-            if nearfield_cutoff is None:
-                pass
-            elif output["is_upward_facing"]:
+            if output["is_upward_facing"]:
                 depth_intv = abs(depths[-1] - depths[-2])
-                max_depth = np.max(depths) + depth_intv - nearfield_cutoff
-                bottom_depths = np.minimum(max_depth, bottom_depths)
+                nearfield_depth = np.max(depths) - nearfield
+                if cutoff_at_nearfield:
+                    bottom_depths = np.minimum(bottom_depths, nearfield_depth)
             else:
-                turbulence_depths = np.maximum(turbulence_depths, nearfield_cutoff)
+                nearfield_depth = nearfield
+                if cutoff_at_nearfield:
+                    turbulence_depths = np.maximum(turbulence_depths, nearfield_depth)
 
             # Export evl files
             destination_dir = os.path.dirname(destination)
@@ -1013,10 +1041,13 @@ def run_inference(
                 # Done with processing this file
                 continue
 
+            target_names = {key: key + suffix_var for key in dest_files}
+            target_names["nearfield"] = "nearfield" + suffix_var
             import_lines_regions_to_ev(
                 fname_full,
                 dest_files,
-                target_names={key: key + suffix_var for key in dest_files},
+                target_names=target_names,
+                nearfield_depth=nearfield_depth if add_nearfield_line else None,
                 line_colors=line_colors,
                 line_thicknesses=line_thicknesses,
                 ev_app=ev_app,
@@ -1342,6 +1373,7 @@ def import_lines_regions_to_ev(
     ev_fname,
     files,
     target_names={},
+    nearfield_depth=None,
     line_colors={},
     line_thicknesses={},
     ev_app=None,
@@ -1359,6 +1391,9 @@ def import_lines_regions_to_ev(
         Mapping from output keys to filenames.
     target_names : dict, optional
         Mapping from output keys to output variable names.
+    nearfield_depth : float or None, optional
+        Depth at which nearfield line will be placed. If `None` (default), no
+        nearfield line will be added.
     line_colors : dict, optional
         Mapping from output keys to line colours.
     line_thicknesses : dict, optional
@@ -1381,7 +1416,30 @@ def import_lines_regions_to_ev(
     # Assemble the color palette
     colors = get_color_palette()
 
+    dtstr = datetime.datetime.now().isoformat(timespec="seconds")
+
     with echofilter.win.open_ev_file(ev_fname, ev_app) as ev_file:
+
+        def change_line_color_thickness(line_name, color, thickness, ev_app=ev_app):
+            if color is not None or thickness is not None:
+                ev_app.Exec(
+                    "{} | UseDefaultLineDisplaySettings =| false".format(line_name)
+                )
+            if color is not None:
+                if color in colors:
+                    color = colors[color]
+                elif not isinstance(color, str):
+                    pass
+                elif "xkcd:" + color in colors:
+                    color = colors["xkcd:" + color]
+                color = hexcolor2rgb8(color)
+                color = repr(color).replace(" ", "")
+                ev_app.Exec("{} | CustomGoodLineColor =| {}".format(line_name, color))
+            if thickness is not None:
+                ev_app.Exec(
+                    "{} | CustomLineDisplayThickness =| {}".format(line_name, thickness)
+                )
+
         for key, fname in files.items():
             # Import the line into the EV file
             fname_full = os.path.abspath(fname)
@@ -1460,9 +1518,7 @@ def import_lines_regions_to_ev(
 
             if old_line and not successful_overwrite:
                 # Change the name so there is no collision
-                target_name += "_{}".format(
-                    datetime.datetime.now().isoformat(timespec="seconds")
-                )
+                target_name += "_{}".format(dtstr)
                 if verbose >= 1:
                     print(
                         "Target line name '{}' already exists. Will save"
@@ -1477,27 +1533,62 @@ def import_lines_regions_to_ev(
                 line.Name = target_name
 
             # Change the color and thickness of the line
-            if key in line_colors or key in line_thicknesses:
-                ev_app.Exec(
-                    "{} | UseDefaultLineDisplaySettings =| false".format(line.Name)
-                )
-            if key in line_colors:
-                color = line_colors[key]
-                if color in colors:
-                    color = colors[color]
-                elif not isinstance(color, str):
-                    pass
-                elif "xkcd:" + color in colors:
-                    color = colors["xkcd:" + color]
-                color = hexcolor2rgb8(color)
-                color = repr(color).replace(" ", "")
-                ev_app.Exec("{} | CustomGoodLineColor =| {}".format(line.Name, color))
-            if key in line_thicknesses:
-                ev_app.Exec(
-                    "{} | CustomLineDisplayThickness =| {}".format(
-                        line.Name, line_thicknesses[key]
+            change_line_color_thickness(
+                line.Name, line_colors.get(key), line_thicknesses.get(key)
+            )
+
+        # Add nearfield line
+        if nearfield_depth is not None:
+            key = "nearfield"
+            lines = ev_file.Lines
+            line = lines.CreateFixedDepth(nearfield_depth)
+
+            # Check whether we need to change the name of the line
+            target_name = target_names.get(key, None)
+
+            # Check if a line with this name already exists
+            old_line = None if target_name is None else lines.FindByName(target_name)
+
+            # Maybe try to delete existing line
+            successful_overwrite = False
+            if old_line and overwrite:
+                # Overwrite the old line
+                if verbose >= 2:
+                    print(
+                        echofilter.ui.style.overwrite_fmt(
+                            "Deleting existing line '{}'".format(target_name, key)
+                        )
                     )
-                )
+                successful_overwrite = lines.Delete(old_line)
+                if not successful_overwrite and verbose >= 0:
+                    # Line could not be deleted
+                    print(
+                        echofilter.ui.style.warning_fmt(
+                            "Existing line '{}' could not be deleted".format(
+                                target_name, key
+                            )
+                        )
+                    )
+
+            if old_line and not successful_overwrite:
+                # Change the output name so there is no collision
+                target_name += "_{}".format(dtstr)
+                if verbose >= 1:
+                    print(
+                        "Target line name '{}' already exists. Will save"
+                        " new {} line with name '{}' instead.".format(
+                            target_names[key], key, target_name
+                        )
+                    )
+
+            if target_name:
+                # Rename the line
+                line.Name = target_name
+
+            # Change the color and thickness of the line
+            change_line_color_thickness(
+                line.Name, line_colors.get(key), line_thicknesses.get(key)
+            )
 
         # Overwrite the EV file now the outputs have been imported
         ev_file.Save()
