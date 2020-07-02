@@ -554,12 +554,12 @@ def run_inference(
             )
     except RuntimeError as err:
         if verbose >= 5:
-            print(
-                echofilter.ui.style.warning_fmt(
-                    "Warning: Checkpoint doesn't seem to be for the UNet."
-                    "Trying to load it as the whole model instead."
-                )
+            s = (
+                "Warning: Checkpoint doesn't seem to be for the UNet."
+                "Trying to load it as the whole model instead."
             )
+            s = echofilter.ui.style.warning_fmt(s)
+            print(s)
         try:
             model.load_state_dict(checkpoint["state_dict"])
             if verbose >= 3:
@@ -1214,24 +1214,24 @@ def inference_transect(
                 )
             )
         if not is_upward_facing:
-            print(
-                echofilter.ui.style.warning_fmt(
-                    'Warning: facing = "{}" was provided, but data appears to be'
-                    " downward facing".format(facing)
-                )
+            s = (
+                '  Warning: facing = "{}" was provided, but data appears to be'
+                " downward facing".format(facing)
             )
+            s = echofilter.ui.style.warning_fmt(s)
+            print(s)
         is_upward_facing = True
     elif facing[:4] != "down" and facing != "auto":
         msg = 'facing should be one of "downward", "upward", and "auto"'
         with echofilter.ui.style.error_message(msg) as msg:
             raise ValueError(msg)
     elif facing[:4] == "down" and is_upward_facing:
-        print(
-            echofilter.ui.style.warning_fmt(
-                'Warning: facing = "{}" was provided, but data appears to be'
-                " upward facing".format(facing)
-            )
+        s = (
+            '  Warning: facing = "{}" was provided, but data appears to be'
+            " upward facing".format(facing)
         )
+        s = echofilter.ui.style.warning_fmt(s)
+        print(s)
         is_upward_facing = False
     elif facing == "auto" and verbose >= 2:
         print(
@@ -1437,22 +1437,20 @@ def import_lines_regions_to_ev(
             # Import the line into the EV file
             fname_full = os.path.abspath(fname)
             if not os.path.isfile(fname_full):
-                print(
-                    echofilter.ui.style.warning_fmt(
-                        "Warning: File '{}' could not be found".format(fname_full)
-                    )
-                )
+                s = "  Warning: File '{}' could not be found".format(fname_full)
+                s = echofilter.ui.style.warning_fmt(s)
+                print(s)
                 continue
             is_imported = ev_file.Import(fname_full)
             if not is_imported:
-                print(
-                    echofilter.ui.style.warning_fmt(
-                        "Warning: Unable to import file '{}'"
-                        "Please consult EchoView for the Import error message.".format(
-                            fname
-                        )
+                s = (
+                    "  Warning: Unable to import file '{}'"
+                    "Please consult EchoView for the Import error message.".format(
+                        fname
                     )
                 )
+                s = echofilter.ui.style.warning_fmt(s)
+                print(s)
                 continue
 
             if os.path.splitext(fname)[1].lower() != ".evl":
@@ -1465,13 +1463,13 @@ def import_lines_regions_to_ev(
             lines = ev_file.Lines
             line = lines.FindByName(variable.Name)
             if not line:
-                print(
-                    echofilter.ui.style.warning_fmt(
-                        "Warning: Could not find line which was just imported with"
-                        " name '{}'".format(variable.Name)
-                    )
+                s = (
+                    "  Warning: Could not find line which was just imported with"
+                    " name '{}'"
+                    "\n  Ignoring and continuing processing.".format(variable.Name)
                 )
-                print("Ignoring and continuing processing.")
+                s = echofilter.ui.style.warning_fmt(s)
+                print(s)
                 continue
 
             # Check whether we need to change the name of the line
@@ -1502,12 +1500,12 @@ def import_lines_regions_to_ev(
                     successful_overwrite = True
                 elif verbose >= 0:
                     # Line is not editable
-                    print(
-                        echofilter.ui.style.warning_fmt(
-                            "Existing line '{}' is not editable and cannot be"
-                            " overwritten.".format(target_name, key)
-                        )
+                    s = (
+                        "Existing line '{}' is not editable and cannot be"
+                        " overwritten.".format(target_name, key)
                     )
+                    s = echofilter.ui.style.warning_fmt(s)
+                    print(s)
 
             if old_line and not successful_overwrite:
                 # Change the name so there is no collision
