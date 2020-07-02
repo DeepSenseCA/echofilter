@@ -307,7 +307,7 @@ class EchofilterLoss(_Loss):
     ignore_surface_during_removed : bool, optional
         Whether target for the surface line should be excluded from the loss
         during entirely removed sections. If `None`, the value from
-        `ignore_lines_during_removed` is used. Default is `False`.
+        `ignore_lines_during_removed` is used. Default is `True`.
     """
 
     __constants__ = ["reduction"]
@@ -327,7 +327,7 @@ class EchofilterLoss(_Loss):
         ignore_lines_during_passive=False,
         ignore_lines_during_removed=True,
         ignore_surface_during_passive=False,
-        ignore_surface_during_removed=False,
+        ignore_surface_during_removed=True,
     ):
         super(EchofilterLoss, self).__init__(None, None, reduction)
         self.conditional = conditional
@@ -394,11 +394,17 @@ class EchofilterLoss(_Loss):
 
             for sfx in ("turbulence", "turbulence-original", "surface"):
                 with torch.no_grad():
-                    loss_inclusion_mask = torch.ones_like(target["is_passive"])
+                    loss_inclusion_mask = (target["is_bad_labels"] < 1e-7).to(
+                        torch.float32
+                    )
                     if sfx == "surface":
                         target_key = "mask_surface"
                         target_i_key = "index_surface"
                         weight = self.surface
+                        # Don't include surrogate surface datapoints in loss
+                        loss_inclusion_mask *= (
+                            target["is_surrogate_surface"] < 1e-7
+                        ).to(torch.float32)
                         # Check whether surface line is masked out
                         if self.ignore_surface_during_passive:
                             loss_inclusion_mask *= 1 - target["is_passive"]
@@ -484,7 +490,9 @@ class EchofilterLoss(_Loss):
                     weight *= self.auxiliary
 
                 with torch.no_grad():
-                    loss_inclusion_mask = torch.ones_like(target["is_passive"])
+                    loss_inclusion_mask = (target["is_bad_labels"] < 1e-7).to(
+                        torch.float32
+                    )
                     # Check whether line is masked out
                     if self.ignore_lines_during_passive:
                         loss_inclusion_mask *= 1 - target["is_passive"]

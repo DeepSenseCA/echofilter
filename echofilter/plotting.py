@@ -15,9 +15,11 @@ BOTTOM_COLOR = "#00ee00"
 
 # ColorBrewer Paired values
 TURBULENCE_COLOR = "#a6cee3"
-BOTTOM_COLOR = "#b2df8a"
 TURBULENCE_COLOR_DARK = "#1f78b4"
+BOTTOM_COLOR = "#b2df8a"
 BOTTOM_COLOR_DARK = "#33a02c"
+SURFACE_COLOR = "#4ba82a"
+SURFACE_COLOR_DARK = "#255e11"
 
 PASSIVE_COLOR = [0.4, 0.4, 0.4]
 REMOVED_COLOR = "b"
@@ -162,6 +164,7 @@ def plot_transect(
     show_regions=True,
     turbulence_color=TURBULENCE_COLOR,
     bottom_color=BOTTOM_COLOR,
+    surface_color=SURFACE_COLOR,
     passive_color=PASSIVE_COLOR,
     removed_color=None,
     linewidth=1,
@@ -190,6 +193,8 @@ def plot_transect(
         Color of turbulence line. Default is `'#a6cee3'`.
     bottom_color : color, optional
         Color of bottom line. Default is `'#b2df8a'`.
+    surface_color : color, optional
+        Color of surface line. Default is `'#d68ade'`.
     passive_color : color, optional
         Color of passive segment hatching. Default is `[.4, .4, .4]`.
     removed_color : color, optional
@@ -235,6 +240,12 @@ def plot_transect(
             bottom_key = k
             break
 
+    surface_key = None
+    for k in ("surface", "d_surface", "d_surf", "surf"):
+        if k in transect:
+            surface_key = k
+            break
+
     if x_scale == "index":
         tt = np.arange(transect["timestamps"].shape[0])
         xlabel = "Sample index"
@@ -257,6 +268,8 @@ def plot_transect(
     )
     if cmap is not None:
         plt.set_cmap(cmap)
+    if surface_key is not None:
+        plt.plot(tt, transect[surface_key], surface_color, linewidth=linewidth)
     if turbulence_key is not None:
         plt.plot(tt, transect[turbulence_key], turbulence_color, linewidth=linewidth)
     if bottom_key is not None:
@@ -327,6 +340,7 @@ def plot_transect_predictions(transect, prediction, linewidth=1, cmap=None):
         x_scale="index",
         turbulence_color="k",
         bottom_color="k",
+        surface_color="k",
         passive_color="k",
         removed_color="k",
         linewidth=linewidth,
@@ -340,6 +354,9 @@ def plot_transect_predictions(transect, prediction, linewidth=1, cmap=None):
     ):
         if not np.allclose(prediction["depths"].shape, shape_y):
             print("Shape mismatch: {} {}".format(prediction["depths"].shape, shape_y))
+    surface_depths = prediction["depths"][
+        utils.last_nonzero(prediction["p_is_above_surface"] > 0.5, -1)
+    ]
     turbulence_depths = prediction["depths"][
         utils.last_nonzero(prediction["p_is_above_turbulence"] > 0.5, -1)
     ]
@@ -348,6 +365,7 @@ def plot_transect_predictions(transect, prediction, linewidth=1, cmap=None):
     ]
 
     tt = np.linspace(0, len(transect["timestamps"]) - 1, len(turbulence_depths))
+    plt.plot(tt, surface_depths, "w", linewidth=linewidth)
     plt.plot(tt, turbulence_depths, "w", linewidth=linewidth)
     plt.plot(tt, bottom_depths, "w", linewidth=linewidth)
 

@@ -76,10 +76,10 @@ PLOT_TRANSECTS = {
         "mobile/Survey17/Survey17_GR4_N5W_E",
     ],
     "MinasPassage": [
-        "MinasPassage/december2017/evExports/december2017_D20180213-T115216_D20180213-T172216",
-        "MinasPassage/march2018/evExports/march2018_D20180513-T195216_D20180514-T012216",
-        "MinasPassage/september2018/evExports/september2018_D20181027-T202217_D20181028-T015217",
-        "MinasPassage/september2018/evExports/september2018_D20181107-T122220_D20181107-T175217",
+        "MinasPassage/december2017/december2017_D20180213-T115216_D20180213-T172216",
+        "MinasPassage/march2018/march2018_D20180513-T195216_D20180514-T012216",
+        "MinasPassage/september2018/september2018_D20181027-T202217_D20181028-T015217",
+        "MinasPassage/september2018/september2018_D20181107-T122220_D20181107-T175217",
     ],
     "GrandPassage": [
         "GrandPassage/phase2/GrandPassage_WBAT_2B_20200125_UTC160020_ebblow",
@@ -912,7 +912,13 @@ def build_dataset(
         dataset_args["remove_offset_bottom"] = 1.0
     elif dataset_name == "MinasPassage":
         dataset_args["remove_nearfield"] = True
-        dataset_args["nearfield_distance"] = 1.7
+        # NB: Nearfield distance is 1.7, except for the samples:
+        # march2018_D20180502-T045216_D20180502-T102215
+        # march2018_D20180502-T105216_D20180502-T162215
+        # march2018_D20180502-T165215_D20180502-T222216
+        # march2018_D20180502-T225214_D20180503-T042215
+        # For which it is 1.744
+        dataset_args["nearfield_distance"] = 1.745
         dataset_args["remove_offset_turbulence"] = 0
         dataset_args["remove_offset_bottom"] = 0
     elif dataset_name == "GrandPassage":

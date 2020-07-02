@@ -344,7 +344,7 @@ def evl_reader(fname):
             yield timestamp, float(row[3])
 
 
-def evl_loader(fname):
+def evl_loader(fname, special_to_nan=True):
     """
     EVL file loader
 
@@ -352,6 +352,10 @@ def evl_loader(fname):
     ----------
     fname : str
         Path to .evl file.
+    special_to_nan : bool, optional
+        Whether to replace the special value, `-10000.99`, which indicates no
+        depth value, with NaN.
+        https://support.echoview.com/WebHelp/Reference/File_formats/Export_file_formats/Special_Export_Values.htm
 
     Returns
     -------
@@ -365,7 +369,13 @@ def evl_loader(fname):
     for timestamp, value in evl_reader(fname):
         timestamps.append(timestamp)
         values.append(value)
-    return np.array(timestamps), np.array(values)
+    timestamps = np.array(timestamps)
+    values = np.array(values)
+    if special_to_nan:
+        # Replace the special value -10000.99 with NaN
+        # https://support.echoview.com/WebHelp/Reference/File_formats/Export_file_formats/Special_Export_Values.htm
+        values[np.isclose(values, -10000.99)] = np.nan
+    return timestamps, values
 
 
 def timestamp2evdtstr(timestamp):

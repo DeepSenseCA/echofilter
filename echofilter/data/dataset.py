@@ -56,7 +56,8 @@ class TransectDataset(torch.utils.data.Dataset):
         Default is `1.7`.
     nearfield_visible_dist : float, optional
         The distance at which the effect of being to close to the sounder
-        is obvious to the naked eye. Default is `0.5`.
+        is obvious to the naked eye, and hence the distance which nearfield
+        will be mapped to if `remove_nearfield=True`. Default is `0.0`.
     remove_offset_turbulence : float, optional
         Line offset built in to the turbulence line. If given, this will be
         removed from the samples within the dataset. Default is `0`.
@@ -77,7 +78,7 @@ class TransectDataset(torch.utils.data.Dataset):
         transform=None,
         remove_nearfield=True,
         nearfield_distance=1.7,
-        nearfield_visible_dist=0.5,
+        nearfield_visible_dist=0.0,
         remove_offset_turbulence=0,
         remove_offset_bottom=0,
     ):
@@ -175,13 +176,17 @@ class TransectDataset(torch.utils.data.Dataset):
 
         # Fix any broken surface lines (these were generated automatically
         # by Echoview and not adjusted by human annotator, so are not
-        # guaranteed to be sane). In particular, values of -10000.990000
-        # indicate no surface depth given and this occurs during passive data.
-        if np.any(sample["d_surface"] >= sample["d_bottom"]):
-            sample["d_surface"] = np.min(sample["depths"]) * np.ones_like(
-                sample["d_surface"]
-            )
-        sample["d_surface"] = np.minimum(sample["d_surface"], sample["d_turbulence"])
+        # guaranteed to be sane).
+        # Note any locations where the labels are not sane. These can be
+        # removed from the training loss.
+        sample["is_bad_labels"] = sample["d_surface"] >= sample["d_bottom"]
+        # Surface line should always be at least a little bit above the
+        # turbulence line.
+        sample["d_surface"] = np.minimum(
+            sample["d_surface"], sample["d_turbulence"] - 0.25
+        )
+        # Ensure the bottom line is always below the surface line as well
+        sample["d_bottom"] = np.maximum(sample["d_bottom"], sample["d_surface"] + 0.5)
 
         if sample["is_upward_facing"]:
             min_top_depth = np.min(sample["depths"])
@@ -195,8 +200,8 @@ class TransectDataset(torch.utils.data.Dataset):
             if sample["is_upward_facing"]:
                 nearfield_threshold = (
                     np.max(sample["depths"])
-                    - depth_intv / 5
-                    - self.nearfield_distance * 1.001
+                    - depth_intv * 2.5
+                    - self.nearfield_distance
                 )
                 was_in_nearfield = sample["d_bottom"] >= nearfield_threshold
                 sample["d_bottom"][was_in_nearfield] = max_bot_depth
@@ -214,7 +219,9 @@ class TransectDataset(torch.utils.data.Dataset):
                 sample["mask_patches-original"][:, idx_search:] = is_close_patch_og
                 sample["mask_patches-ntob"][:, idx_search:] = is_close_patch_og
             else:
-                was_in_nearfield = sample["d_turbulence"] <= self.nearfield_distance
+                was_in_nearfield = (
+                    sample["d_turbulence"] < self.nearfield_distance + depth_intv
+                )
                 sample["d_turbulence"][was_in_nearfield] = min_top_depth
                 was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
                 # Extend/contract mask_patches where necessary
@@ -314,22 +321,21 @@ class TransectDataset(torch.utils.data.Dataset):
                     sample["mask_patches" + suffix] > 0.5
                 ).astype(np.float32)
 
-        sample["d_surface"][~np.isfinite(sample["d_surface"])] = np.min(
-            sample["depths"]
-        )
-        for sfx in ("", "-original"):
-            if sample["is_upward_facing"]:
-                where_invalid = ~np.isfinite(sample["d_turbulence" + sfx])
-                sample["d_turbulence" + sfx][where_invalid] = sample["d_surface"][
-                    where_invalid
-                ]
-            else:
-                sample["d_turbulence" + sfx][
-                    ~np.isfinite(sample["d_turbulence" + sfx])
-                ] = min_top_depth
-            sample["d_bottom" + sfx][
-                ~np.isfinite(sample["d_bottom" + sfx])
-            ] = max_bot_depth
+        # Ensure all line values are finite
+        for key in [
+            "d_surface",
+            "d_turbulence",
+            "d_turbulence-original",
+            "d_bottom",
+            "d_bottom-original",
+        ]:
+            where_invalid = ~np.isfinite(sample[key])
+            if np.sum(where_invalid) > 0 and np.sum(where_invalid) < len(sample[key]):
+                sample[key][where_invalid] = np.interp(
+                    sample["timestamps"][where_invalid],
+                    sample["timestamps"][~where_invalid],
+                    sample[key][~where_invalid],
+                )
 
         # Apply depth crop
         if self.crop_depth is not None:
@@ -360,6 +366,9 @@ class TransectDataset(torch.utils.data.Dataset):
             "d_bottom-original",
         ]:
             sample["r" + key[1:]] = sample[key] / depth_range
+
+        # Change is_surrogate_surface to exclude passive data
+        sample["is_surrogate_surface"][sample["is_passive"] > 0.5] = 0
 
         # Create mask corresponding to the aggregate of all elements we need
         # masked in/out
