@@ -4,17 +4,14 @@ import datetime
 import os
 import pickle
 import pprint
-import shutil
 import sys
 import tempfile
 import textwrap
 import time
 import urllib
-import warnings
 
 import numpy as np
 from matplotlib import colors as mcolors
-import pandas as pd
 import torch
 import torch.nn
 import torch.utils.data
