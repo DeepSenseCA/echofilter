@@ -460,8 +460,12 @@ def train(
         t_val_end = time.time()
 
         print(
-            "Completed {} of {} epochs in {}".format(
-                epoch, n_epoch, datetime.timedelta(seconds=time.time() - t_start)
+            "{}/{}\nCompleted {} of {} epochs in {}".format(
+                dataset_name,
+                log_name,
+                epoch,
+                n_epoch,
+                datetime.timedelta(seconds=time.time() - t_start),
             )
         )
         # Print metrics to terminal
@@ -690,6 +694,7 @@ def train(
             "nan_value": NAN_VALUE,
             "wrapper_mapping": model.mapping,
             "wrapper_params": model.params,
+            "training_routine": "echofilter-train {}".format(echofilter.__version__),
         }
         if use_mixed_precision:
             checkpoint["amp"] = apex.amp.state_dict()
