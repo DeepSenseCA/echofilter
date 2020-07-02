@@ -191,10 +191,10 @@ def run_inference(
         Thicknesses with which the turbulence line will be displayed in EchoView.
         Default is `2`.
     thickness_bottom : int, optional
-        Thicknesses with which the turbulence line will be displayed in EchoView.
+        Thicknesses with which the bottom line will be displayed in EchoView.
         Default is `2`.
     thickness_surface : int, optional
-        Thicknesses with which the turbulence line will be displayed in EchoView.
+        Thicknesses with which the surface line will be displayed in EchoView.
         Default is `1`.
     cache_dir : str or None, optional
         Path to directory where downloaded checkpoint files should be cached.
