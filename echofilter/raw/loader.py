@@ -16,6 +16,7 @@ import skimage.measure
 import pandas as pd
 
 from . import utils
+from ..ui import style
 
 
 ROOT_DATA_DIR = "/data/dsforce/surveyExports"
@@ -858,9 +859,15 @@ def write_transect_regions(
         n_skipped = n_passive_skipped + n_removed_skipped + n_contour_skipped
         if n_skipped > 0:
             print(
-                " " * verbose_indent + "There were {} skipped (too small) regions:"
-                " {} passive, {} removed blocks, {} removed patches".format(
-                    n_skipped, n_passive_skipped, n_removed_skipped, n_contour_skipped
+                " " * verbose_indent
+                + style.skip_fmt(
+                    "There were {} skipped (too small) regions:"
+                    " {} passive, {} removed blocks, {} removed patches".format(
+                        n_skipped,
+                        n_passive_skipped,
+                        n_removed_skipped,
+                        n_contour_skipped,
+                    )
                 )
             )
 
