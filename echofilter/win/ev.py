@@ -91,10 +91,14 @@ def open_ev_file(filename, app=None):
         if ev_file is None or ev_file is "None" or ev_file is "NoneValue":
             raise EnvironmentError(
                 "Could not open file '{}'."
-                " It appears that you already have a file open in Echoview."
-                " Please close Echoview before running echofilter."
+                "\nIt appears that you already have a file open in Echoview."
+                " {}Please close Echoview before running echofilter{}."
                 " You can re-open Echoview once echofilter is running and"
-                " continue your work without distrupting echofilter.".format(filename)
+                " continue your work without distrupting echofilter.".format(
+                    filename,
+                    ui.style.HighlightStyle.start,
+                    ui.style.HighlightStyle.reset,
+                )
             )
         try:
             yield ev_file
