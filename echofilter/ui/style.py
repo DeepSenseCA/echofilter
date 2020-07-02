@@ -112,7 +112,7 @@ class error_message(contextlib.AbstractContextManager):
         # Make the error message be bold and red
         if message:
             # Bold for the message, then return to normal font weight
-            message = colorama.Style.BRIGHT + message + colorama.Style.NORMAL
+            message = HighlightStyle.start + message + HighlightStyle.reset
             # Make the error message, and everything which comes after it, be
             # red. We don't reset the colour in case we are inside a larger
             # error message, which should also be red.
@@ -135,4 +135,51 @@ class error_message(contextlib.AbstractContextManager):
         else:
             # If we leave the context with an error, ensure the error message
             # is definitely red.
+            print(ErrorStyle.start, end="")
+
+
+class warning_message(contextlib.AbstractContextManager):
+    """
+    Wrap a warning message in ANSI codes to stylise its appearance in the
+    terminal as cyan and bold (bright). All statements printed during the
+    context will be in cyan.
+
+    Parameters
+    ----------
+    message : str
+        Text of the warning message to stylise.
+
+    Returns
+    -------
+    str
+        Stylised message.
+    """
+
+    def __init__(self, message=""):
+        # Make the error message be bold and cyan
+        if message:
+            # Bold for the message, then return to normal font weight
+            message = HighlightStyle.start + message + HighlightStyle.reset
+            # Make the warning message, and everything which comes after it, be
+            # cyan. We don't reset the colour in case we are inside a larger
+            # message, which should also be cyan.
+            message = WarningStyle.start + message
+        self.message = message
+
+    def __enter__(self):
+        # Change all text sent to the terminal to be cyan, until we leave this
+        # context
+        print(WarningStyle.start, end="")
+        return self.message
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is None:
+            # If we leave the context normally, reset the text color and
+            # introduce a new line.
+            # Now all changes we have made when we entered the context have
+            # been reset.
+            print(WarningStyle.reset)
+        else:
+            # If we leave the context with an error, use error message
+            # styling instead.
             print(ErrorStyle.start, end="")

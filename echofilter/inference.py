@@ -4,17 +4,14 @@ import datetime
 import os
 import pickle
 import pprint
-import shutil
 import sys
 import tempfile
 import textwrap
 import time
 import urllib
-import warnings
 
 import numpy as np
 from matplotlib import colors as mcolors
-import pandas as pd
 import torch
 import torch.nn
 import torch.utils.data
@@ -132,7 +129,7 @@ def run_inference(
         is `False`.
     skip_incompatible : bool, optional
         Skip processing CSV files which do not seem to contain an exported
-        echoview transect. If `False`, an error is raised. Default is `False`.
+        Echoview transect. If `False`, an error is raised. Default is `False`.
     output_dir : str, optional
         Directory where output files will be written. If this is `''`, outputs
         are written to the same directory as each input file. Otherwise, they
@@ -146,7 +143,7 @@ def run_inference(
         `False`, an error is generated if files would be overwritten.
         Default is `False`.
     overwrite_ev_lines : bool, optional
-        Overwrite existing lines within the EchoView file without warning.
+        Overwrite existing lines within the Echoview file without warning.
         If `False` (default), the current datetime will be appended to line
         variable names in the event of a collision.
     import_into_evfile : bool, optional
@@ -154,18 +151,18 @@ def run_inference(
         whenever the file being processed in an EV file. Default is `True`.
     generate_turbulence_line : bool, optional
         Whether to output an evl file for the turbulence line. If this is
-        `False`, the turbulence line is also never imported into EchoView.
+        `False`, the turbulence line is also never imported into Echoview.
         Default is `True`.
     generate_bottom_line : bool, optional
         Whether to output an evl file for the bottom line. If this is `False`,
-        the bottom line is also never imported into EchoView.
+        the bottom line is also never imported into Echoview.
         Default is `True`.
     generate_surface_line : bool, optional
         Whether to output an evl file for the surface line. If this is `False`,
-        the surface line is also never imported into EchoView.
+        the surface line is also never imported into Echoview.
         Default is `True`.
     add_nearfield_line : bool, optional
-        Whether to add a nearfield line to the EV file in EchoView.
+        Whether to add a nearfield line to the EV file in Echoview.
         Default is `True`.
     suffix_file : str, optional
         Suffix to append to output artifacts (evl and evr files), between
@@ -177,40 +174,40 @@ def run_inference(
         is prepended. If `None` (default), suffix_var will match `suffix_file`
         if it is set, and will be "_echofilter" otherwise.
     color_turbulence : str, optional
-        Color to use for the turbulence line when it is imported into EchoView.
+        Color to use for the turbulence line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
-        of an RGB color to supply directly to EchoView (such as "(0,255,0)").
+        of an RGB color to supply directly to Echoview (such as "(0,255,0)").
         Default is `"orangered"`.
     color_bottom : str, optional
-        Color to use for the bottom line when it is imported into EchoView.
+        Color to use for the bottom line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
-        of an RGB color to supply directly to EchoView (such as "(0,255,0)").
+        of an RGB color to supply directly to Echoview (such as "(0,255,0)").
         Default is `"orangered"`.
     color_surface : str, optional
-        Color to use for the surface line when it is imported into EchoView.
+        Color to use for the surface line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
-        of an RGB color to supply directly to EchoView (such as "(0,255,0)").
+        of an RGB color to supply directly to Echoview (such as "(0,255,0)").
         Default is `"green"`.
     color_nearfield : str, optional
-        Color to use for the nearfield line when it is created in EchoView.
+        Color to use for the nearfield line when it is created in Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
-        of an RGB color to supply directly to EchoView (such as "(0,255,0)").
+        of an RGB color to supply directly to Echoview (such as "(0,255,0)").
         Default is `"mediumseagreen"`.
     thickness_turbulence : int, optional
-        Thicknesses with which the turbulence line will be displayed in EchoView.
+        Thicknesses with which the turbulence line will be displayed in Echoview.
         Default is `2`.
     thickness_bottom : int, optional
-        Thicknesses with which the bottom line will be displayed in EchoView.
+        Thicknesses with which the bottom line will be displayed in Echoview.
         Default is `2`.
     thickness_surface : int, optional
-        Thicknesses with which the surface line will be displayed in EchoView.
+        Thicknesses with which the surface line will be displayed in Echoview.
         Default is `1`.
     thickness_nearfield : int, optional
-        Thicknesses with which the nearfield line will be displayed in EchoView.
+        Thicknesses with which the nearfield line will be displayed in Echoview.
         Default is `1`.
     cache_dir : str or None, optional
         Path to directory where downloaded checkpoint files should be cached.
@@ -284,7 +281,7 @@ def run_inference(
                 to be passive data collection.
             `"undefined"`:
                 depths are replaced with the placeholder value
-                used by EchoView to denote undefined values,
+                used by Echoview to denote undefined values,
                 which is `-10000.99`.
         Default: "redact".
     collate_passive_length : int, optional
@@ -328,7 +325,7 @@ def run_inference(
         If `None` (default), `"merged"` is used if downfacing and `"ntob"` is
         used if upfacing.
     variable_name : str, optional
-        Name of the EchoView acoustic variable to load from EV files. Default
+        Name of the Echoview acoustic variable to load from EV files. Default
         is `'Fileset1: Sv pings T1'`.
     row_len_selector : str, optional
         Method used to handle input csv files with different number of Sv
@@ -375,14 +372,14 @@ def run_inference(
         available CUDA GPU is used if any are found, and otherwise the CPU is
         used. Set to `'cpu'` to use the CPU even if a CUDA GPU is available.
     hide_echoview : {"never", "new", "always"}, optional
-        Whether to hide the EchoView window entirely while the code runs.
+        Whether to hide the Echoview window entirely while the code runs.
         If `hide_echoview="new"`, the application is only hidden if it
         was created by this function, and not if it was already running.
         If `hide_echoview="always"`, the application is hidden even if it was
         already running. In the latter case, the window will be revealed again
         when this function is completed. Default is `"new"`.
     minimize_echoview : bool, optional
-        If `True`, the EchoView window being used will be minimized while this
+        If `True`, the Echoview window being used will be minimized while this
         function is running. Default is `False`.
     verbose : int, optional
         Verbosity level. Default is `2`. Set to `0` to disable print
@@ -557,12 +554,12 @@ def run_inference(
             )
     except RuntimeError as err:
         if verbose >= 5:
-            print(
-                echofilter.ui.style.warning_fmt(
-                    "Warning: Checkpoint doesn't seem to be for the UNet."
-                    "Trying to load it as the whole model instead."
-                )
+            s = (
+                "Warning: Checkpoint doesn't seem to be for the UNet."
+                "Trying to load it as the whole model instead."
             )
+            s = echofilter.ui.style.warning_fmt(s)
+            print(s)
         try:
             model.load_state_dict(checkpoint["state_dict"])
             if verbose >= 3:
@@ -615,7 +612,7 @@ def run_inference(
     if dry_run:
         if verbose >= 3:
             print(
-                "EchoView application would{} be opened {}.".format(
+                "Echoview application would{} be opened {}.".format(
                     "" if do_open else " not",
                     "to convert EV files to CSV"
                     if do_open
@@ -644,14 +641,15 @@ def run_inference(
     incompatible_count = 0
     error_msgs = []
 
-    # Open EchoView connection
+    # Open Echoview connection
     with echofilter.win.maybe_open_echoview(
         do_open=do_open, minimize=minimize_echoview, hide=hide_echoview,
     ) as ev_app:
         for fname in maybe_tqdm(files):
             if verbose >= 2:
                 print(
-                    progress_fmt(
+                    "\n"
+                    + progress_fmt(
                         "Processing {}".format(
                             echofilter.ui.style.highlight_fmt(fname),
                         )
@@ -812,16 +810,10 @@ def run_inference(
                     continue
 
                 # Load the data
-                if verbose >= 6:
-                    warn_row_overflow = np.inf
-                elif verbose >= 5:
-                    warn_row_overflow = None
-                else:
-                    warn_row_overflow = 0
                 try:
                     timestamps, depths, signals = echofilter.raw.loader.transect_loader(
                         csv_fname,
-                        warn_row_overflow=warn_row_overflow,
+                        warn_row_overflow=0,
                         row_len_selector=row_len_selector,
                     )
                 except KeyError:
@@ -935,7 +927,8 @@ def run_inference(
                             " collection. The original model predictions will"
                             " be kept instead.".format(fname)
                         )
-                        warnings.warn(s)
+                        s = echofilter.ui.style.warning_fmt(s)
+                        print(s)
                 else:
                     surface_depths[is_passive] = np.interp(
                         x[is_passive], x[~is_passive], surface_depths[~is_passive]
@@ -1058,9 +1051,9 @@ def run_inference(
     if verbose >= 1:
         print(
             progress_fmt(
-                "Finished {}processing {}{} file{}{}.".format(
-                    "simulating " if dry_run else "",
+                "{}Finished {}processing {} file{}{}.".format(
                     echofilter.ui.style.HighlightStyle.start,
+                    "simulating " if dry_run else "",
                     len(files),
                     "" if len(files) == 1 else "s",
                     echofilter.ui.style.HighlightStyle.reset,
@@ -1221,24 +1214,24 @@ def inference_transect(
                 )
             )
         if not is_upward_facing:
-            print(
-                echofilter.ui.style.warning_fmt(
-                    'Warning: facing = "{}" was provided, but data appears to be'
-                    " downward facing".format(facing)
-                )
+            s = (
+                '  Warning: facing = "{}" was provided, but data appears to be'
+                " downward facing".format(facing)
             )
+            s = echofilter.ui.style.warning_fmt(s)
+            print(s)
         is_upward_facing = True
     elif facing[:4] != "down" and facing != "auto":
         msg = 'facing should be one of "downward", "upward", and "auto"'
         with echofilter.ui.style.error_message(msg) as msg:
             raise ValueError(msg)
     elif facing[:4] == "down" and is_upward_facing:
-        print(
-            echofilter.ui.style.warning_fmt(
-                'Warning: facing = "{}" was provided, but data appears to be'
-                " upward facing".format(facing)
-            )
+        s = (
+            '  Warning: facing = "{}" was provided, but data appears to be'
+            " upward facing".format(facing)
         )
+        s = echofilter.ui.style.warning_fmt(s)
+        print(s)
         is_upward_facing = False
     elif facing == "auto" and verbose >= 2:
         print(
@@ -1386,7 +1379,7 @@ def import_lines_regions_to_ev(
     Parameters
     ----------
     ev_fname : str
-        Path to EchoView file to import variables into.
+        Path to Echoview file to import variables into.
     files : dict
         Mapping from output keys to filenames.
     target_names : dict, optional
@@ -1399,7 +1392,7 @@ def import_lines_regions_to_ev(
     line_thicknesses : dict, optional
         Mapping from output keys to line thicknesses.
     ev_app : win32com.client.Dispatch object or None, optional
-        An object which can be used to interface with the EchoView application,
+        An object which can be used to interface with the Echoview application,
         as returned by `win32com.client.Dispatch`. If `None` (default), a
         new instance of the application is opened (and closed on completion).
     overwrite : bool, optional
@@ -1444,22 +1437,20 @@ def import_lines_regions_to_ev(
             # Import the line into the EV file
             fname_full = os.path.abspath(fname)
             if not os.path.isfile(fname_full):
-                print(
-                    echofilter.ui.style.warning_fmt(
-                        "Warning: File '{}' could not be found".format(fname_full)
-                    )
-                )
+                s = "  Warning: File '{}' could not be found".format(fname_full)
+                s = echofilter.ui.style.warning_fmt(s)
+                print(s)
                 continue
             is_imported = ev_file.Import(fname_full)
             if not is_imported:
-                print(
-                    echofilter.ui.style.warning_fmt(
-                        "Warning: Unable to import file '{}'"
-                        "Please consult EchoView for the Import error message.".format(
-                            fname
-                        )
+                s = (
+                    "  Warning: Unable to import file '{}'"
+                    "Please consult Echoview for the Import error message.".format(
+                        fname
                     )
                 )
+                s = echofilter.ui.style.warning_fmt(s)
+                print(s)
                 continue
 
             if os.path.splitext(fname)[1].lower() != ".evl":
@@ -1472,13 +1463,13 @@ def import_lines_regions_to_ev(
             lines = ev_file.Lines
             line = lines.FindByName(variable.Name)
             if not line:
-                print(
-                    echofilter.ui.style.warning_fmt(
-                        "Warning: Could not find line which was just imported with"
-                        " name '{}'".format(variable.Name)
-                    )
+                s = (
+                    "  Warning: Could not find line which was just imported with"
+                    " name '{}'"
+                    "\n  Ignoring and continuing processing.".format(variable.Name)
                 )
-                print("Ignoring and continuing processing.")
+                s = echofilter.ui.style.warning_fmt(s)
+                print(s)
                 continue
 
             # Check whether we need to change the name of the line
@@ -1509,12 +1500,12 @@ def import_lines_regions_to_ev(
                     successful_overwrite = True
                 elif verbose >= 0:
                     # Line is not editable
-                    print(
-                        echofilter.ui.style.warning_fmt(
-                            "Existing line '{}' is not editable and cannot be"
-                            " overwritten.".format(target_name, key)
-                        )
+                    s = (
+                        "Existing line '{}' is not editable and cannot be"
+                        " overwritten.".format(target_name, key)
                     )
+                    s = echofilter.ui.style.warning_fmt(s)
+                    print(s)
 
             if old_line and not successful_overwrite:
                 # Change the name so there is no collision

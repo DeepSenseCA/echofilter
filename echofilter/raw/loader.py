@@ -1,5 +1,5 @@
 """
-Input/Output handling for raw echoview files.
+Input/Output handling for raw Echoview files.
 """
 
 from collections import OrderedDict
@@ -16,6 +16,7 @@ import skimage.measure
 import pandas as pd
 
 from . import utils
+from ..ui import style
 
 
 ROOT_DATA_DIR = "/data/dsforce/surveyExports"
@@ -480,7 +481,7 @@ def evr_writer(
     """
     EVR file writer.
 
-    Writes regions to an EchoView region file.
+    Writes regions to an Echoview region file.
 
     Parameters
     ----------
@@ -847,9 +848,10 @@ def write_transect_regions(
         i_contour += 1
     if verbose >= 1:
         print(
-            " " * verbose_indent + "Outputting {} regions:"
+            " " * verbose_indent + "Outputting {} region{}:"
             " {} passive, {} removed blocks, {} removed patches".format(
                 len(rectangles) + len(contour_dicts),
+                "" if len(rectangles) + len(contour_dicts) == 1 else "s",
                 i_passive - 1,
                 i_removed - 1,
                 i_contour - 1,
@@ -858,9 +860,17 @@ def write_transect_regions(
         n_skipped = n_passive_skipped + n_removed_skipped + n_contour_skipped
         if n_skipped > 0:
             print(
-                " " * verbose_indent + "There were {} skipped (too small) regions:"
-                " {} passive, {} removed blocks, {} removed patches".format(
-                    n_skipped, n_passive_skipped, n_removed_skipped, n_contour_skipped
+                " " * verbose_indent
+                + style.skip_fmt(
+                    "There {} {} skipped (too small) region{}:"
+                    " {} passive, {} removed blocks, {} removed patches".format(
+                        "was" if n_skipped == 1 else "were",
+                        n_skipped,
+                        "" if n_skipped == 1 else "s",
+                        n_passive_skipped,
+                        n_removed_skipped,
+                        n_contour_skipped,
+                    )
                 )
             )
 

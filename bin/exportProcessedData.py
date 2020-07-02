@@ -59,7 +59,7 @@ binSizes = [
 
 
 # Before the template was changed, we'd have to make sure each of these options are checked so that they're all exported
-# The echoview template should take care of this now
+# The Echoview template should take care of this now
 options = [
     "Region_ID",
     "Region_Name",
@@ -235,7 +235,7 @@ options = [
 ]
 
 
-# this first import is the one that allows the script to talk to the echoview application.
+# this first import is the one that allows the script to talk to the Echoview application.
 
 import win32com.client
 import os

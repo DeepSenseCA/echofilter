@@ -4,12 +4,13 @@ Window management for Windows.
 
 from contextlib import contextmanager
 import re
-import warnings
 
 import pywintypes
 import win32com.client
 import win32con
 import win32gui
+
+from .. import ui
 
 
 __all__ = ["opencom", "WindowManager"]
@@ -144,7 +145,7 @@ def opencom(
             app.Minimize()
             was_minimized = True
         except:
-            warnings.warn("Could not minimize {} window".format(com_name))
+            print(ui.style.warning_fmt("Could not minimize {} window".format(com_name)))
 
     was_hidden = False
     if hide == "always" or (hide == "new" and not existing_session):
@@ -166,9 +167,11 @@ def opencom(
             except:
                 pass
         if winman.handle is None:
-            warnings.warn(
-                "Could not hide {} window with title {}".format(
-                    com_name, title if title_pattern is None else title_pattern
+            print(
+                ui.style.warning_fmt(
+                    "Could not hide {} window with title {}".format(
+                        com_name, title if title_pattern is None else title_pattern
+                    )
                 )
             )
         else:
@@ -197,8 +200,10 @@ def opencom(
                     winman.show()
         except:
             # We'll get an error if the application was already closed, etc
-            warnings.warn(
-                "Could not {} the {} window with handle {}.".format(
-                    command, com_name, app
+            print(
+                ui.style.warning_fmt(
+                    "Could not {} the {} window with handle {}.".format(
+                        command, com_name, app
+                    )
                 )
             )

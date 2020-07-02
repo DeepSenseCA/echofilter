@@ -77,7 +77,7 @@ Inference
 
 -   Autocrop with upward facing was running with reflected data as its input, resulting in the data being processed upside down and by the wrong conditional model.
     (`#172 <https://github.com/DeepSenseCA/echofilter/pull/172>`__)
--   Remove duplicate leading byte order mark character from evr file output, which was preventing the file from importing into EchoView.
+-   Remove duplicate leading byte order mark character from evr file output, which was preventing the file from importing into Echoview.
     (`#178 <https://github.com/DeepSenseCA/echofilter/pull/178>`__)
 -   Fix \r\n line endings being mapped to \r\r\n on Windows in evl and evr output files.
     (`#178 <https://github.com/DeepSenseCA/echofilter/pull/178>`__)
@@ -302,7 +302,7 @@ Training
 Inference
 ^^^^^^^^^
 
--   Exporting raw data in ev2csv required more EchoView parameters to be disabled, such as the minimum value threshold.
+-   Exporting raw data in ev2csv required more Echoview parameters to be disabled, such as the minimum value threshold.
     (`#100 <https://github.com/DeepSenseCA/echofilter/pull/100>`__).
 
 .. _v1.0.0b1 Fixed General:
