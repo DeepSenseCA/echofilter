@@ -813,16 +813,10 @@ def run_inference(
                     continue
 
                 # Load the data
-                if verbose >= 6:
-                    warn_row_overflow = np.inf
-                elif verbose >= 5:
-                    warn_row_overflow = None
-                else:
-                    warn_row_overflow = 0
                 try:
                     timestamps, depths, signals = echofilter.raw.loader.transect_loader(
                         csv_fname,
-                        warn_row_overflow=warn_row_overflow,
+                        warn_row_overflow=0,
                         row_len_selector=row_len_selector,
                     )
                 except KeyError:
