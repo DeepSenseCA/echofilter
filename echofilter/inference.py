@@ -927,7 +927,8 @@ def run_inference(
                             " collection. The original model predictions will"
                             " be kept instead.".format(fname)
                         )
-                        warnings.warn(s)
+                        s = echofilter.ui.style.warning_fmt(s)
+                        print(s)
                 else:
                     surface_depths[is_passive] = np.interp(
                         x[is_passive], x[~is_passive], surface_depths[~is_passive]
