@@ -4,7 +4,8 @@ Echoview interface management.
 
 from contextlib import contextmanager
 import os
-import warnings
+
+from .. import ui
 
 
 __all__ = ["ECHOVIEW_COM_NAME", "maybe_open_echoview", "open_ev_file"]
@@ -101,4 +102,8 @@ def open_ev_file(filename, app=None):
             try:
                 ev_file.Close()
             except:
-                warnings.warn("Could not close Echoview file {}".format(filename))
+                print(
+                    ui.style.warning_fmt(
+                        "Could not close Echoview file {}".format(filename)
+                    )
+                )
