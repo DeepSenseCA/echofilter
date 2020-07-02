@@ -1416,6 +1416,8 @@ def import_lines_regions_to_ev(
     # Assemble the color palette
     colors = get_color_palette()
 
+    dtstr = datetime.datetime.now().isoformat(timespec="seconds")
+
     with echofilter.win.open_ev_file(ev_fname, ev_app) as ev_file:
 
         def change_line_color_thickness(line_name, color, thickness, ev_app=ev_app):
@@ -1516,9 +1518,7 @@ def import_lines_regions_to_ev(
 
             if old_line and not successful_overwrite:
                 # Change the name so there is no collision
-                target_name += "_{}".format(
-                    datetime.datetime.now().isoformat(timespec="seconds")
-                )
+                target_name += "_{}".format(dtstr)
                 if verbose >= 1:
                     print(
                         "Target line name '{}' already exists. Will save"
@@ -1572,9 +1572,7 @@ def import_lines_regions_to_ev(
 
             if old_line and not successful_overwrite:
                 # Change the output name so there is no collision
-                target_name += "_{}".format(
-                    datetime.datetime.now().isoformat(timespec="seconds")
-                )
+                target_name += "_{}".format(dtstr)
                 if verbose >= 1:
                     print(
                         "Target line name '{}' already exists. Will save"
