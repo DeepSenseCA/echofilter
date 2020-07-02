@@ -103,6 +103,7 @@ def train(
     sample_shape=(128, 512),
     crop_depth=None,
     resume="",
+    restart="",
     log_name=None,
     log_name_append=None,
     conditional=False,
@@ -143,6 +144,11 @@ def train(
     anneal_strategy="cos",
     overall_loss_weight=0.0,
 ):
+
+    if restart and not resume:
+        raise ValueError(
+            "A checkpoint must be provided to restart from when doing a cold restart"
+        )
 
     seed_all(seed)
     # Can't get this to be deterministic anyway, so may as well keep the
@@ -289,6 +295,8 @@ def train(
     )
 
     schedule_data = {"name": schedule}
+    lr_initial_div_factor = 1e3
+    lr_final_div_factor = 1e5
     if schedule == "lrfinder":
         pass
     elif schedule == "constant":
@@ -304,8 +312,8 @@ def train(
             cycle_momentum=True,
             base_momentum=base_momentum,
             max_momentum=momentum,
-            div_factor=1e3,
-            final_div_factor=1e5,
+            div_factor=lr_initial_div_factor,
+            final_div_factor=lr_final_div_factor,
         )
     elif schedule == "mesaonecycle":
         schedule_data["scheduler"] = schedulers.MesaOneCycleLR(
@@ -319,8 +327,8 @@ def train(
             cycle_momentum=True,
             base_momentum=base_momentum,
             max_momentum=momentum,
-            div_factor=1e3,
-            final_div_factor=1e5,
+            div_factor=lr_initial_div_factor,
+            final_div_factor=lr_final_div_factor,
         )
     else:
         raise ValueError("Unsupported schedule: {}".format(schedule))
@@ -374,8 +382,6 @@ def train(
         else:
             # Map model to be loaded to specified single gpu.
             checkpoint = torch.load(resume, map_location=device)
-        start_epoch = checkpoint["epoch"] + 1
-        best_loss_val = checkpoint["best_loss"]
         try:
             unet.load_state_dict(checkpoint["state_dict"])
         except RuntimeError:
@@ -384,13 +390,42 @@ def train(
                 " to load it as the whole model instead."
             )
             model.load_state_dict(checkpoint["state_dict"])
-        optimizer.load_state_dict(checkpoint["optimizer"])
-        if use_mixed_precision and "amp" in checkpoint:
-            apex.amp.load_state_dict(checkpoint["amp"])
-        if "scheduler" in schedule_data:
-            step_num = checkpoint["epoch"] * len(loader_train)
-            schedule_data["scheduler"].last_epoch = step_num
-        print("Loaded checkpoint '{}' (epoch {})".format(resume, checkpoint["epoch"]))
+        if restart == "cold":
+            print("Loaded checkpoint '{}' for cold restart".format(resume))
+        else:
+            optimizer.load_state_dict(checkpoint["optimizer"])
+            if use_mixed_precision and "amp" in checkpoint:
+                apex.amp.load_state_dict(checkpoint["amp"])
+        if restart == "warm":
+            # We loaded the optimizer state from the checkpoint to get the
+            # current buffer values (the weighted history of updates).
+            # However, this also changed our schedule settings to the ones
+            # used to train the model in the checkpoint, so we need to
+            # overwrite it with the schedule initialisation step now.
+            for group in optimizer.param_groups:
+                if "onecycle" in schedule:
+                    group["lr"] = group["initial_lr"] = lr / lr_initial_div_factor
+                    group["max_lr"] = lr
+                    group["min_lr"] = group["initial_lr"] / lr_final_div_factor
+                    group["base_momentum"] = base_momentum
+                    group["max_momentum"] = momentum
+                else:
+                    group["lr"] = lr
+                    if "betas" in group:
+                        _, beta2 = group["betas"]
+                        group["betas"] = (momentum, beta2)
+                    else:
+                        group["momentum"] = momentum
+            print("Loaded checkpoint '{}' for warm restart".format(resume))
+        elif not restart:
+            start_epoch = checkpoint["epoch"] + 1
+            best_loss_val = checkpoint["best_loss"]
+            if "scheduler" in schedule_data:
+                step_num = checkpoint["epoch"] * len(loader_train)
+                schedule_data["scheduler"].last_epoch = step_num
+            print(
+                "Loaded checkpoint '{}' (epoch {})".format(resume, checkpoint["epoch"])
+            )
 
     # Make a tensorboard writer
     writer = SummaryWriter(log_dir=os.path.join("runs", dataset_name, log_name))
@@ -1570,6 +1605,24 @@ def main():
         type=str,
         metavar="PATH",
         help='path to latest checkpoint (default: "%(default)s")',
+    )
+    group_data.add_argument(
+        "--cold-restart",
+        dest="restart",
+        action="store_const",
+        const="cold",
+        default="",
+        help="when resuming from a checkpoint, use this only for initial weights",
+    )
+    group_data.add_argument(
+        "--warm-restart",
+        dest="restart",
+        action="store_const",
+        const="warm",
+        help="""
+            when resuming from a checkpoint, use the existing weights and
+            optimizer state but start a new LR schedule
+        """,
     )
     group_data.add_argument(
         "--log",
