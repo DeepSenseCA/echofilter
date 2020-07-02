@@ -908,17 +908,17 @@ def build_dataset(
     dataset_args = {}
     if dataset_name == "mobile":
         dataset_args["remove_nearfield"] = False
-        dataset_args["remove_offset_top"] = 0
+        dataset_args["remove_offset_turbulence"] = 0
         dataset_args["remove_offset_bottom"] = 1.0
     elif dataset_name == "MinasPassage":
         dataset_args["remove_nearfield"] = True
         dataset_args["nearfield_distance"] = 1.7
-        dataset_args["remove_offset_top"] = 0
+        dataset_args["remove_offset_turbulence"] = 0
         dataset_args["remove_offset_bottom"] = 0
     elif dataset_name == "GrandPassage":
         dataset_args["remove_nearfield"] = True
         dataset_args["nearfield_distance"] = 1.7
-        dataset_args["remove_offset_top"] = 1.0
+        dataset_args["remove_offset_turbulence"] = 1.0
         dataset_args["remove_offset_bottom"] = 0
 
     dataset_train = echofilter.data.dataset.TransectDataset(
@@ -977,7 +977,7 @@ def train_epoch(
     meters = {}
     for chn in [
         "Overall",
-        "Top",
+        "Turbulence",
         "Bottom",
         "RemovedSeg",
         "Passive",
@@ -1057,15 +1057,15 @@ def train_epoch(
                 if chn.startswith("overall"):
                     output_k = output["mask_keep_pixel" + cs].float()
                     target_k = metadata["mask"]
-                elif chn.startswith("top"):
-                    output_k = output["p_is_below_top" + cs]
-                    target_k = 1 - metadata["mask_top"]
+                elif chn.startswith("turbulence"):
+                    output_k = output["p_is_below_turbulence" + cs]
+                    target_k = 1 - metadata["mask_turbulence"]
                 elif chn.startswith("surf"):
                     output_k = output["p_is_below_surface" + cs]
-                    target_k = 1 - metadata["mask_surf"]
+                    target_k = 1 - metadata["mask_surface"]
                 elif chn.startswith("bottom"):
                     output_k = output["p_is_above_bottom" + cs]
-                    target_k = 1 - metadata["mask_bot"]
+                    target_k = 1 - metadata["mask_bottom"]
                 elif chn.startswith("removedseg"):
                     output_k = output["p_is_removed" + cs]
                     target_k = metadata["is_removed"]
@@ -1183,7 +1183,7 @@ def validate(
     meters = {}
     for chn in [
         "Overall",
-        "Top",
+        "Turbulence",
         "Bottom",
         "RemovedSeg",
         "Passive",
@@ -1265,15 +1265,15 @@ def validate(
                 if chn.startswith("overall"):
                     output_k = output["mask_keep_pixel" + cs].float()
                     target_k = metadata["mask"]
-                elif chn.startswith("top"):
-                    output_k = output["p_is_below_top" + cs]
-                    target_k = 1 - metadata["mask_top"]
+                elif chn.startswith("turbulence"):
+                    output_k = output["p_is_below_turbulence" + cs]
+                    target_k = 1 - metadata["mask_turbulence"]
                 elif chn.startswith("surf"):
                     output_k = output["p_is_below_surface" + cs]
-                    target_k = 1 - metadata["mask_surf"]
+                    target_k = 1 - metadata["mask_surface"]
                 elif chn.startswith("bottom"):
                     output_k = output["p_is_above_bottom" + cs]
-                    target_k = 1 - metadata["mask_bot"]
+                    target_k = 1 - metadata["mask_bottom"]
                 elif chn.startswith("removedseg"):
                     output_k = output["p_is_removed" + cs]
                     target_k = metadata["is_removed"]
@@ -1426,14 +1426,18 @@ def _generate_from_loaded(transect, model, *args, crop_depth=None, **kwargs):
 
     # Convert lines to masks
     ddepths = np.broadcast_to(transect["depths"], transect["Sv"].shape)
-    transect["mask_top"] = np.single(ddepths < np.expand_dims(transect["top"], -1))
-    transect["mask_bot"] = np.single(ddepths > np.expand_dims(transect["bottom"], -1))
+    transect["mask_turbulence"] = np.single(
+        ddepths < np.expand_dims(transect["turbulence"], -1)
+    )
+    transect["mask_bottom"] = np.single(
+        ddepths > np.expand_dims(transect["bottom"], -1)
+    )
     # Add mask_patches to the data, for plotting
     transect["mask_patches"] = 1 - transect["mask"]
     transect["mask_patches"][transect["is_passive"] > 0.5] = 0
     transect["mask_patches"][transect["is_removed"] > 0.5] = 0
-    transect["mask_patches"][transect["mask_top"] > 0.5] = 0
-    transect["mask_patches"][transect["mask_bot"] > 0.5] = 0
+    transect["mask_patches"][transect["mask_turbulence"] > 0.5] = 0
+    transect["mask_patches"][transect["mask_bottom"] > 0.5] = 0
 
     # Generate predictions for the transect
     transect["signals"] = transect.pop("Sv")

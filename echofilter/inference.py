@@ -78,15 +78,15 @@ def run_inference(
     overwrite_existing=False,
     overwrite_ev_lines=False,
     import_into_evfile=True,
-    generate_top_line=True,
+    generate_turbulence_line=True,
     generate_bottom_line=True,
     generate_surface_line=True,
     suffix_file="",
     suffix_var=None,
-    color_top="orangered",
+    color_turbulence="orangered",
     color_bottom="orangered",
     color_surface="green",
-    thickness_top=2,
+    thickness_turbulence=2,
     thickness_bottom=2,
     thickness_surface=1,
     cache_dir=None,
@@ -94,7 +94,7 @@ def run_inference(
     suffix_csv="",
     keep_ext=False,
     line_status=3,
-    offset_top=1.0,
+    offset_turbulence=1.0,
     offset_bottom=1.0,
     offset_surface=1.0,
     nearfield_cutoff=1.7,
@@ -166,9 +166,9 @@ def run_inference(
     import_into_evfile : bool, optional
         Whether to import the output lines and regions into the EV file,
         whenever the file being processed in an EV file. Default is `True`.
-    generate_top_line : bool, optional
-        Whether to output an evl file for the top line. If this is `False`,
-        the top line is also never imported into EchoView.
+    generate_turbulence_line : bool, optional
+        Whether to output an evl file for the turbulence line. If this is
+        `False`, the turbulence line is also never imported into EchoView.
         Default is `True`.
     generate_bottom_line : bool, optional
         Whether to output an evl file for the bottom line. If this is `False`,
@@ -187,8 +187,8 @@ def run_inference(
         EV file. If `suffix_var` begins with an alphanumeric character, `"-"`
         is prepended. If `None` (default), suffix_var will match `suffix_file`
         if it is set, and will be "_echofilter" otherwise.
-    color_top : str, optional
-        Color to use for the top line when it is imported into EchoView.
+    color_turbulence : str, optional
+        Color to use for the turbulence line when it is imported into EchoView.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to EchoView (such as "(0,255,0)").
@@ -205,14 +205,14 @@ def run_inference(
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to EchoView (such as "(0,255,0)").
         Default is `"green"`.
-    thickness_top : int, optional
-        Thicknesses with which the top line will be displayed in EchoView.
+    thickness_turbulence : int, optional
+        Thicknesses with which the turbulence line will be displayed in EchoView.
         Default is `2`.
     thickness_bottom : int, optional
-        Thicknesses with which the top line will be displayed in EchoView.
+        Thicknesses with which the turbulence line will be displayed in EchoView.
         Default is `2`.
     thickness_surface : int, optional
-        Thicknesses with which the top line will be displayed in EchoView.
+        Thicknesses with which the turbulence line will be displayed in EchoView.
         Default is `1`.
     cache_dir : str or None, optional
         Path to directory where downloaded checkpoint files should be cached.
@@ -241,8 +241,8 @@ def run_inference(
             `2` : bad
             `3` : good
         Default is `3`.
-    offset_top : float, optional
-        Offset for top line, which moves the top line deeper. Default is `1.0`.
+    offset_turbulence : float, optional
+        Offset for turbulence line, which moves the turbulence line deeper. Default is `1.0`.
     offset_bottom : float, optional
         Offset for bottom line, which moves the line to become more shallow.
         Default is `1.0`.
@@ -252,7 +252,7 @@ def run_inference(
     nearfield_cutoff : float or None, optional
         Nearest approach distance for line adjacent to echosounder, in meters.
         If the echosounder is downfacing, `nearfield_cutoff` is the minimum
-        depth for the top line. If the echosounder is upfacing, the maximum
+        depth for the turbulence line. If the echosounder is upfacing, the maximum
         depth for the bottom line will be
         ``deepest_input_depth + interdepth_interval - nearfield_cutoff``.
         Set to `None` to disable. Default is `1.7`.
@@ -311,15 +311,15 @@ def run_inference(
             `"merged"`:
                 Target patches for training were determined
                 after merging as much as possible into the
-                top and bottom lines.
+                turbulence and bottom lines.
             `"original"`:
                 Target patches for training were determined
                 using original lines, before expanding the
-                top and bottom lines.
+                turbulence and bottom lines.
             `"ntob"`:
                 Target patches for training were determined
                 using the original bottom line and the merged
-                top line.
+                turbulence line.
         If `None` (default), `"merged"` is used if downfacing and `"ntob"` is
         used if upfacing.
     variable_name : str, optional
@@ -434,9 +434,13 @@ def run_inference(
         else:
             suffix_csv = "-" + suffix_csv
 
-    line_colors = dict(top=color_top, bottom=color_bottom, surface=color_surface)
+    line_colors = dict(
+        turbulence=color_turbulence, bottom=color_bottom, surface=color_surface
+    )
     line_thicknesses = dict(
-        top=thickness_top, bottom=thickness_bottom, surface=thickness_surface
+        turbulence=thickness_turbulence,
+        bottom=thickness_bottom,
+        surface=thickness_surface,
     )
 
     if checkpoint is None:
@@ -652,10 +656,10 @@ def run_inference(
 
             # Make a list of all the outputs we will produce
             dest_files = {}
-            for name in ("top", "bottom", "surface"):
+            for name in ("turbulence", "bottom", "surface"):
                 dest_files[name] = "{}.{}{}.evl".format(destination, name, suffix_file)
-            if not generate_top_line:
-                dest_files.pop("top")
+            if not generate_turbulence_line:
+                dest_files.pop("turbulence")
             if not generate_bottom_line:
                 dest_files.pop("bottom")
             if not generate_surface_line:
@@ -876,8 +880,10 @@ def run_inference(
                     output["p_is_above_surface" + cs] > 0.5, -1
                 )
             ]
-            top_depths = output["depths"][
-                echofilter.utils.last_nonzero(output["p_is_above_top" + cs] > 0.5, -1)
+            turbulence_depths = output["depths"][
+                echofilter.utils.last_nonzero(
+                    output["p_is_above_turbulence" + cs] > 0.5, -1
+                )
             ]
             bottom_depths = output["depths"][
                 echofilter.utils.first_nonzero(
@@ -885,7 +891,7 @@ def run_inference(
                 )
             ]
             # Offset lines
-            top_depths += offset_top
+            turbulence_depths += offset_turbulence
             bottom_depths -= offset_bottom
             surface_depths += offset_surface
             # Redact passive regions
@@ -895,12 +901,12 @@ def run_inference(
                 pass
             elif lines_during_passive == "redact":
                 surface_depths = surface_depths[~is_passive]
-                top_depths = top_depths[~is_passive]
+                turbulence_depths = turbulence_depths[~is_passive]
                 bottom_depths = bottom_depths[~is_passive]
                 line_timestamps = line_timestamps[~is_passive]
             elif lines_during_passive == "undefined":
                 surface_depths[is_passive] = EV_UNDEFINED_DEPTH
-                top_depths[is_passive] = EV_UNDEFINED_DEPTH
+                turbulence_depths[is_passive] = EV_UNDEFINED_DEPTH
                 bottom_depths[is_passive] = EV_UNDEFINED_DEPTH
             elif lines_during_passive.startswith("interp"):
                 if lines_during_passive == "interpolate-time":
@@ -927,8 +933,8 @@ def run_inference(
                     surface_depths[is_passive] = np.interp(
                         x[is_passive], x[~is_passive], surface_depths[~is_passive]
                     )
-                    top_depths[is_passive] = np.interp(
-                        x[is_passive], x[~is_passive], top_depths[~is_passive]
+                    turbulence_depths[is_passive] = np.interp(
+                        x[is_passive], x[~is_passive], turbulence_depths[~is_passive]
                     )
                     bottom_depths[is_passive] = np.interp(
                         x[is_passive], x[~is_passive], bottom_depths[~is_passive]
@@ -945,14 +951,14 @@ def run_inference(
                 max_depth = np.max(depths) + depth_intv - nearfield_cutoff
                 bottom_depths = np.minimum(max_depth, bottom_depths)
             else:
-                top_depths = np.maximum(top_depths, nearfield_cutoff)
+                turbulence_depths = np.maximum(turbulence_depths, nearfield_cutoff)
 
             # Export evl files
             destination_dir = os.path.dirname(destination)
             if destination_dir != "":
                 os.makedirs(destination_dir, exist_ok=True)
             for line_name, line_depths in (
-                ("top", top_depths),
+                ("turbulence", turbulence_depths),
                 ("bottom", bottom_depths),
                 ("surface", surface_depths),
             ):
@@ -1921,12 +1927,12 @@ def cli():
         """,
     )
     group_outfile.add_argument(
-        "--no-top-line",
-        dest="generate_top_line",
+        "--no-turbulence-line",
+        dest="generate_turbulence_line",
         action="store_false",
         help="""
-            Do not output an evl file for the top line, and do not impor
-            a top line into the ev file.
+            Do not output an evl file for the turbulence line, and do not
+            import a turbulence line into the ev file.
         """,
     )
     group_outfile.add_argument(
@@ -1974,15 +1980,15 @@ def cli():
         """,
     )
     group_outfile.add_argument(
-        "--color-top",
+        "--color-turbulence",
         type=str,
         default="orangered",
         help="""
-            Color to use for the top line when it is imported into EchoView.
-            This can either be the name of a supported color (see --list-colors
-            for options), or a a hexadecimal string, or a string representation
-            of an RGB color to supply directly to EchoView (such as
-            "(0,255,0)"). Default: "%(default)s".
+            Color to use for the turbulence line when it is imported into
+            EchoView. This can either be the name of a supported color (see
+            --list-colors for options), or a a hexadecimal string, or a string
+            representation of an RGB color to supply directly to EchoView (such
+            as "(0,255,0)"). Default: "%(default)s".
         """,
     )
     group_outfile.add_argument(
@@ -2002,20 +2008,20 @@ def cli():
         type=str,
         default="green",
         help="""
-            Color to use for the surface line when it is imported into EchoView.
-            This can either be the name of a supported color (see --list-colors
-            for options), or a a hexadecimal string, or a string representation
-            of an RGB color to supply directly to EchoView (such as
-            "(0,255,0)"). Default: "%(default)s".
+            Color to use for the surface line when it is imported into
+            EchoView. This can either be the name of a supported color (see
+            --list-colors for options), or a a hexadecimal string, or a string
+            representation of an RGB color to supply directly to EchoView (such
+            as "(0,255,0)"). Default: "%(default)s".
         """,
     )
     group_outfile.add_argument(
-        "--thickness-top",
+        "--thickness-turbulence",
         type=int,
         default=2,
         help="""
-            Thicknesses with which the top line will be displayed in EchoView.
-            Default: %(default)s.
+            Thicknesses with which the turbulence line will be displayed in
+            EchoView. Default: %(default)s.
         """,
     )
     group_outfile.add_argument(
@@ -2023,8 +2029,8 @@ def cli():
         type=int,
         default=2,
         help="""
-            Thicknesses with which the bottom line will be displayed in EchoView.
-            Default: %(default)s.
+            Thicknesses with which the bottom line will be displayed in
+            EchoView. Default: %(default)s.
         """,
     )
     group_outfile.add_argument(
@@ -2032,8 +2038,8 @@ def cli():
         type=int,
         default=1,
         help="""
-            Thicknesses with which the surface line will be displayed in EchoView.
-            Default: %(default)s.
+            Thicknesses with which the surface line will be displayed in
+            EchoView. Default: %(default)s.
         """,
     )
     DEFAULT_CACHE_DIR = get_default_cache_dir()
@@ -2109,20 +2115,20 @@ def cli():
         type=float,
         default=1.0,
         help="""
-            Offset for top, bottom, and surface lines, in metres. This will
-            shift top and surface lines downwards and the bottom line upwards
-            by the same distance of OFFSET.
+            Offset for turbulence, bottom, and surface lines, in metres.
+            This will shift turbulence and surface lines downwards and the
+            bottom line upwards by the same distance of OFFSET.
             Default: %(default)s.
         """,
     )
     group_outconfig.add_argument(
-        "--offset-top",
+        "--offset-turbulence",
         type=float,
         default=None,
         help="""
-            Offset for the top line, in metres. This shifts the top line
-            downards by some distance OFFSET_TOP. If this is set, it overwrites
-            the value provided by --offset.
+            Offset for the turbulence line, in metres. This shifts the
+            turbulence line downards by some distance OFFSET_TURBULENCE.
+            If this is set, it overwrites the value provided by --offset.
         """,
     )
     group_outconfig.add_argument(
@@ -2154,11 +2160,11 @@ def cli():
         help="""
             Nearest approach distance for line adjacent to echosounder, in
             meters. If the echosounder is downfacing, NEARFIELD_CUTOFF is the
-            minimum depth for the top line. If the echosounder is upfacing,
-            the maximum depth for the bottom line will be NEARFIELD_CUTOFF
-            above the deepest depth in the input data, plus one inter-depth
-            interval. If the --nearfield-cutoff argument is given without
-            a value, no nearfield cut off will be applied.
+            minimum depth for the turbulence line. If the echosounder is
+            upfacing, the maximum depth for the bottom line will be
+            NEARFIELD_CUTOFF above the deepest depth in the input data, plus
+            one inter-depth interval. If the --nearfield-cutoff argument is
+            given without a value, no nearfield cut off will be applied.
             Default: %(default)s.
         """,
     )
@@ -2265,15 +2271,15 @@ def cli():
               merged:
                   Target patches for training were determined
                   after merging as much as possible into the
-                  top and bottom lines.
+                  turbulence and bottom lines.
               original:
                   Target patches for training were determined
                   using original lines, before expanding the
-                  top and bottom lines.
+                  turbulence and bottom lines.
               ntob:
                   Target patches for training were determined
                   using the original bottom line and the merged
-                  top line.
+                  turbulence line.
             Default: "merged" is used if downfacing; "ntob" if
             upfacing.
         """,
@@ -2540,8 +2546,8 @@ def cli():
         kwargs["overwrite_ev_lines"] = True
 
     default_offset = kwargs.pop("offset")
-    if kwargs["offset_top"] is None:
-        kwargs["offset_top"] = default_offset
+    if kwargs["offset_turbulence"] is None:
+        kwargs["offset_turbulence"] = default_offset
     if kwargs["offset_bottom"] is None:
         kwargs["offset_bottom"] = default_offset
     if kwargs["offset_surface"] is None:
