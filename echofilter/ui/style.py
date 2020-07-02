@@ -112,7 +112,7 @@ class error_message(contextlib.AbstractContextManager):
         # Make the error message be bold and red
         if message:
             # Bold for the message, then return to normal font weight
-            message = colorama.Style.BRIGHT + message + colorama.Style.NORMAL
+            message = HighlightStyle.start + message + HighlightStyle.reset
             # Make the error message, and everything which comes after it, be
             # red. We don't reset the colour in case we are inside a larger
             # error message, which should also be red.

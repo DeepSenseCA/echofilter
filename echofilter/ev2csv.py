@@ -17,13 +17,11 @@ import echofilter.win
 
 # Provide a warning for non-Windows users
 if not echofilter.path.check_if_windows():
-    print()
     warnings.warn(
-        "ev2csv requires the Echoview application, which is only available on"
-        " Windows operating systems.",
+        "\nev2csv requires the Echoview application, which is only available on"
+        " Windows operating systems.\n",
         category=RuntimeWarning,
     )
-    print()
 
 
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
