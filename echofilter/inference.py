@@ -1382,6 +1382,27 @@ def import_lines_regions_to_ev(
     colors = get_color_palette()
 
     with echofilter.win.open_ev_file(ev_fname, ev_app) as ev_file:
+
+        def change_line_color_thickness(line_name, color, thickness, ev_app=ev_app):
+            if color is not None or thickness is not None:
+                ev_app.Exec(
+                    "{} | UseDefaultLineDisplaySettings =| false".format(line_name)
+                )
+            if color is not None:
+                if color in colors:
+                    color = colors[color]
+                elif not isinstance(color, str):
+                    pass
+                elif "xkcd:" + color in colors:
+                    color = colors["xkcd:" + color]
+                color = hexcolor2rgb8(color)
+                color = repr(color).replace(" ", "")
+                ev_app.Exec("{} | CustomGoodLineColor =| {}".format(line_name, color))
+            if thickness is not None:
+                ev_app.Exec(
+                    "{} | CustomLineDisplayThickness =| {}".format(line_name, thickness)
+                )
+
         for key, fname in files.items():
             # Import the line into the EV file
             fname_full = os.path.abspath(fname)
@@ -1477,27 +1498,9 @@ def import_lines_regions_to_ev(
                 line.Name = target_name
 
             # Change the color and thickness of the line
-            if key in line_colors or key in line_thicknesses:
-                ev_app.Exec(
-                    "{} | UseDefaultLineDisplaySettings =| false".format(line.Name)
-                )
-            if key in line_colors:
-                color = line_colors[key]
-                if color in colors:
-                    color = colors[color]
-                elif not isinstance(color, str):
-                    pass
-                elif "xkcd:" + color in colors:
-                    color = colors["xkcd:" + color]
-                color = hexcolor2rgb8(color)
-                color = repr(color).replace(" ", "")
-                ev_app.Exec("{} | CustomGoodLineColor =| {}".format(line.Name, color))
-            if key in line_thicknesses:
-                ev_app.Exec(
-                    "{} | CustomLineDisplayThickness =| {}".format(
-                        line.Name, line_thicknesses[key]
-                    )
-                )
+            change_line_color_thickness(
+                line.Name, line_colors.get(key), line_thicknesses.get(key)
+            )
 
         # Overwrite the EV file now the outputs have been imported
         ev_file.Save()
