@@ -961,7 +961,11 @@ def run_inference(
                         raise EnvironmentError(msg + "\n  " + existing_file_msg)
 
                 echofilter.raw.loader.evl_writer(
-                    dest_file, line_timestamps, line_depths, status=line_status
+                    dest_file,
+                    line_timestamps,
+                    line_depths,
+                    pad=True,
+                    status=line_status,
                 )
             # Export evr file
             dest_file = dest_files["regions"]
