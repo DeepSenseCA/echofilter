@@ -405,7 +405,7 @@ def timestamp2evdtstr(timestamp):
     return "{}{:04d}".format(dt.strftime("%Y%m%d %H%M%S"), round(dt.microsecond / 100),)
 
 
-def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n"):
+def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n", pad=False):
     """
     EVL file writer
 
@@ -425,6 +425,9 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n"):
             `3` : good
         Default is `1` (unverified). For more details on line status, see:
         https://support.echoview.com/WebHelp/Using_Echoview/Echogram/Lines/About_Line_Status.htm
+    pad : bool, optional
+        Whether to pad the line with an extra datapoint half a pixel before the
+        first and after the last given timestamp. Default is `False`.
     line_ending : str, optional
         Line ending. Default is "\r\n" the standard line ending on Windows/DOS,
         as per the specification for the file format.
@@ -442,6 +445,14 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n"):
                 len(timestamps), len(depths)
             )
         )
+    if pad and len(timestamps) > 1:
+        timestamps = timestamps[:]
+        timestamps = np.r_[
+            timestamps[0] - (timestamps[1] - timestamps[0]) / 2,
+            timestamps,
+            timestamps[-1] + (timestamps[-2] - timestamps[-1]) / 2,
+        ]
+        depths = np.r_[depths[0], depths, depths[-1]]
     # The file object will automatically replace \n with our chosen line ending
     with open(fname, "w+", encoding="utf-8-sig", newline=line_ending) as hf:
         # Write header
