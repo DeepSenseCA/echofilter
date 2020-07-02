@@ -18,12 +18,12 @@ if __name__ == "__main__":
         )
 
         import torch.jit
-        import echofilter.inference
+        from echofilter.ui.inference_cli import main
 
         torch.jit.script_method = script_method
         torch.jit.script = script
 
-        echofilter.inference.main()
+        main()
 
     except KeyboardInterrupt as err:
         import sys
