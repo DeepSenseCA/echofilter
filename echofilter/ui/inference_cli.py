@@ -54,7 +54,11 @@ class ListCheckpoints(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
         print("Currently available model checkpoints:")
         for checkpoint, props in CHECKPOINT_RESOURCES.items():
-            print("    {}".format(checkpoint))
+            print(
+                "  {} {}".format(
+                    "*" if checkpoint == DEFAULT_CHECKPOINT else " ", checkpoint
+                )
+            )
         parser.exit()  # exits the program with no more arg parsing and checking
 
 
