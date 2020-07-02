@@ -1,5 +1,5 @@
 """
-Input/Output handling for raw echoview files.
+Input/Output handling for raw Echoview files.
 """
 
 from collections import OrderedDict
@@ -481,7 +481,7 @@ def evr_writer(
     """
     EVR file writer.
 
-    Writes regions to an EchoView region file.
+    Writes regions to an Echoview region file.
 
     Parameters
     ----------

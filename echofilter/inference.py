@@ -129,7 +129,7 @@ def run_inference(
         is `False`.
     skip_incompatible : bool, optional
         Skip processing CSV files which do not seem to contain an exported
-        echoview transect. If `False`, an error is raised. Default is `False`.
+        Echoview transect. If `False`, an error is raised. Default is `False`.
     output_dir : str, optional
         Directory where output files will be written. If this is `''`, outputs
         are written to the same directory as each input file. Otherwise, they
@@ -143,7 +143,7 @@ def run_inference(
         `False`, an error is generated if files would be overwritten.
         Default is `False`.
     overwrite_ev_lines : bool, optional
-        Overwrite existing lines within the EchoView file without warning.
+        Overwrite existing lines within the Echoview file without warning.
         If `False` (default), the current datetime will be appended to line
         variable names in the event of a collision.
     import_into_evfile : bool, optional
@@ -151,18 +151,18 @@ def run_inference(
         whenever the file being processed in an EV file. Default is `True`.
     generate_turbulence_line : bool, optional
         Whether to output an evl file for the turbulence line. If this is
-        `False`, the turbulence line is also never imported into EchoView.
+        `False`, the turbulence line is also never imported into Echoview.
         Default is `True`.
     generate_bottom_line : bool, optional
         Whether to output an evl file for the bottom line. If this is `False`,
-        the bottom line is also never imported into EchoView.
+        the bottom line is also never imported into Echoview.
         Default is `True`.
     generate_surface_line : bool, optional
         Whether to output an evl file for the surface line. If this is `False`,
-        the surface line is also never imported into EchoView.
+        the surface line is also never imported into Echoview.
         Default is `True`.
     add_nearfield_line : bool, optional
-        Whether to add a nearfield line to the EV file in EchoView.
+        Whether to add a nearfield line to the EV file in Echoview.
         Default is `True`.
     suffix_file : str, optional
         Suffix to append to output artifacts (evl and evr files), between
@@ -174,40 +174,40 @@ def run_inference(
         is prepended. If `None` (default), suffix_var will match `suffix_file`
         if it is set, and will be "_echofilter" otherwise.
     color_turbulence : str, optional
-        Color to use for the turbulence line when it is imported into EchoView.
+        Color to use for the turbulence line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
-        of an RGB color to supply directly to EchoView (such as "(0,255,0)").
+        of an RGB color to supply directly to Echoview (such as "(0,255,0)").
         Default is `"orangered"`.
     color_bottom : str, optional
-        Color to use for the bottom line when it is imported into EchoView.
+        Color to use for the bottom line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
-        of an RGB color to supply directly to EchoView (such as "(0,255,0)").
+        of an RGB color to supply directly to Echoview (such as "(0,255,0)").
         Default is `"orangered"`.
     color_surface : str, optional
-        Color to use for the surface line when it is imported into EchoView.
+        Color to use for the surface line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
-        of an RGB color to supply directly to EchoView (such as "(0,255,0)").
+        of an RGB color to supply directly to Echoview (such as "(0,255,0)").
         Default is `"green"`.
     color_nearfield : str, optional
-        Color to use for the nearfield line when it is created in EchoView.
+        Color to use for the nearfield line when it is created in Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
-        of an RGB color to supply directly to EchoView (such as "(0,255,0)").
+        of an RGB color to supply directly to Echoview (such as "(0,255,0)").
         Default is `"mediumseagreen"`.
     thickness_turbulence : int, optional
-        Thicknesses with which the turbulence line will be displayed in EchoView.
+        Thicknesses with which the turbulence line will be displayed in Echoview.
         Default is `2`.
     thickness_bottom : int, optional
-        Thicknesses with which the bottom line will be displayed in EchoView.
+        Thicknesses with which the bottom line will be displayed in Echoview.
         Default is `2`.
     thickness_surface : int, optional
-        Thicknesses with which the surface line will be displayed in EchoView.
+        Thicknesses with which the surface line will be displayed in Echoview.
         Default is `1`.
     thickness_nearfield : int, optional
-        Thicknesses with which the nearfield line will be displayed in EchoView.
+        Thicknesses with which the nearfield line will be displayed in Echoview.
         Default is `1`.
     cache_dir : str or None, optional
         Path to directory where downloaded checkpoint files should be cached.
@@ -281,7 +281,7 @@ def run_inference(
                 to be passive data collection.
             `"undefined"`:
                 depths are replaced with the placeholder value
-                used by EchoView to denote undefined values,
+                used by Echoview to denote undefined values,
                 which is `-10000.99`.
         Default: "redact".
     collate_passive_length : int, optional
@@ -325,7 +325,7 @@ def run_inference(
         If `None` (default), `"merged"` is used if downfacing and `"ntob"` is
         used if upfacing.
     variable_name : str, optional
-        Name of the EchoView acoustic variable to load from EV files. Default
+        Name of the Echoview acoustic variable to load from EV files. Default
         is `'Fileset1: Sv pings T1'`.
     row_len_selector : str, optional
         Method used to handle input csv files with different number of Sv
@@ -372,14 +372,14 @@ def run_inference(
         available CUDA GPU is used if any are found, and otherwise the CPU is
         used. Set to `'cpu'` to use the CPU even if a CUDA GPU is available.
     hide_echoview : {"never", "new", "always"}, optional
-        Whether to hide the EchoView window entirely while the code runs.
+        Whether to hide the Echoview window entirely while the code runs.
         If `hide_echoview="new"`, the application is only hidden if it
         was created by this function, and not if it was already running.
         If `hide_echoview="always"`, the application is hidden even if it was
         already running. In the latter case, the window will be revealed again
         when this function is completed. Default is `"new"`.
     minimize_echoview : bool, optional
-        If `True`, the EchoView window being used will be minimized while this
+        If `True`, the Echoview window being used will be minimized while this
         function is running. Default is `False`.
     verbose : int, optional
         Verbosity level. Default is `2`. Set to `0` to disable print
@@ -612,7 +612,7 @@ def run_inference(
     if dry_run:
         if verbose >= 3:
             print(
-                "EchoView application would{} be opened {}.".format(
+                "Echoview application would{} be opened {}.".format(
                     "" if do_open else " not",
                     "to convert EV files to CSV"
                     if do_open
@@ -641,7 +641,7 @@ def run_inference(
     incompatible_count = 0
     error_msgs = []
 
-    # Open EchoView connection
+    # Open Echoview connection
     with echofilter.win.maybe_open_echoview(
         do_open=do_open, minimize=minimize_echoview, hide=hide_echoview,
     ) as ev_app:
@@ -1379,7 +1379,7 @@ def import_lines_regions_to_ev(
     Parameters
     ----------
     ev_fname : str
-        Path to EchoView file to import variables into.
+        Path to Echoview file to import variables into.
     files : dict
         Mapping from output keys to filenames.
     target_names : dict, optional
@@ -1392,7 +1392,7 @@ def import_lines_regions_to_ev(
     line_thicknesses : dict, optional
         Mapping from output keys to line thicknesses.
     ev_app : win32com.client.Dispatch object or None, optional
-        An object which can be used to interface with the EchoView application,
+        An object which can be used to interface with the Echoview application,
         as returned by `win32com.client.Dispatch`. If `None` (default), a
         new instance of the application is opened (and closed on completion).
     overwrite : bool, optional
@@ -1445,7 +1445,7 @@ def import_lines_regions_to_ev(
             if not is_imported:
                 s = (
                     "  Warning: Unable to import file '{}'"
-                    "Please consult EchoView for the Import error message.".format(
+                    "Please consult Echoview for the Import error message.".format(
                         fname
                     )
                 )

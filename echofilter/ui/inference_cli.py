@@ -294,7 +294,7 @@ def cli():
         "--overwrite-ev-lines",
         action="store_true",
         help="""
-            Overwrite existing lines within the EchoView file without warning.
+            Overwrite existing lines within the Echoview file without warning.
             Default behaviour is to append the current datetime to the name of
             the line in the event of a collision.
         """,
@@ -386,9 +386,9 @@ def cli():
         default="orangered",
         help="""
             Color to use for the turbulence line when it is imported into
-            EchoView. This can either be the name of a supported color (see
+            Echoview. This can either be the name of a supported color (see
             --list-colors for options), or a a hexadecimal string, or a string
-            representation of an RGB color to supply directly to EchoView (such
+            representation of an RGB color to supply directly to Echoview (such
             as "(0,255,0)"). Default: "%(default)s".
         """,
     )
@@ -397,10 +397,10 @@ def cli():
         type=str,
         default="orangered",
         help="""
-            Color to use for the bottom line when it is imported into EchoView.
+            Color to use for the bottom line when it is imported into Echoview.
             This can either be the name of a supported color (see --list-colors
             for options), or a a hexadecimal string, or a string representation
-            of an RGB color to supply directly to EchoView (such as
+            of an RGB color to supply directly to Echoview (such as
             "(0,255,0)"). Default: "%(default)s".
         """,
     )
@@ -410,9 +410,9 @@ def cli():
         default="green",
         help="""
             Color to use for the surface line when it is imported into
-            EchoView. This can either be the name of a supported color (see
+            Echoview. This can either be the name of a supported color (see
             --list-colors for options), or a a hexadecimal string, or a string
-            representation of an RGB color to supply directly to EchoView (such
+            representation of an RGB color to supply directly to Echoview (such
             as "(0,255,0)"). Default: "%(default)s".
         """,
     )
@@ -422,9 +422,9 @@ def cli():
         default="mediumseagreen",
         help="""
             Color to use for the nearfield line when it is created in
-            EchoView. This can either be the name of a supported color (see
+            Echoview. This can either be the name of a supported color (see
             --list-colors for options), or a a hexadecimal string, or a string
-            representation of an RGB color to supply directly to EchoView (such
+            representation of an RGB color to supply directly to Echoview (such
             as "(0,255,0)"). Default: "%(default)s".
         """,
     )
@@ -434,7 +434,7 @@ def cli():
         default=2,
         help="""
             Thicknesses with which the turbulence line will be displayed in
-            EchoView. Default: %(default)s.
+            Echoview. Default: %(default)s.
         """,
     )
     group_outfile.add_argument(
@@ -443,7 +443,7 @@ def cli():
         default=2,
         help="""
             Thicknesses with which the bottom line will be displayed in
-            EchoView. Default: %(default)s.
+            Echoview. Default: %(default)s.
         """,
     )
     group_outfile.add_argument(
@@ -452,7 +452,7 @@ def cli():
         default=1,
         help="""
             Thicknesses with which the surface line will be displayed in
-            EchoView. Default: %(default)s.
+            Echoview. Default: %(default)s.
         """,
     )
     group_outfile.add_argument(
@@ -461,7 +461,7 @@ def cli():
         default=1,
         help="""
             Thicknesses with which the nearfield line will be displayed in
-            EchoView. Default: %(default)s.
+            Echoview. Default: %(default)s.
         """,
     )
     DEFAULT_CACHE_DIR = get_default_cache_dir()
@@ -633,7 +633,7 @@ def cli():
                   to be passive data collection.
               undefined:
                   depths are replaced with the placeholder value
-                  used by EchoView to denote undefined values,
+                  used by Echoview to denote undefined values,
                   which is {}.
             Default: "%(default)s".
         """,
@@ -729,7 +729,7 @@ def cli():
         type=str,
         default=DEFAULT_VARNAME,
         help="""d|
-            Name of the EchoView acoustic variable to load from
+            Name of the Echoview acoustic variable to load from
             EV files.
             Default: "%(default)s".
         """,
@@ -884,10 +884,10 @@ def cli():
         """,
     )
 
-    # EchoView interaction arguments
+    # Echoview interaction arguments
     group_evwin = parser.add_argument_group(
-        "EchoView window management",
-        "Optional parameters specifying how to interact with any EchoView"
+        "Echoview window management",
+        "Optional parameters specifying how to interact with any Echoview"
         " windows which are used during this process.",
     )
     group_evwin_hiding = group_evwin.add_mutually_exclusive_group()
@@ -897,8 +897,8 @@ def cli():
         action="store_const",
         const="new",
         help="""
-            Hide any EchoView window spawned by this program. If it must use
-            an EchoView instance which was already running, that window is not
+            Hide any Echoview window spawned by this program. If it must use
+            an Echoview instance which was already running, that window is not
             hidden. This is the default behaviour.
         """,
     )
@@ -909,7 +909,7 @@ def cli():
         const="never",
         default=None,
         help="""
-            Don't hide an EchoView window created to run this code. (Disables
+            Don't hide an Echoview window created to run this code. (Disables
             the default behaviour which is equivalent to --hide-echoview.)
         """,
     )
@@ -920,8 +920,8 @@ def cli():
         action="store_const",
         const="always",
         help="""
-            Hide the EchoView window while this code runs, even if this
-            process is utilising an EchoView window which was already open.
+            Hide the Echoview window while this code runs, even if this
+            process is utilising an Echoview window which was already open.
         """,
     )
     group_evwin.add_argument(
@@ -929,7 +929,7 @@ def cli():
         dest="minimize_echoview",
         action="store_true",
         help="""
-            Minimize any EchoView window used to runs this code while it runs.
+            Minimize any Echoview window used to runs this code while it runs.
             The window will be restored once the program is finished.
             If this argument is supplied, --show-echoview is implied unless
             --hide-echoview is also given.

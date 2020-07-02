@@ -1,5 +1,5 @@
 """
-Manipulating lines and masks contained in echoview files.
+Manipulating lines and masks contained in Echoview files.
 """
 
 import copy
@@ -429,13 +429,13 @@ def make_lines_from_mask(mask, depths=None, max_gap_squash=1.0):
 
 def make_lines_from_masked_csv(fname):
     """
-    Load a masked csv file output from echoview and generate lines which
+    Load a masked csv file output from Echoview and generate lines which
     reproduce the mask.
 
     Parameters
     ----------
     fname : str
-        Path to file containing masked echoview output data in csv format.
+        Path to file containing masked Echoview output data in csv format.
 
     Returns
     -------
@@ -455,13 +455,13 @@ def make_lines_from_masked_csv(fname):
 
 def write_lines_for_masked_csv(fname_mask, fname_turbulence=None, fname_bottom=None):
     """
-    Write new turbulence and bottom lines based on csv containing masked echoview
+    Write new turbulence and bottom lines based on csv containing masked Echoview
     output.
 
     Parameters
     ----------
     fname_mask : str
-        Path to input file containing masked echoview output data in csv
+        Path to input file containing masked Echoview output data in csv
         format.
     fname_turbulence : str, optional
         Destination of generated turbulence line, written in evl format. If `None`
