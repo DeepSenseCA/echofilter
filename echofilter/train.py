@@ -1047,12 +1047,6 @@ def train_epoch(
             meters[cc]["Recall"] = AverageMeter("Recall (" + cc + ")", ":6.2f")
             meters[cc]["F1 Score"] = AverageMeter("F1 Score (" + cc + ")", ":6.4f")
             meters[cc]["Jaccard"] = AverageMeter("Jaccard (" + cc + ")", ":6.4f")
-            meters[cc]["Active output"] = AverageMeter(
-                "Active output (" + cc + ")", ":6.2f"
-            )
-            meters[cc]["Active target"] = AverageMeter(
-                "Active target (" + cc + ")", ":6.2f"
-            )
 
     progress = ProgressMeter(
         len(loader),
@@ -1253,12 +1247,6 @@ def validate(
             meters[cc]["Recall"] = AverageMeter("Recall (" + cc + ")", ":6.2f")
             meters[cc]["F1 Score"] = AverageMeter("F1 Score (" + cc + ")", ":6.4f")
             meters[cc]["Jaccard"] = AverageMeter("Jaccard (" + cc + ")", ":6.4f")
-            meters[cc]["Active output"] = AverageMeter(
-                "Active output (" + chn + ")", ":6.2f"
-            )
-            meters[cc]["Active target"] = AverageMeter(
-                "Active target (" + cc + ")", ":6.2f"
-            )
 
     progress = ProgressMeter(
         len(loader),
