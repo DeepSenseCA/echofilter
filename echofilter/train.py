@@ -100,6 +100,8 @@ MAX_INPUT_LEN = 3500
 def train(
     data_dir="/data/dsforce/surveyExports",
     dataset_name="mobile",
+    train_partition=None,
+    val_partition=None,
     sample_shape=(128, 512),
     crop_depth=None,
     resume="",
@@ -183,7 +185,11 @@ def train(
 
     # Build dataset
     dataset_train, dataset_val, dataset_augval = build_dataset(
-        dataset_name, data_dir, sample_shape
+        dataset_name,
+        data_dir,
+        sample_shape,
+        train_partition=train_partition,
+        val_partition=val_partition,
     )
 
     print("Train dataset has {:4d} samples".format(len(dataset_train)))
@@ -1584,6 +1590,18 @@ def main():
         type=str,
         default="mobile",
         help="which dataset to use",
+    )
+    group_data.add_argument(
+        "--train-partition",
+        type=str,
+        default=None,
+        help="which partition to train on (default depends on dataset)",
+    )
+    group_data.add_argument(
+        "--val-partition",
+        type=str,
+        default=None,
+        help="which partition to validate on (default depends on dataset)",
     )
     group_data.add_argument(
         "--shape",
