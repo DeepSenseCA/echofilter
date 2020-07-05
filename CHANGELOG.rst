@@ -16,7 +16,147 @@ Security.
 Unreleased
 ----------
 
-`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0b3...master>`__.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0b4...master>`__.
+
+
+Version `1.0.0b4 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0b4>`__
+----------------------------------------------------------------------------
+
+Release date: 2020-07-05.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0b3...1.0.0b4>`__.
+
+This is a beta pre-release of v1.0.0.
+
+.. _v1.0.0b4 Changed:
+
+Changed
+~~~~~~~
+
+.. _v1.0.0b4 Changed Inference:
+
+Inference
+^^^^^^^^^
+
+-   Arguments relating to top are renamed to turbulence, and "top" outputs are renamed "turbulence".
+    (`#190 <https://github.com/DeepSenseCA/echofilter/pull/190>`__)
+-   Change default checkpoint from ``conditional_mobile-stationary2_effunet6x2-1_lc32_v1.0`` to ``conditional_mobile-stationary2_effunet6x2-1_lc32_v2.0``.
+    (`#208 <https://github.com/DeepSenseCA/echofilter/pull/208>`__)
+-   Status value in EVL outputs extends to final sample (as per specification, not observed EVL files).
+    (`#201 <https://github.com/DeepSenseCA/echofilter/pull/201>`__)
+-   Rename ``--nearfield-cutoff`` argument to ``--nearfield``, add ``--no-cutoff-at-nearfield`` argument to control whether the turbulence/bottom line can extend closer to the echosounder that the nearfield line.
+    (`#203 <https://github.com/DeepSenseCA/echofilter/pull/203>`__)
+-   Improved UI help and verbosity messages.
+    `(`#187 <https://github.com/DeepSenseCA/echofilter/pull/187>`__,
+    `#188 <https://github.com/DeepSenseCA/echofilter/pull/188>`__,
+    `#203 <https://github.com/DeepSenseCA/echofilter/pull/203>`__,
+    `#204 <https://github.com/DeepSenseCA/echofilter/pull/204>`__,
+    `#207 <https://github.com/DeepSenseCA/echofilter/pull/207>`__)
+
+.. _v1.0.0b4 Changed Training:
+
+Training
+^^^^^^^^
+
+-   Use 0m as target for surface line for downfacing, not the top of the echogram.
+    (`#191 <https://github.com/DeepSenseCA/echofilter/pull/191>`__)
+-   Don't include periods where the surface line is below the bottom line in the training loss.
+    (`#191 <https://github.com/DeepSenseCA/echofilter/pull/191>`__)
+-   Bottom line target during nearfield is now the bottom of the echogram, not 0.5m above the bottom.
+    (`#191 <https://github.com/DeepSenseCA/echofilter/pull/191>`__)
+-   Normalise training samples separately, based on their own Sv intensity distribution after augmentation.
+    (`#192 <https://github.com/DeepSenseCA/echofilter/pull/192>`__)
+-   Record echofilter version number in checkpoint file.
+    (`#193 <https://github.com/DeepSenseCA/echofilter/pull/193>`__)
+-   Change "optimal" depth zoom augmentation, used for validation, to cover a slightly wider depth range past the deepest bottom and shallowest surface line.
+    (`#194 <https://github.com/DeepSenseCA/echofilter/pull/194>`__)
+-   Don't record fraction of image which is active during training.
+    (`#206 <https://github.com/DeepSenseCA/echofilter/pull/206>`__)
+
+.. _v1.0.0b4 Changed General:
+
+General
+^^^^^^^
+
+-   Rename top->turbulence, bot->bottom surf->surface, throughout all code.
+    (`#190 <https://github.com/DeepSenseCA/echofilter/pull/190>`__)
+-   Convert undefined value -10000.99 to NaN when loading lines from EVL files.
+    (`#191 <https://github.com/DeepSenseCA/echofilter/pull/191>`__)
+-   Include surface line in transect plots.
+    (`#191 <https://github.com/DeepSenseCA/echofilter/pull/191>`__)
+-   Move argparser and colour styling into ui subpackage.
+    (`#198 <https://github.com/DeepSenseCA/echofilter/pull/198>`__)
+-   Move inference command line interface to its own module to increase responsiveness for non-processing actions (``--help``, ``--version``, ``--list-checkpoints``, ``--list-colors``).
+    (`#199 <https://github.com/DeepSenseCA/echofilter/pull/199>`__)
+
+.. _v1.0.0b4 Fixed:
+
+Fixed
+~~~~~
+
+.. _v1.0.0b4 Fixed Inference:
+
+Inference
+^^^^^^^^^
+
+-   Fix depth extent of region boxes.
+    (`#186 <https://github.com/DeepSenseCA/echofilter/pull/186>`__)
+-   EVL and EVR outputs extend half a timestamp interval so it is clear what is inside their extent.
+    (`#200 <https://github.com/DeepSenseCA/echofilter/pull/200>`__)
+
+.. _v1.0.0b4 Fixed Training:
+
+Training
+^^^^^^^^
+
+-   Labels for passive collection times in Minas Passage and Grand Passage datasets are manually set for samples where automatic labeling failed.
+    (`#191 <https://github.com/DeepSenseCA/echofilter/pull/191>`__)
+-   Interpolate surface depths during passive periods.
+    (`#191 <https://github.com/DeepSenseCA/echofilter/pull/191>`__)
+-    Smooth out anomalies in the surface line, and exclude the smoothed version from the training loss.
+    (`#191 <https://github.com/DeepSenseCA/echofilter/pull/191>`__)
+-    Use a looser nearfield removal process when removing the nearfield zone from the bottom line targets, so nearfield is removed from all samples where it needs to be.
+    (`#191 <https://github.com/DeepSenseCA/echofilter/pull/191>`__)
+-   When reshaping samples, don't use higher order interpolation than first for the bottom line with upfacing data, as the boundaries are rectangular
+    (`#191 <https://github.com/DeepSenseCA/echofilter/pull/191>`__)
+-   The precision criterion's measurement value when there are no predicted positives equals 1 and if there are no true positives and 0 otherwise (previously 0.5 regardless of target).
+    (`#195 <https://github.com/DeepSenseCA/echofilter/pull/195>`__)
+
+.. _v1.0.0b4 Added:
+
+Added
+~~~~~
+
+.. _v1.0.0b4 Added Inference:
+
+Inference
+^^^^^^^^^
+
+-   Add nearfield line to EV file when importing lines, and add ``--no-nearfield-line`` argument to disable this.
+    (`#203 <https://github.com/DeepSenseCA/echofilter/pull/203>`__)
+-   Add arguments to control display of nearfield line, `--color-nearfield` and ``--thickness-nearfield``.
+    (`#203 <https://github.com/DeepSenseCA/echofilter/pull/203>`__)
+-   Add ``-r`` and ``-R`` short-hand arguments for recursive and non-recursive directory search.
+    (`#189 <https://github.com/DeepSenseCA/echofilter/pull/189>`__)
+-   Add ``-s`` short-hand argument for ``--skip``
+    (`#189 <https://github.com/DeepSenseCA/echofilter/pull/189>`__)
+-   Add two new model checkpoints to list of available checkpoints, ``conditional_mobile-stationary2_effunet6x2-1_lc32_v1.1`` and ``conditional_mobile-stationary2_effunet6x2-1_lc32_v2.0``.
+    (`#208 <https://github.com/DeepSenseCA/echofilter/pull/208>`__)
+-   Use YAML file to define list of available checkpoints.
+    (`#208 <https://github.com/DeepSenseCA/echofilter/pull/208>`__,
+    `#209 <https://github.com/DeepSenseCA/echofilter/pull/209>`__)
+-   Default checkpoint is shown with an asterisk in checkpoint list.
+    (`#202 <https://github.com/DeepSenseCA/echofilter/pull/202>`__)
+
+.. _v1.0.0b4 Added Training:
+
+Training
+^^^^^^^^
+
+-   Add cold/warm restart option, for training a model with initial weights from the output of a previously trained model.
+    (`#196 <https://github.com/DeepSenseCA/echofilter/pull/196>`__)
+-   Add option to manually specify training and validation partitions.
+    (`#205 <https://github.com/DeepSenseCA/echofilter/pull/205>`__)
+
 
 
 Version `1.0.0b3 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0b3>`__
