@@ -1515,7 +1515,7 @@ def generate_from_shards(fname, *args, **kwargs):
 
 
 def save_checkpoint(
-    state, is_best, dirname=".", fname_fmt="checkpoint{}.pth.tar", dup=None
+    state, is_best, dirname=".", fname_fmt="checkpoint{}.pt", dup=None
 ):
     os.makedirs(dirname, exist_ok=True)
     fname = os.path.join(dirname, fname_fmt.format(""))

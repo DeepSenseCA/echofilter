@@ -10,7 +10,7 @@ import yaml
 
 FILE = os.path.dirname(__file__)
 CHECKPOINT_FILE = os.path.join(os.path.dirname(FILE), "checkpoints.yaml")
-CHECKPOINT_EXT = ".pth.tar"
+CHECKPOINT_EXT = ".pt"
 
 
 def get_checkpoint_list():
