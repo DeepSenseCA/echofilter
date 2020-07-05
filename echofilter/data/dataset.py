@@ -180,13 +180,10 @@ class TransectDataset(torch.utils.data.Dataset):
         # Note any locations where the labels are not sane. These can be
         # removed from the training loss.
         sample["is_bad_labels"] = sample["d_surface"] >= sample["d_bottom"]
-        # Surface line should always be at least a little bit above the
-        # turbulence line.
-        sample["d_surface"] = np.minimum(
-            sample["d_surface"], sample["d_turbulence"] - 0.25
-        )
+        # Surface line can not be below turbulence line
+        sample["d_surface"] = np.minimum(sample["d_surface"], sample["d_turbulence"])
         # Ensure the bottom line is always below the surface line as well
-        sample["d_bottom"] = np.maximum(sample["d_bottom"], sample["d_surface"] + 0.5)
+        sample["d_bottom"] = np.maximum(sample["d_bottom"], sample["d_surface"] + 0.02)
 
         if sample["is_upward_facing"]:
             min_top_depth = np.min(sample["depths"])
