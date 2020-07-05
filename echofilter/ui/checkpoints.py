@@ -7,6 +7,8 @@ from collections import OrderedDict
 import os
 import yaml
 
+from . import style
+
 
 FILE = os.path.dirname(__file__)
 CHECKPOINT_FILE = os.path.join(os.path.dirname(FILE), "checkpoints.yaml")
@@ -79,9 +81,8 @@ class ListCheckpoints(argparse.Action):
         CHECKPOINT_RESOURCES = get_checkpoint_list()
         DEFAULT_CHECKPOINT = get_default_checkpoint()
         for checkpoint, props in CHECKPOINT_RESOURCES.items():
-            print(
-                "  {} {}".format(
-                    "*" if checkpoint == DEFAULT_CHECKPOINT else " ", checkpoint
-                )
-            )
+            if checkpoint == DEFAULT_CHECKPOINT:
+                print("  * " + style.progress_fmt(checkpoint))
+            else:
+                print("    " + checkpoint)
         parser.exit()  # exits the program with no more arg parsing and checking
