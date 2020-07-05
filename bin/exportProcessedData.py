@@ -8,7 +8,7 @@ Run this after the data has been cleaned/processed to export the binned data
 # Change this to point to the directory where your survey is.
 # it is assumed there will be a subdirectory called "EV Files", and will run on all .EV files in that directory
 # There should already be a subdirectory called "evExports".  This will export to subdirectory of that, called binnedExports
-# that is, export to "basedir/evExports/binnedExports/
+# that is, export to "basedir/binnedExports/
 
 
 # basedir='D:\\grandPassage20\\'
@@ -59,7 +59,7 @@ binSizes = [
 
 
 # Before the template was changed, we'd have to make sure each of these options are checked so that they're all exported
-# The echoview template should take care of this now
+# The Echoview template should take care of this now
 options = [
     "Region_ID",
     "Region_Name",
@@ -235,7 +235,7 @@ options = [
 ]
 
 
-# this first import is the one that allows the script to talk to the echoview application.
+# this first import is the one that allows the script to talk to the Echoview application.
 
 import win32com.client
 import os

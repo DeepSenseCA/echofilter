@@ -59,13 +59,19 @@ import echofilter.raw.shardloader
 # DEVIATION_METHOD = 'stdev'
 # NAN_VALUE = -3
 
-# Overall values to use
-DATA_CENTER = -97.5
-DATA_DEVIATION = 16.5
-CENTER_METHOD = "pc10"
-DEVIATION_METHOD = "idr"
+## Overall values to use
+# DATA_CENTER = -97.5
+# DATA_DEVIATION = 16.5
+# CENTER_METHOD = "pc10"
+# DEVIATION_METHOD = "idr"
+# NAN_VALUE = -1
 
-NAN_VALUE = -1
+# Normalise each sample independently, based on its own intensity distribution
+CENTER_METHOD = "median"
+DEVIATION_METHOD = "idr"
+DATA_CENTER = CENTER_METHOD
+DATA_DEVIATION = DEVIATION_METHOD
+NAN_VALUE = -3
 
 # Transects to plot for debugging
 PLOT_TRANSECTS = {
@@ -76,10 +82,10 @@ PLOT_TRANSECTS = {
         "mobile/Survey17/Survey17_GR4_N5W_E",
     ],
     "MinasPassage": [
-        "MinasPassage/december2017/evExports/december2017_D20180213-T115216_D20180213-T172216",
-        "MinasPassage/march2018/evExports/march2018_D20180513-T195216_D20180514-T012216",
-        "MinasPassage/september2018/evExports/september2018_D20181027-T202217_D20181028-T015217",
-        "MinasPassage/september2018/evExports/september2018_D20181107-T122220_D20181107-T175217",
+        "MinasPassage/december2017/december2017_D20180213-T115216_D20180213-T172216",
+        "MinasPassage/march2018/march2018_D20180513-T195216_D20180514-T012216",
+        "MinasPassage/september2018/september2018_D20181027-T202217_D20181028-T015217",
+        "MinasPassage/september2018/september2018_D20181107-T122220_D20181107-T175217",
     ],
     "GrandPassage": [
         "GrandPassage/phase2/GrandPassage_WBAT_2B_20200125_UTC160020_ebblow",
@@ -94,9 +100,12 @@ MAX_INPUT_LEN = 3500
 def train(
     data_dir="/data/dsforce/surveyExports",
     dataset_name="mobile",
+    train_partition=None,
+    val_partition=None,
     sample_shape=(128, 512),
     crop_depth=None,
     resume="",
+    restart="",
     log_name=None,
     log_name_append=None,
     conditional=False,
@@ -138,6 +147,11 @@ def train(
     overall_loss_weight=0.0,
 ):
 
+    if restart and not resume:
+        raise ValueError(
+            "A checkpoint must be provided to restart from when doing a cold restart"
+        )
+
     seed_all(seed)
     # Can't get this to be deterministic anyway, so may as well keep the
     # non-deterministic optimization enabled
@@ -171,7 +185,11 @@ def train(
 
     # Build dataset
     dataset_train, dataset_val, dataset_augval = build_dataset(
-        dataset_name, data_dir, sample_shape
+        dataset_name,
+        data_dir,
+        sample_shape,
+        train_partition=train_partition,
+        val_partition=val_partition,
     )
 
     print("Train dataset has {:4d} samples".format(len(dataset_train)))
@@ -283,6 +301,8 @@ def train(
     )
 
     schedule_data = {"name": schedule}
+    lr_initial_div_factor = 1e3
+    lr_final_div_factor = 1e5
     if schedule == "lrfinder":
         pass
     elif schedule == "constant":
@@ -298,8 +318,8 @@ def train(
             cycle_momentum=True,
             base_momentum=base_momentum,
             max_momentum=momentum,
-            div_factor=1e3,
-            final_div_factor=1e5,
+            div_factor=lr_initial_div_factor,
+            final_div_factor=lr_final_div_factor,
         )
     elif schedule == "mesaonecycle":
         schedule_data["scheduler"] = schedulers.MesaOneCycleLR(
@@ -313,8 +333,8 @@ def train(
             cycle_momentum=True,
             base_momentum=base_momentum,
             max_momentum=momentum,
-            div_factor=1e3,
-            final_div_factor=1e5,
+            div_factor=lr_initial_div_factor,
+            final_div_factor=lr_final_div_factor,
         )
     else:
         raise ValueError("Unsupported schedule: {}".format(schedule))
@@ -368,8 +388,6 @@ def train(
         else:
             # Map model to be loaded to specified single gpu.
             checkpoint = torch.load(resume, map_location=device)
-        start_epoch = checkpoint["epoch"] + 1
-        best_loss_val = checkpoint["best_loss"]
         try:
             unet.load_state_dict(checkpoint["state_dict"])
         except RuntimeError:
@@ -378,13 +396,42 @@ def train(
                 " to load it as the whole model instead."
             )
             model.load_state_dict(checkpoint["state_dict"])
-        optimizer.load_state_dict(checkpoint["optimizer"])
-        if use_mixed_precision and "amp" in checkpoint:
-            apex.amp.load_state_dict(checkpoint["amp"])
-        if "scheduler" in schedule_data:
-            step_num = checkpoint["epoch"] * len(loader_train)
-            schedule_data["scheduler"].last_epoch = step_num
-        print("Loaded checkpoint '{}' (epoch {})".format(resume, checkpoint["epoch"]))
+        if restart == "cold":
+            print("Loaded checkpoint '{}' for cold restart".format(resume))
+        else:
+            optimizer.load_state_dict(checkpoint["optimizer"])
+            if use_mixed_precision and "amp" in checkpoint:
+                apex.amp.load_state_dict(checkpoint["amp"])
+        if restart == "warm":
+            # We loaded the optimizer state from the checkpoint to get the
+            # current buffer values (the weighted history of updates).
+            # However, this also changed our schedule settings to the ones
+            # used to train the model in the checkpoint, so we need to
+            # overwrite it with the schedule initialisation step now.
+            for group in optimizer.param_groups:
+                if "onecycle" in schedule:
+                    group["lr"] = group["initial_lr"] = lr / lr_initial_div_factor
+                    group["max_lr"] = lr
+                    group["min_lr"] = group["initial_lr"] / lr_final_div_factor
+                    group["base_momentum"] = base_momentum
+                    group["max_momentum"] = momentum
+                else:
+                    group["lr"] = lr
+                    if "betas" in group:
+                        _, beta2 = group["betas"]
+                        group["betas"] = (momentum, beta2)
+                    else:
+                        group["momentum"] = momentum
+            print("Loaded checkpoint '{}' for warm restart".format(resume))
+        elif not restart:
+            start_epoch = checkpoint["epoch"] + 1
+            best_loss_val = checkpoint["best_loss"]
+            if "scheduler" in schedule_data:
+                step_num = checkpoint["epoch"] * len(loader_train)
+                schedule_data["scheduler"].last_epoch = step_num
+            print(
+                "Loaded checkpoint '{}' (epoch {})".format(resume, checkpoint["epoch"])
+            )
 
     # Make a tensorboard writer
     writer = SummaryWriter(log_dir=os.path.join("runs", dataset_name, log_name))
@@ -454,8 +501,12 @@ def train(
         t_val_end = time.time()
 
         print(
-            "Completed {} of {} epochs in {}".format(
-                epoch, n_epoch, datetime.timedelta(seconds=time.time() - t_start)
+            "{}/{}\nCompleted {} of {} epochs in {}".format(
+                dataset_name,
+                log_name,
+                epoch,
+                n_epoch,
+                datetime.timedelta(seconds=time.time() - t_start),
             )
         )
         # Print metrics to terminal
@@ -684,6 +735,7 @@ def train(
             "nan_value": NAN_VALUE,
             "wrapper_mapping": model.mapping,
             "wrapper_params": model.params,
+            "training_routine": "echofilter-train {}".format(echofilter.__version__),
         }
         if use_mixed_precision:
             checkpoint["amp"] = apex.amp.state_dict()
@@ -908,17 +960,23 @@ def build_dataset(
     dataset_args = {}
     if dataset_name == "mobile":
         dataset_args["remove_nearfield"] = False
-        dataset_args["remove_offset_top"] = 0
+        dataset_args["remove_offset_turbulence"] = 0
         dataset_args["remove_offset_bottom"] = 1.0
     elif dataset_name == "MinasPassage":
         dataset_args["remove_nearfield"] = True
-        dataset_args["nearfield_distance"] = 1.7
-        dataset_args["remove_offset_top"] = 0
+        # NB: Nearfield distance is 1.7, except for the samples:
+        # march2018_D20180502-T045216_D20180502-T102215
+        # march2018_D20180502-T105216_D20180502-T162215
+        # march2018_D20180502-T165215_D20180502-T222216
+        # march2018_D20180502-T225214_D20180503-T042215
+        # For which it is 1.744
+        dataset_args["nearfield_distance"] = 1.745
+        dataset_args["remove_offset_turbulence"] = 0
         dataset_args["remove_offset_bottom"] = 0
     elif dataset_name == "GrandPassage":
         dataset_args["remove_nearfield"] = True
         dataset_args["nearfield_distance"] = 1.7
-        dataset_args["remove_offset_top"] = 1.0
+        dataset_args["remove_offset_turbulence"] = 1.0
         dataset_args["remove_offset_bottom"] = 0
 
     dataset_train = echofilter.data.dataset.TransectDataset(
@@ -977,7 +1035,7 @@ def train_epoch(
     meters = {}
     for chn in [
         "Overall",
-        "Top",
+        "Turbulence",
         "Bottom",
         "RemovedSeg",
         "Passive",
@@ -995,12 +1053,6 @@ def train_epoch(
             meters[cc]["Recall"] = AverageMeter("Recall (" + cc + ")", ":6.2f")
             meters[cc]["F1 Score"] = AverageMeter("F1 Score (" + cc + ")", ":6.4f")
             meters[cc]["Jaccard"] = AverageMeter("Jaccard (" + cc + ")", ":6.4f")
-            meters[cc]["Active output"] = AverageMeter(
-                "Active output (" + cc + ")", ":6.2f"
-            )
-            meters[cc]["Active target"] = AverageMeter(
-                "Active target (" + cc + ")", ":6.2f"
-            )
 
     progress = ProgressMeter(
         len(loader),
@@ -1057,15 +1109,15 @@ def train_epoch(
                 if chn.startswith("overall"):
                     output_k = output["mask_keep_pixel" + cs].float()
                     target_k = metadata["mask"]
-                elif chn.startswith("top"):
-                    output_k = output["p_is_below_top" + cs]
-                    target_k = 1 - metadata["mask_top"]
+                elif chn.startswith("turbulence"):
+                    output_k = output["p_is_below_turbulence" + cs]
+                    target_k = 1 - metadata["mask_turbulence"]
                 elif chn.startswith("surf"):
                     output_k = output["p_is_below_surface" + cs]
-                    target_k = 1 - metadata["mask_surf"]
+                    target_k = 1 - metadata["mask_surface"]
                 elif chn.startswith("bottom"):
                     output_k = output["p_is_above_bottom" + cs]
-                    target_k = 1 - metadata["mask_bot"]
+                    target_k = 1 - metadata["mask_bottom"]
                 elif chn.startswith("removedseg"):
                     output_k = output["p_is_removed" + cs]
                     target_k = metadata["is_removed"]
@@ -1183,7 +1235,7 @@ def validate(
     meters = {}
     for chn in [
         "Overall",
-        "Top",
+        "Turbulence",
         "Bottom",
         "RemovedSeg",
         "Passive",
@@ -1201,12 +1253,6 @@ def validate(
             meters[cc]["Recall"] = AverageMeter("Recall (" + cc + ")", ":6.2f")
             meters[cc]["F1 Score"] = AverageMeter("F1 Score (" + cc + ")", ":6.4f")
             meters[cc]["Jaccard"] = AverageMeter("Jaccard (" + cc + ")", ":6.4f")
-            meters[cc]["Active output"] = AverageMeter(
-                "Active output (" + chn + ")", ":6.2f"
-            )
-            meters[cc]["Active target"] = AverageMeter(
-                "Active target (" + cc + ")", ":6.2f"
-            )
 
     progress = ProgressMeter(
         len(loader),
@@ -1265,15 +1311,15 @@ def validate(
                 if chn.startswith("overall"):
                     output_k = output["mask_keep_pixel" + cs].float()
                     target_k = metadata["mask"]
-                elif chn.startswith("top"):
-                    output_k = output["p_is_below_top" + cs]
-                    target_k = 1 - metadata["mask_top"]
+                elif chn.startswith("turbulence"):
+                    output_k = output["p_is_below_turbulence" + cs]
+                    target_k = 1 - metadata["mask_turbulence"]
                 elif chn.startswith("surf"):
                     output_k = output["p_is_below_surface" + cs]
-                    target_k = 1 - metadata["mask_surf"]
+                    target_k = 1 - metadata["mask_surface"]
                 elif chn.startswith("bottom"):
                     output_k = output["p_is_above_bottom" + cs]
-                    target_k = 1 - metadata["mask_bot"]
+                    target_k = 1 - metadata["mask_bottom"]
                 elif chn.startswith("removedseg"):
                     output_k = output["p_is_removed" + cs]
                     target_k = metadata["is_removed"]
@@ -1426,14 +1472,18 @@ def _generate_from_loaded(transect, model, *args, crop_depth=None, **kwargs):
 
     # Convert lines to masks
     ddepths = np.broadcast_to(transect["depths"], transect["Sv"].shape)
-    transect["mask_top"] = np.single(ddepths < np.expand_dims(transect["top"], -1))
-    transect["mask_bot"] = np.single(ddepths > np.expand_dims(transect["bottom"], -1))
+    transect["mask_turbulence"] = np.single(
+        ddepths < np.expand_dims(transect["turbulence"], -1)
+    )
+    transect["mask_bottom"] = np.single(
+        ddepths > np.expand_dims(transect["bottom"], -1)
+    )
     # Add mask_patches to the data, for plotting
     transect["mask_patches"] = 1 - transect["mask"]
     transect["mask_patches"][transect["is_passive"] > 0.5] = 0
     transect["mask_patches"][transect["is_removed"] > 0.5] = 0
-    transect["mask_patches"][transect["mask_top"] > 0.5] = 0
-    transect["mask_patches"][transect["mask_bot"] > 0.5] = 0
+    transect["mask_patches"][transect["mask_turbulence"] > 0.5] = 0
+    transect["mask_patches"][transect["mask_bottom"] > 0.5] = 0
 
     # Generate predictions for the transect
     transect["signals"] = transect.pop("Sv")
@@ -1465,7 +1515,7 @@ def generate_from_shards(fname, *args, **kwargs):
 
 
 def save_checkpoint(
-    state, is_best, dirname=".", fname_fmt="checkpoint{}.pth.tar", dup=None
+    state, is_best, dirname=".", fname_fmt="checkpoint{}.pt", dup=None
 ):
     os.makedirs(dirname, exist_ok=True)
     fname = os.path.join(dirname, fname_fmt.format(""))
@@ -1530,6 +1580,18 @@ def main():
         help="which dataset to use",
     )
     group_data.add_argument(
+        "--train-partition",
+        type=str,
+        default=None,
+        help="which partition to train on (default depends on dataset)",
+    )
+    group_data.add_argument(
+        "--val-partition",
+        type=str,
+        default=None,
+        help="which partition to validate on (default depends on dataset)",
+    )
+    group_data.add_argument(
         "--shape",
         dest="sample_shape",
         nargs=2,
@@ -1549,6 +1611,24 @@ def main():
         type=str,
         metavar="PATH",
         help='path to latest checkpoint (default: "%(default)s")',
+    )
+    group_data.add_argument(
+        "--cold-restart",
+        dest="restart",
+        action="store_const",
+        const="cold",
+        default="",
+        help="when resuming from a checkpoint, use this only for initial weights",
+    )
+    group_data.add_argument(
+        "--warm-restart",
+        dest="restart",
+        action="store_const",
+        const="warm",
+        help="""
+            when resuming from a checkpoint, use the existing weights and
+            optimizer state but start a new LR schedule
+        """,
     )
     group_data.add_argument(
         "--log",

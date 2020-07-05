@@ -4,7 +4,8 @@ Echoview interface management.
 
 from contextlib import contextmanager
 import os
-import warnings
+
+from .. import ui
 
 
 __all__ = ["ECHOVIEW_COM_NAME", "maybe_open_echoview", "open_ev_file"]
@@ -90,10 +91,14 @@ def open_ev_file(filename, app=None):
         if ev_file is None or ev_file is "None" or ev_file is "NoneValue":
             raise EnvironmentError(
                 "Could not open file '{}'."
-                " It appears that you already have a file open in echoview."
-                " Please close echoview before running echofilter."
-                " You can re-open echoview once echofilter is running and"
-                " continue your work without distrupting echofilter.".format(filename)
+                "\nIt appears that you already have a file open in Echoview."
+                " {}Please close Echoview before running echofilter{}."
+                " You can re-open Echoview once echofilter is running and"
+                " continue your work without distrupting echofilter.".format(
+                    filename,
+                    ui.style.HighlightStyle.start,
+                    ui.style.HighlightStyle.reset,
+                )
             )
         try:
             yield ev_file
@@ -101,4 +106,8 @@ def open_ev_file(filename, app=None):
             try:
                 ev_file.Close()
             except:
-                warnings.warn("Could not close Echoview file {}".format(filename))
+                print(
+                    ui.style.warning_fmt(
+                        "Could not close Echoview file {}".format(filename)
+                    )
+                )

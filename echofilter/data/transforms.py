@@ -15,10 +15,15 @@ _fields_2d = (
     "Sv",
     "signals",
     "mask",
+    "mask_turbulence",
     "mask_top",
+    "mask_bottom",
     "mask_bot",
+    "mask_turbulence-original",
     "mask_top-original",
+    "mask_bottom-original",
     "mask_bot-original",
+    "mask_surface",
     "mask_surf",
     "mask_patches",
     "mask_patches-original",
@@ -26,26 +31,49 @@ _fields_2d = (
 )
 _fields_1d_timelike = (
     "timestamps",
+    "turbulence",
     "top",
     "bottom",
+    "turbulence-original",
     "top-original",
     "bottom-original",
     "surface",
+    "surf",
+    "d_turbulence",
     "d_top",
+    "d_bottom",
     "d_bot",
+    "r_turbulence",
     "r_top",
+    "r_bottom",
     "r_bot",
+    "d_turbulence-original",
     "d_top-original",
+    "d_bottom-original",
     "d_bot-original",
+    "r_turbulence-original",
     "r_top-original",
+    "r_bottom-original",
     "r_bot-original",
+    "d_surface",
     "d_surf",
+    "r_surface",
     "r_surf",
+    "is_surrogate_surface",
+    "is_bad_labels",
     "is_passive",
     "is_removed",
 )
 _fields_1d_depthlike = ("depths",)
 _fields_0d = ("is_upward_facing",)
+_fields_needing_linear = (
+    "timestamps",
+    "depths",
+    "is_surrogate_surface",
+    "is_bad_labels",
+    "is_passive",
+    "is_removed",
+)
 
 
 class Rescale(object):
@@ -116,7 +144,10 @@ class Rescale(object):
             if sample[key].shape == self.output_size[:1]:
                 continue
             _kind = "linear" if key == "timestamps" else kind
-            if key in {"is_passive", "is_removed"} and order > 1:
+            if order > 1 and (
+                key in _fields_needing_linear
+                or ("bot" in key and sample["is_upward_facing"])
+            ):
                 _kind = "linear"
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
@@ -219,7 +250,10 @@ class RandomGridSampling(Rescale):
             if key not in sample:
                 continue
             _kind = "linear" if key == "timestamps" else kind
-            if key in {"is_passive", "is_removed"} and order > 1:
+            if order > 1 and (
+                key in _fields_needing_linear
+                or ("bot" in key and sample["is_upward_facing"])
+            ):
                 _kind = "linear"
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
@@ -423,15 +457,15 @@ class Normalize(object):
             if self.robust2stdev:
                 deviation *= 1.4826
         elif self.deviation.lower() == "iqr":
-            deviation = np.diff(np.nanpercentile(sample["signals"], [25, 75]))[0]
+            deviation = np.diff(np.nanpercentile(sample["signals"], [25, 75])).item()
             if self.robust2stdev:
                 deviation /= 1.35
         elif self.deviation.lower() == "idr":
-            deviation = np.diff(np.nanpercentile(sample["signals"], [10, 90]))[0]
+            deviation = np.diff(np.nanpercentile(sample["signals"], [10, 90])).item()
             if self.robust2stdev:
                 deviation /= 2.56
         elif self.deviation.lower() == "i7r":
-            deviation = np.diff(np.nanpercentile(sample["signals"], [7, 93]))[0]
+            deviation = np.diff(np.nanpercentile(sample["signals"], [7, 93])).item()
             if self.robust2stdev:
                 deviation /= 3.0
         else:
@@ -544,7 +578,7 @@ def optimal_crop_depth(transect):
     depth_intv = abs(transect["depths"][1] - transect["depths"][0])
     shallowest_depth = None
     if transect["is_upward_facing"]:
-        for key in ("d_surf", "surface"):
+        for key in ("d_surface", "surface", "d_surf", "surf"):
             if key not in transect:
                 continue
             surf_options = transect[key][transect[key] > d0]
@@ -557,11 +591,18 @@ def optimal_crop_depth(transect):
                 shallowest_depth = min(d, shallowest_depth)
     if shallowest_depth is None:
         shallowest_depth = d0
-    shallowest_depth -= depth_intv
+    shallowest_depth -= 5 * depth_intv
 
     deepest_depth = None
     if not transect["is_upward_facing"]:
-        for key in ("d_bot-original", "d_bot", "bottom-original", "bottom"):
+        for key in (
+            "d_bottom-original",
+            "d_bot-original",
+            "d_bottom",
+            "d_bot",
+            "bottom-original",
+            "bottom",
+        ):
             if key not in transect:
                 continue
             d = np.max(transect[key])
@@ -571,7 +612,7 @@ def optimal_crop_depth(transect):
                 deepest_depth = max(d, deepest_depth)
     if deepest_depth is None:
         deepest_depth = np.max(transect["depths"])
-    deepest_depth += depth_intv
+    deepest_depth += 5 * depth_intv
 
     if shallowest_depth >= deepest_depth:
         return transect
@@ -659,16 +700,16 @@ class RandomCropDepth(object):
 
         lim_top_shallowest = np.min(sample["depths"])
         lim_top_deepest = max(
-            lim_top_shallowest + depth_intv, np.min(sample["d_bot"]) - depth_intv
+            lim_top_shallowest + depth_intv, np.min(sample["d_bottom"]) - depth_intv
         )
         lim_bot_deepest = np.max(sample["depths"])
         lim_bot_shallowest = min(
             lim_bot_deepest - depth_intv,
-            max(np.max(sample["d_top"]), np.min(sample["d_bot"])),
+            max(np.max(sample["d_turbulence"]), np.min(sample["d_bottom"])),
         )
 
         if sample["is_upward_facing"]:
-            surf_options = sample["d_surf"][sample["d_surf"] > lim_top_shallowest]
+            surf_options = sample["d_surface"][sample["d_surface"] > lim_top_shallowest]
             if len(surf_options) == 0:
                 opt_top_depth = lim_top_shallowest
             else:
@@ -676,7 +717,7 @@ class RandomCropDepth(object):
             opt_bot_depth = lim_bot_deepest
         else:
             opt_top_depth = lim_top_shallowest
-            opt_bot_depth = np.max(sample["d_bot-original"])
+            opt_bot_depth = np.max(sample["d_bottom-original"])
 
         depth_range = abs(opt_bot_depth - opt_top_depth)
         close_dist_grow = self.fraction_close * depth_range
@@ -690,7 +731,7 @@ class RandomCropDepth(object):
         close_top_deepest = min(
             lim_top_deepest,
             opt_top_depth + close_dist_shrink,
-            np.percentile(sample["d_top"], 25),
+            np.percentile(sample["d_turbulence"], 25),
         )
         if sample["is_upward_facing"]:
             close_bot_shallowest = max(
@@ -700,7 +741,7 @@ class RandomCropDepth(object):
             close_bot_shallowest = max(
                 lim_bot_shallowest,
                 opt_bot_depth - close_dist_shrink,
-                np.percentile(sample["d_bot-original"], 50),
+                np.percentile(sample["d_bottom-original"], 50),
             )
         close_bot_shallowest = min(lim_bot_deepest, close_bot_shallowest)
         close_bot_deepest = min(
@@ -732,14 +773,17 @@ class RandomCropDepth(object):
         rand_top_shallowest = lim_top_shallowest
         rand_top_deepest = min(
             lim_top_deepest,
-            max(np.percentile(sample["d_top"], 50), opt_top_depth + close_dist_shrink),
+            max(
+                np.percentile(sample["d_turbulence"], 50),
+                opt_top_depth + close_dist_shrink,
+            ),
         )
         rand_top_deepest = max(lim_top_shallowest, rand_top_deepest)
         if sample["is_upward_facing"]:
             rand_bot_shallowest = close_bot_shallowest
         else:
             rand_bot_shallowest = max(
-                lim_bot_shallowest, np.percentile(sample["d_bot-original"], 50),
+                lim_bot_shallowest, np.percentile(sample["d_bottom-original"], 50),
             )
         rand_bot_shallowest = min(lim_bot_deepest, rand_bot_shallowest)
         rand_bot_deepest = lim_bot_deepest

@@ -10,19 +10,22 @@ import warnings
 from tqdm.auto import tqdm
 
 import echofilter.path
+import echofilter.ui
 import echofilter.utils
 import echofilter.win
 
 
 # Provide a warning for non-Windows users
 if not echofilter.path.check_if_windows():
-    print()
-    warnings.warn(
-        "ev2csv requires the EchoView application, which is only available on"
-        " Windows operating systems.",
-        category=RuntimeWarning,
+    msg = (
+        "\nev2csv requires the Echoview application, which is only"
+        " available on Windows operating systems."
     )
-    print()
+    with echofilter.ui.style.warning_message(msg) as msg:
+        print("")
+        warnings.warn(
+            msg, category=RuntimeWarning,
+        )
 
 
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
@@ -54,7 +57,7 @@ def run_ev2csv(
         folder specified, any files with extension `'csv'` within the folder
         and all its tree of subdirectories will be processed.
     variable_name : str, optional
-        Name of the EchoView acoustic variable to export. Default is
+        Name of the Echoview acoustic variable to export. Default is
         `'Fileset1: Sv pings T1'`.
     source_dir : str, optional
         Path to directory where files are found. Default is `'.'`.
@@ -127,7 +130,7 @@ def run_ev2csv(
     skip_count = 0
     output_files = []
 
-    # Open EchoView connection
+    # Open Echoview connection
     with echofilter.win.maybe_open_echoview(
         do_open=not dry_run, minimize=minimize_echoview, hide=hide_echoview,
     ) as ev_app:
@@ -207,10 +210,10 @@ def ev2csv(
     destination : str
         Filename of output destination.
     variable_name : str, optional
-        Name of the EchoView acoustic variable to export. Default is
+        Name of the Echoview acoustic variable to export. Default is
         `'Fileset1: Sv pings T1'`.
     ev_app : win32com.client.Dispatch object or None, optional
-        An object which can be used to interface with the EchoView application,
+        An object which can be used to interface with the Echoview application,
         as returned by `win32com.client.Dispatch`. If `None` (default), a
         new instance of the application is opened (and closed on completion).
     verbose : int, optional
@@ -218,7 +221,7 @@ def ev2csv(
     """
 
     if verbose >= 1:
-        print("  Opening {} in EchoView".format(input))
+        print("  Opening {} in Echoview".format(input))
 
     # Ensure input and destination are absolute paths
     input = os.path.abspath(input)
@@ -258,8 +261,8 @@ def main():
         prog = os.path.split(__file__)[1]
     parser = argparse.ArgumentParser(
         prog=prog,
-        description="EchoView to raw CSV exporter",
-        formatter_class=echofilter.utils.FlexibleHelpFormatter,
+        description="Echoview to raw CSV exporter",
+        formatter_class=echofilter.ui.formatters.FlexibleHelpFormatter,
         add_help=False,
     )
 
@@ -421,15 +424,15 @@ def main():
         type=str,
         default=DEFAULT_VARNAME,
         help="""
-            Name of the EchoView acoustic variable to load from EV files.
+            Name of the Echoview acoustic variable to load from EV files.
             Default: "%(default)s".
         """,
     )
 
-    # EchoView interaction arguments
+    # Echoview interaction arguments
     group_evwin = parser.add_argument_group(
-        "EchoView window management",
-        "Optional parameters specifying how to interact with any EchoView"
+        "Echoview window management",
+        "Optional parameters specifying how to interact with any Echoview"
         " windows which are used during this process.",
     )
     group_evwin_hiding = group_evwin.add_mutually_exclusive_group()
@@ -439,8 +442,8 @@ def main():
         action="store_const",
         const="new",
         help="""
-            Hide any EchoView window spawned by this program. If it must use
-            an EchoView instance which was already running, that window is not
+            Hide any Echoview window spawned by this program. If it must use
+            an Echoview instance which was already running, that window is not
             hidden. This is the default behaviour.
         """,
     )
@@ -451,7 +454,7 @@ def main():
         const="never",
         default=None,
         help="""
-            Don't hide an EchoView window created to run this code. (Disables
+            Don't hide an Echoview window created to run this code. (Disables
             the default behaviour which is equivalent to --hide-echoview.)
         """,
     )
@@ -462,8 +465,8 @@ def main():
         action="store_const",
         const="always",
         help="""
-            Hide the EchoView window while this code runs, even if this
-            process is utilising an EchoView window which was already open.
+            Hide the Echoview window while this code runs, even if this
+            process is utilising an Echoview window which was already open.
         """,
     )
     group_evwin.add_argument(
@@ -471,7 +474,7 @@ def main():
         dest="minimize_echoview",
         action="store_true",
         help="""
-            Minimize any EchoView window used to runs this code while it runs.
+            Minimize any Echoview window used to runs this code while it runs.
             The window will be restored once the program is finished.
             If this argument is supplied, --show-echoview is implied unless
             --hide-echoview is also given.

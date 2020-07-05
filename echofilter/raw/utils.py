@@ -139,6 +139,38 @@ def pad1d(array, pad_width, axis=0, **kwargs):
     return np.pad(array, pads, **kwargs)
 
 
+def medfilt1d(signal, kernel_size, axis=-1, pad_mode="reflect"):
+    """
+    Median filter in 1d, with support for selecting padding mode.
+
+    Parameters
+    ----------
+    signal : array_like
+        The signal to filter.
+    kernel_size
+        Size of the median kernel to use.
+    axis : int, optional
+        Which axis to operate along. Default is `-1`.
+    pad_mode : str, optional
+        Method with which to pad the vector at the edges.
+        Must be supported by `numpy.pad`. Default is `"reflect"`.
+
+    Returns
+    -------
+    filtered : array_like
+        The filtered signal.
+
+    See also
+    --------
+    - `scipy.signal.medfilt`
+    - `pad1d`
+    """
+    offset = kernel_size // 2
+    signal = pad1d(signal, offset, axis=axis, mode=pad_mode)
+    filtered = scipy.signal.medfilt(signal, kernel_size)[offset:-offset]
+    return filtered
+
+
 def squash_gaps(mask, max_gap_squash, axis=-1, inplace=False):
     """
     Merge small gaps between zero values in a boolean array.

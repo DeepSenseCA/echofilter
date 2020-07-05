@@ -1,5 +1,5 @@
 """
-Input/Output handling for raw echoview files.
+Input/Output handling for raw Echoview files.
 """
 
 from collections import OrderedDict
@@ -10,11 +10,13 @@ import textwrap
 import warnings
 
 import numpy as np
+import scipy.interpolate
 import scipy.ndimage
 import skimage.measure
 import pandas as pd
 
 from . import utils
+from ..ui import style
 
 
 ROOT_DATA_DIR = "/data/dsforce/surveyExports"
@@ -344,7 +346,7 @@ def evl_reader(fname):
             yield timestamp, float(row[3])
 
 
-def evl_loader(fname):
+def evl_loader(fname, special_to_nan=True):
     """
     EVL file loader
 
@@ -352,6 +354,10 @@ def evl_loader(fname):
     ----------
     fname : str
         Path to .evl file.
+    special_to_nan : bool, optional
+        Whether to replace the special value, `-10000.99`, which indicates no
+        depth value, with NaN.
+        https://support.echoview.com/WebHelp/Reference/File_formats/Export_file_formats/Special_Export_Values.htm
 
     Returns
     -------
@@ -365,7 +371,13 @@ def evl_loader(fname):
     for timestamp, value in evl_reader(fname):
         timestamps.append(timestamp)
         values.append(value)
-    return np.array(timestamps), np.array(values)
+    timestamps = np.array(timestamps)
+    values = np.array(values)
+    if special_to_nan:
+        # Replace the special value -10000.99 with NaN
+        # https://support.echoview.com/WebHelp/Reference/File_formats/Export_file_formats/Special_Export_Values.htm
+        values[np.isclose(values, -10000.99)] = np.nan
+    return timestamps, values
 
 
 def timestamp2evdtstr(timestamp):
@@ -394,7 +406,7 @@ def timestamp2evdtstr(timestamp):
     return "{}{:04d}".format(dt.strftime("%Y%m%d %H%M%S"), round(dt.microsecond / 100),)
 
 
-def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n"):
+def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n", pad=False):
     """
     EVL file writer
 
@@ -414,6 +426,9 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n"):
             `3` : good
         Default is `1` (unverified). For more details on line status, see:
         https://support.echoview.com/WebHelp/Using_Echoview/Echogram/Lines/About_Line_Status.htm
+    pad : bool, optional
+        Whether to pad the line with an extra datapoint half a pixel before the
+        first and after the last given timestamp. Default is `False`.
     line_ending : str, optional
         Line ending. Default is "\r\n" the standard line ending on Windows/DOS,
         as per the specification for the file format.
@@ -431,6 +446,14 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n"):
                 len(timestamps), len(depths)
             )
         )
+    if pad and len(timestamps) > 1:
+        timestamps = timestamps[:]
+        timestamps = np.r_[
+            timestamps[0] - (timestamps[1] - timestamps[0]) / 2,
+            timestamps,
+            timestamps[-1] + (timestamps[-2] - timestamps[-1]) / 2,
+        ]
+        depths = np.r_[depths[0], depths, depths[-1]]
     # The file object will automatically replace \n with our chosen line ending
     with open(fname, "w+", encoding="utf-8-sig", newline=line_ending) as hf:
         # Write header
@@ -444,14 +467,7 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n"):
             # We have to manually determine the number of "0.1 milliseconds"
             # from the microsecond component.
             dt = datetime.datetime.fromtimestamp(timestamp)
-            hf.write(
-                "{}  {} {} ".format(
-                    timestamp2evdtstr(timestamp),
-                    depth,
-                    0 if i_row == n_row - 1 else status,
-                )
-                + "\n"
-            )
+            hf.write("{}  {} {} \n".format(timestamp2evdtstr(timestamp), depth, status))
 
 
 def evr_writer(
@@ -465,7 +481,7 @@ def evr_writer(
     """
     EVR file writer.
 
-    Writes regions to an EchoView region file.
+    Writes regions to an Echoview region file.
 
     Parameters
     ----------
@@ -625,6 +641,7 @@ def evr_writer(
 def write_transect_regions(
     fname,
     transect,
+    depth_range=None,
     passive_key="is_passive",
     removed_key="is_removed",
     patches_key="mask_patches",
@@ -648,6 +665,10 @@ def write_transect_regions(
         Destination of output file.
     transect : dict
         Transect dictionary.
+    depth_range : array_like or None, optional
+        The minimum and maximum depth extents (in any order) of the passive and
+        removed block regions. If this is `None` (default), the minimum and
+        maximum of `transect["depths"]` is used.
     passive_key : str, optional
         Field name to use for passive data identification. Default is
         `"is_passive"`.
@@ -690,6 +711,10 @@ def write_transect_regions(
         Level of indentation (number of preceding spaces) before verbosity
         messages. Default is `0`.
     """
+    if depth_range is None:
+        depth_range = transect["depths"]
+    depth_range = [np.min(depth_range), np.max(depth_range)]
+
     rectangles = []
     contours = []
     # Regions around each period of passive data
@@ -704,25 +729,31 @@ def write_transect_regions(
     i_passive = 1
     n_passive_skipped = 0
     for start_index, end_index in zip(passive_starts, passive_ends):
+        start_index -= 0.5
+        end_index += 0.5
         if minimum_passive_length == -1:
             # No passive regions
             break
-        if end_index - start_index + 1 <= minimum_passive_length:
+        if end_index - start_index <= minimum_passive_length:
             n_passive_skipped += 1
             continue
         region = {}
         region["region_name"] = "Passive{} {}".format(name_suffix, i_passive)
         region["creation_type"] = 4
         region["region_type"] = 0
-        region["depths"] = transect["depths"][[0, -1]]
-        region["timestamps"] = transect["timestamps"][[start_index, end_index]]
+        region["depths"] = depth_range
+        region["timestamps"] = scipy.interpolate.interp1d(
+            np.arange(len(transect["timestamps"])),
+            transect["timestamps"],
+            fill_value="extrapolate",
+        )([start_index, end_index])
         region["notes"] = textwrap.dedent(
             """
             Passive data
             Length in pixels: {}
             Duration in seconds: {}
             """.format(
-                end_index - start_index + 1,
+                end_index - start_index,
                 region["timestamps"][1] - region["timestamps"][0],
             )
         )
@@ -740,25 +771,31 @@ def write_transect_regions(
     i_removed = 1
     n_removed_skipped = 0
     for start_index, end_index in zip(removed_starts, removed_ends):
+        start_index -= 0.5
+        end_index += 0.5
         if minimum_removed_length == -1:
             # No passive regions
             break
-        if end_index - start_index + 1 <= minimum_removed_length:
+        if end_index - start_index <= minimum_removed_length:
             n_removed_skipped += 1
             continue
         region = {}
         region["region_name"] = "Removed block{} {}".format(name_suffix, i_removed)
         region["creation_type"] = 4
         region["region_type"] = 0
-        region["depths"] = transect["depths"][[0, -1]]
-        region["timestamps"] = transect["timestamps"][[start_index, end_index]]
+        region["depths"] = depth_range
+        region["timestamps"] = scipy.interpolate.interp1d(
+            np.arange(len(transect["timestamps"])),
+            transect["timestamps"],
+            fill_value="extrapolate",
+        )([start_index, end_index])
         region["notes"] = textwrap.dedent(
             """
             Removed data block
             Length in pixels: {}
             Duration in seconds: {}
             """.format(
-                end_index - start_index + 1,
+                end_index - start_index,
                 region["timestamps"][1] - region["timestamps"][0],
             )
         )
@@ -787,14 +824,16 @@ def write_transect_regions(
         region["region_name"] = "Removed patch{} {}".format(name_suffix, i_contour)
         region["creation_type"] = 2
         region["region_type"] = 0
-        x = np.interp(
-            contour[:, 0],
+        x = scipy.interpolate.interp1d(
             np.arange(len(transect["timestamps"])),
             transect["timestamps"],
-        )
-        y = np.interp(
-            contour[:, 1], np.arange(len(transect["depths"])), transect["depths"]
-        )
+            fill_value="extrapolate",
+        )(contour[:, 0])
+        y = scipy.interpolate.interp1d(
+            np.arange(len(transect["depths"])),
+            transect["depths"],
+            fill_value="extrapolate",
+        )(contour[:, 1])
         region["points"] = np.stack([x, y], axis=-1)
         region["notes"] = textwrap.dedent(
             """
@@ -809,9 +848,10 @@ def write_transect_regions(
         i_contour += 1
     if verbose >= 1:
         print(
-            " " * verbose_indent + "Outputting {} regions:"
+            " " * verbose_indent + "Outputting {} region{}:"
             " {} passive, {} removed blocks, {} removed patches".format(
                 len(rectangles) + len(contour_dicts),
+                "" if len(rectangles) + len(contour_dicts) == 1 else "s",
                 i_passive - 1,
                 i_removed - 1,
                 i_contour - 1,
@@ -820,9 +860,17 @@ def write_transect_regions(
         n_skipped = n_passive_skipped + n_removed_skipped + n_contour_skipped
         if n_skipped > 0:
             print(
-                " " * verbose_indent + "There were {} skipped (too small) regions:"
-                " {} passive, {} removed blocks, {} removed patches".format(
-                    n_skipped, n_passive_skipped, n_removed_skipped, n_contour_skipped
+                " " * verbose_indent
+                + style.skip_fmt(
+                    "There {} {} skipped (too small) region{}:"
+                    " {} passive, {} removed blocks, {} removed patches".format(
+                        "was" if n_skipped == 1 else "were",
+                        n_skipped,
+                        "" if n_skipped == 1 else "s",
+                        n_passive_skipped,
+                        n_removed_skipped,
+                        n_contour_skipped,
+                    )
                 )
             )
 
@@ -859,26 +907,26 @@ def load_transect_data(transect_pth, dataset="mobile", root_data_dir=ROOT_DATA_D
         to each column in the `signals` data.
     signals : numpy.ndarray
         Echogram Sv data, shaped (num_timestamps, num_depths).
-    top : numpy.ndarray
-        Depth of top line, shaped (num_timestamps, ).
+    turbulence : numpy.ndarray
+        Depth of turbulence line, shaped (num_timestamps, ).
     bottom : numpy.ndarray
         Depth of bottom line, shaped (num_timestamps, ).
     """
     dirname = os.path.join(root_data_dir, dataset)
     raw_fname = os.path.join(dirname, transect_pth + "_Sv_raw.csv")
-    bot_fname = os.path.join(dirname, transect_pth + "_bottom.evl")
-    top_fname = os.path.join(dirname, transect_pth + "_turbulence.evl")
+    bottom_fname = os.path.join(dirname, transect_pth + "_bottom.evl")
+    turbulence_fname = os.path.join(dirname, transect_pth + "_turbulence.evl")
 
     timestamps, depths, signals = transect_loader(raw_fname)
-    t_bot, d_bot = evl_loader(bot_fname)
-    t_top, d_top = evl_loader(top_fname)
+    t_bottom, d_bottom = evl_loader(bottom_fname)
+    t_turbulence, d_turbulence = evl_loader(turbulence_fname)
 
     return (
         timestamps,
         depths,
         signals,
-        np.interp(timestamps, t_top, d_top),
-        np.interp(timestamps, t_bot, d_bot),
+        np.interp(timestamps, t_turbulence, d_turbulence),
+        np.interp(timestamps, t_bottom, d_bottom),
     )
 
 

@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 
-from . import inference
-
-
-def main():
-    return inference.main()
+from .ui.inference_cli import main
 
 
 if __name__ == "__main__":

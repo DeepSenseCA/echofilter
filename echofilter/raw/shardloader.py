@@ -51,7 +51,7 @@ def segment_and_shard_transect(
     root_data_dir = loader.remove_trailing_slash(root_data_dir)
     root_shard_dir = os.path.join(root_data_dir + "_sharded", dataset)
 
-    # Load the data, with mask decomposed into top, bottom, passive,
+    # Load the data, with mask decomposed into turbulence, bottom, passive,
     # and removed regions.
     transect = manipulate.load_decomposed_transect_mask(
         os.path.join(root_data_dir, dataset, transect_pth)
@@ -104,7 +104,7 @@ def write_transect_shards(dirname, transect, max_depth=None, shard_len=128):
         - timestamps.npy
         - Sv.npy
         - mask.npy
-        - top.npy
+        - turbulence.npy
         - bottom.npy
         - is_passive.npy
         - is_removed.npy
@@ -121,7 +121,7 @@ def write_transect_shards(dirname, transect, max_depth=None, shard_len=128):
         transect["mask"] = transect["mask"][:, depth_mask]
 
     # Reduce floating point precision for some variables
-    for key in ("Sv", "top", "bottom"):
+    for key in ("Sv", "turbulence", "bottom"):
         transect[key] = np.half(transect[key])
 
     # Ensure is_upward_facing is an array
@@ -201,7 +201,7 @@ def load_transect_from_shards_abs(
                 Logical array indicating which datapoints were kept (`True`)
                 and which removed (`False`) for the masked Sv output.
                 Shaped (num_timestamps, num_depths).
-            - 'top' : numpy.ndarray
+            - 'turbulence' : numpy.ndarray
                 For each timepoint, the depth of the shallowest datapoint which
                 should be included for the mask. Shaped (num_timestamps, ).
             - 'bottom' : numpy.ndarray
