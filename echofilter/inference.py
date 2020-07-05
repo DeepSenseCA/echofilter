@@ -29,6 +29,7 @@ import echofilter.path
 import echofilter.raw
 from echofilter.raw.manipulate import join_transect, split_transect
 import echofilter.ui
+import echofilter.ui.checkpoints
 import echofilter.utils
 import echofilter.win
 
@@ -457,11 +458,14 @@ def run_inference(
         checkpoint = DEFAULT_CHECKPOINT
 
     ckpt_name = checkpoint
+    ckpt_name_cannon = echofilter.ui.checkpoints.cannonise_checkpoint_name(ckpt_name)
 
     if os.path.isfile(ckpt_name):
         ckpt_path = ckpt_name
-    elif ckpt_name in CHECKPOINT_RESOURCES:
-        ckpt_path = download_checkpoint(ckpt_name, cache_dir=cache_dir)
+    elif os.path.isfile(ckpt_name + echofilter.ui.checkpoints.CHECKPOINT_EXT):
+        ckpt_path = ckpt_name + echofilter.ui.checkpoints.CHECKPOINT_EXT
+    elif ckpt_name_cannon in CHECKPOINT_RESOURCES:
+        ckpt_path = download_checkpoint(ckpt_name_cannon, cache_dir=cache_dir)
     else:
         msg = "The checkpoint parameter should either be a path to a file or "
         "one of \n{},\nbut {} was provided.".format(
@@ -1657,7 +1661,13 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     if cache_dir is None:
         cache_dir = get_default_cache_dir()
 
-    destination = os.path.join(cache_dir, checkpoint_name)
+    checkpoint_name = echofilter.ui.checkpoints.cannonise_checkpoint_name(
+        checkpoint_name
+    )
+    destination = os.path.join(
+        cache_dir,
+        checkpoint_name + echofilter.ui.checkpoints.CHECKPOINT_EXT,
+    )
 
     if os.path.exists(destination):
         return destination
@@ -1674,7 +1684,9 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
                 )
             try:
                 download_file_from_google_drive(
-                    url_or_id, cache_dir, filename=checkpoint_name
+                    url_or_id,
+                    os.path.dirname(destination),
+                    filename=os.path.basename(destination),
                 )
                 success = True
                 continue
