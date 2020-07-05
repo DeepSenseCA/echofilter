@@ -9,7 +9,6 @@ dependency stack.
 """
 
 import argparse
-from collections import OrderedDict
 import os
 import sys
 
@@ -17,49 +16,17 @@ import appdirs
 
 from .. import __meta__
 from .. import path
-from . import formatters, style
+from . import checkpoints, formatters, style
 
 
-CHECKPOINT_RESOURCES = OrderedDict(
-    [
-        (
-            # 2020-06-15_05.39.07_conditional_effunet6x.2-1_lc32-se2_bs12-lr0.016_mesa_mom.92-.98_w.1-.5_ep100_elastic_resume5
-            "conditional_mobile-stationary2_effunet6x2-1_lc32_v1.0.ckpt.tar",
-            {"gdrive": "1vEshqJbj906tCEA4KybUmlBXN9YEG_Fu"},
-        ),
-        (
-            # 2020-06-14_14.24.21_effunet6x.2-1_lc32-se2_bs20-lr0.02_mesa_mom.92-.98_w.1-.5_ep150_elastic_epseed_resume2
-            "stationary2_effunet6x2-1_lc32_v1.0.ckpt.tar",
-            {"gdrive": "1qPg9lUbtLk_DOR86sPS-DAvOaAlnvAF_"},
-        ),
-        (
-            # 2020-06-14_13.53.10_effunet6x.2-1_lc32-se2_bs30-lr0.02_mesa_mom.92-.98_w.1-.5_ep300_elastic_epseed_resume2
-            "mobile_effunet6x2-1_lc32_v1.0.ckpt.tar",
-            {"gdrive": "1yODjTcRsGc3v8cNZqFZjqbtGHHwoAohU"},
-        ),
-    ]
-)
-
-DEFAULT_CHECKPOINT = next(iter(CHECKPOINT_RESOURCES))
-
+CHECKPOINT_RESOURCES = checkpoints.get_checkpoint_list()
+DEFAULT_CHECKPOINT = checkpoints.get_default_checkpoint()
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
 
 
 def get_default_cache_dir():
     """Determine the default cache directory."""
     return appdirs.user_cache_dir("echofilter", "DeepSense")
-
-
-class ListCheckpoints(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string):
-        print("Currently available model checkpoints:")
-        for checkpoint, props in CHECKPOINT_RESOURCES.items():
-            print(
-                "  {} {}".format(
-                    "*" if checkpoint == DEFAULT_CHECKPOINT else " ", checkpoint
-                )
-            )
-        parser.exit()  # exits the program with no more arg parsing and checking
 
 
 class ListColors(argparse.Action):
@@ -115,7 +82,7 @@ def cli():
     group_action.add_argument(
         "--list-checkpoints",
         nargs=0,
-        action=ListCheckpoints,
+        action=checkpoints.ListCheckpoints,
         help="Show the available model checkpoints and exit.",
     )
     group_action.add_argument(
