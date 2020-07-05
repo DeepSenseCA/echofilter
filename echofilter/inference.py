@@ -681,14 +681,11 @@ def run_inference(
             )
 
             # Check if any of them exists and if there is any missing
-            any_exists = False
             any_missing = False
-            first_clobber = None
+            clobbers = []
             for k, dest_file in dest_files.items():
                 if os.path.isfile(dest_file):
-                    any_exists = True
-                    if first_clobber is None:
-                        first_clobber = dest_file
+                    clobbers.append(dest_file)
                 else:
                     any_missing = True
 
@@ -699,8 +696,16 @@ def run_inference(
                 skip_count += 1
                 continue
             # Check whether we would clobber a file we can't overwrite
-            if any_exists and not overwrite_existing:
-                msg = "Output {} for {} already exists.".format(first_clobber, fname)
+            if clobbers and not overwrite_existing:
+                msg = "Output " + clobbers[0] + "\n"
+                if len(clobbers) == 2:
+                    msg += "and 1 other "
+                elif len(clobbers) > 1:
+                    msg += "  and {} others ".format(len(clobbers) - 1)
+                msg += "already exist{} for file {}".format(
+                    "s" if len(clobbers) == 1 else "",
+                    fname,
+                )
                 with echofilter.ui.style.error_message(msg) as msg:
                     if dry_run:
                         error_msgs.append("Error: " + msg + "\n  " + existing_file_msg)
