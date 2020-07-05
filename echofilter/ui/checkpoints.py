@@ -5,6 +5,7 @@ Interacting with the list of available checkpoints.
 import argparse
 from collections import OrderedDict
 import os
+
 import yaml
 
 from . import style

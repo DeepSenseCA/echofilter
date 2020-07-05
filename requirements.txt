@@ -3,6 +3,7 @@ numpy
 matplotlib
 pandas
 pywin32; platform_system=="Windows"
+pyyaml
 scikit-image
 scipy
 torch
