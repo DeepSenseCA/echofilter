@@ -467,11 +467,14 @@ def run_inference(
     elif ckpt_name_cannon in CHECKPOINT_RESOURCES:
         ckpt_path = download_checkpoint(ckpt_name_cannon, cache_dir=cache_dir)
     else:
-        msg = "The checkpoint parameter should either be a path to a file or "
-        "one of \n{},\nbut {} was provided.".format(
-            list(CHECKPOINT_RESOURCES.keys()), ckpt_name
+        msg = echofilter.ui.style.error_fmt(
+            "The checkpoint parameter should either be a path to a file or one of"
         )
-        with echofilter.ui.style.error_message(msg) as msg:
+        msg += "\n  ".join([""] + list(CHECKPOINT_RESOURCES.keys()))
+        msg += echofilter.ui.style.error_fmt(
+            "\nbut {} was provided.".format(ckpt_name)
+        )
+        with echofilter.ui.style.error_message():
             raise ValueError(msg)
 
     if not os.path.isfile(ckpt_path):
