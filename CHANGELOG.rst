@@ -163,7 +163,7 @@ Inference
 -   Rename ``--nearfield-cutoff`` argument to ``--nearfield``, add ``--no-cutoff-at-nearfield`` argument to control whether the turbulence/bottom line can extend closer to the echosounder that the nearfield line.
     (`#203 <https://github.com/DeepSenseCA/echofilter/pull/203>`__)
 -   Improved UI help and verbosity messages.
-    `(`#187 <https://github.com/DeepSenseCA/echofilter/pull/187>`__,
+    (`#187 <https://github.com/DeepSenseCA/echofilter/pull/187>`__,
     `#188 <https://github.com/DeepSenseCA/echofilter/pull/188>`__,
     `#203 <https://github.com/DeepSenseCA/echofilter/pull/203>`__,
     `#204 <https://github.com/DeepSenseCA/echofilter/pull/204>`__,
