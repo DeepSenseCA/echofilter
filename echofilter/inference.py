@@ -510,6 +510,25 @@ def run_inference(
         verbose=verbose,
     )
 
+    if verbose >= 5:
+        print("Loaded checkpoint {}:".format(ckpt_path))
+        pprint.pprint(
+            dict(
+                (k, checkpoint[k])
+                for k in (
+                    "sample_shape",
+                    "epoch",
+                    "best_loss",
+                    "data_center",
+                    "data_deviation",
+                    "center_method",
+                    "deviation_method",
+                    "nan_value",
+                    "training_routine",
+                )
+            )
+        )
+
     if image_height is None:
         image_height = checkpoint.get("sample_shape", (128, 512))[1]
 
