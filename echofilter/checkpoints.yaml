@@ -1,7 +1,12 @@
 title: "echofilter checkpoints"
-date: 2020-07-16T20:00:00Z
+date: 2020-07-27T15:00:00Z
 
 checkpoints:
+  # 2020-07-15_13.51.13_conditional_effunet6x.2-1_lc32-se2_bs12-lr0.003_mesa_mom.92-.98_w.1-.5_ep400_v2.2_warm-restart-from-2020-07-08_08.31.04
+  conditional_mobile-stationary2_effunet6x2-1_lc32_v2.2: {
+    gdrive: "1mlzjIu5hHQI2UbMDYe7WB9jjpzAOwlMp",
+  }
+
   # 2020-07-08_08.31.04_conditional_effunet6x.2-1_lc32-se2_bs12-lr0.006_mesa_mom.92-.98_w.1-.5_ep200_v2.1_warm-restart-from-2020-06-30_21.24.07
   conditional_mobile-stationary2_effunet6x2-1_lc32_v2.1b: {
     gdrive: "1dWEvbnUWjGa-B93L-dlDyqI4N411EK0G",
