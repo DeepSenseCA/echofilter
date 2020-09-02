@@ -959,7 +959,7 @@ def run_inference(
                 if cutoff_at_nearfield:
                     bottom_depths = np.minimum(bottom_depths, nearfield_depth)
             else:
-                nearfield_depth = nearfield
+                nearfield_depth = np.min(depths) + nearfield
                 if cutoff_at_nearfield:
                     turbulence_depths = np.maximum(turbulence_depths, nearfield_depth)
 
