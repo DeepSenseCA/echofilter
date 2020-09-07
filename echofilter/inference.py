@@ -471,9 +471,7 @@ def run_inference(
             "The checkpoint parameter should either be a path to a file or one of"
         )
         msg += "\n  ".join([""] + list(CHECKPOINT_RESOURCES.keys()))
-        msg += echofilter.ui.style.error_fmt(
-            "\nbut {} was provided.".format(ckpt_name)
-        )
+        msg += echofilter.ui.style.error_fmt("\nbut {} was provided.".format(ckpt_name))
         with echofilter.ui.style.error_message():
             raise ValueError(msg)
 
@@ -710,8 +708,7 @@ def run_inference(
                 elif len(clobbers) > 1:
                     msg += "  and {} others ".format(len(clobbers) - 1)
                 msg += "already exist{} for file {}".format(
-                    "s" if len(clobbers) == 1 else "",
-                    fname,
+                    "s" if len(clobbers) == 1 else "", fname,
                 )
                 with echofilter.ui.style.error_message(msg) as msg:
                     if dry_run:
@@ -962,7 +959,7 @@ def run_inference(
                 if cutoff_at_nearfield:
                     bottom_depths = np.minimum(bottom_depths, nearfield_depth)
             else:
-                nearfield_depth = nearfield
+                nearfield_depth = np.min(depths) + nearfield
                 if cutoff_at_nearfield:
                     turbulence_depths = np.maximum(turbulence_depths, nearfield_depth)
 
@@ -1673,8 +1670,7 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
         checkpoint_name
     )
     destination = os.path.join(
-        cache_dir,
-        checkpoint_name + echofilter.ui.checkpoints.CHECKPOINT_EXT,
+        cache_dir, checkpoint_name + echofilter.ui.checkpoints.CHECKPOINT_EXT,
     )
 
     if os.path.exists(destination):

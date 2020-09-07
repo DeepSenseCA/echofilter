@@ -546,8 +546,9 @@ def cli():
         default=1.7,
         help="""
             Nearfield distance, in metres. Default: %(default)s.
-            If the echogram is downward facing, the nearfield cutoff depth
-            will be at a depth equal to the nearfield distance.
+            If the echogram is downward facing, the nearfield cutoff will be
+            NEARFIELD meters below the shallowest depth recorded in the input
+            data.
             If the echogram is upward facing, the nearfield cutoff will be
             NEARFIELD meters above the deepest depth recorded in the input
             data.
