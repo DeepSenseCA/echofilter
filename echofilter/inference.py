@@ -1054,6 +1054,7 @@ def run_inference(
                 line_thicknesses=line_thicknesses,
                 ev_app=ev_app,
                 overwrite=overwrite_ev_lines,
+                common_notes=common_notes,
                 verbose=verbose,
             )
 
@@ -1380,6 +1381,7 @@ def import_lines_regions_to_ev(
     line_thicknesses={},
     ev_app=None,
     overwrite=False,
+    common_notes="",
     verbose=1,
 ):
     """
@@ -1409,6 +1411,8 @@ def import_lines_regions_to_ev(
         If a line with the target name already exists and `overwrite=False`,
         the line is named with the current datetime to prevent collisions.
         Default is `False`.
+    common_notes : str, optional
+        Notes to include for every region. Default is `""`.
     verbose : int, optional
         Verbosity level. Default is `1`.
     """
@@ -1536,6 +1540,13 @@ def import_lines_regions_to_ev(
             change_line_color_thickness(
                 line.Name, line_colors.get(key), line_thicknesses.get(key)
             )
+            # Add notes to the line
+            notes = key.title() + " line"
+            if len(common_notes) > 0:
+                notes += "\n" + common_notes
+            ev_app.Exec(
+                "{} | Notes =| {}".format(line.Name, notes.replace("\n", "\r\n"))
+            )
 
         # Add nearfield line
         if nearfield_depth is not None:
@@ -1588,6 +1599,13 @@ def import_lines_regions_to_ev(
             # Change the color and thickness of the line
             change_line_color_thickness(
                 line.Name, line_colors.get(key), line_thicknesses.get(key)
+            )
+            # Add notes to the line
+            notes = key.title() + " line"
+            if len(common_notes) > 0:
+                notes += "\n" + common_notes
+            ev_app.Exec(
+                "{} | Notes =| {}".format(line.Name, notes.replace("\n", "\r\n"))
             )
 
         # Overwrite the EV file now the outputs have been imported
