@@ -199,16 +199,16 @@ def run_inference(
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
         Default is `"mediumseagreen"`.
     thickness_turbulence : int, optional
-        Thicknesses with which the turbulence line will be displayed in Echoview.
+        Thickness with which the turbulence line will be displayed in Echoview.
         Default is `2`.
     thickness_bottom : int, optional
-        Thicknesses with which the bottom line will be displayed in Echoview.
+        Thickness with which the bottom line will be displayed in Echoview.
         Default is `2`.
     thickness_surface : int, optional
-        Thicknesses with which the surface line will be displayed in Echoview.
+        Thickness with which the surface line will be displayed in Echoview.
         Default is `1`.
     thickness_nearfield : int, optional
-        Thicknesses with which the nearfield line will be displayed in Echoview.
+        Thickness with which the nearfield line will be displayed in Echoview.
         Default is `1`.
     cache_dir : str or None, optional
         Path to directory where downloaded checkpoint files should be cached.
