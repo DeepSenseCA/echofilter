@@ -82,7 +82,7 @@ def run_inference(
     offset_surface=1.0,
     nearfield=1.7,
     cutoff_at_nearfield=True,
-    lines_during_passive="predict",
+    lines_during_passive="interpolate-time",
     collate_passive_length=10,
     collate_removed_length=10,
     minimum_passive_length=10,
@@ -284,7 +284,7 @@ def run_inference(
                 depths are replaced with the placeholder value
                 used by Echoview to denote undefined values,
                 which is `-10000.99`.
-        Default: "redact".
+        Default: "interpolate-time".
     collate_passive_length : int, optional
         Maximum interval, in ping indices, between detected passive regions
         which will removed to merge consecutive passive regions together
