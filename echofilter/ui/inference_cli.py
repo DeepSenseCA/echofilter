@@ -640,23 +640,24 @@ def cli():
     group_outconfig.add_argument(
         "--minimum-removed-length",
         type=int,
-        default=10,
+        default=-1,
         help="""
             Minimum length, in ping indices, which a detected removal block
             (vertical rectangle) must have to be included in the output.
-            Set to -1 to omit all detected removal blocks from the output.
-            Default: %(default)s.
+            Set to -1 to omit all detected removal blocks from the output
+            (default).
+            When enabling this feature, the recommended minimum length is 10.
         """,
     )
     group_outconfig.add_argument(
         "--minimum-patch-area",
         type=int,
-        default=25,
+        default=-1,
         help="""
             Minimum area, in pixels, which a detected removal patch
             (contour/polygon) region must have to be included in the output.
-            Set to -1 to omit all detected patches from the output.
-            Default: %(default)s.
+            Set to -1 to omit all detected patches from the output (default).
+            When enabling this feature, the recommended minimum area is 25.
         """,
     )
     group_outconfig.add_argument(

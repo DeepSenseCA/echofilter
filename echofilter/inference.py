@@ -86,8 +86,8 @@ def run_inference(
     collate_passive_length=10,
     collate_removed_length=10,
     minimum_passive_length=10,
-    minimum_removed_length=10,
-    minimum_patch_area=25,
+    minimum_removed_length=-1,
+    minimum_patch_area=-1,
     patch_mode=None,
     variable_name=DEFAULT_VARNAME,
     row_len_selector="mode",
@@ -301,13 +301,13 @@ def run_inference(
     minimum_removed_length : int, optional
         Minimum length, in ping indices, which a detected removal block
         (vertical rectangle) must have to be included in the output.
-        Set to -1 to omit all detected removal blocks from the output.
-        Default is 10.
+        Set to -1 to omit all detected removal blocks from the output
+        (default). Recommended minimum length is 10.
     minimum_patch_area : int, optional
         Minimum area, in pixels, which a detected removal patch
         (contour/polygon) region must have to be included in the output.
-        Set to -1 to omit all detected patches from the output.
-        Default is 25.
+        Set to -1 to omit all detected patches from the output (default).
+        Recommended minimum length 25.
     patch_mode : str or None, optional
         Type of mask patches to use. Must be supported by the
         model checkpoint used. Should be one of:
