@@ -614,14 +614,27 @@ def cli():
             use the --no-nearfield-line argument.
         """,
     )
-    group_outconfig.add_argument(
+    group_outconfig_cutoff = group_outconfig.add_mutually_exclusive_group()
+    group_outconfig_cutoff.add_argument(
+        "--cutoff-at-nearfield",
+        dest="cutoff_at_nearfield",
+        action="store_true",
+        default=None,
+        help="""
+            Enable cut-off at the nearfield distance for both the turbulence
+            line (on downfacing data) as well as the bottom line (on upfacing
+            data). Default behavior is to only clip the bottom line.
+        """,
+    )
+    group_outconfig_cutoff.add_argument(
         "--no-cutoff-at-nearfield",
         dest="cutoff_at_nearfield",
         action="store_false",
         help="""
-            By default, turbulence and bottom lines imported into Echoview
-            cannot extend closer to the echosounder than the nearfield line.
-            Supply this argument to disable this feature.
+            Disable cut-off at the nearfield distance for both the turbulence
+            line (on downfacing data) and the bottom line (on upfacing data).
+            Default behavior is to clip the bottom line but not the turbulence
+            line.
         """,
     )
     group_outconfig.add_argument(

@@ -87,7 +87,7 @@ def run_inference(
     offset_bottom=1.0,
     offset_surface=1.0,
     nearfield=1.7,
-    cutoff_at_nearfield=True,
+    cutoff_at_nearfield=None,
     lines_during_passive="interpolate-time",
     collate_passive_length=10,
     collate_removed_length=10,
@@ -281,9 +281,12 @@ def run_inference(
         added at the nearfield cutoff depth. To prevent this behaviour,
         use the --no-nearfield-line argument.
         Default is `1.7`.
-    cutoff_at_nearfield : bool, optional
-        Whether to cut-off the turbulence/bottom line when it is closer to the
-        echosounder than the `nearfield` distance. Default is `True`.
+    cutoff_at_nearfield : bool or None, optional
+        Whether to cut-off the turbulence line (for downfacing data) or bottom
+        line (for upfacing) when it is closer to the echosounder than the
+        `nearfield` distance.
+        If `None` (default), the bottom line is clipped (for upfacing data),
+        but the turbulence line is not clipped (even with downfacing data).
     lines_during_passive : str, optional
         Method used to handle line depths during collection
         periods determined to be passive recording instead of
@@ -1081,11 +1084,11 @@ def run_inference(
                 bottom=offset_bottom,
                 surface=offset_surface,
             )
-            if not cutoff_at_nearfield:
-                lines_cutoff_at_nearfield = []
-            elif output["is_upward_facing"]:
-                lines_cutoff_at_nearfield = ["bottom"]
-            else:
+            lines_cutoff_at_nearfield = []
+            if output["is_upward_facing"]:
+                if cutoff_at_nearfield or cutoff_at_nearfield is None:
+                    lines_cutoff_at_nearfield = ["bottom"]
+            elif cutoff_at_nearfield:
                 lines_cutoff_at_nearfield = ["turbulence"]
 
             import_lines_regions_to_ev(
