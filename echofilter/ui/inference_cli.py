@@ -570,7 +570,7 @@ def cli():
     group_outconfig.add_argument(
         "--lines-during-passive",
         type=str,
-        default="predict",
+        default="interpolate-time",
         choices=[
             "interpolate-time",
             "interpolate-index",
