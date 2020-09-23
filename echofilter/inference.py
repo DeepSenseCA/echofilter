@@ -65,12 +65,18 @@ def run_inference(
     suffix_file="",
     suffix_var=None,
     color_turbulence="orangered",
+    color_turbulence_offset=None,
     color_bottom="orangered",
+    color_bottom_offset=None,
     color_surface="green",
+    color_surface_offset=None,
     color_nearfield="mediumseagreen",
     thickness_turbulence=2,
+    thickness_turbulence_offset=None,
     thickness_bottom=2,
+    thickness_bottom_offset=None,
     thickness_surface=1,
+    thickness_surface_offset=None,
     thickness_nearfield=1,
     cache_dir=None,
     cache_csv=None,
@@ -180,18 +186,27 @@ def run_inference(
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
         Default is `"orangered"`.
+    color_turbulence_offset : str or None, optional
+        Color to use for the offset turbulence line when it is imported into
+        Echoview. If `None` (default) `color_turbulence` is used.
     color_bottom : str, optional
         Color to use for the bottom line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
         Default is `"orangered"`.
+    color_bottom_offset : str or None, optional
+        Color to use for the offset bottom line when it is imported into
+        Echoview. If `None` (default) `color_bottom` is used.
     color_surface : str, optional
         Color to use for the surface line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
         Default is `"green"`.
+    color_surface_offset : str or None, optional
+        Color to use for the offset surface line when it is imported into
+        Echoview. If `None` (default) `color_surface` is used.
     color_nearfield : str, optional
         Color to use for the nearfield line when it is created in Echoview.
         This can either be the name of a supported color from
@@ -201,12 +216,21 @@ def run_inference(
     thickness_turbulence : int, optional
         Thickness with which the turbulence line will be displayed in Echoview.
         Default is `2`.
+    thickness_turbulence_offset : str or None, optional
+        Thickness with which the offset turbulence line will be displayed in
+        Echoview. If `None` (default) `thickness_turbulence` is used.
     thickness_bottom : int, optional
         Thickness with which the bottom line will be displayed in Echoview.
         Default is `2`.
+    thickness_bottom_offset : str or None, optional
+        Thickness with which the offset bottom line will be displayed in
+        Echoview. If `None` (default) `thickness_bottom` is used.
     thickness_surface : int, optional
         Thickness with which the surface line will be displayed in Echoview.
         Default is `1`.
+    thickness_surface_offset : str or None, optional
+        Thickness with which the offset surface line will be displayed in
+        Echoview. If `None` (default) `thickness_surface` is used.
     thickness_nearfield : int, optional
         Thickness with which the nearfield line will be displayed in Echoview.
         Default is `1`.
@@ -443,16 +467,30 @@ def run_inference(
 
     line_colors = dict(
         turbulence=color_turbulence,
+        turbulence_offset=color_turbulence_offset,
         bottom=color_bottom,
+        bottom_offset=color_bottom_offset,
         surface=color_surface,
+        surface_offset=color_surface_offset,
         nearfield=color_nearfield,
     )
     line_thicknesses = dict(
         turbulence=thickness_turbulence,
+        turbulence_offset=thickness_turbulence_offset,
         bottom=thickness_bottom,
+        bottom_offset=thickness_bottom_offset,
         surface=thickness_surface,
+        surface_offset=thickness_surface_offset,
         nearfield=thickness_nearfield,
     )
+    # Carry over default line colours and thicknesses
+    for lname in ["turbulence", "bottom", "surface"]:
+        key_source = lname
+        key_dest = lname + "_offset"
+        if line_colors[key_dest] is None:
+            line_colors[key_dest] = line_colors[key_source]
+        if line_thicknesses[key_dest] is None:
+            line_thicknesses[key_dest] = line_thicknesses[key_source]
 
     if checkpoint is None:
         # Use the first item from the list of checkpoints

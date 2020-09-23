@@ -360,6 +360,15 @@ def cli():
         """,
     )
     group_outfile.add_argument(
+        "--color-turbulence-offset",
+        type=str,
+        default=None,
+        help="""
+            Color to use for the offset turbulence line when it is imported
+            into Echoview. If unset, this will be the same as COLOR_TURBULENCE.
+        """,
+    )
+    group_outfile.add_argument(
         "--color-bottom",
         type=str,
         default="orangered",
@@ -372,6 +381,15 @@ def cli():
         """,
     )
     group_outfile.add_argument(
+        "--color-bottom-offset",
+        type=str,
+        default=None,
+        help="""
+            Color to use for the offset bottom line when it is imported
+            into Echoview. If unset, this will be the same as COLOR_BOTTOM.
+        """,
+    )
+    group_outfile.add_argument(
         "--color-surface",
         type=str,
         default="green",
@@ -381,6 +399,15 @@ def cli():
             --list-colors for options), or a a hexadecimal string, or a string
             representation of an RGB color to supply directly to Echoview (such
             as "(0,255,0)"). Default: "%(default)s".
+        """,
+    )
+    group_outfile.add_argument(
+        "--color-surface-offset",
+        type=str,
+        default=None,
+        help="""
+            Color to use for the offset surface line when it is imported
+            into Echoview. If unset, this will be the same as COLOR_SURFACE.
         """,
     )
     group_outfile.add_argument(
@@ -405,6 +432,16 @@ def cli():
         """,
     )
     group_outfile.add_argument(
+        "--thickness-turbulence-offset",
+        type=int,
+        default=None,
+        help="""
+            Thicknesses with which the offset turbulence line will be displayed
+            in Echoview. If unset, this will be the same as
+            THICKNESS_TURBULENCE.
+        """,
+    )
+    group_outfile.add_argument(
         "--thickness-bottom",
         type=int,
         default=2,
@@ -414,12 +451,32 @@ def cli():
         """,
     )
     group_outfile.add_argument(
+        "--thickness-bottom-offset",
+        type=int,
+        default=None,
+        help="""
+            Thicknesses with which the offset bottom line will be displayed
+            in Echoview. If unset, this will be the same as
+            THICKNESS_BOTTOM.
+        """,
+    )
+    group_outfile.add_argument(
         "--thickness-surface",
         type=int,
         default=1,
         help="""
             Thicknesses with which the surface line will be displayed in
             Echoview. Default: %(default)s.
+        """,
+    )
+    group_outfile.add_argument(
+        "--thickness-surface-offset",
+        type=int,
+        default=None,
+        help="""
+            Thicknesses with which the offset surface line will be displayed
+            in Echoview. If unset, this will be the same as
+            THICKNESS_SURFACE.
         """,
     )
     group_outfile.add_argument(
