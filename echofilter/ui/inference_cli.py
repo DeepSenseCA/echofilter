@@ -562,8 +562,8 @@ def cli():
         dest="cutoff_at_nearfield",
         action="store_false",
         help="""
-            By default, turbulence and bottom lines cannot extend closer to the
-            echosounder than the nearfield line.
+            By default, turbulence and bottom lines imported into Echoview
+            cannot extend closer to the echosounder than the nearfield line.
             Supply this argument to disable this feature.
         """,
     )
