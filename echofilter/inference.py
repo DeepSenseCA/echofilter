@@ -1528,28 +1528,31 @@ def import_lines_regions_to_ev(
                     print(s)
                 continue
 
-            # Import the line into Python
+            # Import the line into Python now. We might need it now for
+            # clipping, or later on for offsetting.
             ts, depths, statuses = echofilter.raw.loader.evl_loader(
                 fname_full, return_status=True
             )
             line_status = echofilter.utils.mode(statuses)
 
-            # Edit the line, clipping if necessary
             if nearfield_depth is None or key not in lines_cutoff_at_nearfield:
-                depths_clipped = depths
-            elif key == "bottom":
-                depths_clipped = np.minimum(depths, nearfield_depth)
+                # Import the original line straight into Echoview
+                is_imported = ev_file.Import(fname_full)
             else:
-                depths_clipped = np.maximum(depths, nearfield_depth)
+                # Edit the line, clipping as necessary
+                if key == "bottom":
+                    depths_clipped = np.minimum(depths, nearfield_depth)
+                else:
+                    depths_clipped = np.maximum(depths, nearfield_depth)
 
-            # Export the edited line to a temporary file
-            with tempfile.TemporaryDirectory() as tmpdirname:
-                temp_fname = os.path.join(tmpdirname, os.path.split(fname)[1])
-                echofilter.raw.loader.evl_writer(
-                    temp_fname, ts, depths_clipped, status=line_status,
-                )
-                # Import the edited line into the EV file
-                is_imported = ev_file.Import(temp_fname)
+                # Export the edited line to a temporary file
+                with tempfile.TemporaryDirectory() as tmpdirname:
+                    temp_fname = os.path.join(tmpdirname, os.path.split(fname)[1])
+                    echofilter.raw.loader.evl_writer(
+                        temp_fname, ts, depths_clipped, status=line_status,
+                    )
+                    # Import the edited line into the EV file
+                    is_imported = ev_file.Import(temp_fname)
 
             if not is_imported:
                 s = (
