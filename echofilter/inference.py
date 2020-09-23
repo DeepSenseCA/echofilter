@@ -1537,7 +1537,8 @@ def import_lines_regions_to_ev(
 
             if nearfield_depth is None or key not in lines_cutoff_at_nearfield:
                 # Import the original line straight into Echoview
-                is_imported = ev_file.Import(fname_full)
+                fname_loaded = fname_full
+                is_imported = ev_file.Import(fname_loaded)
             else:
                 # Edit the line, clipping as necessary
                 if key == "bottom":
@@ -1552,13 +1553,14 @@ def import_lines_regions_to_ev(
                         temp_fname, ts, depths_clipped, status=line_status,
                     )
                     # Import the edited line into the EV file
-                    is_imported = ev_file.Import(temp_fname)
+                    fname_loaded = temp_fname
+                    is_imported = ev_file.Import(fname_loaded)
 
             if not is_imported:
                 s = (
                     "  Warning: Unable to import file '{}'"
                     "Please consult Echoview for the Import error message.".format(
-                        fname
+                        fname_loaded
                     )
                 )
                 s = echofilter.ui.style.warning_fmt(s)
@@ -1679,7 +1681,7 @@ def import_lines_regions_to_ev(
                 s = (
                     "  Warning: Unable to import file '{}'"
                     "Please consult Echoview for the Import error message.".format(
-                        fname
+                        temp_fname
                     )
                 )
                 s = echofilter.ui.style.warning_fmt(s)
