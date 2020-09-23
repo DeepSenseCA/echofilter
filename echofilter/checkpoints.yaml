@@ -1,8 +1,24 @@
 title: "echofilter checkpoints"
-date: 2020-07-05T00:00:00Z
+date: 2020-07-27T15:00:00Z
 
 checkpoints:
+  # 2020-07-15_13.51.13_conditional_effunet6x.2-1_lc32-se2_bs12-lr0.003_mesa_mom.92-.98_w.1-.5_ep400_v2.2_warm-restart-from-2020-07-08_08.31.04
+  conditional_mobile-stationary2_effunet6x2-1_lc32_v2.2: {
+    gdrive: "1mlzjIu5hHQI2UbMDYe7WB9jjpzAOwlMp",
+  }
+
+  # 2020-07-08_08.31.04_conditional_effunet6x.2-1_lc32-se2_bs12-lr0.006_mesa_mom.92-.98_w.1-.5_ep200_v2.1_warm-restart-from-2020-06-30_21.24.07
+  conditional_mobile-stationary2_effunet6x2-1_lc32_v2.1b: {
+    gdrive: "1dWEvbnUWjGa-B93L-dlDyqI4N411EK0G",
+  }
+  conditional_mobile-stationary2_effunet6x2-1_lc32_v2.1: {
+    gdrive: "1lC7tnD2nRgl7oHtkWzkD-W8teDTDa0ky",
+  }
+
   # 2020-06-30_21.24.07_conditional_effunet6x.2-1_lc32-se2_bs12-lr0.012_mesa_mom.92-.98_w.1-.5_ep100
+  conditional_mobile-stationary2_effunet6x2-1_lc32_v2.0b: {
+    gdrive: "1NBGoFG-UIUWG5k7uePkXfrJ9gfVRvsv4",
+  }
   conditional_mobile-stationary2_effunet6x2-1_lc32_v2.0: {
     gdrive: "1jBo3vCsUz8UVfJJnc5XEqNDLFrUpers7",
   }
@@ -15,6 +31,22 @@ checkpoints:
   # 2020-06-15_05.39.07_conditional_effunet6x.2-1_lc32-se2_bs12-lr0.016_mesa_mom.92-.98_w.1-.5_ep100_elastic_resume5
   conditional_mobile-stationary2_effunet6x2-1_lc32_v1.0: {
     gdrive: "1vEshqJbj906tCEA4KybUmlBXN9YEG_Fu",
+  }
+
+  # 2020-07-09_09.39.12_effunet6x.2-1_lc32-se2_bs12-lr0.006_mesa_mom.92-.98_w.1-.5_ep400_warm-restart-2020-07-05_21.01.31
+  stationary2_effunet6x2-1_lc32_v2.1b: {
+    gdrive: "127DUtR3lsPPAyajSGsPSZ0odJBEk7qO2",
+  }
+  stationary2_effunet6x2-1_lc32_v2.1: {
+    gdrive: "1_FIzYT2X0WX-VDmU-3KprznCZhLSreJ_",
+  }
+
+  # 2020-07-05_21.01.31_effunet6x.2-1_lc32-se2_bs12-lr0.012_mesa_mom.92-.98_w.1-.5_ep200
+  stationary2_effunet6x2-1_lc32_v2.0b: {
+    gdrive: "1ouMLMhxJBXgO98Oyq-9TEEBBBudtznzP",
+  }
+  stationary2_effunet6x2-1_lc32_v2.0: {
+    gdrive: "1ZjTMMOZd_MlBb3PQbHhltHPGrB9szSoT",
   }
 
   # 2020-06-14_14.24.21_effunet6x.2-1_lc32-se2_bs20-lr0.02_mesa_mom.92-.98_w.1-.5_ep150_elastic_epseed_resume2

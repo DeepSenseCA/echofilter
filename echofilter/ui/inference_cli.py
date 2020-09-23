@@ -360,6 +360,15 @@ def cli():
         """,
     )
     group_outfile.add_argument(
+        "--color-turbulence-offset",
+        type=str,
+        default=None,
+        help="""
+            Color to use for the offset turbulence line when it is imported
+            into Echoview. If unset, this will be the same as COLOR_TURBULENCE.
+        """,
+    )
+    group_outfile.add_argument(
         "--color-bottom",
         type=str,
         default="orangered",
@@ -372,6 +381,15 @@ def cli():
         """,
     )
     group_outfile.add_argument(
+        "--color-bottom-offset",
+        type=str,
+        default=None,
+        help="""
+            Color to use for the offset bottom line when it is imported
+            into Echoview. If unset, this will be the same as COLOR_BOTTOM.
+        """,
+    )
+    group_outfile.add_argument(
         "--color-surface",
         type=str,
         default="green",
@@ -381,6 +399,15 @@ def cli():
             --list-colors for options), or a a hexadecimal string, or a string
             representation of an RGB color to supply directly to Echoview (such
             as "(0,255,0)"). Default: "%(default)s".
+        """,
+    )
+    group_outfile.add_argument(
+        "--color-surface-offset",
+        type=str,
+        default=None,
+        help="""
+            Color to use for the offset surface line when it is imported
+            into Echoview. If unset, this will be the same as COLOR_SURFACE.
         """,
     )
     group_outfile.add_argument(
@@ -405,6 +432,16 @@ def cli():
         """,
     )
     group_outfile.add_argument(
+        "--thickness-turbulence-offset",
+        type=int,
+        default=None,
+        help="""
+            Thicknesses with which the offset turbulence line will be displayed
+            in Echoview. If unset, this will be the same as
+            THICKNESS_TURBULENCE.
+        """,
+    )
+    group_outfile.add_argument(
         "--thickness-bottom",
         type=int,
         default=2,
@@ -414,12 +451,32 @@ def cli():
         """,
     )
     group_outfile.add_argument(
+        "--thickness-bottom-offset",
+        type=int,
+        default=None,
+        help="""
+            Thicknesses with which the offset bottom line will be displayed
+            in Echoview. If unset, this will be the same as
+            THICKNESS_BOTTOM.
+        """,
+    )
+    group_outfile.add_argument(
         "--thickness-surface",
         type=int,
         default=1,
         help="""
             Thicknesses with which the surface line will be displayed in
             Echoview. Default: %(default)s.
+        """,
+    )
+    group_outfile.add_argument(
+        "--thickness-surface-offset",
+        type=int,
+        default=None,
+        help="""
+            Thicknesses with which the offset surface line will be displayed
+            in Echoview. If unset, this will be the same as
+            THICKNESS_SURFACE.
         """,
     )
     group_outfile.add_argument(
@@ -546,8 +603,9 @@ def cli():
         default=1.7,
         help="""
             Nearfield distance, in metres. Default: %(default)s.
-            If the echogram is downward facing, the nearfield cutoff depth
-            will be at a depth equal to the nearfield distance.
+            If the echogram is downward facing, the nearfield cutoff will be
+            NEARFIELD meters below the shallowest depth recorded in the input
+            data.
             If the echogram is upward facing, the nearfield cutoff will be
             NEARFIELD meters above the deepest depth recorded in the input
             data.
@@ -556,20 +614,33 @@ def cli():
             use the --no-nearfield-line argument.
         """,
     )
-    group_outconfig.add_argument(
+    group_outconfig_cutoff = group_outconfig.add_mutually_exclusive_group()
+    group_outconfig_cutoff.add_argument(
+        "--cutoff-at-nearfield",
+        dest="cutoff_at_nearfield",
+        action="store_true",
+        default=None,
+        help="""
+            Enable cut-off at the nearfield distance for both the turbulence
+            line (on downfacing data) as well as the bottom line (on upfacing
+            data). Default behavior is to only clip the bottom line.
+        """,
+    )
+    group_outconfig_cutoff.add_argument(
         "--no-cutoff-at-nearfield",
         dest="cutoff_at_nearfield",
         action="store_false",
         help="""
-            By default, turbulence and bottom lines cannot extend closer to the
-            echosounder than the nearfield line.
-            Supply this argument to disable this feature.
+            Disable cut-off at the nearfield distance for both the turbulence
+            line (on downfacing data) and the bottom line (on upfacing data).
+            Default behavior is to clip the bottom line but not the turbulence
+            line.
         """,
     )
     group_outconfig.add_argument(
         "--lines-during-passive",
         type=str,
-        default="predict",
+        default="interpolate-time",
         choices=[
             "interpolate-time",
             "interpolate-index",
@@ -639,23 +710,24 @@ def cli():
     group_outconfig.add_argument(
         "--minimum-removed-length",
         type=int,
-        default=10,
+        default=-1,
         help="""
             Minimum length, in ping indices, which a detected removal block
             (vertical rectangle) must have to be included in the output.
-            Set to -1 to omit all detected removal blocks from the output.
-            Default: %(default)s.
+            Set to -1 to omit all detected removal blocks from the output
+            (default).
+            When enabling this feature, the recommended minimum length is 10.
         """,
     )
     group_outconfig.add_argument(
         "--minimum-patch-area",
         type=int,
-        default=25,
+        default=-1,
         help="""
             Minimum area, in pixels, which a detected removal patch
             (contour/polygon) region must have to be included in the output.
-            Set to -1 to omit all detected patches from the output.
-            Default: %(default)s.
+            Set to -1 to omit all detected patches from the output (default).
+            When enabling this feature, the recommended minimum area is 25.
         """,
     )
     group_outconfig.add_argument(
