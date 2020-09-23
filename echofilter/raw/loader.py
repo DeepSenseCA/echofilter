@@ -321,9 +321,10 @@ def evl_reader(fname):
     Returns
     -------
     generator
-        A generator which yields the timestamp (in seconds) and depth (in
-        metres) for each entry. Note that the timestamp is not corrected for
-        timezone (so make sure your timezones are internally consistent).
+        A generator which yields the timestamp (in seconds), depth (in
+        metres), and status (int) for each entry. Note that the timestamp is
+        not corrected for timezone (so make sure your timezones are internally
+        consistent).
     """
     with open(fname, "r") as hf:
         continuance = True
@@ -343,10 +344,10 @@ def evl_reader(fname):
             if len(row[2]) > 0:
                 raise ValueError("row[2] was non-empty: {}".format(row[2]))
 
-            yield timestamp, float(row[3])
+            yield timestamp, float(row[3]), int(row[4])
 
 
-def evl_loader(fname, special_to_nan=True):
+def evl_loader(fname, special_to_nan=True, return_status=False):
     """
     EVL file loader
 
@@ -361,22 +362,29 @@ def evl_loader(fname, special_to_nan=True):
 
     Returns
     -------
-    numpy.ndarray
+    numpy.ndarray of floats
         Timestamps, in seconds.
-    numpy.ndarary
+    numpy.ndarary of floats
         Depth, in metres.
+    numpy.ndarary of ints, optional
+        Status codes.
     """
     timestamps = []
     values = []
-    for timestamp, value in evl_reader(fname):
+    statuses = []
+    for timestamp, value, status in evl_reader(fname):
         timestamps.append(timestamp)
         values.append(value)
+        statuses.append(status)
     timestamps = np.array(timestamps)
     values = np.array(values)
+    statuses = np.array(statuses)
     if special_to_nan:
         # Replace the special value -10000.99 with NaN
         # https://support.echoview.com/WebHelp/Reference/File_formats/Export_file_formats/Special_Export_Values.htm
         values[np.isclose(values, -10000.99)] = np.nan
+    if return_status:
+        return timestamps, values, statuses
     return timestamps, values
 
 
