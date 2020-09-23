@@ -238,7 +238,8 @@ def run_inference(
             `3` : good
         Default is `3`.
     offset_turbulence : float, optional
-        Offset for turbulence line, which moves the turbulence line deeper. Default is `1.0`.
+        Offset for turbulence line, which moves the turbulence line deeper.
+        Default is `1.0`.
     offset_bottom : float, optional
         Offset for bottom line, which moves the line to become more shallow.
         Default is `1.0`.
