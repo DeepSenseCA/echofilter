@@ -1662,8 +1662,9 @@ def import_lines_regions_to_ev(
 
             # Export the edited line to a temporary file
             with tempfile.TemporaryDirectory() as tmpdirname:
+                fname_noext, ext = os.path.splitext(fname)
                 temp_fname = os.path.join(
-                    tmpdirname, os.path.split(fname)[1] + "_offset",
+                    tmpdirname, os.path.split(fname_noext)[1] + "_offset" + ext,
                 )
                 echofilter.raw.loader.evl_writer(
                     temp_fname, ts, depths_offset, status=line_status,
