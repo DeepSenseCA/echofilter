@@ -65,12 +65,18 @@ def run_inference(
     suffix_file="",
     suffix_var=None,
     color_turbulence="orangered",
+    color_turbulence_offset=None,
     color_bottom="orangered",
+    color_bottom_offset=None,
     color_surface="green",
+    color_surface_offset=None,
     color_nearfield="mediumseagreen",
     thickness_turbulence=2,
+    thickness_turbulence_offset=None,
     thickness_bottom=2,
+    thickness_bottom_offset=None,
     thickness_surface=1,
+    thickness_surface_offset=None,
     thickness_nearfield=1,
     cache_dir=None,
     cache_csv=None,
@@ -180,18 +186,27 @@ def run_inference(
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
         Default is `"orangered"`.
+    color_turbulence_offset : str or None, optional
+        Color to use for the offset turbulence line when it is imported into
+        Echoview. If `None` (default) `color_turbulence` is used.
     color_bottom : str, optional
         Color to use for the bottom line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
         Default is `"orangered"`.
+    color_bottom_offset : str or None, optional
+        Color to use for the offset bottom line when it is imported into
+        Echoview. If `None` (default) `color_bottom` is used.
     color_surface : str, optional
         Color to use for the surface line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
         Default is `"green"`.
+    color_surface_offset : str or None, optional
+        Color to use for the offset surface line when it is imported into
+        Echoview. If `None` (default) `color_surface` is used.
     color_nearfield : str, optional
         Color to use for the nearfield line when it is created in Echoview.
         This can either be the name of a supported color from
@@ -199,16 +214,25 @@ def run_inference(
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
         Default is `"mediumseagreen"`.
     thickness_turbulence : int, optional
-        Thicknesses with which the turbulence line will be displayed in Echoview.
+        Thickness with which the turbulence line will be displayed in Echoview.
         Default is `2`.
+    thickness_turbulence_offset : str or None, optional
+        Thickness with which the offset turbulence line will be displayed in
+        Echoview. If `None` (default) `thickness_turbulence` is used.
     thickness_bottom : int, optional
-        Thicknesses with which the bottom line will be displayed in Echoview.
+        Thickness with which the bottom line will be displayed in Echoview.
         Default is `2`.
+    thickness_bottom_offset : str or None, optional
+        Thickness with which the offset bottom line will be displayed in
+        Echoview. If `None` (default) `thickness_bottom` is used.
     thickness_surface : int, optional
-        Thicknesses with which the surface line will be displayed in Echoview.
+        Thickness with which the surface line will be displayed in Echoview.
         Default is `1`.
+    thickness_surface_offset : str or None, optional
+        Thickness with which the offset surface line will be displayed in
+        Echoview. If `None` (default) `thickness_surface` is used.
     thickness_nearfield : int, optional
-        Thicknesses with which the nearfield line will be displayed in Echoview.
+        Thickness with which the nearfield line will be displayed in Echoview.
         Default is `1`.
     cache_dir : str or None, optional
         Path to directory where downloaded checkpoint files should be cached.
@@ -238,7 +262,8 @@ def run_inference(
             `3` : good
         Default is `3`.
     offset_turbulence : float, optional
-        Offset for turbulence line, which moves the turbulence line deeper. Default is `1.0`.
+        Offset for turbulence line, which moves the turbulence line deeper.
+        Default is `1.0`.
     offset_bottom : float, optional
         Offset for bottom line, which moves the line to become more shallow.
         Default is `1.0`.
@@ -442,16 +467,30 @@ def run_inference(
 
     line_colors = dict(
         turbulence=color_turbulence,
+        turbulence_offset=color_turbulence_offset,
         bottom=color_bottom,
+        bottom_offset=color_bottom_offset,
         surface=color_surface,
+        surface_offset=color_surface_offset,
         nearfield=color_nearfield,
     )
     line_thicknesses = dict(
         turbulence=thickness_turbulence,
+        turbulence_offset=thickness_turbulence_offset,
         bottom=thickness_bottom,
+        bottom_offset=thickness_bottom_offset,
         surface=thickness_surface,
+        surface_offset=thickness_surface_offset,
         nearfield=thickness_nearfield,
     )
+    # Carry over default line colours and thicknesses
+    for lname in ["turbulence", "bottom", "surface"]:
+        key_source = lname
+        key_dest = lname + "_offset"
+        if line_colors[key_dest] is None:
+            line_colors[key_dest] = line_colors[key_source]
+        if line_thicknesses[key_dest] is None:
+            line_thicknesses[key_dest] = line_thicknesses[key_source]
 
     if checkpoint is None:
         # Use the first item from the list of checkpoints
@@ -898,11 +937,7 @@ def run_inference(
                     output["p_is_below_bottom" + cs] > 0.5, -1
                 )
             ]
-            # Offset lines
-            turbulence_depths += offset_turbulence
-            bottom_depths -= offset_bottom
-            surface_depths += offset_surface
-            # Redact passive regions
+
             line_timestamps = output["timestamps"].copy()
             is_passive = output["p_is_passive" + cs] > 0.5
             if lines_during_passive == "predict":
@@ -954,14 +989,9 @@ def run_inference(
                     raise ValueError(msg)
 
             if output["is_upward_facing"]:
-                depth_intv = abs(depths[-1] - depths[-2])
                 nearfield_depth = np.max(depths) - nearfield
-                if cutoff_at_nearfield:
-                    bottom_depths = np.minimum(bottom_depths, nearfield_depth)
             else:
                 nearfield_depth = np.min(depths) + nearfield
-                if cutoff_at_nearfield:
-                    turbulence_depths = np.maximum(turbulence_depths, nearfield_depth)
 
             # Export evl files
             destination_dir = os.path.dirname(destination)
@@ -1045,11 +1075,27 @@ def run_inference(
 
             target_names = {key: key + suffix_var for key in dest_files}
             target_names["nearfield"] = "nearfield" + suffix_var
+
+            offsets = dict(
+                turbulence=offset_turbulence,
+                bottom=offset_bottom,
+                surface=offset_surface,
+            )
+            if not cutoff_at_nearfield:
+                lines_cutoff_at_nearfield = []
+            elif output["is_upward_facing"]:
+                lines_cutoff_at_nearfield = ["bottom"]
+            else:
+                lines_cutoff_at_nearfield = ["turbulence"]
+
             import_lines_regions_to_ev(
                 fname_full,
                 dest_files,
                 target_names=target_names,
-                nearfield_depth=nearfield_depth if add_nearfield_line else None,
+                nearfield_depth=nearfield_depth,
+                add_nearfield_line=add_nearfield_line,
+                lines_cutoff_at_nearfield=lines_cutoff_at_nearfield,
+                offsets=offsets,
                 line_colors=line_colors,
                 line_thicknesses=line_thicknesses,
                 ev_app=ev_app,
@@ -1377,6 +1423,9 @@ def import_lines_regions_to_ev(
     files,
     target_names={},
     nearfield_depth=None,
+    add_nearfield_line=True,
+    lines_cutoff_at_nearfield=[],
+    offsets={},
     line_colors={},
     line_thicknesses={},
     ev_app=None,
@@ -1397,7 +1446,14 @@ def import_lines_regions_to_ev(
         Mapping from output keys to output variable names.
     nearfield_depth : float or None, optional
         Depth at which nearfield line will be placed. If `None` (default), no
-        nearfield line will be added.
+        nearfield line will be added, irrespective of `add_nearfield_line`.
+    add_nearfield_line : bool, optional
+        Whether to add a nearfield line. Default is `True`.
+    lines_cutoff_at_nearfield : list of str, optional
+        Which lines (if any) should be clipped at the nearfield depth.
+        Default is `[]`.
+    offsets : dict, optional
+        Amount of offset for each line.
     line_colors : dict, optional
         Mapping from output keys to line colours.
     line_thicknesses : dict, optional
@@ -1447,14 +1503,49 @@ def import_lines_regions_to_ev(
                 )
 
         for key, fname in files.items():
-            # Import the line into the EV file
+            # Check the file exists
             fname_full = os.path.abspath(fname)
             if not os.path.isfile(fname_full):
                 s = "  Warning: File '{}' could not be found".format(fname_full)
                 s = echofilter.ui.style.warning_fmt(s)
                 print(s)
                 continue
-            is_imported = ev_file.Import(fname_full)
+
+            if os.path.splitext(fname)[1].lower() != ".evl":
+                # Import regions from the EVR file
+                is_imported = ev_file.Import(fname_full)
+                if not is_imported:
+                    s = (
+                        "  Warning: Unable to import file '{}'"
+                        "Please consult Echoview for the Import error message.".format(
+                            fname
+                        )
+                    )
+                    s = echofilter.ui.style.warning_fmt(s)
+                    print(s)
+                continue
+
+            # Import the line into Python
+            ts, depths, statuses = evl_loader(fname_full, return_status=True)
+            line_status = echofilter.utils.mode(statuses)
+
+            # Edit the line, clipping if necessary
+            if nearfield_depth is None or key not in lines_cutoff_at_nearfield:
+                depths_clipped = depths
+            elif key == "bottom":
+                depths_clipped = np.minimum(depths, nearfield_depth)
+            else:
+                depths_clipped = np.maximum(depths, nearfield_depth)
+
+            # Export the edited line to a temporary file
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                temp_fname = os.path.join(tmpdirname, fname)
+                echofilter.raw.loader.evl_writer(
+                    temp_fname, ts, depths_clipped, status=line_status,
+                )
+                # Import the edited line into the EV file
+                is_imported = ev_file.Import(temp_fname)
+
             if not is_imported:
                 s = (
                     "  Warning: Unable to import file '{}'"
@@ -1464,11 +1555,6 @@ def import_lines_regions_to_ev(
                 )
                 s = echofilter.ui.style.warning_fmt(s)
                 print(s)
-                continue
-
-            if os.path.splitext(fname)[1].lower() != ".evl":
-                # Further handling is only for lines, so skip if this wasn't
-                # a line
                 continue
 
             # Identify line just imported, which is the last variable
@@ -1548,8 +1634,137 @@ def import_lines_regions_to_ev(
                 "{} | Notes =| {}".format(line.Name, notes.replace("\n", "\r\n"))
             )
 
+            ## Handle offset line ---------------------------------------------
+            if key not in offsets:
+                continue
+
+            # Remember references to original line
+            original_line = line
+            original_target_name = target_name
+
+            # Generate an offset line
+            offset = offsets[key]
+            if key == "bottom":
+                # Offset is upward for bottom line, downward otherwise
+                offset = -offset
+            depths_offset = depths + offset
+            if nearfield_depth is None or key not in lines_cutoff_at_nearfield:
+                pass
+            elif key == "bottom":
+                depths_offset = np.minimum(depths_offset, nearfield_depth)
+            else:
+                depths_offset = np.maximum(depths_offset, nearfield_depth)
+
+            # Export the edited line to a temporary file
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                temp_fname = os.path.join(tmpdirname, fname + "_offset")
+                echofilter.raw.loader.evl_writer(
+                    temp_fname, ts, depths_offset, status=line_status,
+                )
+                # Import the edited line into the EV file
+                is_imported = ev_file.Import(temp_fname)
+
+            if not is_imported:
+                s = (
+                    "  Warning: Unable to import file '{}'"
+                    "Please consult Echoview for the Import error message.".format(
+                        fname
+                    )
+                )
+                s = echofilter.ui.style.warning_fmt(s)
+                print(s)
+                continue
+
+            # Identify line just imported, which is the last variable
+            variable = ev_file.Variables[ev_file.Variables.Count - 1]
+            line = lines.FindByName(variable.Name)  # Reference to new, offset, line
+            if not line:
+                s = (
+                    "  Warning: Could not find line which was just imported with"
+                    " name '{}'"
+                    "\n  Ignoring and continuing processing.".format(variable.Name)
+                )
+                s = echofilter.ui.style.warning_fmt(s)
+                print(s)
+                continue
+
+            # Work out what we should call our new line
+            target_name = target_names.get(key + "_offset")
+            if target_name:
+                pass
+            elif not original_target_name:
+                pass
+            elif key in original_line.Name:
+                target_name = original_line.Name.replace(key, key + "-offset", 1)
+            elif key in target_names.get(key):
+                target_name = target_names[key].replace(key, key + "-offset", 1)
+            else:
+                target_name = original_line.Name + "-offset"
+
+            # Check if a line with this name already exists
+            old_line = None if target_name is None else lines.FindByName(target_name)
+
+            # Maybe try to overwrite existing line with new line
+            successful_overwrite = False
+            if old_line and overwrite:
+                # Overwrite the old line
+                if verbose >= 2:
+                    print(
+                        echofilter.ui.style.overwrite_fmt(
+                            "Overwriting existing line '{}' with new {} line"
+                            " output".format(target_name, key)
+                        )
+                    )
+                old_line_edit = old_line.AsLineEditable
+                if old_line_edit:
+                    # Overwrite the old line with the new line
+                    old_line_edit.OverwriteWith(line)
+                    # Delete the line we imported
+                    lines.Delete(line)
+                    # Update our reference to the line
+                    line = old_line
+                    successful_overwrite = True
+                elif verbose >= 0:
+                    # Line is not editable
+                    s = (
+                        "Existing line '{}' is not editable and cannot be"
+                        " overwritten.".format(target_name, key)
+                    )
+                    s = echofilter.ui.style.warning_fmt(s)
+                    print(s)
+
+            if old_line and not successful_overwrite:
+                # Change the name so there is no collision
+                target_name += "_{}".format(dtstr)
+                if verbose >= 1:
+                    print(
+                        "Target line name '{}' already exists. Will save"
+                        " new {} line with name '{}' instead.".format(
+                            target_names[key], key, target_name
+                        )
+                    )
+
+            if target_name and not successful_overwrite:
+                # Rename the line
+                variable.ShortName = target_name
+                line.Name = target_name
+
+            # Change the color and thickness of the line
+            change_line_color_thickness(
+                line.Name,
+                line_colors.get(key + "_offset", line_colors.get(key)),
+                line_thicknesses.get(key + "_offset", line_thicknesses.get(key)),
+            )
+            # Add notes to the line
+            notes = "{} line\nOffset: {:+g}m".format(key.title(), offset)
+            if len(common_notes) > 0:
+                notes += "\n" + common_notes
+            ev_app.Exec(
+                "{} | Notes =| {}".format(line.Name, notes.replace("\n", "\r\n"))
+            )
+
         # Add nearfield line
-        if nearfield_depth is not None:
+        if nearfield_depth is not None and add_nearfield_line:
             key = "nearfield"
             lines = ev_file.Lines
             line = lines.CreateFixedDepth(nearfield_depth)
