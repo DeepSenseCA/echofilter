@@ -1529,7 +1529,9 @@ def import_lines_regions_to_ev(
                 continue
 
             # Import the line into Python
-            ts, depths, statuses = evl_loader(fname_full, return_status=True)
+            ts, depths, statuses = echofilter.raw.loader.evl_loader(
+                fname_full, return_status=True
+            )
             line_status = echofilter.utils.mode(statuses)
 
             # Edit the line, clipping if necessary
