@@ -16,7 +16,29 @@ Security.
 Unreleased
 ----------
 
-`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0rc1...master>`__.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0rc2...master>`__.
+
+
+Version `1.0.0rc2 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0rc2>`__
+------------------------------------------------------------------------------
+
+Release date: 2020-09-23.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0rc1...1.0.0rc2>`__.
+
+This is the second release candidate for the forthcoming v1.0.0 major release.
+
+.. _v1.0.0rc2 Fixed:
+
+Fixed
+~~~~~~~
+
+.. _v1.0.0rc2 Fixed Inference:
+
+Inference
+^^^^^^^^^
+
+-   Fix reference to ``echofilter.raw.loader.evl_loader`` when loading EVL files into Echoview.
+    (`#222 <https://github.com/DeepSenseCA/echofilter/pull/222>`__)
 
 
 Version `1.0.0rc1 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0rc1>`__
