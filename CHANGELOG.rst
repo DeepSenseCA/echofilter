@@ -16,7 +16,29 @@ Security.
 Unreleased
 ----------
 
-`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0rc2...master>`__.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0rc3...master>`__.
+
+
+Version `1.0.0rc3 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0rc3>`__
+------------------------------------------------------------------------------
+
+Release date: 2020-09-23.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0rc2...1.0.0rc3>`__.
+
+This is the third release candidate for the forthcoming v1.0.0 major release.
+
+.. _v1.0.0rc3 Fixed:
+
+Fixed
+~~~~~~~
+
+.. _v1.0.0rc3 Fixed Inference:
+
+Inference
+^^^^^^^^^
+
+-   Include extension in temporary EVL file, fixing issue importing it into Echoview.
+    (`#224 <https://github.com/DeepSenseCA/echofilter/pull/224>`__)
 
 
 Version `1.0.0rc2 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0rc2>`__
