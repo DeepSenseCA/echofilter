@@ -16,7 +16,80 @@ Security.
 Unreleased
 ----------
 
-`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0b4...master>`__.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0rc1...master>`__.
+
+
+Version `1.0.0rc1 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0rc1>`__
+------------------------------------------------------------------------------
+
+Release date: 2020-09-23.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0b4...1.0.0rc1>`__.
+
+This is a release candidate for the forthcoming v1.0.0 major release.
+
+.. _v1.0.0rc1 Changed:
+
+Changed
+~~~~~~~
+
+.. _v1.0.0rc1 Changed Inference:
+
+Inference
+^^^^^^^^^
+
+-   Import lines into Echoview twice, once with and once without offset.
+    (`#218 <https://github.com/DeepSenseCA/echofilter/pull/218>`__)
+-   EVL outputs now indicate raw depths, before any offset or clipping is applied.
+    (`#218 <https://github.com/DeepSenseCA/echofilter/pull/218>`__)
+-   Change default ``--lines-during-passive`` value from ``"predict"`` to ``"interpolate-time"``.
+    (`#216 <https://github.com/DeepSenseCA/echofilter/pull/216>`__)
+-   Disable all bad data region outputs by default.
+    (`#217 <https://github.com/DeepSenseCA/echofilter/pull/217>`__)
+-   Change default nearfield cut-off behaviour to only clip the bottom line (upfacing data) and not the turbulence line (downfacing data).
+    (`#219 <https://github.com/DeepSenseCA/echofilter/pull/219>`__)
+
+.. _v1.0.0rc1 Changed Training:
+
+Training
+^^^^^^^^
+
+-   Reduce minimum distance by which surface line must be above turbulence line from 0.25m to 0m.
+    (`#212 <https://github.com/DeepSenseCA/echofilter/pull/212>`__)
+-   Reduce minimum distance by which bottom line must be above surface line from 0.5m to 0.02m.
+    (`#212 <https://github.com/DeepSenseCA/echofilter/pull/212>`__)
+
+.. _v1.0.0rc1 Fixed:
+
+Fixed
+~~~~~
+
+.. _v1.0.0rc1 Fixed Inference:
+
+Inference
+^^^^^^^^^
+
+-   Change nearfield line for downfacing recordings to be nearfield distance below the shallowest recording depth, not at a depth equal to the nearfield distance.
+    (`#214 <https://github.com/DeepSenseCA/echofilter/pull/214>`__)
+
+.. _v1.0.0rc1 Added:
+
+Added
+~~~~~
+
+.. _v1.0.0rc1 Added Inference:
+
+Inference
+^^^^^^^^^
+
+-   Add new checkpoints: v2.0, v2.1 for stationary model; v2.0, v2.1, v2.2 for conditional hybrid model.
+    (`#213 <https://github.com/DeepSenseCA/echofilter/pull/213>`__)
+-   Add notes to lines imported into Echoview.
+    (`#215 <https://github.com/DeepSenseCA/echofilter/pull/215>`__)
+-   Add arguments controlling color and thickness of offset lines (``--color-surface-offset``, etc).
+    (`#218 <https://github.com/DeepSenseCA/echofilter/pull/218>`__)
+-   Add argument ``--cutoff-at-nearfield`` which re-enables clipping of the turbulence line at nearfield depth with downfacing data.
+    (`#219 <https://github.com/DeepSenseCA/echofilter/pull/219>`__)
+
 
 
 Version `1.0.0b4 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0b4>`__
