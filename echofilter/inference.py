@@ -1528,34 +1528,39 @@ def import_lines_regions_to_ev(
                     print(s)
                 continue
 
-            # Import the line into Python
+            # Import the line into Python now. We might need it now for
+            # clipping, or later on for offsetting.
             ts, depths, statuses = echofilter.raw.loader.evl_loader(
                 fname_full, return_status=True
             )
             line_status = echofilter.utils.mode(statuses)
 
-            # Edit the line, clipping if necessary
             if nearfield_depth is None or key not in lines_cutoff_at_nearfield:
-                depths_clipped = depths
-            elif key == "bottom":
-                depths_clipped = np.minimum(depths, nearfield_depth)
+                # Import the original line straight into Echoview
+                fname_loaded = fname_full
+                is_imported = ev_file.Import(fname_loaded)
             else:
-                depths_clipped = np.maximum(depths, nearfield_depth)
+                # Edit the line, clipping as necessary
+                if key == "bottom":
+                    depths_clipped = np.minimum(depths, nearfield_depth)
+                else:
+                    depths_clipped = np.maximum(depths, nearfield_depth)
 
-            # Export the edited line to a temporary file
-            with tempfile.TemporaryDirectory() as tmpdirname:
-                temp_fname = os.path.join(tmpdirname, fname)
-                echofilter.raw.loader.evl_writer(
-                    temp_fname, ts, depths_clipped, status=line_status,
-                )
-                # Import the edited line into the EV file
-                is_imported = ev_file.Import(temp_fname)
+                # Export the edited line to a temporary file
+                with tempfile.TemporaryDirectory() as tmpdirname:
+                    temp_fname = os.path.join(tmpdirname, os.path.split(fname)[1])
+                    echofilter.raw.loader.evl_writer(
+                        temp_fname, ts, depths_clipped, status=line_status,
+                    )
+                    # Import the edited line into the EV file
+                    fname_loaded = temp_fname
+                    is_imported = ev_file.Import(fname_loaded)
 
             if not is_imported:
                 s = (
                     "  Warning: Unable to import file '{}'"
                     "Please consult Echoview for the Import error message.".format(
-                        fname
+                        fname_loaded
                     )
                 )
                 s = echofilter.ui.style.warning_fmt(s)
@@ -1662,7 +1667,10 @@ def import_lines_regions_to_ev(
 
             # Export the edited line to a temporary file
             with tempfile.TemporaryDirectory() as tmpdirname:
-                temp_fname = os.path.join(tmpdirname, fname + "_offset")
+                fname_noext, ext = os.path.splitext(fname)
+                temp_fname = os.path.join(
+                    tmpdirname, os.path.split(fname_noext)[1] + "_offset" + ext,
+                )
                 echofilter.raw.loader.evl_writer(
                     temp_fname, ts, depths_offset, status=line_status,
                 )
@@ -1673,7 +1681,7 @@ def import_lines_regions_to_ev(
                 s = (
                     "  Warning: Unable to import file '{}'"
                     "Please consult Echoview for the Import error message.".format(
-                        fname
+                        temp_fname
                     )
                 )
                 s = echofilter.ui.style.warning_fmt(s)
