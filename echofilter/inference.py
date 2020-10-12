@@ -8,7 +8,6 @@ import sys
 import tempfile
 import textwrap
 import time
-import urllib
 
 import numpy as np
 from matplotlib import colors as mcolors
@@ -16,7 +15,6 @@ import torch
 import torch.nn
 import torch.utils.data
 import torchvision.transforms
-from torchvision.datasets.utils import download_url, download_file_from_google_drive
 from torchutils.utils import count_parameters
 from torchutils.device import cuda_is_really_available
 from tqdm.auto import tqdm
@@ -39,7 +37,6 @@ from echofilter.ui.inference_cli import (
     DEFAULT_VARNAME,
     cli,
     main,
-    get_default_cache_dir,
 )
 
 
@@ -507,7 +504,9 @@ def run_inference(
     elif os.path.isfile(ckpt_name + echofilter.ui.checkpoints.CHECKPOINT_EXT):
         ckpt_path = ckpt_name + echofilter.ui.checkpoints.CHECKPOINT_EXT
     elif ckpt_name_cannon in CHECKPOINT_RESOURCES:
-        ckpt_path = download_checkpoint(ckpt_name_cannon, cache_dir=cache_dir)
+        ckpt_path = echofilter.ui.checkpoints.download_checkpoint(
+            ckpt_name_cannon, cache_dir=cache_dir
+        )
     else:
         msg = echofilter.ui.style.error_fmt(
             "The checkpoint parameter should either be a path to a file or one of"
@@ -543,7 +542,9 @@ def run_inference(
         # Delete the checkpoint and try again, in case it is just a
         # malformed download (interrupted download, etc)
         os.remove(ckpt_path)
-        ckpt_path = download_checkpoint(ckpt_name, cache_dir=cache_dir)
+        ckpt_path = echofilter.ui.checkpoints.download_checkpoint(
+            ckpt_name, cache_dir=cache_dir
+        )
         checkpoint = torch.load(ckpt_path, **load_args)
 
     if image_height is None:
@@ -1887,98 +1888,6 @@ def hexcolor2rgb8(color):
         color = mcolors.to_rgba(color)[:3]
         color = tuple(max(0, min(255, int(np.round(c * 255)))) for c in color)
     return color
-
-
-def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
-    """
-    Download a checkpoint if it isn't already cached.
-
-    Parameters
-    ----------
-    checkpoint_name : str
-        Name of checkpoint to download.
-    cache_dir : str or None, optional
-        Path to local cache directory. If `None` (default), an OS-appropriate
-        application-specific default cache directory is used.
-    verbose : int, optional
-        Verbosity level. Default is `1`. Set to `0` to disable print
-        statements.
-
-    Returns
-    -------
-    str
-        Path to downloaded checkpoint file.
-    """
-    if cache_dir is None:
-        cache_dir = get_default_cache_dir()
-
-    checkpoint_name = echofilter.ui.checkpoints.cannonise_checkpoint_name(
-        checkpoint_name
-    )
-    destination = os.path.join(
-        cache_dir, checkpoint_name + echofilter.ui.checkpoints.CHECKPOINT_EXT,
-    )
-
-    if os.path.exists(destination):
-        return destination
-
-    os.makedirs(cache_dir, exist_ok=True)
-
-    sources = CHECKPOINT_RESOURCES[checkpoint_name]
-    success = False
-    for key, url_or_id in sources.items():
-        if key == "gdrive":
-            if verbose >= 1:
-                print(
-                    "Downloading checkpoint {} from GDrive...".format(checkpoint_name)
-                )
-            try:
-                download_file_from_google_drive(
-                    url_or_id,
-                    os.path.dirname(destination),
-                    filename=os.path.basename(destination),
-                )
-                success = True
-                continue
-            except (pickle.UnpicklingError, urllib.error.URLError):
-                if verbose >= 1:
-                    print(
-                        echofilter.ui.style.error_fmt(
-                            "\nCould not download checkpoint {} from GDrive!".format(
-                                checkpoint_name
-                            )
-                        )
-                    )
-        else:
-            if verbose >= 1:
-                print(
-                    "Downloading checkpoint {} from {}...".format(
-                        checkpoint_name, url_or_id
-                    )
-                )
-            try:
-                download_url(url_or_id, cache_dir, filename=checkpoint_name)
-                success = True
-                continue
-            except (pickle.UnpicklingError, urllib.error.URLError):
-                if verbose >= 1:
-                    print(
-                        echofilter.ui.style.error_fmt(
-                            "\nCould not download checkpoint {} from {}".format(
-                                checkpoint_name, url_or_id
-                            )
-                        )
-                    )
-
-    if not success:
-        msg = "Unable to download {} from {}".format(checkpoint_name, sources)
-        with echofilter.ui.style.error_message(msg) as msg:
-            raise OSError(msg)
-
-    if verbose >= 1:
-        print("Downloaded checkpoint to {}".format(destination))
-
-    return destination
 
 
 if __name__ == "__main__":
