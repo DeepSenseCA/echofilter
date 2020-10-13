@@ -2,7 +2,6 @@
 
 import datetime
 import os
-import pickle
 import pprint
 import sys
 import tempfile
@@ -492,60 +491,14 @@ def run_inference(
         if line_thicknesses[key_dest] is None:
             line_thicknesses[key_dest] = line_thicknesses[key_source]
 
-    if checkpoint is None:
-        # Use the first item from the list of checkpoints
-        checkpoint = DEFAULT_CHECKPOINT
-
-    ckpt_name = checkpoint
-    ckpt_name_cannon = echofilter.ui.checkpoints.cannonise_checkpoint_name(ckpt_name)
-
-    if os.path.isfile(ckpt_name):
-        ckpt_path = ckpt_name
-    elif os.path.isfile(ckpt_name + echofilter.ui.checkpoints.CHECKPOINT_EXT):
-        ckpt_path = ckpt_name + echofilter.ui.checkpoints.CHECKPOINT_EXT
-    elif ckpt_name_cannon in CHECKPOINT_RESOURCES:
-        ckpt_path = echofilter.ui.checkpoints.download_checkpoint(
-            ckpt_name_cannon, cache_dir=cache_dir
-        )
-    else:
-        msg = echofilter.ui.style.error_fmt(
-            "The checkpoint parameter should either be a path to a file or one of"
-        )
-        msg += "\n  ".join([""] + list(CHECKPOINT_RESOURCES.keys()))
-        msg += echofilter.ui.style.error_fmt("\nbut {} was provided.".format(ckpt_name))
-        with echofilter.ui.style.error_message():
-            raise ValueError(msg)
-
-    if not os.path.isfile(ckpt_path):
-        msg = "No checkpoint found at '{}'".format(ckpt_path)
-        with echofilter.ui.style.error_message(msg) as msg:
-            raise EnvironmentError(msg)
-    if verbose >= 1:
-        print("Loading model from checkpoint:\n  '{}'".format(ckpt_path))
-
-    load_args = {}
-    if device is not None:
-        # Map model to be loaded to specified single gpu.
-        load_args = dict(map_location=device)
-    try:
-        checkpoint = torch.load(ckpt_path, **load_args)
-    except pickle.UnpicklingError:
-        if ckpt_name not in CHECKPOINT_RESOURCES or ckpt_name == ckpt_path:
-            # Direct path to checkpoint was given, so we shouldn't delete
-            # the user's file
-            msg = "Error: Unable to load checkpoint {}".format(
-                os.path.abspath(ckpt_path)
-            )
-            with echofilter.ui.style.error_message(msg) as msg:
-                print(msg)
-                raise
-        # Delete the checkpoint and try again, in case it is just a
-        # malformed download (interrupted download, etc)
-        os.remove(ckpt_path)
-        ckpt_path = echofilter.ui.checkpoints.download_checkpoint(
-            ckpt_name, cache_dir=cache_dir
-        )
-        checkpoint = torch.load(ckpt_path, **load_args)
+    # Load checkpoint
+    checkpoint, ckpt_name = echofilter.ui.checkpoints.load_checkpoint(
+        checkpoint,
+        cache_dir=cache_dir,
+        device=device,
+        return_name=True,
+        verbose=verbose,
+    )
 
     if image_height is None:
         image_height = checkpoint.get("sample_shape", (128, 512))[1]

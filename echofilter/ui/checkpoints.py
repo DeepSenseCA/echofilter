@@ -194,3 +194,102 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
         print("Downloaded checkpoint to {}".format(destination))
 
     return destination
+
+
+def load_checkpoint(
+    ckpt_name=None, cache_dir=None, device="cpu", return_name=False, verbose=1
+):
+    """
+    Load a checkpoint, either from absolute path or the cache.
+
+    Parameters
+    ----------
+    checkpoint_name : str or None, optional
+        Path to checkpoint file, or name of checkpoint to download.
+        Default is `None`.
+    cache_dir : str or None, optional
+        Path to local cache directory. If `None` (default), an OS-appropriate
+        application-specific default cache directory is used.
+    device : str or torch.device or None, optional
+        Device onto which weight tensors will be mapped. If `None`, no mapping
+        is performed and tensors will be loaded onto the same device as they
+        were on when saved (which will result in an error if the device is not
+        present). Default is `"cpu"`.
+    return_name : bool, optional
+        If `True`, a tuple is returned indicting the name of the checkpoint
+        which was loaded. This is useful if the default checkpoint was loaded.
+        Default is `False`.
+    verbose : int, optional
+        Verbosity level. Default is `1`. Set to `0` to disable print
+        statements.
+
+    Returns
+    -------
+    checkpoint : dict
+        Loaded checkpoint.
+    checkpoint_name : str, optional
+        If `return_name` is `True`, the name of the checkpoint is also
+        returned.
+    """
+    import torch
+
+    if ckpt_name is None:
+        ckpt_name = get_default_checkpoint()
+
+    if cache_dir is None:
+        cache_dir = get_default_cache_dir()
+
+    ckpt_name_cannon = cannonise_checkpoint_name(ckpt_name)
+    checkpoint_resources = get_checkpoint_list()
+
+    using_cache = False
+    if os.path.isfile(ckpt_name):
+        ckpt_path = ckpt_name
+    elif os.path.isfile(ckpt_name + CHECKPOINT_EXT):
+        ckpt_path = ckpt_name + CHECKPOINT_EXT
+    elif ckpt_name_cannon in checkpoint_resources:
+        using_cache = True
+        ckpt_path = download_checkpoint(ckpt_name_cannon, cache_dir=cache_dir)
+    else:
+        msg = style.error_fmt(
+            "The checkpoint parameter should either be a path to a file or one of"
+        )
+        msg += "\n  ".join([""] + list(checkpoint_resources.keys()))
+        msg += style.error_fmt("\nbut {} was provided.".format(ckpt_name))
+        with style.error_message():
+            raise ValueError(msg)
+
+    if not os.path.isfile(ckpt_path):
+        msg = "No checkpoint found at '{}'".format(ckpt_path)
+        with style.error_message(msg) as msg:
+            raise EnvironmentError(msg)
+    if verbose >= 1:
+        print("Loading model from checkpoint:\n  '{}'".format(ckpt_path))
+
+    load_args = {}
+    if device is not None:
+        # Map model to be loaded to specified single gpu.
+        load_args = dict(map_location=device)
+    try:
+        checkpoint = torch.load(ckpt_path, **load_args)
+    except pickle.UnpicklingError:
+        if not using_cache:
+            # Direct path to checkpoint was given, so we shouldn't delete
+            # the user's file
+            msg = "Error: Unable to load checkpoint {}".format(
+                os.path.abspath(ckpt_path)
+            )
+            with style.error_message(msg) as msg:
+                print(msg)
+                raise
+        else:
+            # Delete the checkpoint and try again, in case it is just a
+            # malformed download (interrupted download, etc)
+            os.remove(ckpt_path)
+            ckpt_path = download_checkpoint(ckpt_name, cache_dir=cache_dir)
+            checkpoint = torch.load(ckpt_path, **load_args)
+
+    if return_name:
+        return checkpoint, ckpt_name
+
+    return checkpoint
