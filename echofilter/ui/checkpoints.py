@@ -248,13 +248,17 @@ def load_checkpoint(
     using_cache = False
     if os.path.isfile(ckpt_name):
         ckpt_path = ckpt_name
+        ckpt_dscr = "local"
     elif os.path.isfile(ckpt_name + CHECKPOINT_EXT):
         ckpt_path = ckpt_name + CHECKPOINT_EXT
+        ckpt_dscr = "local"
     elif os.path.isfile(builtin_ckpt_path):
         ckpt_path = builtin_ckpt_path
+        ckpt_dscr = "builtin"
     elif ckpt_name_cannon in checkpoint_resources:
         using_cache = True
         ckpt_path = download_checkpoint(ckpt_name_cannon, cache_dir=cache_dir)
+        ckpt_dscr = "cached"
     else:
         msg = style.error_fmt(
             "The checkpoint parameter should either be a path to a file or one of"
@@ -269,7 +273,7 @@ def load_checkpoint(
         with style.error_message(msg) as msg:
             raise EnvironmentError(msg)
     if verbose >= 1:
-        print("Loading model from checkpoint:\n  '{}'".format(ckpt_path))
+        print("Loading model from {} checkpoint:\n  '{}'".format(ckpt_dscr, ckpt_path))
 
     load_args = {}
     if device is not None:
