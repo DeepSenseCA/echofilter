@@ -9,6 +9,7 @@ import pickle
 import urllib
 
 import appdirs
+import requests
 from torchvision.datasets.utils import download_url, download_file_from_google_drive
 import yaml
 
@@ -143,7 +144,7 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
                 )
                 success = True
                 continue
-            except (pickle.UnpicklingError, urllib.error.URLError):
+            except pickle.UnpicklingError:
                 if verbose >= 1:
                     print(
                         style.error_fmt(
@@ -152,6 +153,10 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
                             )
                         )
                     )
+            except (requests.exceptions.ConnectionError, urllib.error.URLError):
+                msg = "Could not connect to Google Drive. Please check your Internet connection."
+                with style.error_message(msg) as msg:
+                    raise EnvironmentError(msg)
         else:
             if verbose >= 1:
                 print(
@@ -163,7 +168,7 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
                 download_url(url_or_id, cache_dir, filename=checkpoint_name)
                 success = True
                 continue
-            except (pickle.UnpicklingError, urllib.error.URLError):
+            except pickle.UnpicklingError:
                 if verbose >= 1:
                     print(
                         style.error_fmt(
@@ -172,6 +177,12 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
                             )
                         )
                     )
+            except (requests.exceptions.ConnectionError, urllib.error.URLError):
+                msg = "Could not connect to file server to download {}. Please check your Internet connection.".format(
+                    url_or_id
+                )
+                with style.error_message(msg) as msg:
+                    raise EnvironmentError(msg)
 
     if not success:
         msg = "Unable to download {} from {}".format(checkpoint_name, sources)
