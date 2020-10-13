@@ -13,8 +13,8 @@ import yaml
 from . import style
 
 
-FILE = os.path.dirname(__file__)
-CHECKPOINT_FILE = os.path.join(os.path.dirname(FILE), "checkpoints.yaml")
+PACKAGE_DIR = os.path.dirname(os.path.dirname(__file__))
+CHECKPOINT_FILE = os.path.join(PACKAGE_DIR, "checkpoints.yaml")
 CHECKPOINT_EXT = ".pt"
 
 
