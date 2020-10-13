@@ -595,11 +595,7 @@ def run_inference(
     try:
         unet.load_state_dict(checkpoint["state_dict"])
         if verbose >= 3:
-            print(
-                "Loaded U-Net state from the checkpoint".format(
-                    ckpt_path, checkpoint["epoch"]
-                )
-            )
+            print("Loaded U-Net state from the checkpoint")
     except RuntimeError as err:
         if verbose >= 5:
             s = (
@@ -611,11 +607,7 @@ def run_inference(
         try:
             model.load_state_dict(checkpoint["state_dict"])
             if verbose >= 3:
-                print(
-                    "Loaded model state from the checkpoint".format(
-                        ckpt_path, checkpoint["epoch"]
-                    )
-                )
+                print("Loaded model state from the checkpoint")
         except RuntimeError:
             msg = (
                 "Could not load the checkpoint state as either the whole model"
