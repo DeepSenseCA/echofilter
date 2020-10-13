@@ -287,7 +287,54 @@ def load_checkpoint(
             # malformed download (interrupted download, etc)
             os.remove(ckpt_path)
             ckpt_path = download_checkpoint(ckpt_name, cache_dir=cache_dir)
-            checkpoint = torch.load(ckpt_path, **load_args)
+            try:
+                checkpoint = torch.load(ckpt_path, **load_args)
+
+            except pickle.UnpicklingError:
+
+                msg = "Error: Unable to load checkpoint {}.".format(
+                    os.path.abspath(ckpt_path)
+                )
+                with style.error_message(msg) as msg:
+                    print(msg)
+
+                # Check if there was an error because the file was missing
+                # and we downloaded a 404 error page instead.
+                with open(ckpt_path) as myfile:
+                    contents = myfile.read()
+                    if "Not Found" in contents or "Error 404" in contents:
+                        msg = (
+                            "The file you are trying to download is not available"
+                            " at this web address."
+                            " The download produced a 404 Error (File Not Found)."
+                            "\nThe original source file may have been moved or deleted"
+                            " by its host."
+                        )
+                        with style.error_message(msg) as msg:
+                            print(msg + "\n")
+                            raise EnvironmentError(msg) from None
+
+                # Check if the user ran out of storage space part-way through
+                # the download.
+                import shutil
+
+                _, _, free_B = shutil.disk_usage("/")
+                free_MiB = free_B // 10 ** 6
+
+                if free_MiB < 64:
+                    msg = (
+                        "You only have {}MB of free space on your hard disk."
+                        " Please free up 100MB of space on your hard disk and"
+                        " then try again.\n"
+                    ).format(free_MiB)
+                    with style.error_message(msg) as msg:
+                        print(msg + "\n")
+                        raise EnvironmentError(msg) from None
+
+                msg = "There was an unknown issue opening the downloaded file."
+                with style.error_message(msg) as msg:
+                    print(msg)
+                    raise
 
     if return_name:
         return checkpoint, ckpt_name
