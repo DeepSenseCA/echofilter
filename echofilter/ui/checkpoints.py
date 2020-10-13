@@ -241,12 +241,17 @@ def load_checkpoint(
 
     ckpt_name_cannon = cannonise_checkpoint_name(ckpt_name)
     checkpoint_resources = get_checkpoint_list()
+    builtin_ckpt_path = os.path.join(
+        PACKAGE_DIR, "checkpoints", ckpt_name_cannon + CHECKPOINT_EXT,
+    )
 
     using_cache = False
     if os.path.isfile(ckpt_name):
         ckpt_path = ckpt_name
     elif os.path.isfile(ckpt_name + CHECKPOINT_EXT):
         ckpt_path = ckpt_name + CHECKPOINT_EXT
+    elif os.path.isfile(builtin_ckpt_path):
+        ckpt_path = builtin_ckpt_path
     elif ckpt_name_cannon in checkpoint_resources:
         using_cache = True
         ckpt_path = download_checkpoint(ckpt_name_cannon, cache_dir=cache_dir)
