@@ -6,11 +6,8 @@ import argparse
 from collections import OrderedDict
 import os
 import pickle
-import urllib
 
 import appdirs
-import requests
-from torchvision.datasets.utils import download_url, download_file_from_google_drive
 import yaml
 
 from . import style
@@ -125,6 +122,10 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
 
     if os.path.exists(destination):
         return destination
+
+    # Import packages needed for downloading files
+    import requests, urllib
+    from torchvision.datasets.utils import download_url, download_file_from_google_drive
 
     os.makedirs(cache_dir, exist_ok=True)
 
