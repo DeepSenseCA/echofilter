@@ -218,6 +218,11 @@ def ev2csv(
         new instance of the application is opened (and closed on completion).
     verbose : int, optional
         Level of verbosity. Default is `0`.
+
+    Returns
+    -------
+    destination : str
+        Absolute path to `destination`.
     """
 
     if verbose >= 1:
@@ -254,6 +259,10 @@ def ev2csv(
 
 
 def main():
+    """
+    Run ev2csv command line interface.
+    """
+
     import argparse
 
     prog = os.path.split(sys.argv[0])[1]

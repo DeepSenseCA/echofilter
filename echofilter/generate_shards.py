@@ -133,6 +133,9 @@ def generate_shards(
 
 
 def main():
+    """
+    Command line interface for generating dataset shards from CSV files.
+    """
     import argparse
 
     # Create parser

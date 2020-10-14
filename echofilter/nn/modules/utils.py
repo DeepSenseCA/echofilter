@@ -36,6 +36,29 @@ _quadruple = _ntuple(4)
 def same_to_padding(kernel_size, stride=1, dilation=1, ndim=None):
     """
     Determines the amount of padding to use for a convolutional layer.
+
+    Parameters
+    ----------
+    kernel_size : int or sequence
+        Size of kernel for each dimension.
+    stride : int or sequence, optional
+        Amount of stride to apply in each dimension of the kernel. If `stride`
+        is an int, the same value is applied for each dimension.
+        Default is `1`.
+    dilation : int or sequence, optional
+        Amount of dilation to apply in each dimension of the kernel.
+        If `dilation` is an int, the same value is applied for each dimension.
+        Default is `1`.
+    ndim : int or None, optional
+        Number of dimensions of kernel to pad. If `None` (default), the number
+        of dimensions is inferred from the number of dimensions to
+        `kernel_size`.
+
+    Returns
+    -------
+    padding : tuple
+        Amount of padding to apply to each dimension before convolving with
+        the kernel in order to preserve the size of input.
     """
 
     if isinstance(kernel_size, int):
