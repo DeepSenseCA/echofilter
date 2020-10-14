@@ -7,8 +7,8 @@ import os
 import sys
 import traceback
 
-import echofilter.raw.loader
-import echofilter.raw.shardloader
+import echofilter.raw
+import echofilter.ui
 
 
 ROOT_DATA_DIR = echofilter.raw.loader.ROOT_DATA_DIR
@@ -44,10 +44,11 @@ def generate_shard(
             transect_pth, **kwargs,
         )
     except Exception as ex:
-        if not fail_gracefully:
-            raise ex
-        print("Error sharding {}".format(transect_pth))
-        print("".join(traceback.TracebackException.from_exception(ex).format()))
+        with echofilter.ui.style.error_message():
+            if not fail_gracefully:
+                raise ex
+            print("Error sharding {}".format(transect_pth))
+            print("".join(traceback.TracebackException.from_exception(ex).format()))
 
 
 def generate_shards(
