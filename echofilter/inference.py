@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+Inference routine.
+"""
+
 import datetime
 import os
 import pickle

@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+Model training routine.
+"""
+
 from collections import OrderedDict
 import copy
 import datetime

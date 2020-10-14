@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
+"""
+Convert dataset of CSV exports from Echoview into shards.
+"""
 
 import functools
 import multiprocessing
