@@ -71,7 +71,7 @@ def cannonise_checkpoint_name(name):
         ".tar",
     ]:
         if name.lower().endswith(possible_ext):
-            name = name[:-len(possible_ext)]
+            name = name[: -len(possible_ext)]
             return name
     return name
 
