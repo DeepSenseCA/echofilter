@@ -7,8 +7,7 @@ import os
 import sys
 import traceback
 
-import echofilter.raw.loader
-import echofilter.raw.shardloader
+import echofilter.raw
 
 
 ROOT_DATA_DIR = echofilter.raw.loader.ROOT_DATA_DIR
