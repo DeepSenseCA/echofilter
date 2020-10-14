@@ -1,3 +1,7 @@
+"""
+Transformations and augmentations to be applied to echogram transects.
+"""
+
 import collections
 import os
 import random

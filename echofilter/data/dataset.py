@@ -1,3 +1,8 @@
+"""
+Tools for converting a dataset of echograms (transects) into a Pytorch dataset
+and sampling from it.
+"""
+
 import os
 import random
 import warnings

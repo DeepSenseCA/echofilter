@@ -299,15 +299,17 @@ class EchofilterLoss(_Loss):
         `"bottom-original"`, `"mask_patches-original"`, and
         `"mask_patches-ntob"`. Default is `1.0`.
     ignore_lines_during_passive : bool, optional
-        Whether targets for lines should be excluded from the loss during
-        passive data collection. Default is `True`.
+        Whether targets for turbulence and bottom lines should be excluded from
+        the loss during passive data collection. Default is `True`.
     ignore_lines_during_removed : bool, optional
-        Whether targets for lines should be excluded from the loss during
-        entirely removed sections. Default is `True`.
+        Whether targets for turbulence and bottom lines should be excluded from
+        the loss during entirely removed sections. Default is `True`.
+    ignore_surface_during_passive : bool, optional
+        Whether target for the surface line should be excluded from the loss
+        during passive data collection. Default is `False`.
     ignore_surface_during_removed : bool, optional
         Whether target for the surface line should be excluded from the loss
-        during entirely removed sections. If `None`, the value from
-        `ignore_lines_during_removed` is used. Default is `True`.
+        during entirely removed sections. Default is `True`.
     """
 
     __constants__ = ["reduction"]

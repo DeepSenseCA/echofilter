@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+Inference routine.
+"""
+
 import datetime
 import os
 import pprint
@@ -108,7 +112,8 @@ def run_inference(
     verbose=2,
 ):
     """
-    Perform inference on input files, and write output lines in evl format.
+    Perform inference on input files, and write output lines in EVL and regions
+    in EVR file formats.
 
     Parameters
     ----------

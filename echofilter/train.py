@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+Model training routine.
+"""
+
 from collections import OrderedDict
 import copy
 import datetime
@@ -1514,9 +1518,7 @@ def generate_from_shards(fname, *args, **kwargs):
     return _generate_from_loaded(transect, *args, **kwargs)
 
 
-def save_checkpoint(
-    state, is_best, dirname=".", fname_fmt="checkpoint{}.pt", dup=None
-):
+def save_checkpoint(state, is_best, dirname=".", fname_fmt="checkpoint{}.pt", dup=None):
     os.makedirs(dirname, exist_ok=True)
     fname = os.path.join(dirname, fname_fmt.format(""))
     torch.save(state, fname)
