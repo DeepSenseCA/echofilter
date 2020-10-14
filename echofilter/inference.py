@@ -2,13 +2,11 @@
 
 import datetime
 import os
-import pickle
 import pprint
 import sys
 import tempfile
 import textwrap
 import time
-import urllib
 
 import numpy as np
 from matplotlib import colors as mcolors
@@ -16,7 +14,6 @@ import torch
 import torch.nn
 import torch.utils.data
 import torchvision.transforms
-from torchvision.datasets.utils import download_url, download_file_from_google_drive
 from torchutils.utils import count_parameters
 from torchutils.device import cuda_is_really_available
 from tqdm.auto import tqdm
@@ -39,7 +36,6 @@ from echofilter.ui.inference_cli import (
     DEFAULT_VARNAME,
     cli,
     main,
-    get_default_cache_dir,
 )
 
 
@@ -495,56 +491,14 @@ def run_inference(
         if line_thicknesses[key_dest] is None:
             line_thicknesses[key_dest] = line_thicknesses[key_source]
 
-    if checkpoint is None:
-        # Use the first item from the list of checkpoints
-        checkpoint = DEFAULT_CHECKPOINT
-
-    ckpt_name = checkpoint
-    ckpt_name_cannon = echofilter.ui.checkpoints.cannonise_checkpoint_name(ckpt_name)
-
-    if os.path.isfile(ckpt_name):
-        ckpt_path = ckpt_name
-    elif os.path.isfile(ckpt_name + echofilter.ui.checkpoints.CHECKPOINT_EXT):
-        ckpt_path = ckpt_name + echofilter.ui.checkpoints.CHECKPOINT_EXT
-    elif ckpt_name_cannon in CHECKPOINT_RESOURCES:
-        ckpt_path = download_checkpoint(ckpt_name_cannon, cache_dir=cache_dir)
-    else:
-        msg = echofilter.ui.style.error_fmt(
-            "The checkpoint parameter should either be a path to a file or one of"
-        )
-        msg += "\n  ".join([""] + list(CHECKPOINT_RESOURCES.keys()))
-        msg += echofilter.ui.style.error_fmt("\nbut {} was provided.".format(ckpt_name))
-        with echofilter.ui.style.error_message():
-            raise ValueError(msg)
-
-    if not os.path.isfile(ckpt_path):
-        msg = "No checkpoint found at '{}'".format(ckpt_path)
-        with echofilter.ui.style.error_message(msg) as msg:
-            raise EnvironmentError(msg)
-    if verbose >= 1:
-        print("Loading model from checkpoint:\n  '{}'".format(ckpt_path))
-
-    load_args = {}
-    if device is not None:
-        # Map model to be loaded to specified single gpu.
-        load_args = dict(map_location=device)
-    try:
-        checkpoint = torch.load(ckpt_path, **load_args)
-    except pickle.UnpicklingError:
-        if ckpt_name not in CHECKPOINT_RESOURCES or ckpt_name == ckpt_path:
-            # Direct path to checkpoint was given, so we shouldn't delete
-            # the user's file
-            msg = "Error: Unable to load checkpoint {}".format(
-                os.path.abspath(ckpt_path)
-            )
-            with echofilter.ui.style.error_message(msg) as msg:
-                print(msg)
-                raise
-        # Delete the checkpoint and try again, in case it is just a
-        # malformed download (interrupted download, etc)
-        os.remove(ckpt_path)
-        ckpt_path = download_checkpoint(ckpt_name, cache_dir=cache_dir)
-        checkpoint = torch.load(ckpt_path, **load_args)
+    # Load checkpoint
+    checkpoint, ckpt_name = echofilter.ui.checkpoints.load_checkpoint(
+        checkpoint,
+        cache_dir=cache_dir,
+        device=device,
+        return_name=True,
+        verbose=verbose,
+    )
 
     if image_height is None:
         image_height = checkpoint.get("sample_shape", (128, 512))[1]
@@ -594,11 +548,7 @@ def run_inference(
     try:
         unet.load_state_dict(checkpoint["state_dict"])
         if verbose >= 3:
-            print(
-                "Loaded U-Net state from the checkpoint".format(
-                    ckpt_path, checkpoint["epoch"]
-                )
-            )
+            print("Loaded U-Net state from the checkpoint")
     except RuntimeError as err:
         if verbose >= 5:
             s = (
@@ -610,11 +560,7 @@ def run_inference(
         try:
             model.load_state_dict(checkpoint["state_dict"])
             if verbose >= 3:
-                print(
-                    "Loaded model state from the checkpoint".format(
-                        ckpt_path, checkpoint["epoch"]
-                    )
-                )
+                print("Loaded model state from the checkpoint")
         except RuntimeError:
             msg = (
                 "Could not load the checkpoint state as either the whole model"
@@ -1887,98 +1833,6 @@ def hexcolor2rgb8(color):
         color = mcolors.to_rgba(color)[:3]
         color = tuple(max(0, min(255, int(np.round(c * 255)))) for c in color)
     return color
-
-
-def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
-    """
-    Download a checkpoint if it isn't already cached.
-
-    Parameters
-    ----------
-    checkpoint_name : str
-        Name of checkpoint to download.
-    cache_dir : str or None, optional
-        Path to local cache directory. If `None` (default), an OS-appropriate
-        application-specific default cache directory is used.
-    verbose : int, optional
-        Verbosity level. Default is `1`. Set to `0` to disable print
-        statements.
-
-    Returns
-    -------
-    str
-        Path to downloaded checkpoint file.
-    """
-    if cache_dir is None:
-        cache_dir = get_default_cache_dir()
-
-    checkpoint_name = echofilter.ui.checkpoints.cannonise_checkpoint_name(
-        checkpoint_name
-    )
-    destination = os.path.join(
-        cache_dir, checkpoint_name + echofilter.ui.checkpoints.CHECKPOINT_EXT,
-    )
-
-    if os.path.exists(destination):
-        return destination
-
-    os.makedirs(cache_dir, exist_ok=True)
-
-    sources = CHECKPOINT_RESOURCES[checkpoint_name]
-    success = False
-    for key, url_or_id in sources.items():
-        if key == "gdrive":
-            if verbose >= 1:
-                print(
-                    "Downloading checkpoint {} from GDrive...".format(checkpoint_name)
-                )
-            try:
-                download_file_from_google_drive(
-                    url_or_id,
-                    os.path.dirname(destination),
-                    filename=os.path.basename(destination),
-                )
-                success = True
-                continue
-            except (pickle.UnpicklingError, urllib.error.URLError):
-                if verbose >= 1:
-                    print(
-                        echofilter.ui.style.error_fmt(
-                            "\nCould not download checkpoint {} from GDrive!".format(
-                                checkpoint_name
-                            )
-                        )
-                    )
-        else:
-            if verbose >= 1:
-                print(
-                    "Downloading checkpoint {} from {}...".format(
-                        checkpoint_name, url_or_id
-                    )
-                )
-            try:
-                download_url(url_or_id, cache_dir, filename=checkpoint_name)
-                success = True
-                continue
-            except (pickle.UnpicklingError, urllib.error.URLError):
-                if verbose >= 1:
-                    print(
-                        echofilter.ui.style.error_fmt(
-                            "\nCould not download checkpoint {} from {}".format(
-                                checkpoint_name, url_or_id
-                            )
-                        )
-                    )
-
-    if not success:
-        msg = "Unable to download {} from {}".format(checkpoint_name, sources)
-        with echofilter.ui.style.error_message(msg) as msg:
-            raise OSError(msg)
-
-    if verbose >= 1:
-        print("Downloaded checkpoint to {}".format(destination))
-
-    return destination
 
 
 if __name__ == "__main__":

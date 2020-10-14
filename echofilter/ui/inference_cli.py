@@ -12,8 +12,6 @@ import argparse
 import os
 import sys
 
-import appdirs
-
 from .. import __meta__
 from .. import path
 from . import checkpoints, formatters, style
@@ -22,11 +20,6 @@ from . import checkpoints, formatters, style
 CHECKPOINT_RESOURCES = checkpoints.get_checkpoint_list()
 DEFAULT_CHECKPOINT = checkpoints.get_default_checkpoint()
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
-
-
-def get_default_cache_dir():
-    """Determine the default cache directory."""
-    return appdirs.user_cache_dir("echofilter", "DeepSense")
 
 
 class ListColors(argparse.Action):
@@ -488,7 +481,7 @@ def cli():
             Echoview. Default: %(default)s.
         """,
     )
-    DEFAULT_CACHE_DIR = get_default_cache_dir()
+    DEFAULT_CACHE_DIR = checkpoints.get_default_cache_dir()
     group_outfile.add_argument(
         "--cache-dir",
         type=str,
