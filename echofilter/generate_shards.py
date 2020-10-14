@@ -37,7 +37,7 @@ def generate_shard(
         will be printed out, but processing the rest of the transects will
         continue. If `False`, the process will halt with an error as soon as
         any single transect hits an error. Default is `True`.
-    *kwargs
+    **kwargs
         See `echofilter.raw.shardloader.segment_and_shard_transect`.
     """
     if verbose:
@@ -92,7 +92,7 @@ def generate_shards(
         will be printed out, but processing the rest of the transects will
         continue. If `False`, the process will halt with an error as soon as
         any single transect hits an error. Default is `True`.
-    *kwargs
+    **kwargs
         See `echofilter.raw.shardloader.segment_and_shard_transect`.
     """
     if verbose:

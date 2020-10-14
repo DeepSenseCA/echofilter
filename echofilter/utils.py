@@ -26,6 +26,8 @@ def mode(a, axis=None, keepdims=False, **kwargs):
         If this is set to `True`, the axes which are reduced are left
         in the result as dimensions with size one. With this option, the result
         will broadcast correctly against the input array. Default is `False`.
+    **kwargs
+        Additional arguments as per `scipy.stats.mode`.
 
     Returns
     -------
