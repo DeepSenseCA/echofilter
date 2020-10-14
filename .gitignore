@@ -8,6 +8,9 @@ core.*
 # Temporary notebooks
 Untitled*.ipynb
 
+# Ignore builtin checkpoints, due to file size
+echofilter/checkpoints
+
 
 ##---------------------------------------------------
 # Continuous Integration .gitignore files
