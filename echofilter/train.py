@@ -150,6 +150,9 @@ def train(
     anneal_strategy="cos",
     overall_loss_weight=0.0,
 ):
+    """
+    Train a model.
+    """
 
     if restart and not resume:
         raise ValueError(
@@ -1029,6 +1032,52 @@ def train_epoch(
     use_mixed_precision=False,
     continue_through_error=True,
 ):
+    """
+    Train a model through a single epoch of the dataset.
+
+    Parameters
+    ----------
+    loader : iterable, torch.utils.data.DataLoader
+        Dataloader.
+    model : callable, echofilter.nn.wrapper.Echofilter
+        Model.
+    criterion : callable, torch.nn.modules.loss._Loss
+        Loss function.
+    device : str or torch.device
+        Which device the data should be loaded onto.
+    epoch : int
+        Which epoch is being performed.
+    dtype : str or torch.dtype
+        Datatype which which the data should be loaded.
+    print_freq : int, optional
+        Number of batches between reporting progress. Default is `10`.
+    schedule_data : dict or None
+        If a learning rate schedule is being used, this may be passed as a
+        dictionary with the key `"scheduler"` mapping to the learning rate
+        schedule as a callable.
+    use_mixed_precision : bool
+        Whether to use :meth:`apex.amp.scale_loss` to automatically scale the
+        loss. Default is `False`.
+    continue_through_error : bool
+        Whether to catch errors within an individual batch, ignore them and
+        continue running training on the rest of the batches. If there are
+        five or more errors while processing the batch, training will halt
+        regardless of `continue_through_error`. Default is `True`.
+
+    Returns
+    -------
+    average_loss : float
+        Average loss as given by criterion (weighted equally for each sample
+        in `loader`).
+    meters : dict of dict
+        Each key is a strata of the model output, each mapping to a their own
+        dictionary of evaluation criterions: "Accuracy", "Precision", "Recall",
+        "F1 Score", "Jaccard".
+    examples : tuple of torch.Tensor
+        Tuple of `(example_input, example_data, example_output)`.
+    timing : tuple of floats
+        Tuple of `(batch_time, data_time)`.
+    """
     if schedule_data is None:
         schedule_data = {"name": "constant"}
 
@@ -1232,6 +1281,40 @@ def validate(
     prefix="Test",
     num_examples=32,
 ):
+    """
+    Validate the model's performance on the validation partition.
+
+    Parameters
+    ----------
+    loader : iterable, torch.utils.data.DataLoader
+        Dataloader.
+    model : callable, echofilter.nn.wrapper.Echofilter
+        Model.
+    criterion : callable, torch.nn.modules.loss._Loss
+        Loss function.
+    device : str or torch.device
+        Which device the data should be loaded onto.
+    dtype : str or torch.dtype
+        Datatype which which the data should be loaded.
+    print_freq : int, optional
+        Number of batches between reporting progress. Default is `10`.
+    prefix : str, optional
+        Prefix string to prepend to progress meter names. Default is `"Test"`.
+    num_examples : int, optional
+        Number of example inputs to return. Default is `32`.
+
+    Returns
+    -------
+    average_loss : float
+        Average loss as given by criterion (weighted equally for each sample
+        in `loader`).
+    meters : dict of dict
+        Each key is a strata of the model output, each mapping to a their own
+        dictionary of evaluation criterions: "Accuracy", "Precision", "Recall",
+        "F1 Score", "Jaccard".
+    examples : tuple of torch.Tensor
+        Tuple of `(example_input, example_data, example_output)`.
+    """
     batch_time = AverageMeter("Time", ":6.3f")
     data_time = AverageMeter("Data", ":6.3f")
     losses = AverageMeter("Loss", ":6.3f")
@@ -1448,6 +1531,9 @@ def generate_from_transect(model, transect, sample_shape, device, dtype=torch.fl
 
 
 def _generate_from_loaded(transect, model, *args, crop_depth=None, **kwargs):
+    """
+    Generate an output from a loaded transect.
+    """
 
     # Crop long input
     for key in (
@@ -1519,6 +1605,28 @@ def generate_from_shards(fname, *args, **kwargs):
 
 
 def save_checkpoint(state, is_best, dirname=".", fname_fmt="checkpoint{}.pt", dup=None):
+    """
+    Save a model checkpoint, using :meth:`torch.save`.
+
+    Parameters
+    ----------
+    state : dict
+        Model checkpoint state to record.
+    is_best : bool
+        Whether this model state is the best so far. If `True`, the best
+        checkpoint (by default named `"checkpoint_best.pt"`) will be overwritten
+        with this `state`.
+    dirname : str, optional
+        Path to directory in which the checkpoint will be saved.
+        Default is `"."` (current directory of the executed script).
+    fname_fmt : str, optional
+        Format for the file name(s) of the saved checkpoint(s). Must include
+        one string argument output. Default is `"checkpoint{}.pt"`.
+    dup : str or None
+        If this is not `None`, a duplicate copy of the checkpoint is recorded
+        in accordance with `fname_fmt`. By default the duplicate output file
+        name will be styled as `"checkpoint_<dup>.pt"`.
+    """
     os.makedirs(dirname, exist_ok=True)
     fname = os.path.join(dirname, fname_fmt.format(""))
     torch.save(state, fname)
@@ -1531,6 +1639,22 @@ def save_checkpoint(state, is_best, dirname=".", fname_fmt="checkpoint{}.pt", du
 
 
 def meters_to_csv(meters, is_best, dirname=".", filename="meters.csv"):
+    """
+    Export performance metrics to CSV format.
+
+    Parameters
+    ----------
+    meters : dict of dict
+        Collection of output meters, as a nested dictionary.
+    is_best : bool
+        Whether this model state is the best so far. If `True`, the CSV file
+        will be copied `"model_best.meters.csv"`.
+    dirname : str, optional
+        Path to directory in which the checkpoint will be saved.
+        Default is `"."` (current directory of the executed script).
+    filename : str, optional
+        Format for the output file. Default is `""meters.csv""`.
+    """
     os.makedirs(dirname, exist_ok=True)
     df = pd.DataFrame()
     for chn in meters:
@@ -1550,6 +1674,10 @@ def meters_to_csv(meters, is_best, dirname=".", filename="meters.csv"):
 
 
 def main():
+    """
+    Run command line interface for model training.
+    """
+
     import argparse
 
     prog = os.path.split(sys.argv[0])[1]
