@@ -87,13 +87,9 @@ def mask_active_fraction_with_logits(input, *args, **kwargs):
     Convert logits to probabilities with sigmoid, then measure the fraction
     of the tensor which exceeds a threshold.
 
-    Parameters
-    ----------
-    See `mask_active_fraction`.
-
-    Returns
-    -------
-    See `mask_active_fraction`.
+    See also
+    --------
+    mask_active_fraction
     """
     return mask_active_fraction(torch.sigmoid(input), *args, **kwargs)
 
@@ -154,13 +150,9 @@ def mask_accuracy_with_logits(input, *args, **kwargs):
     Measure the accuracy between input and target, after passing `input`
     through a sigmoid function.
 
-    Parameters
-    ----------
-    See `mask_accuracy`.
-
-    Returns
-    -------
-    See `mask_accuracy`.
+    See also
+    --------
+    mask_accuracy
     """
     return mask_accuracy(torch.sigmoid(input), *args, **kwargs)
 
@@ -228,13 +220,9 @@ def mask_precision_with_logits(input, *args, **kwargs):
     Convert logits to probabilities with sigmoid, apply a threshold, then
     measure the precision of the tensor as compared to ground truth.
 
-    Parameters
-    ----------
-    See `mask_precision`.
-
-    Returns
-    -------
-    See `mask_precision`.
+    See also
+    --------
+    mask_precision
     """
     return mask_precision(torch.sigmoid(input), *args, **kwargs)
 
@@ -300,13 +288,9 @@ def mask_recall_with_logits(input, *args, **kwargs):
     Convert logits to probabilities with sigmoid, apply a threshold, then
     measure the recall of the tensor as compared to ground truth.
 
-    Parameters
-    ----------
-    See `mask_recall`.
-
-    Returns
-    -------
-    See `mask_recall`.
+    See also
+    --------
+    mask_recall
     """
     return mask_recall(torch.sigmoid(input), *args, **kwargs)
 
@@ -345,8 +329,8 @@ def mask_f1_score(input, target, reduction="mean", **kwargs):
 
     See also
     --------
-    - `mask_precision`
-    - `mask_recall`
+    mask_precision
+    mask_recall
     """
     precision = mask_precision(input, target, reduction="none", **kwargs)
     recall = mask_recall(input, target, reduction="none", **kwargs)
@@ -371,13 +355,9 @@ def mask_f1_score_with_logits(input, *args, **kwargs):
     Convert logits to probabilities with sigmoid, apply a threshold, then
     measure the F1-score of the tensor as compared to ground truth.
 
-    Parameters
-    ----------
-    See `mask_f1_score`.
-
-    Returns
-    -------
-    See `mask_f1_score`.
+    See also
+    --------
+    mask_f1_score
     """
     return mask_f1_score(torch.sigmoid(input), *args, **kwargs)
 
@@ -447,12 +427,8 @@ def mask_jaccard_index_with_logits(input, *args, **kwargs):
     measure the Jaccard Index (intersection over union) of the tensor as
     compared to ground truth.
 
-    Parameters
-    ----------
-    See `mask_jaccard_index`.
-
-    Returns
-    -------
-    See `mask_jaccard_index`.
+    See also
+    --------
+    mask_jaccard_index
     """
     return mask_jaccard_index(torch.sigmoid(input), *args, **kwargs)
