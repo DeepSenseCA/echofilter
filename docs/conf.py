@@ -262,6 +262,7 @@ intersphinx_mapping = {
     "PIL": ("https://pillow.readthedocs.io/en/stable/", None),
     "Pillow": ("https://pillow.readthedocs.io/en/stable/", None),
     "skimage": ("https://github.com/scikit-image/docs/raw/gh-pages/dev", None),
+    "torch": ("https://pytorch.org/docs/stable/", None),
 }
 
 # -- Options for todo extension ----------------------------------------------
