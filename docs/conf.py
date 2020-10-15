@@ -50,7 +50,7 @@ def run_apidoc(_):
     argv = [
         "--force",  # Overwrite output files
         "--follow-links",  # Follow symbolic links
-        "--separate",  # Put each module file in its own page
+        # "--separate",  # Put each module file in its own page
         "--module-first",  # Put module documentation before submodule
         "-o",
         "source/packages",  # Output path
