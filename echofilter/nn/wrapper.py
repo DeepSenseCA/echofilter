@@ -117,6 +117,7 @@ class Echofilter(nn.Module):
         self.n_outputs_per_condition = max(self.mapping.values())
 
     def forward(self, x):
+        ""
         logits = self.model(x)
         outputs = TensorDict()
 

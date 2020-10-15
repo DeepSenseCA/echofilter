@@ -51,7 +51,7 @@ def transect_reader(fname):
     -------
     generator
         Yields a tupule of `(metadata, data)`, where metadata is a dict,
-        and data is a `numpy.ndarray`. Each yield corresponds to a single
+        and data is a :class:`numpy.ndarray`. Each yield corresponds to a single
         row in the data. Every row (except for the header) is yielded.
     """
     metadata_header = []
@@ -392,19 +392,26 @@ def timestamp2evdtstr(timestamp):
     """
     Converts a timestamp into an Echoview-compatible datetime string, in the
     format "CCYYMMDD HHmmSSssss", where:
-        CC = century
-        YY = year
-        MM = month
-        DD = day
-        HH = hour
-        mm = minute
-        SS = second
-        ssss = 0.1 milliseconds
+
+    | CC: century
+    | YY: year
+    | MM: month
+    | DD: day
+    | HH: hour
+    | mm: minute
+    | SS: second
+    | ssss: 0.1 milliseconds
 
     Parameters
     ----------
     timestamp : float
         Number of seconds since Unix epoch.
+
+    Returns
+    -------
+    datetimestring : str
+        Datetime string in the Echoview-compatible format
+        "CCYYMMDD HHmmSSssss".
     """
     # Datetime must be in the format CCYYMMDD HHmmSSssss
     # where ssss = 0.1 milliseconds.
@@ -415,7 +422,7 @@ def timestamp2evdtstr(timestamp):
 
 
 def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n", pad=False):
-    """
+    r"""
     EVL file writer
 
     Parameters
@@ -428,24 +435,26 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n", pad=Fals
         Depths (in meters) for each node in the line.
     status : 0, 1, 2, or 3; optional
         Status for the line.
-            `0` : none
-            `1` : unverified
-            `2` : bad
-            `3` : good
-        Default is `1` (unverified). For more details on line status, see:
+
+        - `0` : none
+        - `1` : unverified
+        - `2` : bad
+        - `3` : good
+
+        Default is `1` (unverified). For more details on line status, see
         https://support.echoview.com/WebHelp/Using_Echoview/Echogram/Lines/About_Line_Status.htm
     pad : bool, optional
         Whether to pad the line with an extra datapoint half a pixel before the
         first and after the last given timestamp. Default is `False`.
     line_ending : str, optional
-        Line ending. Default is "\r\n" the standard line ending on Windows/DOS,
+        Line ending. Default is `'\r\n'` the standard line ending on Windows/DOS,
         as per the specification for the file format.
         https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm
-        Set to "\n" to get Unix-style line endings instead.
+        Set to `'\n'` to get Unix-style line endings instead.
 
     Notes
     -----
-    For more details on the format specification, see:
+    For more details on the format specification, see
     https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm#Line_definition_file_format
     """
     if len(timestamps) != len(depths):
@@ -486,7 +495,7 @@ def evr_writer(
     default_region_type=0,
     line_ending="\r\n",
 ):
-    """
+    r"""
     EVR file writer.
 
     Writes regions to an Echoview region file.
@@ -497,35 +506,37 @@ def evr_writer(
         Destination of output file.
     rectangles : list of dictionaries, optional
         Rectangle region definitions. Default is an empty list. Each rectangle
-        region must implement fields `"depths"` and `"timestamps"`, which
-        indicate the extent of the rectangle. Optionally, `"creation_type"`,
-        `"region_name"`, `"region_type"`, and `"notes"` may be set.
+        region must implement fields `'depths'` and `'timestamps'`, which
+        indicate the extent of the rectangle. Optionally, `'creation_type'`,
+        `'region_name'`, `'region_type'`, and `'notes'` may be set.
         If these are not given, the default creation_type is 4 and region_type
         is set by `default_region_type`.
     contours : list of dictionaries
         Contour region definitions. Default is an empty list. Each contour
-        region must implement a `"points"` field containing a `numpy.ndarray`
+        region must implement a `'points'` field containing a :class:`numpy.ndarray`
         shaped `(n, 2)` defining the co-ordinates of nodes along the (open)
-        contour in units of timestamp and depth. Optionally, `"creation_type"`,
-        `"region_name"`, `"region_type"`, and `"notes"` may be set.
+        contour in units of timestamp and depth. Optionally, `'creation_type'`,
+        `'region_name'`, `'region_type'`, and `'notes'` may be set.
         If these are not given, the default creation_type is 2 and region_type
         is set by `default_region_type`.
     common_notes : str, optional
-        Notes to include for every region. Default is `""`.
+        Notes to include for every region. Default is `''`, an empty string.
     default_region_type : int, optional
         The region type to use for rectangles and contours which do not define
-        a `"region_type"` field. Possible region types are
-            `0` : bad (no data)
-            `1` : analysis
-            `2` : marker
-            `3` : fishtracks
-            `4` : bad (empty water)
+        a `'region_type'` field. Possible region types are
+
+        - `0` : bad (no data)
+        - `1` : analysis
+        - `2` : marker
+        - `3` : fishtracks
+        - `4` : bad (empty water)
+
         Default is `0`.
     line_ending : str, optional
-        Line ending. Default is "\r\n" the standard line ending on Windows/DOS,
+        Line ending. Default is `'\r\n'` the standard line ending on Windows/DOS,
         as per the specification for the file format.
         https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm
-        Set to "\n" to get Unix-style line endings instead.
+        Set to `'\n'` to get Unix-style line endings instead.
 
     Notes
     -----
@@ -664,7 +675,7 @@ def write_transect_regions(
     verbose=0,
     verbose_indent=0,
 ):
-    """
+    r"""
     Convert a transect dictionary to a set of regions and write as an EVR file.
 
     Parameters
@@ -679,12 +690,12 @@ def write_transect_regions(
         maximum of `transect["depths"]` is used.
     passive_key : str, optional
         Field name to use for passive data identification. Default is
-        `"is_passive"`.
+        `'is_passive'`.
     removed_key : str, optional
-        Field name to use for removed blocks. Default is `"is_removed"`.
+        Field name to use for removed blocks. Default is `'is_removed'`.
     patches_key : str, optional
         Field name to use for the mask of patch regions. Default is
-        `"mask_patches"`.
+        `'mask_patches'`.
     collate_passive_length : int, optional
         Maximum distance (in indices) over which passive regions should be
         merged together, closing small gaps between them. Default is `0`.
@@ -702,17 +713,17 @@ def write_transect_regions(
     minimum_patch_area : float, optional
         Minimum amount of area (in input pixel space) that a patch must occupy
         in order to be included in the output. Set to `0` to include all
-        patches, no matter their area. Set to -1 to omit all patches.
+        patches, no matter their area. Set to `-1` to omit all patches.
         Default is `0`.
     name_suffix : str, optional
-        Suffix to append to variable names. Default is `""`.
+        Suffix to append to variable names. Default is `''`, an empty string.
     common_notes : str, optional
-        Notes to include for every region. Default is `""`.
+        Notes to include for every region. Default is `''`, an empty string.
     line_ending : str, optional
-        Line ending. Default is "\r\n" the standard line ending on Windows/DOS,
-        as per the specification for the file format.
+        Line ending. Default is `'\r\n'` the standard line ending on Windows/DOS,
+        as per the specification for the file format,
         https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm
-        Set to "\n" to get Unix-style line endings instead.
+        Set to `'\n'` to get Unix-style line endings instead.
     verbose : int, optional
         Verbosity level. Default is `0`.
     verbose_indent : int, optional
@@ -899,7 +910,7 @@ def load_transect_data(transect_pth, dataset="mobile", root_data_dir=ROOT_DATA_D
     Parameters
     ----------
     transect_pth : str
-        Relative path to transect, excluding '_Sv_raw.csv'.
+        Relative path to transect, excluding `'_Sv_raw.csv'`.
     dataset : str, optional
         Name of dataset. Default is `'mobile'`.
     root_data_dir : str
@@ -950,7 +961,7 @@ def get_partition_data(
     Parameters
     ----------
     transect_pth : str
-        Relative path to transect, excluding '_Sv_raw.csv'.
+        Relative path to transect, excluding `'_Sv_raw.csv'`.
     dataset : str, optional
         Name of dataset. Default is `'mobile'`.
     partitioning_version : str, optional
@@ -1031,7 +1042,7 @@ def get_partition_list(
     Parameters
     ----------
     transect_pth : str
-        Relative path to transect, excluding '_Sv_raw.csv'.
+        Relative path to transect, excluding `'_Sv_raw.csv'`.
     dataset : str, optional
         Name of dataset. Default is `'mobile'`.
     full_path : bool, optional

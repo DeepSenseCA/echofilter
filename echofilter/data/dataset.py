@@ -104,6 +104,11 @@ class TransectDataset(torch.utils.data.Dataset):
         self.initialise_datapoints()
 
     def initialise_datapoints(self):
+        """
+        Parse `transect_paths` to generate sampling windows for each transect.
+        Manually calling this method will resample the transect offsets and
+        widths if they were randomly generated.
+        """
 
         self.datapoints = []
 

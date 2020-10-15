@@ -27,7 +27,7 @@ __all__ = [
 def str2actfnfactory(actfn_name):
     """
     Maps an activation function name to a factory which generates that
-    activation function as a `torch.nn.Module` object.
+    activation function as a :class:`torch.nn.Module` object.
 
     Parameters
     ----------
@@ -37,7 +37,7 @@ def str2actfnfactory(actfn_name):
     Returns
     -------
     callable
-        A `torch.nn.Module` subclass generator.
+        A :class:`torch.nn.Module` subclass generator.
     """
     if hasattr(nn, actfn_name):
         return getattr(nn, actfn_name)
@@ -76,6 +76,7 @@ def _swish_jit_bwd(x, grad_output):
 class _SwishJitAutoFn(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x):
+        ""
         ctx.save_for_backward(x)
         return _swish_jit_fwd(x)
 
@@ -91,6 +92,7 @@ def swish(x, inplace=False):
 
 class Swish(nn.Module):
     def forward(self, x):
+        ""
         return _SwishJitAutoFn.apply(x)
 
 
@@ -107,6 +109,7 @@ class HardSwish(nn.Module):
         self.relu6 = torch.nn.ReLU6(inplace=inplace)
 
     def forward(self, x):
+        ""
         return x * self.relu6(x + 3) / 6
 
     def extra_repr(self):
@@ -130,11 +133,13 @@ def _mish_jit_bwd(x, grad_output):
 class MishJitAutoFn(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x):
+        ""
         ctx.save_for_backward(x)
         return _mish_jit_fwd(x)
 
     @staticmethod
     def backward(ctx, grad_output):
+        ""
         x = ctx.saved_variables[0]
         return _mish_jit_bwd(x, grad_output)
 
@@ -158,6 +163,7 @@ class Mish(nn.Module):
     """
 
     def forward(self, x):
+        ""
         return MishJitAutoFn.apply(x)
 
 
@@ -174,6 +180,7 @@ class HardMish(nn.Module):
         self.relu5 = nn.Hardtanh(0.0, 5.0, inplace)
 
     def forward(self, x):
+        ""
         return x * self.relu5(x + 3) / 5
 
     def extra_repr(self):

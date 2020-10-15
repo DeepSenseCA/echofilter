@@ -11,83 +11,253 @@ colorama.init()
 
 
 class _AbstractStyle(object):
+    """
+    Abstract class for formatting styles.
+    """
+
     start = ""
     reset = ""
 
     @classmethod
     def apply(cls, string):
+        """
+        Apply the ANSI formatting.
+
+        Parameters
+        ----------
+        string : str
+            Input string to format.
+
+        Returns
+        -------
+        formatted_string : str
+            String prepended with a start ANSI code and appended with a
+            reset ANSI code which undoes the start code.
+        """
         return cls.start + string + cls.reset
 
 
 class ErrorStyle(_AbstractStyle):
+    """
+    Defines the style for an error string; red foreground.
+    """
+
     start = colorama.Fore.RED
     reset = colorama.Fore.RESET
 
 
 class WarningStyle(_AbstractStyle):
+    """
+    Defines the style for a warning string; cyan foreground.
+    """
+
     start = colorama.Fore.CYAN
     reset = colorama.Fore.RESET
 
 
 class ProgressStyle(_AbstractStyle):
+    """
+    Defines the style for a progress string; green foreground.
+    """
+
     start = colorama.Fore.GREEN
     reset = colorama.Fore.RESET
 
 
 class DryrunStyle(_AbstractStyle):
+    """
+    Defines the style for dry-run text; magenta foreground.
+    """
+
     start = colorama.Fore.MAGENTA
     reset = colorama.Fore.RESET
 
 
 class SkipStyle(_AbstractStyle):
+    """
+    Defines the style for skip text; yellow foreground.
+    """
+
     start = colorama.Fore.YELLOW
     reset = colorama.Fore.RESET
 
 
 class OverwriteStyle(_AbstractStyle):
+    """
+    Defines the style for overwrite text; bright blue.
+    """
+
     start = colorama.Fore.BLUE + colorama.Style.BRIGHT
     reset = colorama.Fore.RESET + colorama.Style.NORMAL
 
 
 class HighlightStyle(_AbstractStyle):
+    """
+    Defines the style for highlighted text; bright style.
+    """
+
     start = colorama.Style.BRIGHT
     reset = colorama.Style.NORMAL
 
 
 class AsideStyle(_AbstractStyle):
+    """
+    Defines the style for aside text; dim style.
+    """
+
     start = colorama.Style.DIM
     reset = colorama.Style.NORMAL
 
 
 def error_fmt(string):
+    """
+    Wrap a string in ANSI codes to render it in the style of an error
+    when printed at the terminal.
+
+    Parameters
+    ----------
+    string : str
+        Input string to format.
+
+    Returns
+    -------
+    formatted_string : str
+        String prepended with a start ANSI code and appended with a
+        reset ANSI code which undoes the start code.
+    """
     return ErrorStyle.apply(string)
 
 
 def warning_fmt(string):
+    """
+    Wrap a string in ANSI codes to render it in the style of a warning
+    when printed at the terminal.
+
+    Parameters
+    ----------
+    string : str
+        Input string to format.
+
+    Returns
+    -------
+    formatted_string : str
+        String prepended with a start ANSI code and appended with a
+        reset ANSI code which undoes the start code.
+    """
     return WarningStyle.apply(string)
 
 
 def progress_fmt(string):
+    """
+    Wrap a string in ANSI codes to render it in the style of progress text
+    when printed at the terminal.
+
+    Parameters
+    ----------
+    string : str
+        Input string to format.
+
+    Returns
+    -------
+    formatted_string : str
+        String prepended with a start ANSI code and appended with a
+        reset ANSI code which undoes the start code.
+    """
     return ProgressStyle.apply(string)
 
 
 def dryrun_fmt(string):
+    """
+    Wrap a string in ANSI codes to render it in the style of dry-run text
+    when printed at the terminal.
+
+    Parameters
+    ----------
+    string : str
+        Input string to format.
+
+    Returns
+    -------
+    formatted_string : str
+        String prepended with a start ANSI code and appended with a
+        reset ANSI code which undoes the start code.
+    """
     return DryrunStyle.apply(string)
 
 
 def skip_fmt(string):
+    """
+    Wrap a string in ANSI codes to render it in the style of a skip message
+    when printed at the terminal.
+
+    Parameters
+    ----------
+    string : str
+        Input string to format.
+
+    Returns
+    -------
+    formatted_string : str
+        String prepended with a start ANSI code and appended with a
+        reset ANSI code which undoes the start code.
+    """
     return SkipStyle.apply(string)
 
 
 def overwrite_fmt(string):
+    """
+    Wrap a string in ANSI codes to render it in the style of an overwrite
+    message when printed at the terminal.
+
+    Parameters
+    ----------
+    string : str
+        Input string to format.
+
+    Returns
+    -------
+    formatted_string : str
+        String prepended with a start ANSI code and appended with a
+        reset ANSI code which undoes the start code.
+    """
     return OverwriteStyle.apply(string)
 
 
 def highlight_fmt(string):
+    """
+    Wrap a string in ANSI codes to render it in a highlighted style
+    when printed at the terminal.
+
+    Parameters
+    ----------
+    string : str
+        Input string to format.
+
+    Returns
+    -------
+    formatted_string : str
+        String prepended with a start ANSI code and appended with a
+        reset ANSI code which undoes the start code.
+    """
     return HighlightStyle.apply(string)
 
 
 def aside_fmt(string):
+    """
+    Wrap a string in ANSI codes to render it in an aside (de-emphasised) style
+    when printed at the terminal.
+
+    Parameters
+    ----------
+    string : str
+        Input string to format.
+
+    Returns
+    -------
+    formatted_string : str
+        String prepended with a start ANSI code and appended with a
+        reset ANSI code which undoes the start code.
+    """
     return AsideStyle.apply(string)
 
 

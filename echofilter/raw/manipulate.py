@@ -1118,7 +1118,7 @@ def split_transect(timestamps=None, threshold=20, percentile=97.5, **transect):
     Yields
     ------
     dict
-        Containing segmented data, key/value pairs as per given in **kwargs
+        Containing segmented data, key/value pairs as per given in `**kwargs`
         in addition to `timestamps`.
     """
 

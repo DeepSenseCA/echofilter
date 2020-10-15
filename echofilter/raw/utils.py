@@ -37,7 +37,7 @@ def interp1d_preserve_nan(
         necessary). If `False` (default), out of bounds values are assigned
         value `fill_value` (whose default is NaN).
     **kwargs
-        Additional keyword arguments are as per `scipy.interpolate.interp1d`.
+        Additional keyword arguments are as per :meth:`scipy.interpolate.interp1d`.
 
     Returns
     -------
@@ -80,7 +80,7 @@ def pad1d(array, pad_width, axis=0, **kwargs):
     axis : int, optional
         The axis to pad. Default is `0`.
     **kwargs
-        As per `numpy.pad`.
+        As per :meth:`numpy.pad`.
 
     Returns
     -------
@@ -113,7 +113,7 @@ def medfilt1d(signal, kernel_size, axis=-1, pad_mode="reflect"):
         Which axis to operate along. Default is `-1`.
     pad_mode : str, optional
         Method with which to pad the vector at the edges.
-        Must be supported by `numpy.pad`. Default is `"reflect"`.
+        Must be supported by :meth:`numpy.pad`. Default is `"reflect"`.
 
     Returns
     -------

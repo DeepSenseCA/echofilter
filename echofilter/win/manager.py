@@ -5,12 +5,26 @@ Window management for Windows.
 from contextlib import contextmanager
 import re
 
-import pywintypes
-import win32com.client
-import win32con
-import win32gui
-
 from .. import ui
+
+try:
+    import pywintypes
+    import win32com.client
+    import win32con
+    import win32gui
+except ImportError:
+    from ..path import check_if_windows
+
+    if check_if_windows():
+        raise
+
+    import warnings
+
+    msg = "The Windows management module is only for Windows operating" " systems."
+    with ui.style.warning_message(msg) as msg:
+        warnings.warn(
+            msg, category=RuntimeWarning,
+        )
 
 
 __all__ = ["opencom", "WindowManager"]

@@ -32,19 +32,20 @@ class FlexibleHelpFormatter(argparse.HelpFormatter):
 
     The following formatters are supported:
 
-        - "R|" : raw; will be left as is, processed using
-                 `argparse.RawTextHelpFormatter`.
-        - "d|" : raw except for indentation; will be dedented and leading
-                 newlines stripped only, processed using
-                 `argparse.RawTextHelpFormatter`.
+    `"R|"`
+        Raw. will be left as is, processed using
+        `argparse.RawTextHelpFormatter`.
+    `"d|"`
+        Raw except for indentation. Will be dedented and leading
+        newlines stripped only, processed using
+        `argparse.RawTextHelpFormatter`.
 
     The format specifier will be stripped from the text.
 
     Notes
     -----
-    Based on:
-        - https://stackoverflow.com/a/22157266/1960959
-        - https://sourceforge.net/projects/ruamel-std-argparse/
+    Based on https://stackoverflow.com/a/22157266/1960959
+    and https://sourceforge.net/projects/ruamel-std-argparse/.
     """
 
     def _split_lines(self, text, *args, **kwargs):
