@@ -28,7 +28,7 @@ def segment_and_shard_transect(
     Parameters
     ----------
     transect_pth : str
-        Relative path to transect, excluding '_Sv_raw.csv'.
+        Relative path to transect, excluding `'_Sv_raw.csv'`.
     dataset : str, optional
         Name of dataset. Default is `'mobile'`.
     max_depth : float or None, optional
@@ -44,7 +44,7 @@ def segment_and_shard_transect(
     Notes
     -----
     The segments will be written to the directories
-        <root_data_dir>_sharded/<dataset>/transect_path/<segment>/
+    `<root_data_dir>_sharded/<dataset>/transect_path/<segment>/`
     For the contents of each directory, see `write_transect_shards`.
     """
     # Define output destination

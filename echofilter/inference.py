@@ -257,10 +257,12 @@ def run_inference(
     line_status : int, optional
         Status to use for the lines.
         Must be one of:
-            `0` : none
-            `1` : unverified
-            `2` : bad
-            `3` : good
+
+        - `0` : none
+        - `1` : unverified
+        - `2` : bad
+        - `3` : good
+
         Default is `3`.
     offset_turbulence : float, optional
         Offset for turbulence line, which moves the turbulence line deeper.
@@ -293,26 +295,28 @@ def run_inference(
         periods determined to be passive recording instead of
         active recording.
         Options are:
-            `"interpolate-time"`:
-                depths are linearly interpolated from active
-                recording periods, using the time at which
-                recordings where made.
-            `"interpolate-index"`:
-                depths are linearly interpolated from active
-                recording periods, using the index of the
-                recording.
-            `"predict"`:
-                the model's prediction for the lines during
-                passive data collection will be kept; the nature
-                of the prediction depends on how the model was
-                trained.
-            `"redact"`:
-                no depths are provided during periods determined
-                to be passive data collection.
-            `"undefined"`:
-                depths are replaced with the placeholder value
-                used by Echoview to denote undefined values,
-                which is `-10000.99`.
+
+        `"interpolate-time"`
+            depths are linearly interpolated from active
+            recording periods, using the time at which
+            recordings where made.
+        `"interpolate-index"`
+            depths are linearly interpolated from active
+            recording periods, using the index of the
+            recording.
+        `"predict"`
+            the model's prediction for the lines during
+            passive data collection will be kept; the nature
+            of the prediction depends on how the model was
+            trained.
+        `"redact"`
+            no depths are provided during periods determined
+            to be passive data collection.
+        `"undefined"`
+            depths are replaced with the placeholder value
+            used by Echoview to denote undefined values,
+            which is `-10000.99`.
+
         Default: "interpolate-time".
     collate_passive_length : int, optional
         Maximum interval, in ping indices, between detected passive regions
@@ -340,18 +344,20 @@ def run_inference(
     patch_mode : str or None, optional
         Type of mask patches to use. Must be supported by the
         model checkpoint used. Should be one of:
-            `"merged"`:
-                Target patches for training were determined
-                after merging as much as possible into the
-                turbulence and bottom lines.
-            `"original"`:
-                Target patches for training were determined
-                using original lines, before expanding the
-                turbulence and bottom lines.
-            `"ntob"`:
-                Target patches for training were determined
-                using the original bottom line and the merged
-                turbulence line.
+
+        `"merged"`
+            Target patches for training were determined
+            after merging as much as possible into the
+            turbulence and bottom lines.
+        `"original"`
+            Target patches for training were determined
+            using original lines, before expanding the
+            turbulence and bottom lines.
+        `"ntob"`
+            Target patches for training were determined
+            using the original bottom line and the merged
+            turbulence line.
+
         If `None` (default), `"merged"` is used if downfacing and `"ntob"` is
         used if upfacing.
     variable_name : str, optional
