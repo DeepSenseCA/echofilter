@@ -54,6 +54,7 @@ class SqueezeExcite(nn.Module):
         self.layers = nn.Sequential(*layers)
 
     def forward(self, input):
+        ""
         return input * self.layers(input)
 
 
@@ -151,6 +152,7 @@ class MBConv(nn.Module):
             self.connector = ResidualConnect(in_channels, out_channels)
 
     def forward(self, input):
+        ""
         x = self.expansion_conv(input)
         x = self.conv(x)
         x = self.se(x)

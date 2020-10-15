@@ -31,6 +31,7 @@ class Down(nn.Module):
             raise ValueError("Unsupported pooling method: {}".format(mode))
 
     def forward(self, x):
+        ""
         return self.pool(x)
 
 
@@ -63,6 +64,7 @@ class Up(nn.Module):
             )
 
     def forward(self, x):
+        ""
         return self.up(x)
 
 
@@ -268,6 +270,7 @@ class UNetBlock(nn.Module):
             )
 
     def forward(self, input):
+        ""
         x = self.down(input)
         x = self.horizontal_block_a(x)
         x = self.nested(x)
@@ -431,6 +434,7 @@ class UNet(nn.Module):
         self.final_block = horizontal_block_factory(bottleneck_channels, out_channels)
 
     def forward(self, x):
+        ""
         x = self.initial_conv(x)
         x = self.first_block(x)
         x = self.main_blocks(x)
