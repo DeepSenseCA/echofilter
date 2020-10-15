@@ -1,8 +1,8 @@
-Template documentation
-======================
+Echofilter documentation
+========================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
    source/readme
@@ -10,8 +10,7 @@ Template documentation
 
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
