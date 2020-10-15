@@ -176,10 +176,6 @@ Passive data
 Ping
     An echosounder sonar pulse event.
 
-Pytorch
-    A machine learning library. The package used to build and train the
-    echofilter models.
-
 Sample (model input)
     A single echogram-like matrix of Sv values.
 
