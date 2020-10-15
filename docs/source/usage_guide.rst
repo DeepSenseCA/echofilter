@@ -863,10 +863,12 @@ Stationary
 :locations:
 
     - FORCE tidal power demonstration site, Minas Passage
+
         - 45°21'47.34"N  64°25'38.94"W
         - December 2017 through November 2018
 
     - SMEC, Grand Passage
+
         - 44°15'49.80"N  66°20'12.60"W
         - December 2019 through January 2020
 
@@ -888,6 +890,7 @@ Mobile
 :locations:
 
     -  FORCE tidal power demonstration site, Minas Passage
+
         - 45°21'57.58"N  64°25'50.97"W
         - May 2016 through October 2018
 
