@@ -405,6 +405,12 @@ def timestamp2evdtstr(timestamp):
     ----------
     timestamp : float
         Number of seconds since Unix epoch.
+
+    Returns
+    -------
+    datetimestring : str
+        Datetime string in the Echoview-compatible format
+        "CCYYMMDD HHmmSSssss".
     """
     # Datetime must be in the format CCYYMMDD HHmmSSssss
     # where ssss = 0.1 milliseconds.
