@@ -17,7 +17,6 @@ from .. import path
 from . import checkpoints, formatters, style
 
 
-CHECKPOINT_RESOURCES = checkpoints.get_checkpoint_list()
 DEFAULT_CHECKPOINT = checkpoints.get_default_checkpoint()
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
 

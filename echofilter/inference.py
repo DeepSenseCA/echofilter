@@ -35,8 +35,6 @@ import echofilter.utils
 import echofilter.win
 
 from echofilter.ui.inference_cli import (
-    CHECKPOINT_RESOURCES,
-    DEFAULT_CHECKPOINT,
     DEFAULT_VARNAME,
     cli,
     main,
@@ -394,8 +392,8 @@ def run_inference(
         trained.
     checkpoint : str or None, optional
         A path to a checkpoint file, or name of a checkpoint known to this
-        package (listed in `CHECKPOINT_RESOURCES`). If `None` (default),
-        the first checkpoint in `CHECKPOINT_RESOURCES` is used.
+        package (listed in `echofilter/checkpoints.yaml`). If `None` (default),
+        the first checkpoint in `checkpoints.yaml` is used.
     force_unconditioned : bool, optional
         Whether to always use unconditioned logit outputs. If `False`
         (default) conditional logits will be used if the checkpoint loaded is
