@@ -55,183 +55,185 @@ mobile data provided by Fundy Ocean Research Centre for Energy (FORCE).
 Glossary
 --------
 
-Active data
-    Data collected while the echosounder is emitting sonar pulses
-    (“pings”) at regular intervals. This is the normal operating mode
-    for data in this project.
+.. glossary::
 
-Algorithm
-    A finite sequence of well-defined, unambiguous,
-    computer-implementable operations.
+    Active data
+        Data collected while the echosounder is emitting sonar pulses
+        (“pings”) at regular intervals. This is the normal operating mode
+        for data in this project.
 
-Bottom line
-    A line separating the seafloor from the water column.
+    Algorithm
+        A finite sequence of well-defined, unambiguous,
+        computer-implementable operations.
 
-Checkpoint
-    A checkpoint file defines the weights for a particular neural network
-    model.
+    Bottom line
+        A line separating the seafloor from the water column.
 
-Conditional model
-    A model which outputs conditional probabilities. In the context of an
-    echofilter model, the conditional probabilities are
-    :math:`p(x|\text{upfacing})` and :math:`p(x|\text{downfacing})`,
-    where :math:`x` is any of the model output
-    types; conditional models are necessarily hybrid models.
+    Checkpoint
+        A checkpoint file defines the weights for a particular neural network
+        model.
 
-CSV
-    A comma-separated values file. The Sv data can be exported into this
-    format by Echoview.
+    Conditional model
+        A model which outputs conditional probabilities. In the context of an
+        echofilter model, the conditional probabilities are
+        :math:`p(x|\text{upfacing})` and :math:`p(x|\text{downfacing})`,
+        where :math:`x` is any of the model output
+        types; conditional models are necessarily hybrid models.
 
-Dataset
-    A collection of data samples. In this project, the datasets are Sv
-    recordings from multiple surveys.
+    CSV
+        A comma-separated values file. The Sv data can be exported into this
+        format by Echoview.
 
-Downfacing
-    The orientation of an echosounder when it is located at the surface
-    and records from the water column below it.
+    Dataset
+        A collection of data samples. In this project, the datasets are Sv
+        recordings from multiple surveys.
 
-Echofilter
-    A software package for defining the placement of the boundary lines
-    and regions required to post-process echosounder data.
-    The topic of this usage guide.
+    Downfacing
+        The orientation of an echosounder when it is located at the surface
+        and records from the water column below it.
 
-echofilter.exe
-    The compiled Echofilter program which can be run on a Windows machine.
+    Echofilter
+        A software package for defining the placement of the boundary lines
+        and regions required to post-process echosounder data.
+        The topic of this usage guide.
 
-Echogram
-    The two-dimensional representation of a temporal series of
-    echosounder-collected data. Time is along the x-axis, and depth
-    along the y-axis. A common way of plotting echosounder recordings.
+    echofilter.exe
+        The compiled Echofilter program which can be run on a Windows machine.
 
-Echosounder
-    An electronic system that includes a computer, transceiver, and
-    transducer. The system emits sonar pings and records the intensity
-    of the reflected echos at some fixed sampling rate.
+    Echogram
+        The two-dimensional representation of a temporal series of
+        echosounder-collected data. Time is along the x-axis, and depth
+        along the y-axis. A common way of plotting echosounder recordings.
 
-Echoview
-    A Windows software application (Echoview Software Pty Ltd, Tasmania,
-    Australia) for hydroacoustic data post-processing.
+    Echosounder
+        An electronic system that includes a computer, transceiver, and
+        transducer. The system emits sonar pings and records the intensity
+        of the reflected echos at some fixed sampling rate.
 
-Entrained air
-    Bubbles of air which have been submerged into the ocean by waves or
-    by the strong turbulence commonly found in tidal energy channels.
+    Echoview
+        A Windows software application (Echoview Software Pty Ltd, Tasmania,
+        Australia) for hydroacoustic data post-processing.
 
-EV file
-    An Echoview file bundling Sv data together with associated lines and
-    regions produced by processing.
+    Entrained air
+        Bubbles of air which have been submerged into the ocean by waves or
+        by the strong turbulence commonly found in tidal energy channels.
 
-EVL
-    The Echoview line file format.
+    EV file
+        An Echoview file bundling Sv data together with associated lines and
+        regions produced by processing.
 
-EVR
-    The Echoview region file format.
+    EVL
+        The Echoview line file format.
 
-Inference
-    The procedure of using a model to generate output predictions based
-    on a particular input.
+    EVR
+        The Echoview region file format.
 
-Hybrid model
-    A model which has been trained on both downfacing and upfacing data.
+    Inference
+        The procedure of using a model to generate output predictions based
+        on a particular input.
 
-Machine learning (ML)
-    The process by which an algorithm builds a mathematical model based
-    on sample data ("training data"), in order to make predictions or
-    decisions without being explicitly programmed to do so. A subset of
-    the field of Artificial Intelligence.
+    Hybrid model
+        A model which has been trained on both downfacing and upfacing data.
 
-Mobile
-    A mobile echosounder is one which is moving (relative to the ocean
-    floor) during its period of operation.
+    Machine learning (ML)
+        The process by which an algorithm builds a mathematical model based
+        on sample data ("training data"), in order to make predictions or
+        decisions without being explicitly programmed to do so. A subset of
+        the field of Artificial Intelligence.
 
-Model
-    A mathematical model of a particular type of data. In our context,
-    the model understands an echogram-like input sample of Sv data
-    (which is its input) and outputs a probability distribution for
-    where it predicts the turbulence (entrained air) boundary, bottom
-    boundary, and surface boundary to be located, and the probability of
-    passive periods and bad data.
+    Mobile
+        A mobile echosounder is one which is moving (relative to the ocean
+        floor) during its period of operation.
 
-Nearfield
-    The region of space too close to the echosounder to collect viable data.
+    Model
+        A mathematical model of a particular type of data. In our context,
+        the model understands an echogram-like input sample of Sv data
+        (which is its input) and outputs a probability distribution for
+        where it predicts the turbulence (entrained air) boundary, bottom
+        boundary, and surface boundary to be located, and the probability of
+        passive periods and bad data.
 
-Nearfield distance
-    The maximum distance which is too close to the echosounder to be
-    viable for data collection.
+    Nearfield
+        The region of space too close to the echosounder to collect viable data.
 
-Nearfield line
-    A line placed at the nearfield distance.
+    Nearfield distance
+        The maximum distance which is too close to the echosounder to be
+        viable for data collection.
 
-Neural network
-    An artificial neural network contains layers of interconnected
-    neurons with weights between them. The weights are learned through a
-    machine learning process. After training, the network is a model
-    mapping inputs to outputs.
+    Nearfield line
+        A line placed at the nearfield distance.
 
-Passive data
-    Data collected while the echosounder is silent. Since the sonar
-    pulses are not being generated, only ambient sounds are collected.
-    This package is designed for analysing active data, and hence passive
-    data is marked for removal.
+    Neural network
+        An artificial neural network contains layers of interconnected
+        neurons with weights between them. The weights are learned through a
+        machine learning process. After training, the network is a model
+        mapping inputs to outputs.
 
-Ping
-    An echosounder sonar pulse event.
+    Passive data
+        Data collected while the echosounder is silent. Since the sonar
+        pulses are not being generated, only ambient sounds are collected.
+        This package is designed for analysing active data, and hence passive
+        data is marked for removal.
 
-Sample (model input)
-    A single echogram-like matrix of Sv values.
+    Ping
+        An echosounder sonar pulse event.
 
-Sample (ping)
-    A single datapoint recorded at a certain temporal latency in response
-    to a particular ping.
+    Sample (model input)
+        A single echogram-like matrix of Sv values.
 
-Stationary
-    A stationary echosounder is at a fixed location (relative to the
-    ocean floor) during its period of operation.
+    Sample (ping)
+        A single datapoint recorded at a certain temporal latency in response
+        to a particular ping.
 
-Surface line
-    Separates atmosphere and water at the ocean surface.
+    Stationary
+        A stationary echosounder is at a fixed location (relative to the
+        ocean floor) during its period of operation.
 
-Sv
-    The volume backscattering strength.
+    Surface line
+        Separates atmosphere and water at the ocean surface.
 
-Test set
-    Data which was used to evaluate the ability of the model to
-    generalise to novel, unseen data.
+    Sv
+        The volume backscattering strength.
 
-Training
-    The process by which a model is iteratively improved.
+    Test set
+        Data which was used to evaluate the ability of the model to
+        generalise to novel, unseen data.
 
-Training data
-    Data which was used to train the model(s).
+    Training
+        The process by which a model is iteratively improved.
 
-Training set
-    A subset (partition) of the dataset which was used to train the model.
+    Training data
+        Data which was used to train the model(s).
 
-Transducer:
-    An underwater electronic device that converts electrical energy to
-    sound pressure energy. The emitted sound pulse is called a “ping”.
-    The device converts the returning sound pressure energy to electrical
-    energy, which is then recorded.
+    Training set
+        A subset (partition) of the dataset which was used to train the model.
 
-Turbulence
-    In contrast to laminar flow, fluid motion in turbulent regions are
-    characterized by chaotic fluctuations in flow speed and direction.
-    Air is often entrained into the water column in regions of strong
-    turbulence.
+    Transducer:
+        An underwater electronic device that converts electrical energy to
+        sound pressure energy. The emitted sound pulse is called a “ping”.
+        The device converts the returning sound pressure energy to electrical
+        energy, which is then recorded.
 
-Turbulence line
-    A line demarcating the depth of the end-boundary of air entrained
-    into the water column by turbulence at the sea surface.
+    Turbulence
+        In contrast to laminar flow, fluid motion in turbulent regions are
+        characterized by chaotic fluctuations in flow speed and direction.
+        Air is often entrained into the water column in regions of strong
+        turbulence.
 
-Upfacing
-    The orientation of an echosounder when it is located at the seabed
-    and records from the water column above it.
+    Turbulence line
+        A line demarcating the depth of the end-boundary of air entrained
+        into the water column by turbulence at the sea surface.
 
-Validation set
-    Data which was used during the training process to evaluate the
-    ability of the model to generalise to novel, unseen data.
+    Upfacing
+        The orientation of an echosounder when it is located at the seabed
+        and records from the water column above it.
 
-Water column
-    The body of water between seafloor and ocean surface.
+    Validation set
+        Data which was used during the training process to evaluate the
+        ability of the model to generalise to novel, unseen data.
+
+    Water column
+        The body of water between seafloor and ocean surface.
 
 
 Inference operations
