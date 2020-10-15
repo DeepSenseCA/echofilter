@@ -86,8 +86,8 @@ class UNetBlock(nn.Module):
     in_channels : int
         Number of input channels to this block.
     horizontal_block_factory : callable
-        A `torch.nn.Module` constructor or function which returns a block of
-        layers. The resulting module must accept `in_channels` and
+        A :class:`torch.nn.Module` constructor or function which returns a
+        block of layers. The resulting module must accept `in_channels` and
         `out_channels` as its first two arguments.
     n_block : int, optional
         The number of nested UNetBlocks to use. Default is `1` (no nesting).
@@ -122,7 +122,7 @@ class UNetBlock(nn.Module):
         for all remaining downsampling steps. Default is `'max'`.
     upsampling_modes : str or sequence, optional
         The upsampling mode to use. If this is a string, it must be `'conv'`,
-        or something supported by `torch.nn.Upsample`; the same
+        or something supported by :class:`torch.nn.Upsample`; the same
         upsampling mode is used for every upsampling step. If it is
         a sequence, it should contain a string for each upsampling step.
         If the input sequence is too short, the final value will be used
@@ -335,7 +335,7 @@ class UNet(nn.Module):
         for all remaining downsampling steps. Default is `'max'`.
     upsampling_modes : str or sequence, optional
         The upsampling mode to use. If this is a string, it must be `'conv'`,
-        or something supported by `torch.nn.Upsample`; the same
+        or something supported by :class:`torch.nn.Upsample`; the same
         upsampling mode is used for every upsampling step. If it is
         a sequence, it should contain a string for each upsampling step.
         If the input sequence is too short, the final value will be used

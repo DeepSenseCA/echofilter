@@ -38,7 +38,7 @@ def generate_shard(
         continue. If `False`, the process will halt with an error as soon as
         any single transect hits an error. Default is `True`.
     **kwargs
-        See `echofilter.raw.shardloader.segment_and_shard_transect`.
+        See :meth:`echofilter.raw.shardloader.segment_and_shard_transect`.
     """
     if verbose:
         print("Sharding {}".format(transect_pth))

@@ -18,8 +18,8 @@ def logavgexp(
 
     If `keepdim` is `True`, the output tensor is of the same size as `input`
     except in the dimension `dim` where it is of size `1`. Otherwise, `dim` is
-    squeezed (see `torch.squeeze()`), resulting in the output tensor having 1
-    fewer dimension.
+    squeezed (see :meth:`torch.squeeze()`), resulting in the output tensor
+    having 1 fewer dimension.
 
     Parameters
     ----------
@@ -38,7 +38,7 @@ def logavgexp(
         is applied.
     internal_dtype : torch.dtype, optional
         A data type which the `input` will be cast as before computing the
-        log-sum-exp step. Default is `torch.float32`.
+        log-sum-exp step. Default is :attr:`torch.float32`.
 
     Returns
     -------
@@ -78,12 +78,12 @@ class TensorDict(torch.nn.ParameterDict):
     TensorDict can be indexed like a regular Python dictionary, but implements
     methods such as `to` which operate on all elements within it.
 
-    :class:`~TensorDict` is an **ordered** dictionary that respects
+    :class:`TensorDict` is an **ordered** dictionary that respects
 
-    * the order of insertion, and
+    - the order of insertion, and
 
-    * in :meth:`~TensorDict.update`, the order of the merged ``OrderedDict``
-      or another :class:`~TensorDict` (the argument to :meth:`~TensorDict.update`).
+    - in :meth:`~TensorDict.update`, the order of the merged ``OrderedDict``
+      or another :class:`TensorDict` (the argument to :meth:`~TensorDict.update`).
 
     Note that :meth:`~TensorDict.update` with other unordered mapping
     types (e.g., Python's plain ``dict``) does not preserve the order of the
@@ -91,8 +91,8 @@ class TensorDict(torch.nn.ParameterDict):
 
     Arguments:
         parameters (iterable, optional): a mapping (dictionary) of
-            (string : :class:`~torch.Tensor`) or an iterable of key-value pairs
-            of type (string, :class:`~torch.Tensor`)
+            (string : :class:`torch.Tensor`) or an iterable of key-value pairs
+            of type (string, :class:`torch.Tensor`)
     """
 
     def __init__(self, tensors=None):

@@ -51,7 +51,7 @@ def transect_reader(fname):
     -------
     generator
         Yields a tupule of `(metadata, data)`, where metadata is a dict,
-        and data is a `numpy.ndarray`. Each yield corresponds to a single
+        and data is a :class:`numpy.ndarray`. Each yield corresponds to a single
         row in the data. Every row (except for the header) is yielded.
     """
     metadata_header = []

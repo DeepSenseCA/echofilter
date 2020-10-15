@@ -13,7 +13,7 @@ from ..utils import first_nonzero, last_nonzero
 def worker_seed_fn(worker_id):
     """
     A worker initialization function for `torch.utils.data.DataLoader` objects
-    which seeds builtin `random` and `numpy` with `torch.randint` (which is
+    which seeds builtin `random` and `numpy` with :meth:`torch.randint` (which is
     stable if torch is manually seeded in the main program).
 
     Parameters
@@ -27,9 +27,9 @@ def worker_seed_fn(worker_id):
 
 def worker_staticseed_fn(worker_id):
     """
-    A worker initialization function for `torch.utils.data.DataLoader` objects
-    which produces the same seed for builtin `random`, `numpy`, and `torch`
-    every time, so it is the same for every epoch.
+    A worker initialization function for :class:`torch.utils.data.DataLoader`
+    objects which produces the same seed for builtin `random`, `numpy`, and
+    `torch` every time, so it is the same for every epoch.
 
     Parameters
     ----------

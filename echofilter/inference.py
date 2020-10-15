@@ -366,7 +366,7 @@ def run_inference(
     row_len_selector : str, optional
         Method used to handle input csv files with different number of Sv
         values across time (i.e. a non-rectangular input). Default is `'mode'`.
-        See `echofilter.raw.loader.transect_loader` for options.
+        See :meth:`echofilter.raw.loader.transect_loader` for options.
     facing : {"downward", "upward", "auto"}, optional
         Orientation in which the echosounder is facing. Default is `"auto"`,
         in which case the orientation is determined from the ordering of the

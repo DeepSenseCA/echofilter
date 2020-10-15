@@ -22,8 +22,8 @@ def _binarise_and_reshape(arg, threshold=0.5, ndim=None):
     Returns
     -------
     array_like
-        A `numpy.ndarray` or `torch.Tensor` (corresponding to the type of
-        `arg`), but partially flattened and binarised.
+        A :class:`numpy.ndarray` or :class:`torch.Tensor` (corresponding to
+        the type of `arg`), but partially flattened and binarised.
     """
     # Binarise mask
     arg = arg > threshold

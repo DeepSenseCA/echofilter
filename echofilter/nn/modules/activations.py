@@ -27,7 +27,7 @@ __all__ = [
 def str2actfnfactory(actfn_name):
     """
     Maps an activation function name to a factory which generates that
-    activation function as a `torch.nn.Module` object.
+    activation function as a :class:`torch.nn.Module` object.
 
     Parameters
     ----------
@@ -37,7 +37,7 @@ def str2actfnfactory(actfn_name):
     Returns
     -------
     callable
-        A `torch.nn.Module` subclass generator.
+        A :class:`torch.nn.Module` subclass generator.
     """
     if hasattr(nn, actfn_name):
         return getattr(nn, actfn_name)

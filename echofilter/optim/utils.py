@@ -28,7 +28,7 @@ def get_current_momentum(optimizer):
     ----------
     optimizer : torch.optim.Optimizer
         An optimizer which implements momentum or betas (where momentum is the
-        first beta, c.f. torch.optim.Adam) with a momentum common to all
+        first beta, c.f. :class:torch.optim.Adam) with a momentum common to all
         parameter groups.
 
     Returns

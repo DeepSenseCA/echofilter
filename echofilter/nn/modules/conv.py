@@ -156,8 +156,8 @@ class GaussianSmoothing(nn.Module):
         `"same"` (default) the amount of padding will be set automatically
         to ensure the size of the tensor is unchanged.
     pad_mode : str, optional
-        Padding mode. See `torch.nn.functional.pad` for options. Default is
-        `"replicate"`.
+        Padding mode. See :meth:`torch.nn.functional.pad` for options. Default
+        is `"replicate"`.
     ndim : int, optional
         The number of dimensions of the data. Default value is 2 (spatial).
 

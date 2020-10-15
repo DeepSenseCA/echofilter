@@ -180,7 +180,7 @@ def load_transect_from_shards_abs(
         `None`, which loads everything up to and including to the last sample.
     pad_mode : str, optional
         Padding method for out-of-bounds inputs. Must be supported by
-        `numpy.pad`, such as `'contast'`, `'reflect'`, or `'edge'`. If the mode
+        :meth:`numpy.pad`, such as `'contast'`, `'reflect'`, or `'edge'`. If the mode
         is `'contast'`, the array will be padded with zeros. Default is 'edge'.
 
     Returns
@@ -302,11 +302,12 @@ def load_transect_from_shards_rel(
     root_data_dir : str
         Path to root directory where data is located.
     **kwargs
-        As per `load_transect_from_shards_abs`.
+        As per :meth:`load_transect_from_shards_abs`.
 
     Returns
     -------
-    See `load_transect_from_shards_abs`.
+    dict
+        See :meth:`load_transect_from_shards_abs`.
     """
     root_data_dir = loader.remove_trailing_slash(root_data_dir)
     root_shard_dir = os.path.join(root_data_dir + "_sharded", dataset)
@@ -329,7 +330,8 @@ def load_transect_segments_from_shards_abs(
 
     Returns
     -------
-    See `load_transect_from_shards_abs`.
+    dict
+        See :meth:`load_transect_from_shards_abs`.
     """
     if segments is None:
         # Load the segmentation metadata
@@ -364,11 +366,12 @@ def load_transect_segments_from_shards_rel(
     root_data_dir : str
         Path to root directory where data is located.
     **kwargs
-        As per `load_transect_from_shards_abs`.
+        As per :meth:`load_transect_from_shards_abs`.
 
     Returns
     -------
-    See `load_transect_from_shards_abs`.
+    dict
+        See :meth:`load_transect_from_shards_abs`.
     """
     root_data_dir = loader.remove_trailing_slash(root_data_dir)
     root_shard_dir = os.path.join(root_data_dir + "_sharded", dataset)
