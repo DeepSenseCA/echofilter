@@ -259,6 +259,7 @@ intersphinx_mapping = {
     "SciPy": ("https://docs.scipy.org/doc/scipy/reference", None),
     "matplotlib": ("https://matplotlib.org", None),
     "sklearn": ("https://scikit-learn.org/stable", None),
+    "PIL": ("https://pillow.readthedocs.io/en/stable/", None),
     "Pillow": ("https://pillow.readthedocs.io/en/stable/", None),
     "skimage": ("https://github.com/scikit-image/docs/raw/gh-pages/dev", None),
 }
