@@ -12,7 +12,7 @@ Introduction
 ------------
 
 Echofilter is an application for segmenting an echogram. It takes as its
-input an Echoview .EV file, and produces as its output several lines and
+input an :term:`Echoview` .EV file, and produces as its output several lines and
 regions:
 
 -  :term:`turbulence<turbulence line>` (:term:`entrained air`) line
@@ -52,7 +52,7 @@ Disclaimers
    not reliable and should be considered experimental. By default, these
    outputs are disabled.
 
--  Integration with Echoview was tested for Echoview 10 and 11.
+-  Integration with :term:`Echoview` was tested for Echoview 10 and 11.
 
 .. raw:: latex
 
@@ -84,8 +84,8 @@ Glossary
         A line separating the seafloor from the :term:`water column`.
 
     Checkpoint
-        A checkpoint file defines the weights for a particular neural network
-        :term:`model`.
+        A checkpoint file defines the weights for a particular
+        :term:`neural network` :term:`model`.
 
     Conditional model
         A :term:`model` which outputs conditional probabilities. In the context
@@ -96,11 +96,11 @@ Glossary
 
     CSV
         A comma-separated values file. The :term:`Sv` data can be exported
-        into this format by Echoview.
+        into this format by :term:`Echoview`.
 
     Dataset
-        A collection of data samples. In this project, the datasets are
-        :term:`Sv` recordings from multiple surveys.
+        A collection of data :term:`samples<Sample (model input)>`. In this
+        project, the datasets are :term:`Sv` recordings from multiple surveys.
 
     Downfacing
         The orientation of an :term:`echosounder` when it is located at the
@@ -122,12 +122,14 @@ Glossary
 
     Echosounder
         An electronic system that includes a computer, transceiver, and
-        :term:`transducer`. The system emits sonar pings and records the
-        intensity of the reflected echos at some fixed sampling rate.
+        :term:`transducer`. The system emits sonar :term:`pings<ping>` and
+        records the intensity of the reflected echos at some fixed sampling
+        rate.
 
     Echoview
-        A Windows software application (Echoview Software Pty Ltd, Tasmania,
-        Australia) for hydroacoustic data post-processing.
+        A Windows software application (`Echoview <https://www.echoview.com/>`__
+        Software Pty Ltd, Tasmania, Australia) for hydroacoustic data
+        post-processing.
 
     Entrained air
         Bubbles of air which have been submerged into the ocean by waves or
@@ -135,14 +137,14 @@ Glossary
         channels.
 
     EV file
-        An Echoview file bundling :term:`Sv` data together with associated
-        lines and regions produced by processing.
+        An :term:`Echoview` file bundling :term:`Sv` data together with
+        associated lines and regions produced by processing.
 
     EVL
-        The Echoview line file format.
+        The :term:`Echoview` line file format.
 
     EVR
-        The Echoview region file format.
+        The :term:`Echoview` region file format.
 
     Inference
         The procedure of using a :term:`model` to generate output predictions
@@ -154,9 +156,10 @@ Glossary
 
     Machine learning (ML)
         The process by which an :term:`algorithm` builds a mathematical model
-        based on sample data (":term:`training data`"), in order to make
-        predictions or decisions without being explicitly programmed to do so.
-        A subset of the field of Artificial Intelligence.
+        based on :term:`sample<Sample (model input)>` data
+        (":term:`training data`"), in order to make predictions or decisions
+        without being explicitly programmed to do so. A subset of the field of
+        Artificial Intelligence.
 
     Mobile
         A mobile :term:`echosounder` is one which is moving (relative to the
@@ -164,7 +167,8 @@ Glossary
 
     Model
         A mathematical model of a particular type of data. In our context,
-        the model understands an echogram-like input sample of :term:`Sv` data
+        the model understands an echogram-like input
+        :term:`Sample<Sample (model input)>` of :term:`Sv` data
         (which is its input) and outputs a probability distribution for
         where it predicts the :term:`turbulence` (:term:`entrained air`)
         boundary, :term:`bottom boundary<Bottom line>`, and
@@ -284,14 +288,14 @@ First, the setup:
 
 -  Load the :term:`model` from the :term:`checkpoint` into memory.
 
--  If any file to process is an EV file, open Echoview.
+-  If any file to process is an EV file, open :term:`Echoview`.
 
 -  If it was not already open, hide the Echoview window.
 
 After the :term:`model` is loaded from its checkpoint, each file is processed
 in turn. The processing time for an individual file scales linearly with
-the number of pings in the file (twice as many pings = twice as long to
-process).
+the number of :term:`pings<ping>` in the file (twice as many pings = twice as
+long to process).
 
 Each file is processed in the following steps:
 
@@ -318,17 +322,18 @@ Each file is processed in the following steps:
       does not match the detected orientation.
 
    -  Reflect the data in the Depth dimension if it is :term:`upfacing`, so
-      that the shallowest samples always occur first, and deepest last.
+      that the shallowest :term:`samples<Sample (ping)>` always occur first,
+      and deepest last.
 
 -  Normalise the distribution of the Sv intensities to match that
    expected by the :term:`model`.
 
 -  Split the input data into segments
 
-   -  Detect temporal discontinuities between pings
+   -  Detect temporal discontinuities between :term:`pings<ping>`.
 
    -  Split the input Sv data into segments such that each segment
-      contains contiguous temporal samples
+      contains contiguous :term:`pings<ping>`.
 
 -  Pass the each segment of the input through the :term:`model` to generate
    output probabilities.
@@ -355,7 +360,7 @@ Each file is processed in the following steps:
    -  The output boundary depth is estimated as the depth at which the
       cumulative probability distribution first exceeds 50%.
 
--  Bottom, surface, and turbulence lines are output to EVL files.
+-  Bottom, surface, and turbulence lines are output to :term:`EVL` files.
 
    -  Note: there is no EVL file for the :term:`nearfield line` since it is at a
       constant depth as provided by the user and not generated by
@@ -369,7 +374,7 @@ Each file is processed in the following steps:
    -  Regions which are too small (fewer than 10 pings for rectangles)
       are dropped.
 
-   -  All regions are written to a single EVR file.
+   -  All regions are written to a single :term:`EVR` file.
 
 -  If the input was an EV file, the lines and regions are imported into
    the EV file, and a :term:`nearfield line` is added.
@@ -385,7 +390,7 @@ Input
 
 Echofilter can process two types of file as its input: .EV files and
 .CSV files. The EV file input is more user-friendly, but requires the
-Windows operating system, and a fully operational Echoview application
+Windows operating system, and a fully operational :term:`Echoview` application
 (i.e. with an Echoview dongle). The CSV file format can be processed
 without Echoview, but must be generated in advance from the .EV file on
 a system with Echoview. The CSV files must contain raw :term:`Sv` data
@@ -477,14 +482,14 @@ overwritten.
 
 Specific outputs can be dropped by supplying the corresponding argument
 ``--no-bottom-line``, ``--no-surface-line``, or ``--no-turbulence-line``
-respectively. To drop particular types of region entirely from the EVR
+respectively. To drop particular types of region entirely from the :term:`EVR`
 output, use ``--minimum-passive-length -1``, ``--minimum-removed-length -1``,
 or ``--minimum-patch-area -1`` respectively. By default,
 :term:`bad data<Bad data regions>` regions (rectangles and contours) are not
 included in the EVR file. To include these, set ```--minimum-removed-length``
 and ``--minimum-patch-area`` to non-negative values.
 
-The lines written to the EVL files are the raw output from the model and
+The lines written to the :term:`EVL` files are the raw output from the model and
 do not include any offset.
 
 Importing outputs into EV file
@@ -627,7 +632,7 @@ dependencies are packaged as part of the distribution.
 Quick Start
 -----------
 
-Note that it is recommended to close Echoview before running echofilter
+Note that it is recommended to close :term:`Echoview` before running echofilter
 so that echofilter can run its own Echoview instance in the background.
 After echofilter has started processing the files, you can open Echoview
 again for your own use without interrupting echofilter.
@@ -708,7 +713,7 @@ using ``^`` to break up the long command into multiple lines:
         --minimum-removed-length -1 ^
         --minimum-patch-area -1
 
-Including :term:`bad data regions` in the EVR output:
+Including :term:`bad data regions` in the :term:`EVR` output:
 
 .. code-block:: powershell
 
@@ -980,8 +985,9 @@ Details for notable model checkpoints are provided below.
       94.29% on :term:`upfacing` :term:`stationary`
       :term:`validation<Validation set>` data.
 
-   -  Sample outputs on :term:`upfacing` :term:`stationary` data were
-      thoroughly verified via manual inspection by trained analysts.
+   -  :term:`Sample<Sample (model input)>` outputs on :term:`upfacing`
+      :term:`stationary` data were thoroughly verified via manual inspection
+      by trained analysts.
 
 :stationary2_effunet6x2-1_lc32_v2.1:
 
@@ -997,8 +1003,8 @@ Details for notable model checkpoints are provided below.
    -  Jaccard Index of 94.41% on :term:`upfacing` :term:`stationary`
       :term:`validation<Validation set>` data.
 
-   -  Sample outputs thoroughly were thoroughly verified via manual
-      inspection by trained analysts.
+   -  :term:`Sample<Sample (model input)>` outputs thoroughly were thoroughly
+      verified via manual inspection by trained analysts.
 
 :mobile_effunet6x2-1_lc32_v1.0:
 
@@ -1044,7 +1050,7 @@ Troubleshooting
    hard-drive space is available.
 
 -  If you experience problems with operations which occur inside
-   Echoview, please re-run the code but manually open Echoview before
+   :term:`Echoview`, please re-run the code but manually open Echoview before
    running echofilter. This will leave the Echoview window open and you
    will be able to read the error message within Echoview.
 
