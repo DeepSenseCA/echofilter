@@ -322,7 +322,7 @@ def get_parser():
             In order to process the directory given by SOURCE_DIR,
             specify "." for this argument, such as::
 
-                echofilter . --source-dir SOURCE_DIR
+                ev2csv . --source-dir SOURCE_DIR
         """,
     )
     group_infile = parser.add_argument_group(
