@@ -289,7 +289,7 @@ def get_parser():
         action="store_false",
         help="""
             Do not output an evl file for the turbulence line, and do not
-            import a turbulence line into the ev file.
+            import a turbulence line into the EV file.
         """,
     )
     group_outfile.add_argument(
@@ -298,7 +298,7 @@ def get_parser():
         action="store_false",
         help="""
             Do not output an evl file for the bottom line, and do not import
-            a bottom line into the ev file.
+            a bottom line into the EV file.
         """,
     )
     group_outfile.add_argument(
@@ -307,7 +307,7 @@ def get_parser():
         action="store_false",
         help="""
             Do not output an evl file for the surface line, and do not import
-            a surface line into the ev file.
+            a surface line into the EV file.
         """,
     )
     group_outfile.add_argument(
@@ -315,7 +315,7 @@ def get_parser():
         dest="add_nearfield_line",
         action="store_false",
         help="""
-            Do not add a nearfield line to the ev file.
+            Do not add a nearfield line to the EV file.
         """,
     )
     group_outfile.add_argument(
