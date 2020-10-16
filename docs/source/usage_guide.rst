@@ -841,21 +841,56 @@ https://xkcd.com/color/rgb/
 Pointers for users new to using the command prompt
 --------------------------------------------------
 
+Spaces in file names
+~~~~~~~~~~~~~~~~~~~~
+
 Running commands on files with spaces in their file names is
 problematic. This is because spaces are used to separate arguments from
-each other, so for instance ``command-name some path with spaces`` is
-actually running the command ``command-name`` with four arguments: ``some``,
-``path``, ``with``, and ``spaces``. You can run commands on paths containing
-spaces by encapsulating the path in quotes so it becomes a single
-string. For instance ``command-name "some path with spaces"``. In the
-long run, you may find it easier to change your directory structure to
-not include any spaces in any of the names of directories used for the
-data.
+each other, so for instance
 
-Also, take heed of the fact that ``\`` (backslash) is an escape character.
-On Windows, ``\`` is also used to denote directories (overloading the ``\``
-symbol with multiple meanings). For this reason, you should not include
-a trailing ``\`` when specifying directory inputs.
+.. code-block:: powershell
+
+    command-name some path with spaces
+
+is actually running the command ``command-name`` with four arguments:
+``some``, ``path``, ``with``, and ``spaces``.
+
+You can run commands on paths containing spaces by encapsulating the path
+in quotes (either single, ``'``, or double ``"`` quotes), so it becomes
+a single string.
+For instance
+
+.. code-block:: powershell
+
+    command-name "some path with spaces"
+
+In the long run, you may find it easier to change your directory
+structure to not include any spaces in any of the names of directories
+used for the data.
+
+Trailing backslash
+~~~~~~~~~~~~~~~~~~
+
+The ``\`` (backslash) is an
+`escape character <https://en.wikipedia.org/wiki/Escape_character>`__,
+used to give alternative meanings to symbols with special meanings.
+For example, the quote characters ``"`` and ``'`` indicate the start or end
+of a string but can be escape to obtain a literal quote character.
+
+On Windows, ``\`` is also used to denote directories. This overloads
+the ``\`` symbol with multiple meanings. For this reason, you should not include
+a trailing ``\`` when specifying directory inputs. Otherwise, if you
+provide the path in quotes an input of ``"some\path\"`` will not be
+registered correctly and will include a literal ``"`` character.
+Instead, you should use ``"some\path"``.
+
+Alternatively, you could escape the backslash character to ensure
+it is a literal backslash with ``"some\path\\"``, or use a forward
+slash with ``"some/path/"`` since :ref:`echofilter<echofilter CLI>`
+also understands forward slashes as a directory separator.
+
+Argument types
+~~~~~~~~~~~~~~
 
 Commands at the command prompt can take arguments. There are a couple of
 types of arguments:
