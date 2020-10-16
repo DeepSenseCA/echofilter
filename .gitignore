@@ -11,6 +11,9 @@ Untitled*.ipynb
 # Ignore builtin checkpoints, due to file size
 echofilter/checkpoints
 
+# Auto-generated rST root file for exporting docs to PDF
+docs/index_pdf.rst
+
 
 ##---------------------------------------------------
 # Continuous Integration .gitignore files
@@ -94,6 +97,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/_build*
 # sphinx-apidoc automatically generated documentation
 docs/source/packages
 
