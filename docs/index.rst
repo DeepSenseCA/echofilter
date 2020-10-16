@@ -8,5 +8,6 @@ Echofilter documentation
     source/usage_guide
     source/programs/programs
     source/packages/modules
+    source/changelog
     py-modindex
     genindex
