@@ -6,6 +6,7 @@ Echofilter documentation
     :caption: Contents:
 
     source/usage_guide
+    source/programs/programs
     source/packages/modules
 
 
