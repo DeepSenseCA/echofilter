@@ -42,6 +42,7 @@ from echofilter.plotting import plot_transect_predictions
 from echofilter.raw.loader import get_partition_list
 from echofilter.raw.manipulate import load_decomposed_transect_mask
 import echofilter.raw.shardloader
+import echofilter.ui
 
 
 ## For mobile dataset,
@@ -2031,6 +2032,13 @@ def get_parser():
     )
 
     return parser
+
+
+def _get_parser_sphinx():
+    """
+    Pre-format parser help for sphinx-argparse processing.
+    """
+    return echofilter.ui.formatters.format_parser_for_sphinx(get_parser())
 
 
 def main():

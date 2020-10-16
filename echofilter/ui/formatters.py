@@ -69,3 +69,39 @@ class FlexibleHelpFormatter(argparse.HelpFormatter):
         if text[0] == "d":
             return DedentTextHelpFormatter._fill_text(self, text[2:], *args, **kwargs)
         raise ValueError("Invalid format code: {}".format(text[0]))
+
+
+def format_parser_for_sphinx(parser):
+    """
+    Pre-format parser help for sphinx-argparse processing.
+
+    Parameters
+    ----------
+    parser : argparse.ArgumentParser
+        Initial argument parser.
+
+    Returns
+    -------
+    parser : argparse.ArgumentParser
+        The same argument parser, but with raw help text touched up so it
+        renders correctly when passed through sphinx-argparse.
+    """
+    for action_group in parser._action_groups:
+        for action in action_group._group_actions:
+            # Get the help text for this action
+            help = action.help
+            # Remove quotes around default strings, to prevent double-marking.
+            help = help.replace('"%(default)s"', "%(default)s")
+            help = help.replace("'%(default)s'", "%(default)s")
+            # Wrap any default values in `` so they are rendered as code.
+            help = help.replace("%(default)s", "``%(default)s``")
+            # Remove flexible formatter indictor, if present
+            if (
+                parser.formatter_class == FlexibleHelpFormatter
+                and len(help) > 1
+                and help[1] == "|"
+            ):
+                help = help[2:]
+            # Overwrite the help text
+            action.help = help
+    return parser

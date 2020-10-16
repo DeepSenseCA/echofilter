@@ -528,6 +528,13 @@ def get_parser():
     return parser
 
 
+def _get_parser_sphinx():
+    """
+    Pre-format parser help for sphinx-argparse processing.
+    """
+    return echofilter.ui.formatters.format_parser_for_sphinx(get_parser())
+
+
 def main():
     """
     Run ev2csv command line interface.

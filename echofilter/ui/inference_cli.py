@@ -1004,6 +1004,13 @@ def get_parser():
     return parser
 
 
+def _get_parser_sphinx():
+    """
+    Pre-format parser help for sphinx-argparse processing.
+    """
+    return formatters.format_parser_for_sphinx(get_parser())
+
+
 def cli():
     """
     Run `run_inference` with arguments taken from the command line using

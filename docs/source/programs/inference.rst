@@ -4,5 +4,5 @@ echofilter
 ==========
 
 .. argparse::
-   :ref: echofilter.ui.inference_cli.get_parser
+   :ref: echofilter.ui.inference_cli._get_parser_sphinx
    :prog: echofilter
