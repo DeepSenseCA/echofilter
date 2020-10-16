@@ -1673,9 +1673,14 @@ def meters_to_csv(meters, is_best, dirname=".", filename="meters.csv"):
         )
 
 
-def main():
+def get_parser():
     """
-    Run command line interface for model training.
+    Build parser for training command line interface.
+
+    Returns
+    -------
+    parser : argparse.ArgumentParser
+        CLI argument parser for training.
     """
 
     import argparse
@@ -2024,6 +2029,15 @@ def main():
         default=0.0,
         help="weighting for overall loss term (default: %(default)s)",
     )
+
+    return parser
+
+
+def main():
+    """
+    Run command line interface for model training.
+    """
+    parser = get_parser()
 
     # Use seaborn to set matplotlib plotting defaults
     import seaborn as sns
