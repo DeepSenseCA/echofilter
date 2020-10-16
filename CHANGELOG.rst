@@ -13,10 +13,54 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
-Unreleased
-----------
+Version `1.0.0 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0>`__
+------------------------------------------------------------------------
 
-`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0rc3...master>`__.
+Release date: 2020-10-18.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0rc3...1.0.0>`__.
+
+This is the first major release of echofilter.
+
+.. _v1.0.0 Added:
+
+Added
+~~~~~
+
+.. _v1.0.0 Added Inference:
+
+Inference
+^^^^^^^^^
+
+-   Add support for loading checkpoints shipped as part of the package.
+    (`#228 <https://github.com/DeepSenseCA/echofilter/pull/228>`__)
+-   More detailed error messages when unable to downlaod or load a model
+    i.e. due to a problem with the Internet connection, a 404 error,
+    or because the hard disk is out of space.
+    (`#228 <https://github.com/DeepSenseCA/echofilter/pull/228>`__)
+
+Documentation
+^^^^^^^^^^^^^
+
+-   Add Usage Guide source and sphinx documentation PDF generation routines
+    (`#232 <https://github.com/DeepSenseCA/echofilter/pull/232>`__,
+    `#233 <https://github.com/DeepSenseCA/echofilter/pull/233>`__,
+    `#234 <https://github.com/DeepSenseCA/echofilter/pull/234>`__,
+    `#235 <https://github.com/DeepSenseCA/echofilter/pull/235>`__)
+
+.. _v1.0.0 Fixed:
+
+Fixed
+~~~~~
+
+.. _v1.0.0 Fixed Documentation:
+
+Documentation
+^^^^^^^^^^^^^
+
+-   Fix formatting of some CHANGELOG and docstrings
+    (`#230 <https://github.com/DeepSenseCA/echofilter/pull/230>`__,
+    `#231 <https://github.com/DeepSenseCA/echofilter/pull/231>`__,
+    `#235 <https://github.com/DeepSenseCA/echofilter/pull/235>`__)
 
 
 Version `1.0.0rc3 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0rc3>`__
