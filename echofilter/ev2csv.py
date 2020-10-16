@@ -258,9 +258,14 @@ def ev2csv(
     return destination
 
 
-def main():
+def get_parser():
     """
-    Run ev2csv command line interface.
+    Build parser for ev2csv command line interface.
+
+    Returns
+    -------
+    parser : argparse.ArgumentParser
+        CLI argument parser for ev2csv.
     """
 
     import argparse
@@ -519,6 +524,14 @@ def main():
         """,
     )
 
+    return parser
+
+
+def main():
+    """
+    Run ev2csv command line interface.
+    """
+    parser = get_parser()
     kwargs = vars(parser.parse_args())
     kwargs["verbose"] -= kwargs.pop("quiet", 0)
 

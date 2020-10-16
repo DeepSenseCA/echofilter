@@ -27,7 +27,7 @@ from echofilter import __meta__ as meta  # noqa: E402
 
 now = datetime.datetime.now()
 
-project = meta.name
+project = meta.name.title()
 project_path = meta.path
 author = meta.author
 copyright = "{}, {}".format(now.year, author)
@@ -102,6 +102,7 @@ extensions = [
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
+    "sphinxarg.ext",
 ]
 
 # Napoleon settings

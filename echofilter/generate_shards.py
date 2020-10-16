@@ -133,10 +133,16 @@ def generate_shards(
                 pass
 
 
-def main():
+def get_parser():
     """
-    Command line interface for generating dataset shards from CSV files.
+    Build parser for command line interface for generating shards.
+
+    Returns
+    -------
+    parser : argparse.ArgumentParser
+        CLI argument parser for generating shards.
     """
+
     import argparse
 
     # Create parser
@@ -190,6 +196,14 @@ def main():
         "--verbose", "-v", action="count", default=0, help="increase verbosity",
     )
 
+    return parser
+
+
+def main():
+    """
+    Command line interface for generating dataset shards from CSV files.
+    """
+    parser = get_parser()
     # Parse command line arguments
     args = parser.parse_args()
 

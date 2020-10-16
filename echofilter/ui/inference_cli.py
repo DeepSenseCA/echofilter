@@ -40,10 +40,14 @@ class ListColors(argparse.Action):
         parser.exit()  # exits the program with no more arg parsing and checking
 
 
-def cli():
+def get_parser():
     """
-    Run `run_inference` with arguments taken from the command line using
-    argparse.
+    Build parser for inference command line interface.
+
+    Returns
+    -------
+    parser : argparse.ArgumentParser
+        CLI argument parser for inference.
     """
     prog = os.path.split(sys.argv[0])[1]
     if prog == "__main__.py":
@@ -996,6 +1000,15 @@ def cli():
         """,
     )
 
+    return parser
+
+
+def cli():
+    """
+    Run `run_inference` with arguments taken from the command line using
+    argparse.
+    """
+    parser = get_parser()
     kwargs = vars(parser.parse_args())
 
     kwargs.pop("list_checkpoints")
