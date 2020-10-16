@@ -1,4 +1,4 @@
-.. _Echofilter CLI:
+.. _echofilter CLI:
 
 echofilter
 ==========

@@ -1,3 +1,5 @@
+.. _ev2csv CLI:
+
 ev2csv
 ======
 
