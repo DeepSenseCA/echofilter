@@ -47,7 +47,7 @@ Disclaimers
    recommended that a human analyst manually inspects the results it generates
    to confirm they are correct.
 
--  \*:term:`Bad data regions` are particularly challenging for the
+-  \* :term:`Bad data regions` are particularly challenging for the
    :term:`model` to generate. Consequently, the bad data region outputs are
    not reliable and should be considered experimental. By default, these
    outputs are disabled.
