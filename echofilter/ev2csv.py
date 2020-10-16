@@ -311,16 +311,17 @@ def get_parser():
             either files or directories. Paths can be given
             relative to the current directory, or optionally be
             relative to the SOURCE_DIR argument specified with
-            --source-dir. For each directory given, the directory
+            ``--source-dir``. For each directory given, the directory
             will be searched recursively for files bearing an
             extension specified by SEARCH_EXTENSION (see the
-            --extension argument for details).
+            ``--extension`` argument for details).
             Multiple files and directories can be specified,
             separated by spaces.
             This is a required argument. At least one input file
             or directory must be given.
             In order to process the directory given by SOURCE_DIR,
-            specify "." for this argument, such as:
+            specify "." for this argument, such as::
+
                 echofilter . --source-dir SOURCE_DIR
         """,
     )
@@ -420,8 +421,8 @@ def get_parser():
         type=str,
         default=None,
         help="""
-            Output filename suffix. Default is "_Sv_raw.csv", or ".Sv_raw.csv"
-            if the --keep_ext argument is supplied.
+            Output filename suffix. Default is ``"_Sv_raw.csv"``, or
+            ``".Sv_raw.csv"`` if the ``--keep_ext`` argument is supplied.
         """,
     )
 
@@ -469,7 +470,7 @@ def get_parser():
         default=None,
         help="""
             Don't hide an Echoview window created to run this code. (Disables
-            the default behaviour which is equivalent to --hide-echoview.)
+            the default behaviour which is equivalent to ``--hide-echoview``.)
         """,
     )
     group_evwin_hiding.add_argument(
@@ -490,8 +491,8 @@ def get_parser():
         help="""
             Minimize any Echoview window used to runs this code while it runs.
             The window will be restored once the program is finished.
-            If this argument is supplied, --show-echoview is implied unless
-            --hide-echoview is also given.
+            If this argument is supplied, ``--show-echoview`` is implied unless
+            ``--hide-echoview`` is also given.
         """,
     )
 

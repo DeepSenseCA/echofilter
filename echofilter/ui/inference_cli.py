@@ -4,8 +4,8 @@
 Provides a command line interface for the inference routine.
 
 This is separated out from inference.py so the responsiveness for simple
-commands like --help and --version is faster, not needing to import the full
-dependency stack.
+commands like ``--help`` and ``--version`` is faster, not needing to import
+the full dependency stack.
 """
 
 import argparse
@@ -95,9 +95,9 @@ def get_parser():
             https://matplotlib.org/gallery/color/named_colors.html.
             The XKCD color palette is also available, but is not
             shown in the output by default due to its size.
-            To show the just main palette, run as `--list-colors`
-            without argument, or `--list-colors css4`. To show the
-            full palette, run as `--list-colors full`.
+            To show the just main palette, run as ``--list-colors``
+            without argument, or ``--list-colors css4``. To show the
+            full palette, run as ``--list-colors full``.
         """,
     )
 
@@ -115,17 +115,18 @@ def get_parser():
             either files or directories. Paths can be given
             relative to the current directory, or optionally be
             relative to the SOURCE_DIR argument specified with
-            --source-dir. For each directory given, the directory
+            ``--source-dir``. For each directory given, the directory
             will be searched recursively for files bearing an
             extension specified by SEARCH_EXTENSION (see the
-            --extension argument for details).
+            ``--extension`` argument for details).
             Multiple files and directories can be specified,
             separated by spaces.
             This is a required argument. At least one input file
             or directory must be given, unless one of the
             arguments listed above under "Actions" is given.
             In order to process the directory given by SOURCE_DIR,
-            specify "." for this argument, such as:
+            specify "." for this argument, such as::
+
                 echofilter . --source-dir SOURCE_DIR
         """,
     )
@@ -268,8 +269,8 @@ def get_parser():
         dest="force",
         action="store_true",
         help="""
-            Short-hand equivalent to supplying both --overwrite-files and
-            --overwrite-ev-lines.
+            Short-hand equivalent to supplying both ``--overwrite-files`` and
+            ``--overwrite-ev-lines``.
         """,
     )
     group_outfile.add_argument(
@@ -340,7 +341,7 @@ def get_parser():
             EV file. If SUFFIX_VAR begins with an alphanumeric character, "-"
             is prepended to it to act as a delimiter.
             The default behaviour is to match SUFFIX_FILE if it is set, and use
-            "_echofilter" otherwise.
+            ``"_echofilter"`` otherwise.
         """,
     )
     group_outfile.add_argument(
@@ -350,9 +351,9 @@ def get_parser():
         help="""
             Color to use for the turbulence line when it is imported into
             Echoview. This can either be the name of a supported color (see
-            --list-colors for options), or a a hexadecimal string, or a string
-            representation of an RGB color to supply directly to Echoview (such
-            as "(0,255,0)"). Default: "%(default)s".
+            ``--list-colors`` for options), or a a hexadecimal string, or a
+            string representation of an RGB color to supply directly to
+            Echoview (such as ``"(0,255,0)"``). Default: "%(default)s".
         """,
     )
     group_outfile.add_argument(
@@ -370,10 +371,10 @@ def get_parser():
         default="orangered",
         help="""
             Color to use for the bottom line when it is imported into Echoview.
-            This can either be the name of a supported color (see --list-colors
-            for options), or a a hexadecimal string, or a string representation
-            of an RGB color to supply directly to Echoview (such as
-            "(0,255,0)"). Default: "%(default)s".
+            This can either be the name of a supported color (see
+            ``--list-colors`` for options), or a a hexadecimal string, or a
+            string representation of an RGB color to supply directly to
+            Echoview (such as ``"(0,255,0)"``). Default: "%(default)s".
         """,
     )
     group_outfile.add_argument(
@@ -392,9 +393,9 @@ def get_parser():
         help="""
             Color to use for the surface line when it is imported into
             Echoview. This can either be the name of a supported color (see
-            --list-colors for options), or a a hexadecimal string, or a string
-            representation of an RGB color to supply directly to Echoview (such
-            as "(0,255,0)"). Default: "%(default)s".
+            ``--list-colors`` for options), or a a hexadecimal string, or a
+            string representation of an RGB color to supply directly to
+            Echoview (such as ``"(0,255,0)"``). Default: "%(default)s".
         """,
     )
     group_outfile.add_argument(
@@ -413,9 +414,9 @@ def get_parser():
         help="""
             Color to use for the nearfield line when it is created in
             Echoview. This can either be the name of a supported color (see
-            --list-colors for options), or a a hexadecimal string, or a string
-            representation of an RGB color to supply directly to Echoview (such
-            as "(0,255,0)"). Default: "%(default)s".
+            ``--list-colors`` for options), or a a hexadecimal string, or a
+            string representation of an RGB color to supply directly to
+            Echoview (such as ``"(0,255,0)"``). Default: "%(default)s".
         """,
     )
     group_outfile.add_argument(
@@ -518,8 +519,8 @@ def get_parser():
             exported from EV files. The suffix is inserted between the input
             file name and the new file extension, ".csv".
             If SUFFIX_CSV begins with an alphanumeric character, a delimiter
-            is prepended. The delimiter is "-", or "." if --keep-ext is given.
-            The default behavior is to not append a suffix.
+            is prepended. The delimiter is "-", or "." if ``--keep-ext`` is
+            given. The default behavior is to not append a suffix.
         """,
     )
     group_outfile.add_argument(
@@ -545,9 +546,9 @@ def get_parser():
         help="""d|
             Status value for all the lines which are generated.
             Options are:
-              0: none
-              1: unverified
-              2: bad
+              0: none,
+              1: unverified,
+              2: bad,
               3: good
             Default: %(default)s.
         """,
@@ -570,7 +571,7 @@ def get_parser():
         help="""
             Offset for the turbulence line, in metres. This shifts the
             turbulence line downards by some distance OFFSET_TURBULENCE.
-            If this is set, it overwrites the value provided by --offset.
+            If this is set, it overwrites the value provided by ``--offset``.
         """,
     )
     group_outconfig.add_argument(
@@ -580,7 +581,7 @@ def get_parser():
         help="""
             Offset for the bottom line, in metres. This shifts the bottom line
             upwards by some distance OFFSET_BOTTOM. If this is set, it
-            overwrites the value provided by --offset.
+            overwrites the value provided by ``--offset``.
         """,
     )
     group_outconfig.add_argument(
@@ -590,7 +591,7 @@ def get_parser():
         help="""
             Offset for the surface line, in metres. This shifts the surface
             line downards by some distance OFFSET_SURFACE. If this is set, it
-            overwrites the value provided by --offset.
+            overwrites the value provided by ``--offset``.
         """,
     )
     group_outconfig.add_argument(
@@ -607,7 +608,7 @@ def get_parser():
             data.
             When processing an EV file, by default a nearfield line will be
             added at the nearfield cutoff depth. To prevent this behaviour,
-            use the --no-nearfield-line argument.
+            use the ``--no-nearfield-line`` argument.
         """,
     )
     group_outconfig_cutoff = group_outconfig.add_mutually_exclusive_group()
@@ -945,7 +946,7 @@ def get_parser():
         default=None,
         help="""
             Don't hide an Echoview window created to run this code. (Disables
-            the default behaviour which is equivalent to --hide-echoview.)
+            the default behaviour which is equivalent to ``--hide-echoview``.)
         """,
     )
     group_evwin_hiding.add_argument(
@@ -966,8 +967,8 @@ def get_parser():
         help="""
             Minimize any Echoview window used to runs this code while it runs.
             The window will be restored once the program is finished.
-            If this argument is supplied, --show-echoview is implied unless
-            --hide-echoview is also given.
+            If this argument is supplied, ``--show-echoview`` is implied unless
+            ``--hide-echoview`` is also given.
         """,
     )
 
