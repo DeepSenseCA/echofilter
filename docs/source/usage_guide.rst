@@ -1,24 +1,29 @@
-#############################
-Echofilter (v1.0) Usage Guide
-#############################
+Usage Guide
+###########
 
 Authors
     Scott C. Lowe, Louise McGarry
 
+.. raw:: latex
+
+    \clearpage
+
+Introduction
+------------
 
 Echofilter is an application for segmenting an echogram. It takes as its
 input an Echoview .EV file, and produces as its output several lines and
 regions:
 
--  turbulence (entrained air) line
+-  :term:`turbulence<turbulence line>` (:term:`entrained air`) line
 
--  bottom (seafloor) line
+-  :term:`bottom (seafloor) line<bottom line>`
 
--  surface line
+-  :term:`surface line`
 
--  nearfield line
+-  :term:`nearfield line`
 
--  passive data regions
+-  :term:`passive data` regions
 
 -  \*bad data regions for entirely removed periods of time, in the form
    of boxes covering the entire vertical depth
@@ -26,24 +31,26 @@ regions:
 -  \*bad data regions for localised anomalies, in the form of polygonal
    contour patches
 
-Echofilter uses a machine learning model to complete this task. The
-machine learning model was trained on upfacing stationary and downfacing
-mobile data provided by Fundy Ocean Research Centre for Energy (FORCE).
+Echofilter uses a :term:`machine learning<Machine learning (ML)>` :term:`model`
+to complete this task. The machine learning model was trained on
+:term:`upfacing` :term:`stationary` and :term:`downfacing` :term:`mobile` data
+provided by Fundy Ocean Research Centre for Energy (FORCE).
 
-**Disclaimers**
+Disclaimers
+~~~~~~~~~~~
 
--  The model is only confirmed to work reliably with upfacing data
-   recorded at the same location and with the same instrumentation as
+-  The :term:`model` is only confirmed to work reliably with :term:`upfacing`
+   data recorded at the same location and with the same instrumentation as
    the data it was trained on. It is expected to work well on a wider
    range of data, but this has not been confirmed. Even on data similar
-   to the training data, the model is not perfect and it is recommended
-   that a human analyst manually inspects the results it generates to
-   confirm they are correct.
+   to the :term:`training data`, the :term:`model` is not perfect and it is
+   recommended that a human analyst manually inspects the results it generates
+   to confirm they are correct.
 
--  \*Bad data regions are particularly challenging for the model to
-   generate. Consequently, the bad data region outputs are not reliable
-   and should be considered experimental. By default, these outputs are
-   disabled.
+-  \*:term:`Bad data regions` are particularly challenging for the
+   :term:`model` to generate. Consequently, the bad data region outputs are
+   not reliable and should be considered experimental. By default, these
+   outputs are disabled.
 
 -  Integration with Echoview was tested for Echoview 10 and 11.
 
@@ -58,43 +65,50 @@ Glossary
 .. glossary::
 
     Active data
-        Data collected while the echosounder is emitting sonar pulses
-        (“pings”) at regular intervals. This is the normal operating mode
-        for data in this project.
+        Data collected while the :term:`echosounder` is emitting sonar pulses
+        (":term:`pings<ping>`") at regular intervals. This is the normal
+        operating mode for data in this project.
 
     Algorithm
         A finite sequence of well-defined, unambiguous,
         computer-implementable operations.
 
+    Bad data regions
+        Regions of data which must be excluded from analysis in their entirety.
+        Bad data regions identified by echofilter come in two forms:
+        rectangular regions covering the full depth-extend of the echogram for
+        a period of time, and polygonal or contour regions encompassing a
+        localised area.
+
     Bottom line
-        A line separating the seafloor from the water column.
+        A line separating the seafloor from the :term:`water column`.
 
     Checkpoint
         A checkpoint file defines the weights for a particular neural network
-        model.
+        :term:`model`.
 
     Conditional model
-        A model which outputs conditional probabilities. In the context of an
-        echofilter model, the conditional probabilities are
+        A :term:`model` which outputs conditional probabilities. In the context
+        of an echofilter model, the conditional probabilities are
         :math:`p(x|\text{upfacing})` and :math:`p(x|\text{downfacing})`,
-        where :math:`x` is any of the model output
+        where :math:`x` is any of the :term:`model` output
         types; conditional models are necessarily hybrid models.
 
     CSV
-        A comma-separated values file. The Sv data can be exported into this
-        format by Echoview.
+        A comma-separated values file. The :term:`Sv` data can be exported
+        into this format by Echoview.
 
     Dataset
-        A collection of data samples. In this project, the datasets are Sv
-        recordings from multiple surveys.
+        A collection of data samples. In this project, the datasets are
+        :term:`Sv` recordings from multiple surveys.
 
     Downfacing
-        The orientation of an echosounder when it is located at the surface
-        and records from the water column below it.
+        The orientation of an :term:`echosounder` when it is located at the
+        surface and records from the :term:`water column` below it.
 
     Echofilter
         A software package for defining the placement of the boundary lines
-        and regions required to post-process echosounder data.
+        and regions required to post-process :term:`echosounder` data.
         The topic of this usage guide.
 
     echofilter.exe
@@ -102,13 +116,14 @@ Glossary
 
     Echogram
         The two-dimensional representation of a temporal series of
-        echosounder-collected data. Time is along the x-axis, and depth
-        along the y-axis. A common way of plotting echosounder recordings.
+        :term:`echosounder`-collected data. Time is along the x-axis, and depth
+        along the y-axis. A common way of plotting :term:`echosounder`
+        recordings.
 
     Echosounder
         An electronic system that includes a computer, transceiver, and
-        transducer. The system emits sonar pings and records the intensity
-        of the reflected echos at some fixed sampling rate.
+        :term:`transducer`. The system emits sonar pings and records the
+        intensity of the reflected echos at some fixed sampling rate.
 
     Echoview
         A Windows software application (Echoview Software Pty Ltd, Tasmania,
@@ -116,11 +131,12 @@ Glossary
 
     Entrained air
         Bubbles of air which have been submerged into the ocean by waves or
-        by the strong turbulence commonly found in tidal energy channels.
+        by the strong :term:`turbulence` commonly found in tidal energy
+        channels.
 
     EV file
-        An Echoview file bundling Sv data together with associated lines and
-        regions produced by processing.
+        An Echoview file bundling :term:`Sv` data together with associated
+        lines and regions produced by processing.
 
     EVL
         The Echoview line file format.
@@ -129,65 +145,70 @@ Glossary
         The Echoview region file format.
 
     Inference
-        The procedure of using a model to generate output predictions based
-        on a particular input.
+        The procedure of using a :term:`model` to generate output predictions
+        based on a particular input.
 
     Hybrid model
-        A model which has been trained on both downfacing and upfacing data.
+        A :term:`model` which has been trained on both :term:`downfacing` and
+        :term:`upfacing` data.
 
     Machine learning (ML)
-        The process by which an algorithm builds a mathematical model based
-        on sample data ("training data"), in order to make predictions or
-        decisions without being explicitly programmed to do so. A subset of
-        the field of Artificial Intelligence.
+        The process by which an :term:`algorithm` builds a mathematical model
+        based on sample data (":term:`training data`"), in order to make
+        predictions or decisions without being explicitly programmed to do so.
+        A subset of the field of Artificial Intelligence.
 
     Mobile
-        A mobile echosounder is one which is moving (relative to the ocean
-        floor) during its period of operation.
+        A mobile :term:`echosounder` is one which is moving (relative to the
+        ocean floor) during its period of operation.
 
     Model
         A mathematical model of a particular type of data. In our context,
-        the model understands an echogram-like input sample of Sv data
+        the model understands an echogram-like input sample of :term:`Sv` data
         (which is its input) and outputs a probability distribution for
-        where it predicts the turbulence (entrained air) boundary, bottom
-        boundary, and surface boundary to be located, and the probability of
-        passive periods and bad data.
+        where it predicts the :term:`turbulence` (:term:`entrained air`)
+        boundary, :term:`bottom boundary<Bottom line>`, and
+        :term:`surface boundary<Surface line>` to be located, and the
+        probability of :term:`passive<Passive data>` periods and
+        :term:`bad data<Bad data regions>`.
 
     Nearfield
-        The region of space too close to the echosounder to collect viable data.
+        The region of space too close to the :term:`echosounder` to collect
+        viable data.
 
     Nearfield distance
-        The maximum distance which is too close to the echosounder to be
-        viable for data collection.
+        The maximum distance which is too close to the :term:`echosounder` to
+        be viable for data collection.
 
     Nearfield line
-        A line placed at the nearfield distance.
+        A line placed at the :term:`nearfield distance`.
 
     Neural network
         An artificial neural network contains layers of interconnected
         neurons with weights between them. The weights are learned through a
-        machine learning process. After training, the network is a model
-        mapping inputs to outputs.
+        :term:`machine learning<Machine learning (ML)>` process. After
+        :term:`training`, the network is a :term:`model` mapping inputs to
+        outputs.
 
     Passive data
-        Data collected while the echosounder is silent. Since the sonar
+        Data collected while the :term:`echosounder` is silent. Since the sonar
         pulses are not being generated, only ambient sounds are collected.
-        This package is designed for analysing active data, and hence passive
-        data is marked for removal.
+        This package is designed for analysing :term:`active data`, and hence
+        :term:`passive data` is marked for removal.
 
     Ping
-        An echosounder sonar pulse event.
+        An :term:`echosounder` sonar pulse event.
 
     Sample (model input)
-        A single echogram-like matrix of Sv values.
+        A single echogram-like matrix of :term:`Sv` values.
 
     Sample (ping)
         A single datapoint recorded at a certain temporal latency in response
-        to a particular ping.
+        to a particular :term:`ping`.
 
     Stationary
-        A stationary echosounder is at a fixed location (relative to the
-        ocean floor) during its period of operation.
+        A stationary :term:`echosounder` is at a fixed location (relative to
+        the ocean floor) during its period of operation.
 
     Surface line
         Separates atmosphere and water at the ocean surface.
@@ -196,79 +217,85 @@ Glossary
         The volume backscattering strength.
 
     Test set
-        Data which was used to evaluate the ability of the model to
+        Data which was used to evaluate the ability of the :term:`model` to
         generalise to novel, unseen data.
 
     Training
-        The process by which a model is iteratively improved.
+        The process by which a :term:`model` is iteratively improved.
 
     Training data
-        Data which was used to train the model(s).
+        Data which was used to train the :term:`model(s)<model>`.
 
     Training set
-        A subset (partition) of the dataset which was used to train the model.
+        A subset (partition) of the :term:`dataset` which was used to train
+        the :term:`model`.
 
-    Transducer:
+    Transducer
         An underwater electronic device that converts electrical energy to
-        sound pressure energy. The emitted sound pulse is called a “ping”.
-        The device converts the returning sound pressure energy to electrical
-        energy, which is then recorded.
+        sound pressure energy. The emitted sound pulse is called a
+        ":term:`ping`". The device converts the returning sound pressure
+        energy to electrical energy, which is then recorded.
 
     Turbulence
         In contrast to laminar flow, fluid motion in turbulent regions are
         characterized by chaotic fluctuations in flow speed and direction.
-        Air is often entrained into the water column in regions of strong
-        turbulence.
+        Air is often entrained into the :term:`water column` in regions of
+        strong turbulence.
 
     Turbulence line
         A line demarcating the depth of the end-boundary of air entrained
-        into the water column by turbulence at the sea surface.
+        into the :term:`water column` by :term:`turbulence` at the sea
+        surface.
 
     Upfacing
-        The orientation of an echosounder when it is located at the seabed
-        and records from the water column above it.
+        The orientation of an :term:`echosounder` when it is located at the
+        seabed and records from the :term:`water column` above it.
 
     Validation set
-        Data which was used during the training process to evaluate the
-        ability of the model to generalise to novel, unseen data.
+        Data which was used during the :term:`training` process to evaluate the
+        ability of the :term:`model` to generalise to novel, unseen data.
 
     Water column
         The body of water between seafloor and ocean surface.
+
+.. raw:: latex
+
+    \clearpage
 
 
 Inference operations
 --------------------
 
-In this section, we describe the inference process, its outputs and
+In this section, we describe the :term:`inference` process, its outputs and
 inputs. Inference is the process of generating predictions from the
-model, and is the principal functionality of echofilter.
+:term:`model`, and is the principal functionality of echofilter.
 
 Processing overview
 ~~~~~~~~~~~~~~~~~~~
 
-This is an overview of how files are processed in the inference
+This is an overview of how files are processed in the :term:`inference`
 pipeline.
 
 First, the setup:
 
--  If a directory input was given, determine list of files to process
+-  If a directory input was given, determine list of files to process.
 
--  Download the model checkpoint, if necessary
+-  Download the model :term:`checkpoint`, if necessary.
 
--  Load the model from the checkpoint into memory
+-  Load the :term:`model` from the :term:`checkpoint` into memory.
 
--  If any file to process is an EV file, open Echoview
+-  If any file to process is an EV file, open Echoview.
 
--  If it was not already open, hide the Echoview window
+-  If it was not already open, hide the Echoview window.
 
-After the model is loaded from its checkpoint, each file is processed in
-turn. The processing time for an individual file scales linearly with
+After the :term:`model` is loaded from its checkpoint, each file is processed
+in turn. The processing time for an individual file scales linearly with
 the number of pings in the file (twice as many pings = twice as long to
 process).
 
 Each file is processed in the following steps:
 
--  If the input is an EV file, export the Sv data to CSV format.
+-  If the input is an EV file, export the :term:`Sv` data to CSV format.
 
    -  By default, the Sv data is taken from ``"Fileset1: Sv pings T1"``.
 
@@ -281,19 +308,21 @@ Each file is processed in the following steps:
    generated from the EV file in the preceding step.)
 
 -  Rescale the height of the Sv input to have the number of pixels
-   expected by the model.
+   expected by the :term:`model`.
 
--  Automatically determine whether the echosounder recording is upfacing
-   or downfacing, based on the order of the Depths data in the CSV file
+-  Automatically determine whether the :term:`echosounder` recording is
+   :term:`upfacing` or :term:`downfacing`, based on the order of the Depths
+   data in the CSV file.
 
    -  If the orientation was manually specified, issue a warning if it
-      does not match the detected orientation
+      does not match the detected orientation.
 
-   -  Reflect the data in the Depth dimension if it is upfacing, so that
-      the shallowest samples always occur first, and deepest last
+   -  Reflect the data in the Depth dimension if it is :term:`upfacing`, so
+      that the shallowest samples always occur first, and deepest last.
 
 -  Normalise the distribution of the Sv intensities to match that
-   expected by the model
+   expected by the :term:`model`.
+
 -  Split the input data into segments
 
    -  Detect temporal discontinuities between pings
@@ -301,40 +330,41 @@ Each file is processed in the following steps:
    -  Split the input Sv data into segments such that each segment
       contains contiguous temporal samples
 
--  Pass the each segment of the input through the model to generate
-   output probabilities
--  Crop the depth dimension down to zoom in on the most salient data
+-  Pass the each segment of the input through the :term:`model` to generate
+   output probabilities.
 
-   -  If upfacing, crop the top off the echogram to show only 2m above
-      the shallowest estimated surface line depth
+-  Crop the depth dimension down to zoom in on the most salient data.
 
-   -  If downfacing, crop the bottom off the echogram only 2m below the
-      deepest estimated bottom line depth
+   -  If :term:`upfacing`, crop the top off the echogram to show only 2m above
+      the shallowest estimated :term:`surface line` depth.
+
+   -  If :term:`downfacing`, crop the bottom off the echogram only 2m below the
+      deepest estimated :term:`bottom line` depth.
 
    -  If more than 35% of the echogram's height (threshold value set
       with ``--autocrop-threshold``) was cropped away, pass the cropped
-      Sv data through the model to get better predictions based on
-      the zoomed in data
+      Sv data through the :term:`model` to get better predictions based on
+      the zoomed in data.
 
--  Line boundary probabilities are converted into output depths
+-  Line boundary probabilities are converted into output depths.
 
    -  The boundary probabilities at each pixel are integrated to make a
       cumulative probability distribution across depth,
       :math:`p(\text{depth} > \text{boundary location})`.
 
    -  The output boundary depth is estimated as the depth at which the
-      cumulative probability distribution first exceeds 50%
+      cumulative probability distribution first exceeds 50%.
 
 -  Bottom, surface, and turbulence lines are output to EVL files.
 
-   -  Note: there is no EVL file for the nearfield line since it is at a
+   -  Note: there is no EVL file for the :term:`nearfield line` since it is at a
       constant depth as provided by the user and not generated by
-      the model.
+      the :term:`model`.
 
 -  Regions are generated:
 
    -  Regions are collated if there is a small gap between consecutive
-      passive data or bad data regions.
+      :term:`passive data` or :term:`bad data regions`.
 
    -  Regions which are too small (fewer than 10 pings for rectangles)
       are dropped.
@@ -342,7 +372,7 @@ Each file is processed in the following steps:
    -  All regions are written to a single EVR file.
 
 -  If the input was an EV file, the lines and regions are imported into
-   the EV file, and a nearfield line is added.
+   the EV file, and a :term:`nearfield line` is added.
 
 Simulating processing
 ~~~~~~~~~~~~~~~~~~~~~
@@ -358,11 +388,11 @@ Echofilter can process two types of file as its input: .EV files and
 Windows operating system, and a fully operational Echoview application
 (i.e. with an Echoview dongle). The CSV file format can be processed
 without Echoview, but must be generated in advance from the .EV file on
-a system with Echoview. The CSV files must contain raw Sv data (without
-thresholding or masking) and in the format produced by exporting Sv data
-from Echoview. These raw CSV files can be exported using the utility
-ev2csv, which is provided as a separate executable in the echofilter
-package.
+a system with Echoview. The CSV files must contain raw :term:`Sv` data
+(without thresholding or masking) and in the format produced by
+exporting Sv data from Echoview. These raw CSV files can be exported
+using the utility ev2csv, which is provided as a separate executable in
+the echofilter package.
 
 If the input path is a directory, all files in the directory are
 processed. By default, all subdirectories are recursively processed;
@@ -382,18 +412,19 @@ By default, when processing an EV file, the Sv data is taken from the
 Loading model
 ~~~~~~~~~~~~~
 
-The model used to process the data is loaded from a checkpoint file. The
-first time a particular model is used, the checkpoint file will be
-downloaded over the internet. The checkpoint file will be cached on your
-system and will not need to be downloaded again unless you clear your
-cache.
+The :term:`model` used to process the data is loaded from a :term:`checkpoint`
+file. The executable echofilter.exe comes with its default model checkpoint
+bundled as part of the release. Aside from this, the first time a particular
+model is used, the checkpoint file will be downloaded over the internet.
+The checkpoint file will be cached on your system and will not need to be
+downloaded again unless you clear your cache.
 
 Multiple models are available to select from. These can be shown by
 running the command ``echofilter --list-checkpoints``; the default model
 will be highlighted in the output. In general, it is recommended to use
-the default checkpoint. See Model checkpoints below for more details.
+the default checkpoint. See :ref:`Model checkpoints` below for more details.
 
-When running echofilter for inference, the checkpoint can be specified
+When running echofilter for :term:`inference`, the checkpoint can be specified
 with the ``--checkpoint`` argument.
 
 If you wish to use a custom model which is not built in to echofilter,
@@ -409,24 +440,24 @@ For each input file, echofilter produces the following output files:
 
 <input>.bottom.evl
     An Echoview line file containing the depth of the
-    bottom line.
+    :term:`bottom line`.
 
 <input>.regions.evr
     An Echoview region file containing
-    spatiotemporal definitions of passive recording rectangle regions,
-    bad data full-vertical depth rectangle regions, and bad data anomaly
-    polygonal (contour) regions.
+    spatiotemporal definitions of :term:`passive<passive data>` recording
+    rectangle regions, :term:`bad data<Bad data regions>` full-vertical depth
+    rectangle regions, and bad data anomaly polygonal (contour) regions.
 
 <input>.surface.evl
     An Echoview line file containing the depth of
-    the surface line.
+    the :term:`surface line`.
 
 <input>.turbulence.evl
     An Echoview line file containing the depth of
-    the turbulence line.
+    the :term:`turbulence line`.
 
 where <input> is the path to an input file, stripped of its file
-extension. There is no EVL file for the nearfield line, since it is a
+extension. There is no EVL file for the :term:`nearfield line`, since it is a
 virtual line of fixed depth added to the EV file during the *Importing
 outputs into EV file* step.
 
@@ -448,10 +479,10 @@ Specific outputs can be dropped by supplying the corresponding argument
 ``--no-bottom-line``, ``--no-surface-line``, or ``--no-turbulence-line``
 respectively. To drop particular types of region entirely from the EVR
 output, use ``--minimum-passive-length -1``, ``--minimum-removed-length -1``,
-or ``--minimum-patch-area -1`` respectively. By default, bad data regions
-(rectangles and contours) are not included in the EVR file. To include
-these, set ```--minimum-removed-length`` and ``--minimum-patch-area`` to
-non-negative values.
+or ``--minimum-patch-area -1`` respectively. By default,
+:term:`bad data<Bad data regions>` regions (rectangles and contours) are not
+included in the EVR file. To include these, set ```--minimum-removed-length``
+and ``--minimum-patch-area`` to non-negative values.
 
 The lines written to the EVL files are the raw output from the model and
 do not include any offset.
@@ -467,9 +498,10 @@ supplying the ``--no-ev-import`` argument.
 All lines will be imported twice: once at the original depth and a
 second time with an offset included. This offset ensures the exclusion
 of data biased by the acoustic deadzone, and provides a margin of safety
-at the bottom depth of the entrained air. The offset moves the surface
-and turbulence lines downwards (deeper), and the bottom line upwards
-(shallower). The default offset is 1m for all three lines, and can be
+at the bottom depth of the :term:`entrained air`. The offset moves the
+:term:`surface<surface line>` and :term:`turbulence<turbulence line>` lines
+downwards (deeper), and the :term:`bottom line` upwards (shallower).
+The default offset is 1m for all three lines, and can be
 set using the ``--offset`` argument. A different offset can be used for each
 line by providing the ``--offset-bottom``, ``--offset-surface``, and
 ``--offset-turbulence`` arguments.
@@ -486,10 +518,10 @@ name. To instead overwrite existing line variables, supply the
 ``--overwrite-ev-lines`` argument. Note that existing regions will not be
 overwritten (only lines).
 
-By default, a nearfield line is also added to the EV file at a fixed
-range of 1.7m from the transducer position. The nearfield distance can
-be changed as appropriate for the echosounder in use by setting the
-``--nearfield`` parameter.
+By default, a :term:`nearfield line` is also added to the EV file at a fixed
+range of 1.7m from the :term:`transducer` position.
+The :term:`nearfield distance` can be changed as appropriate for the
+:term:`echosounder` in use by setting the ``--nearfield`` parameter.
 
 The colour and thickness of the lines can be customised using the
 ``--color-surface``, ``--thickness-surface`` (etc) arguments.
@@ -585,7 +617,7 @@ dependencies are packaged as part of the distribution.
       from 3e (e.g. ``C:\Program Files\echofilter``) to the list
 
 7. You can now run echofilter on some files, by using the echofilter
-   command in the terminal. Example commands are shown below.
+   command in the terminal. :ref:`Example commands` are shown below.
 
 .. raw:: latex
 
@@ -603,106 +635,113 @@ again for your own use without interrupting echofilter.
 Recommended first time usage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: batch
+The first time you use echofilter, you should run it in simulation mode
+(by supplying the ``--dry-run`` argument) before-hand so you can see what it
+will do.
+
+.. code-block:: powershell
 
     echofilter some/path/to/directory_or_file --dry-run
-
-The first time you use echofilter, you should run it in simulation mode
-before hand so you can see what it will do.
 
 The path you supply to echofilter can be an absolute path, or a relative
 path. If it is a relative path, it should be relative to the current
 working directory of the command prompt.
+
+.. _example commands:
 
 Example commands
 ~~~~~~~~~~~~~~~~
 
 Specifying a single file to process, using an absolute path:
 
-.. code-block:: batch
+.. code-block:: powershell
 
-    echofilter "C:\Users\Bob\OneDrive\Desktop\MinasPassage\2020\20200801_SiteA.EV"
+    echofilter "C:\Users\Bob\Desktop\MinasPassage\2020\20200801_SiteA.EV"
 
 Specifying a single file to process, using a path relative to the
 current directory of the command prompt:
 
-.. code-block:: batch
+.. code-block:: powershell
 
     echofilter "MinasPassage\2020\20200801_SiteA.EV"
 
-Specifying a directory of upfacing stationary data to process
-(using ``^`` to break up the long command into multiple lines):
+Simulating processing of a single file, using a relative path:
 
-.. code-block:: batch
+.. code-block:: powershell
 
-    echofilter "C:\Users\Bob\OneDrive\Desktop\MinasPassage\2020" ^
-        --no-bottom-line
+    echofilter "MinasPassage\2020\20200801_SiteA.EV" --dry-run
 
-Specifying a directory of downfacing mobile data to process:
+Specifying a directory of :term:`upfacing` :term:`stationary` data to process,
+and excluding the bottom line from the output:
 
-.. code-block:: batch
+.. code-block:: powershell
 
-    echofilter "C:\Users\Bob\Documents\MobileSurveyData\Survey11" ^
-        --no-surface-line
+    echofilter "C:\Users\Bob\OneDrive\Desktop\MinasPassage\2020" --no-bottom-line
+
+Specifying a directory of :term:`downfacing` :term:`mobile` data to process,
+and excluding the surface line from the output:
+
+.. code-block:: powershell
+
+    echofilter "C:\Users\Bob\Documents\MobileSurveyData\Survey11" --no-surface-line
 
 Processing the same directory after some files were added to it,
 skipping files already processed:
 
-.. code-block:: batch
+.. code-block:: powershell
 
-    echofilter "C:\Users\Bob\Documents\MobileSurveyData\Survey11" ^
-        --no-surface --skip
+    echofilter "C:\Users\Bob\Documents\MobileSurveyData\Survey11" --no-surface --skip
 
 Processing the same directory after some files were added to it,
 overwriting files already processed:
 
-.. code-block:: batch
+.. code-block:: powershell
 
-    echofilter "C:\Users\Bob\Documents\MobileSurveyData\Survey11" ^
-        --no-surface --force
+    echofilter "C:\Users\Bob\Documents\MobileSurveyData\Survey11" --no-surface --force
 
-Ignoring all bad data regions (default):
+Ignoring all :term:`bad data regions` (default),
+using ``^`` to break up the long command into multiple lines:
 
-.. code-block:: batch
+.. code-block:: powershell
 
     echofilter "path/to/file_or_directory" ^
         --minimum-removed-length -1 ^
         --minimum-patch-area -1
 
-Including bad data regions in the EVR output:
+Including :term:`bad data regions` in the EVR output:
 
-.. code-block:: batch
+.. code-block:: powershell
 
     echofilter "path/to/file_or_directory" ^
         --minimum-removed-length 10 ^
         --minimum-patch-area 25
 
-Keep line predictions during passive periods (default is to linearly
-interpolate instead):
+Keep line predictions during :term:`passive<passive data>` periods (default
+is to linearly interpolate lines during passive data collection):
 
-.. code-block:: batch
+.. code-block:: powershell
 
     echofilter "path/to/file_or_directory" --lines-during-passive predict
 
 Specifying file and variable suffix, and line colours and thickness:
 
-.. code-block:: batch
+.. code-block:: powershell
 
     echofilter "path/to/file_or_directory" ^
-        --suffix _echofilter_stationary-model ^
-        --color-surface “green” --thickness-surface 4 ^
-        --color-nearfield “red” --thickness-nearfield 3
+        --suffix "_echofilter_stationary-model" ^
+        --color-surface "green" --thickness-surface 4 ^
+        --color-nearfield "red" --thickness-nearfield 3
 
 Processing a file with more output messages displayed in the terminal:
 
-.. code-block:: batch
+.. code-block:: powershell
 
     echofilter "path/to/file_or_directory" --verbose
 
 Processing a file and sending the output to a log file instead of the
 terminal:
 
-.. code-block:: batch
+.. code-block:: powershell
 
     echofilter "path/to/file_or_directory" -v > path/to/log_file.txt 2>&1
 
@@ -711,18 +750,16 @@ Argument documentation
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Echofilter has a large number of customisation options. The complete list
-of argument options available to the user is *not* detailed as part of
-this usage guide document.
-
-To see the full list of arguments available, please consult the help for
-echofilter. This is output to the terminal when you run the command
-``echofilter --help``.
+of argument options available to the user can be seen in the
+:ref:`CLI Reference<Echofilter CLI>`, or by consulting the help for
+echofilter. The help documentation is output to the terminal when you run the
+command ``echofilter --help``.
 
 
 Actions
 ~~~~~~~
 
-The main echofilter action is to perform inference on a file or
+The main echofilter action is to perform :term:`inference` on a file or
 collection of files. However, certain arguments trigger different
 actions.
 
@@ -731,7 +768,7 @@ help
 
 Show echofilter documentation and all possible arguments.
 
-.. code-block:: batch
+.. code-block:: powershell
 
     echofilter --help
 
@@ -740,7 +777,7 @@ version
 
 Show program's version number.
 
-.. code-block:: batch
+.. code-block:: powershell
 
     echofilter --version
 
@@ -750,7 +787,7 @@ list checkpoints
 
 Show the available model checkpoints and exit.
 
-.. code-block:: batch
+.. code-block:: powershell
 
     echofilter --list-checkpoints
 
@@ -760,7 +797,7 @@ list colours
 List the available (main) colour options for lines. The palette can be
 viewed at https://matplotlib.org/gallery/color/named_colors.html
 
-.. code-block:: batch
+.. code-block:: powershell
 
     echofilter --list-colors
 
@@ -768,7 +805,7 @@ List all available colour options (very long list) including the XKCD
 colour palette of 954 colours, which can be viewed at
 https://xkcd.com/color/rgb/
 
-.. code-block:: batch
+.. code-block:: powershell
 
     echofilter --list-colors full
 
@@ -824,8 +861,8 @@ together in one entry, such as ``--skip-existing``, ``--skip``, ``-s``; and
 optional have it shown in square brackets, such as
 ``--cache-csv [CSV_DIR]``. Arguments which accept a variable number of values
 are shown such as ``--extension SEARCH_EXTENSION [SEARCH_EXTENSION ...]``.
-Arguments whose value can only take one of a set number of options are shown in
-curly brackets, such as ``--facing {downward,upward,auto}``.
+Arguments whose value can only take one of a set number of options are
+shown in curly brackets, such as ``--facing {downward,upward,auto}``.
 
 Long lines for commands at the command prompt can be broken up into
 multiple lines by using a continuation character. On Windows, the line
@@ -840,7 +877,7 @@ Pre-trained models
 The currently available model checkpoints can be seen by running the
 command
 
-.. code-block:: batch
+.. code-block:: powershell
 
     echofilter --list-checkpoints
 
@@ -854,7 +891,7 @@ Stationary
 ^^^^^^^^^^
 
 :data collection:
-    bottom-mounted stationary, autonomous
+    bottom-mounted :term:`stationary`, autonomous
 
 :orientation:
     uplooking
@@ -899,6 +936,8 @@ Mobile
 :organization:
     FORCE
 
+.. _Model checkpoints:
+
 Model checkpoints
 ~~~~~~~~~~~~~~~~~
 
@@ -914,52 +953,63 @@ Details for notable model checkpoints are provided below.
 
 :conditional_mobile-stationary2_effunet6x2-1_lc32_v2.2:
 
-   -  Trained on both upfacing stationary and downfacing mobile data.
+   -  Trained on both :term:`upfacing` :term:`stationary` and
+      :term:`downfacing` :term:`mobile` data.
 
-   -  Jaccard Index of **96.84%** on downfacing mobile and **94.51%** on
-      upfacing stationary validation data.
+   -  Jaccard Index of **96.84%** on :term:`downfacing` :term:`mobile` and
+      **94.51%** on :term:`upfacing` :term:`stationary`
+      :term:`validation<Validation set>` data.
 
    -  Default model checkpoint.
 
 :conditional_mobile-stationary2_effunet6x2-1_lc32_v2.1:
 
-   -  Trained on both upfacing stationary and downfacing mobile data.
+   -  Trained on both :term:`upfacing` :term:`stationary` and
+      :term:`downfacing` :term:`mobile` data.
 
-   -  Jaccard Index of 96.8% on downfacing mobile and 94.4% on upfacing
-      stationary validation data.
+   -  Jaccard Index of 96.8% on :term:`downfacing` :term:`mobile` and
+      94.4% on :term:`upfacing` :term:`stationary`
+      :term:`validation<Validation set>` data.
 
 :conditional_mobile-stationary2_effunet6x2-1_lc32_v2.0:
 
-   -  Trained on both upfacing stationary and downfacing mobile data.
+   -  Trained on both :term:`upfacing` :term:`stationary` and
+      :term:`downfacing` :term:`mobile` data.
 
-   -  Jaccard Index of 96.62% on downfacing mobile and 94.29% on upfacing
-      stationary validation data.
+   -  Jaccard Index of 96.62% on :term:`downfacing` :term:`mobile` and
+      94.29% on :term:`upfacing` :term:`stationary`
+      :term:`validation<Validation set>` data.
 
-   -  Sample outputs on upfacing stationary data were thoroughly
-      verified via manual inspection by trained analysts.
+   -  Sample outputs on :term:`upfacing` :term:`stationary` data were
+      thoroughly verified via manual inspection by trained analysts.
 
 :stationary2_effunet6x2-1_lc32_v2.1:
 
-   -  Trained on upfacing stationary data only.
+   -  Trained on :term:`upfacing` :term:`stationary` data only.
 
-   -  Jaccard Index of 94.4% on upfacing stationary validation data.
+   -  Jaccard Index of 94.4% on :term:`upfacing` :term:`stationary`
+      :term:`validation<Validation set>` data.
 
 :stationary2_effunet6x2-1_lc32_v2.0:
 
-   -  Trained on upfacing stationary data only.
+   -  Trained on :term:`upfacing` :term:`stationary` data only.
 
-   -  Jaccard Index of 94.41% on upfacing stationary validation data.
+   -  Jaccard Index of 94.41% on :term:`upfacing` :term:`stationary`
+      :term:`validation<Validation set>` data.
 
    -  Sample outputs thoroughly were thoroughly verified via manual
       inspection by trained analysts.
 
 :mobile_effunet6x2-1_lc32_v1.0:
 
-   -  Trained on downfacing mobile data only.
+   -  Trained on :term:`downfacing` :term:`mobile` data only.
 
+
+Issues
+------
 
 Known issues
-------------
+~~~~~~~~~~~~
 
 There is a memory leak somewhere in echofilter. Consequently, its memory
 usage will slowly rise while it is in use. When processing a very large
@@ -969,7 +1019,7 @@ restart echofilter from where it was up to, or run the same command with
 the ``--skip`` argument, to process the rest of the files.
 
 Troubleshooting
----------------
+~~~~~~~~~~~~~~~
 
 -  If you run out of memory after processing a single file, consider
    closing other programs to free up some memory. If this does not help,
@@ -979,7 +1029,7 @@ Troubleshooting
    number of files, restart the process by running the same command with
    the ``--skip`` argument. See the known issues section above.
 
--  If you have a problem using a checkpoint for the first time:
+-  If you have a problem using a :term:`checkpoint` for the first time:
 
    -  check your internet connection
 
@@ -999,7 +1049,7 @@ Troubleshooting
    will be able to read the error message within Echoview.
 
 Reporting an issue
-------------------
+~~~~~~~~~~~~~~~~~~
 
 If you experience a problem with echofilter, please report it by
 emailing scottclowe@gmail.com. Please include all details necessary to
