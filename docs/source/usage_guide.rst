@@ -4,6 +4,8 @@ Usage Guide
 Authors
     Scott C. Lowe, Louise McGarry
 
+.. highlight:: powershell
+
 .. raw:: latex
 
     \clearpage
@@ -658,9 +660,7 @@ Recommended first time usage
 
 The first time you use :ref:`echofilter<echofilter CLI>`, you should run
 it in simulation mode (by supplying the ``--dry-run`` argument)
-before-hand so you can see what it will do.
-
-.. code-block:: powershell
+before-hand so you can see what it will do::
 
     echofilter some/path/to/directory_or_file --dry-run
 
@@ -673,102 +673,74 @@ relative to the current working directory of the command prompt.
 Example commands
 ~~~~~~~~~~~~~~~~
 
-Review echofilter's documentation help within the terminal:
-
-.. code-block:: powershell
+Review echofilter's documentation help within the terminal::
 
     echofilter --help
 
-Specifying a single file to process, using an absolute path:
-
-.. code-block:: powershell
+Specifying a single file to process, using an absolute path::
 
     echofilter "C:\Users\Bob\Desktop\MinasPassage\2020\20200801_SiteA.EV"
 
 Specifying a single file to process, using a path relative to the
-current directory of the command prompt:
-
-.. code-block:: powershell
+current directory of the command prompt::
 
     echofilter "MinasPassage\2020\20200801_SiteA.EV"
 
-Simulating processing of a single file, using a relative path:
-
-.. code-block:: powershell
+Simulating processing of a single file, using a relative path::
 
     echofilter "MinasPassage\2020\20200801_SiteA.EV" --dry-run
 
 Specifying a directory of :term:`upfacing` :term:`stationary` data to process,
-and excluding the bottom line from the output:
-
-.. code-block:: powershell
+and excluding the bottom line from the output::
 
     echofilter "C:\Users\Bob\OneDrive\Desktop\MinasPassage\2020" --no-bottom-line
 
 Specifying a directory of :term:`downfacing` :term:`mobile` data to process,
-and excluding the surface line from the output:
-
-.. code-block:: powershell
+and excluding the surface line from the output::
 
     echofilter "C:\Users\Bob\Documents\MobileSurveyData\Survey11" --no-surface-line
 
 Processing the same directory after some files were added to it,
-skipping files already processed:
-
-.. code-block:: powershell
+skipping files already processed::
 
     echofilter "C:\Users\Bob\Documents\MobileSurveyData\Survey11" --no-surface --skip
 
 Processing the same directory after some files were added to it,
-overwriting files already processed:
-
-.. code-block:: powershell
+overwriting files already processed::
 
     echofilter "C:\Users\Bob\Documents\MobileSurveyData\Survey11" --no-surface --force
 
 Ignoring all :term:`bad data regions` (default),
-using ``^`` to break up the long command into multiple lines:
-
-.. code-block:: powershell
+using ``^`` to break up the long command into multiple lines::
 
     echofilter "path/to/file_or_directory" ^
         --minimum-removed-length -1 ^
         --minimum-patch-area -1
 
-Including :term:`bad data regions` in the :term:`EVR` output:
-
-.. code-block:: powershell
+Including :term:`bad data regions` in the :term:`EVR` output::
 
     echofilter "path/to/file_or_directory" ^
         --minimum-removed-length 10 ^
         --minimum-patch-area 25
 
 Keep line predictions during :term:`passive<passive data>` periods (default
-is to linearly interpolate lines during passive data collection):
-
-.. code-block:: powershell
+is to linearly interpolate lines during passive data collection)::
 
     echofilter "path/to/file_or_directory" --lines-during-passive predict
 
-Specifying file and variable suffix, and line colours and thickness:
-
-.. code-block:: powershell
+Specifying file and variable suffix, and line colours and thickness::
 
     echofilter "path/to/file_or_directory" ^
         --suffix "_echofilter_stationary-model" ^
         --color-surface "green" --thickness-surface 4 ^
         --color-nearfield "red" --thickness-nearfield 3
 
-Processing a file with more output messages displayed in the terminal:
-
-.. code-block:: powershell
+Processing a file with more output messages displayed in the terminal::
 
     echofilter "path/to/file_or_directory" --verbose
 
 Processing a file and sending the output to a log file instead of the
-terminal:
-
-.. code-block:: powershell
+terminal::
 
     echofilter "path/to/file_or_directory" -v > path/to/log_file.txt 2>&1
 
@@ -849,9 +821,7 @@ Spaces in file names
 
 Running commands on files with spaces in their file names is
 problematic. This is because spaces are used to separate arguments from
-each other, so for instance
-
-.. code-block:: powershell
+each other, so for instance::
 
     command-name some path with spaces
 
@@ -860,10 +830,7 @@ is actually running the command ``command-name`` with four arguments:
 
 You can run commands on paths containing spaces by encapsulating the path
 in quotes (either single, ``'``, or double ``"`` quotes), so it becomes
-a single string.
-For instance
-
-.. code-block:: powershell
+a single string. For instance::
 
     command-name "some path with spaces"
 
@@ -941,9 +908,7 @@ Pre-trained models
 ------------------
 
 The currently available model checkpoints can be seen by running the
-command
-
-.. code-block:: powershell
+command::
 
     echofilter --list-checkpoints
 
@@ -1124,3 +1089,5 @@ Reporting an issue
 If you experience a problem with :term:`echofilter`, please report it by
 emailing scottclowe@gmail.com. Please include all details necessary to
 reproduce the issue.
+
+.. highlight:: python
