@@ -1690,13 +1690,24 @@ def get_parser():
     if prog == "__main__.py" or prog == "__main__":
         prog = os.path.split(__file__)[1]
     parser = argparse.ArgumentParser(
-        prog=prog, description="Echofilter model training",
+        prog=prog, description="Echofilter model training", add_help=False,
     )
-    parser.add_argument(
+
+    # Actions
+    group_action = parser.add_argument_group(
+        "Actions",
+        "These arguments specify special actions to perform. The main action"
+        " of this program is supressed if any of these are given.",
+    )
+    group_action.add_argument(
+        "-h", "--help", action="help", help="Show this help message and exit.",
+    )
+    group_action.add_argument(
         "--version",
         "-V",
         action="version",
         version="%(prog)s {version}".format(version=echofilter.__version__),
+        help="Show program's version number and exit.",
     )
 
     # Data parameters
