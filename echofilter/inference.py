@@ -137,10 +137,11 @@ def run_inference(
         Skip processing CSV files which do not seem to contain an exported
         Echoview transect. If `False`, an error is raised. Default is `False`.
     output_dir : str, optional
-        Directory where output files will be written. If this is `''`, outputs
-        are written to the same directory as each input file. Otherwise, they
-        are written to `output_dir`, preserving their path relative to
-        `source_dir` if relative paths were used. Default is `''`.
+        Directory where output files will be written. If this is an empty
+        string (`""`, default), outputs are written to the same directory as
+        each input file. Otherwise, they are written to `output_dir`,
+        preserving their path relative to `source_dir` if relative paths were
+        used.
     dry_run : bool, optional
         If `True`, perform a trial run with no changes made. Default is
         `False`.
@@ -407,9 +408,9 @@ def run_inference(
         used. Set to `'cpu'` to use the CPU even if a CUDA GPU is available.
     hide_echoview : {"never", "new", "always"}, optional
         Whether to hide the Echoview window entirely while the code runs.
-        If `hide_echoview="new"`, the application is only hidden if it
+        If ``hide_echoview="new"``, the application is only hidden if it
         was created by this function, and not if it was already running.
-        If `hide_echoview="always"`, the application is hidden even if it was
+        If ``hide_echoview="always"``, the application is hidden even if it was
         already running. In the latter case, the window will be revealed again
         when this function is completed. Default is `"new"`.
     minimize_echoview : bool, optional
@@ -1836,7 +1837,7 @@ def hexcolor2rgb8(color):
     Returns
     -------
     tuple
-        RGB color tuple, in uint8 format (0-255).
+        RGB color tuple, in uint8 format (0--255).
     """
     if color[0] is "#":
         color = mcolors.to_rgba(color)[:3]

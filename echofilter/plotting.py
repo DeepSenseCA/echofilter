@@ -109,15 +109,16 @@ def plot_mask_hatch(*args, hatch="//", color="k", border=False):
     X, Y : array-like, optional
         The coordinates of the values in Z.
 
-        X and Y must both be 2-D with the same shape as Z (e.g. created via
-        numpy.meshgrid), or they must both be 1-D such that len(X) == M is the
-        number of columns in Z and len(Y) == N is the number of rows in Z.
+        X and Y must both be 2-D with the same shape as `Z` (e.g. created via
+        numpy.meshgrid), or they must both be 1-D such that ``len(X) == M`` is
+        the number of columns in `Z` and ``len(Y) == N`` is the number of rows
+        in `Z`.
 
         If not given, they are assumed to be integer indices, i.e.
-        X = range(M), Y = range(N).
+        ``X = range(M)``, ``Y = range(N)``.
     Z : array-like(N, M)
-        Indicator for which locations should be hatched. If Z is not a boolean
-        array, any location where Z > 0 will be hatched.
+        Indicator for which locations should be hatched. If `Z` is not a boolean
+        array, any location where ``Z > 0`` will be hatched.
     hatch : str, optional
         The hatching pattern to apply. Default is '//'.
     color : color, optional
@@ -170,7 +171,7 @@ def plot_transect(
     linewidth=1,
     cmap=None,
 ):
-    """
+    r"""
     Plot a transect.
 
     Parameters
@@ -180,7 +181,7 @@ def plot_transect(
     signal_type : str, optional
         The signal to plot as a heatmap. Default is `"Sv"` if present, or
         "signals" if not. If this is `"Sv_masked"`, the mask (given by
-        `transect["mask"]`) is used to mask `'transect["Sv"]` before plotting.
+        `transect["mask"]`) is used to mask `transect["Sv"]` before plotting.
     x_scale : {'index', 'timestamp' 'time'}, optional
         Scaling for x-axis. If `'timestamp'`, the number of seconds since the
         Unix epoch is shown; if `'time'`, the amount of time in seconds since

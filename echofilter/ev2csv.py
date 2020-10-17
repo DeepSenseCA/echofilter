@@ -67,10 +67,11 @@ def run_ev2csv(
         If `True`, subdirectories will also be walked through to find input
         files. Default is `True`.
     output_dir : str, optional
-        Directory where output files will be written. If this is `''`, outputs
-        are written to the same directory as each input file. Otherwise, they
-        are written to `output_dir`, preserving their path relative to
-        `source_dir` if relative paths were used. Default is `''`.
+        Directory where output files will be written. If this is an empty
+        string (`""`, default), outputs are written to the same directory as
+        each input file. Otherwise, they are written to `output_dir`,
+        preserving their path relative to `source_dir` if relative paths were
+        used.
     suffix : str, optional
         Output filename suffix. Default is `'_Sv_raw.csv'` if `keep_ext=False`,
         or `'.Sv_raw.csv'` if `keep_ext=True`.

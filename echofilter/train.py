@@ -1649,12 +1649,12 @@ def meters_to_csv(meters, is_best, dirname=".", filename="meters.csv"):
         Collection of output meters, as a nested dictionary.
     is_best : bool
         Whether this model state is the best so far. If `True`, the CSV file
-        will be copied `"model_best.meters.csv"`.
+        will be copied to `"model_best.meters.csv"`.
     dirname : str, optional
         Path to directory in which the checkpoint will be saved.
         Default is `"."` (current directory of the executed script).
     filename : str, optional
-        Format for the output file. Default is `""meters.csv""`.
+        Format for the output file. Default is `"meters.csv"`.
     """
     os.makedirs(dirname, exist_ok=True)
     df = pd.DataFrame()

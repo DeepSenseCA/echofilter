@@ -101,7 +101,7 @@ def get_indicator_onoffsets(indicator):
     offsets : list
         Offset indices, where each entry is the last in a sequence of nonzero
         values in the input `indicator`, such that
-        `indicator[onsets[i] : offsets[i] + 1] != 0`.
+        ``indicator[onsets[i] : offsets[i] + 1] != 0``.
     """
     indices = np.nonzero(indicator)[0]
 
