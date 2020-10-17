@@ -838,8 +838,11 @@ https://xkcd.com/color/rgb/
     echofilter --list-colors full
 
 
-Pointers for users new to using the command prompt
---------------------------------------------------
+Command line interface primer
+-----------------------------
+
+In this section, we provide some pointers for users new to using the
+command prompt.
 
 Spaces in file names
 ~~~~~~~~~~~~~~~~~~~~
@@ -871,7 +874,7 @@ used for the data.
 Trailing backslash
 ~~~~~~~~~~~~~~~~~~
 
-The ``\`` (backslash) is an
+The backslash (``\``) character is an
 `escape character <https://en.wikipedia.org/wiki/Escape_character>`__,
 used to give alternative meanings to symbols with special meanings.
 For example, the quote characters ``"`` and ``'`` indicate the start or end
