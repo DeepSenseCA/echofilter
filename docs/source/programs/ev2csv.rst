@@ -1,3 +1,5 @@
+.. highlight:: powershell
+
 .. _ev2csv CLI:
 
 ev2csv
@@ -7,3 +9,5 @@ ev2csv
    :ref: echofilter.ev2csv._get_parser_sphinx
    :prog: ev2csv
    :nodefault:
+
+.. highlight:: python

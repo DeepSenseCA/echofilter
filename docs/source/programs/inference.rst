@@ -1,3 +1,5 @@
+.. highlight:: powershell
+
 .. _echofilter CLI:
 
 echofilter
@@ -7,3 +9,5 @@ echofilter
    :ref: echofilter.ui.inference_cli._get_parser_sphinx
    :prog: echofilter
    :nodefault:
+
+.. highlight:: python
