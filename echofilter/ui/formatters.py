@@ -95,6 +95,8 @@ def format_parser_for_sphinx(parser):
             help = help.replace("'%(default)s'", "%(default)s")
             # Wrap any default values in `` so they are rendered as code.
             help = help.replace("%(default)s", "``%(default)s``")
+            # But also ensure we don't add backticks around backticks
+            help = help.replace("````", "``")
             # Remove flexible formatter indictor, if present
             if (
                 parser.formatter_class == FlexibleHelpFormatter
