@@ -118,10 +118,10 @@ def run_inference(
     paths : iterable
         Files and folders to be processed. These may be full paths or paths
         relative to `source_dir`. For each folder specified, any files with
-        extension `'csv'` within the folder and all its tree of subdirectories
+        extension `"csv"` within the folder and all its tree of subdirectories
         will be processed.
     source_dir : str, optional
-        Path to directory where files are found. Default is `'.'`.
+        Path to directory where files are found. Default is `"."`.
     recursive_dir_search : bool, optional
         How to handle directory inputs in `paths`. If `False`, only files
         (with the correct extension) in the directory will be included.
@@ -129,7 +129,7 @@ def run_inference(
         files. Default is `True`.
     extensions : iterable or str, optional
         File extensions to detect when running on a directory. Default is
-        `'csv'`.
+        `"csv"`.
     skip_existing : bool, optional
         Skip processing files which already have all outputs present. Default
         is `False`.
@@ -242,7 +242,7 @@ def run_inference(
         Path to directory where CSV files generated from EV inputs should be
         cached. If `None` (default), EV files which are exported to CSV files
         are temporary files, deleted after this program has completed. If
-        `cache_csv=''`, the CSV files are cached in the same directory as the
+        `cache_csv=""`, the CSV files are cached in the same directory as the
         input EV files.
     suffix_csv : str, optional
         Suffix used for cached CSV files which are exported from EV files.
@@ -361,10 +361,10 @@ def run_inference(
         used if upfacing.
     variable_name : str, optional
         Name of the Echoview acoustic variable to load from EV files. Default
-        is `'Fileset1: Sv pings T1'`.
+        is `"Fileset1: Sv pings T1"`.
     row_len_selector : str, optional
         Method used to handle input csv files with different number of Sv
-        values across time (i.e. a non-rectangular input). Default is `'mode'`.
+        values across time (i.e. a non-rectangular input). Default is `"mode"`.
         See :meth:`echofilter.raw.loader.transect_loader` for options.
     facing : {"downward", "upward", "auto"}, optional
         Orientation in which the echosounder is facing. Default is `"auto"`,
@@ -405,7 +405,7 @@ def run_inference(
     device : str or torch.device or None, optional
         Name of device on which the model will be run. If `None`, the first
         available CUDA GPU is used if any are found, and otherwise the CPU is
-        used. Set to `'cpu'` to use the CPU even if a CUDA GPU is available.
+        used. Set to `"cpu"` to use the CPU even if a CUDA GPU is available.
     hide_echoview : {"never", "new", "always"}, optional
         Whether to hide the Echoview window entirely while the code runs.
         If ``hide_echoview="new"``, the application is only hidden if it
@@ -1168,13 +1168,13 @@ def inference_transect(
         (i.e. the overall sample mean).
         If `data_center` is a string, it specifies the method to use to
         determine the center value from the distribution of intensities seen
-        in this sample transect. Default is `'mean'`.
+        in this sample transect. Default is `"mean"`.
     data_deviation : float or str, optional
         Deviation to use to normalise the Sv signals in divisive manner
         (i.e. the overall sample standard deviation).
         If `data_deviation` is a string, it specifies the method to use to
         determine the center value from the distribution of intensities seen
-        in this sample transect. Default is `'stdev'`.
+        in this sample transect. Default is `"stdev"`.
     nan_value : float, optional
         Placeholder value to replace NaNs with. Default is `-3`.
     dtype : torch.dtype, optional

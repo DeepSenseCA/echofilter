@@ -48,20 +48,20 @@ import echofilter.ui
 ## For mobile dataset,
 # DATA_CENTER = -81.5
 # DATA_DEVIATION = 21.9
-# CENTER_METHOD = 'mean'
-# DEVIATION_METHOD = 'stdev'
+# CENTER_METHOD = "mean"
+# DEVIATION_METHOD = "stdev"
 
 ## For stationary dataset,
 # DATA_CENTER = -78.7
 # DATA_DEVIATION = 19.2
-# CENTER_METHOD = 'mean'
-# DEVIATION_METHOD = 'stdev'
+# CENTER_METHOD = "mean"
+# DEVIATION_METHOD = "stdev"
 
 ## For intermediate values between both datasets
 # DATA_CENTER = -80.
 # DATA_DEVIATION = 20.
-# CENTER_METHOD = 'mean'
-# DEVIATION_METHOD = 'stdev'
+# CENTER_METHOD = "mean"
+# DEVIATION_METHOD = "stdev"
 # NAN_VALUE = -3
 
 ## Overall values to use

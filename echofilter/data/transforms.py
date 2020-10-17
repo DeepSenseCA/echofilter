@@ -420,11 +420,11 @@ class Normalize(object):
 
     Parameters
     ----------
-    center : {'mean', 'median', 'pc10'} or float
+    center : {"mean", "median", "pc10"} or float
         If a float, a pre-computed centroid measure of the distribution of
         samples, such as the pixel mean. If a string, a method to use to
         determine the center value.
-    deviation : {'stdev', 'mad', 'iqr', 'idr', 'i7r'} or float
+    deviation : {"stdev", "mad", "iqr", "idr", "i7r"} or float
         If a float, a pre-computed deviation measure of the distribution of
         samples. If a string, a method to use to determine the deviation.
     robust2stdev : bool, optional

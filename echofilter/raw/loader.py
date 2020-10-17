@@ -121,12 +121,12 @@ def transect_loader(
         of times to display the warnings before they are supressed. If this
         is `True`, the number of outputs is unlimited. If `None`, the
         maximum number of underflow and overflow warnings differ: if
-        `row_len_selector` is `'init'` or `'min'`, underflow always produces a
+        `row_len_selector` is `"init"` or `"min"`, underflow always produces a
         message and the overflow messages stop at 2; otherwise the values are
         reversed. Default is `None`.
-    row_len_selector : {'init', 'min', 'max', 'median', 'mode'}, optional
+    row_len_selector : {"init", "min", "max", "median", "mode"}, optional
         The method used to determine which row length (number of depth samples)
-        to use. Default is `'mode'`, the most common row length across all
+        to use. Default is `"mode"`, the most common row length across all
         the measurement timepoints.
 
     Returns
@@ -447,10 +447,10 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n", pad=Fals
         Whether to pad the line with an extra datapoint half a pixel before the
         first and after the last given timestamp. Default is `False`.
     line_ending : str, optional
-        Line ending. Default is `'\r\n'` the standard line ending on Windows/DOS,
+        Line ending. Default is `"\r\n"` the standard line ending on Windows/DOS,
         as per the specification for the file format.
         https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm
-        Set to `'\n'` to get Unix-style line endings instead.
+        Set to `"\n"` to get Unix-style line endings instead.
 
     Notes
     -----
@@ -506,24 +506,24 @@ def evr_writer(
         Destination of output file.
     rectangles : list of dictionaries, optional
         Rectangle region definitions. Default is an empty list. Each rectangle
-        region must implement fields `'depths'` and `'timestamps'`, which
-        indicate the extent of the rectangle. Optionally, `'creation_type'`,
-        `'region_name'`, `'region_type'`, and `'notes'` may be set.
+        region must implement fields `"depths"` and `"timestamps"`, which
+        indicate the extent of the rectangle. Optionally, `"creation_type"`,
+        `"region_name"`, `"region_type"`, and `"notes"` may be set.
         If these are not given, the default creation_type is 4 and region_type
         is set by `default_region_type`.
     contours : list of dictionaries
         Contour region definitions. Default is an empty list. Each contour
-        region must implement a `'points'` field containing a :class:`numpy.ndarray`
+        region must implement a `"points"` field containing a :class:`numpy.ndarray`
         shaped `(n, 2)` defining the co-ordinates of nodes along the (open)
-        contour in units of timestamp and depth. Optionally, `'creation_type'`,
-        `'region_name'`, `'region_type'`, and `'notes'` may be set.
+        contour in units of timestamp and depth. Optionally, `"creation_type"`,
+        `"region_name"`, `"region_type"`, and `"notes"` may be set.
         If these are not given, the default creation_type is 2 and region_type
         is set by `default_region_type`.
     common_notes : str, optional
-        Notes to include for every region. Default is `''`, an empty string.
+        Notes to include for every region. Default is `""`, an empty string.
     default_region_type : int, optional
         The region type to use for rectangles and contours which do not define
-        a `'region_type'` field. Possible region types are
+        a `"region_type"` field. Possible region types are
 
         - `0` : bad (no data)
         - `1` : analysis
@@ -533,10 +533,10 @@ def evr_writer(
 
         Default is `0`.
     line_ending : str, optional
-        Line ending. Default is `'\r\n'` the standard line ending on Windows/DOS,
+        Line ending. Default is `"\r\n"` the standard line ending on Windows/DOS,
         as per the specification for the file format.
         https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm
-        Set to `'\n'` to get Unix-style line endings instead.
+        Set to `"\n"` to get Unix-style line endings instead.
 
     Notes
     -----
@@ -690,12 +690,12 @@ def write_transect_regions(
         maximum of `transect["depths"]` is used.
     passive_key : str, optional
         Field name to use for passive data identification. Default is
-        `'is_passive'`.
+        `"is_passive"`.
     removed_key : str, optional
-        Field name to use for removed blocks. Default is `'is_removed'`.
+        Field name to use for removed blocks. Default is `"is_removed"`.
     patches_key : str, optional
         Field name to use for the mask of patch regions. Default is
-        `'mask_patches'`.
+        `"mask_patches"`.
     collate_passive_length : int, optional
         Maximum distance (in indices) over which passive regions should be
         merged together, closing small gaps between them. Default is `0`.
@@ -716,14 +716,14 @@ def write_transect_regions(
         patches, no matter their area. Set to `-1` to omit all patches.
         Default is `0`.
     name_suffix : str, optional
-        Suffix to append to variable names. Default is `''`, an empty string.
+        Suffix to append to variable names. Default is `""`, an empty string.
     common_notes : str, optional
-        Notes to include for every region. Default is `''`, an empty string.
+        Notes to include for every region. Default is `""`, an empty string.
     line_ending : str, optional
-        Line ending. Default is `'\r\n'` the standard line ending on Windows/DOS,
+        Line ending. Default is `"\r\n"` the standard line ending on Windows/DOS,
         as per the specification for the file format,
         https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm
-        Set to `'\n'` to get Unix-style line endings instead.
+        Set to `"\n"` to get Unix-style line endings instead.
     verbose : int, optional
         Verbosity level. Default is `0`.
     verbose_indent : int, optional
@@ -910,9 +910,9 @@ def load_transect_data(transect_pth, dataset="mobile", root_data_dir=ROOT_DATA_D
     Parameters
     ----------
     transect_pth : str
-        Relative path to transect, excluding `'_Sv_raw.csv'`.
+        Relative path to transect, excluding `"_Sv_raw.csv"`.
     dataset : str, optional
-        Name of dataset. Default is `'mobile'`.
+        Name of dataset. Default is `"mobile"`.
     root_data_dir : str
         Path to root directory where data is located.
 
@@ -961,9 +961,9 @@ def get_partition_data(
     Parameters
     ----------
     transect_pth : str
-        Relative path to transect, excluding `'_Sv_raw.csv'`.
+        Relative path to transect, excluding `"_Sv_raw.csv"`.
     dataset : str, optional
-        Name of dataset. Default is `'mobile'`.
+        Name of dataset. Default is `"mobile"`.
     partitioning_version : str, optional
         Name of partitioning method.
     root_data_dir : str
@@ -1042,9 +1042,9 @@ def get_partition_list(
     Parameters
     ----------
     transect_pth : str
-        Relative path to transect, excluding `'_Sv_raw.csv'`.
+        Relative path to transect, excluding `"_Sv_raw.csv"`.
     dataset : str, optional
-        Name of dataset. Default is `'mobile'`.
+        Name of dataset. Default is `"mobile"`.
     full_path : bool, optional
         Whether to return the full path to the sample. If `False`, only the
         relative path (from the dataset directory) is returned.

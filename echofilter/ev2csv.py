@@ -54,13 +54,13 @@ def run_ev2csv(
     paths : iterable
         Paths to input EV files to process, or directories containing EV files.
         These may be full paths or paths relative to `source_dir`. For each
-        folder specified, any files with extension `'csv'` within the folder
+        folder specified, any files with extension `"csv"` within the folder
         and all its tree of subdirectories will be processed.
     variable_name : str, optional
         Name of the Echoview acoustic variable to export. Default is
-        `'Fileset1: Sv pings T1'`.
+        `"Fileset1: Sv pings T1"`.
     source_dir : str, optional
-        Path to directory where files are found. Default is `'.'`.
+        Path to directory where files are found. Default is `"."`.
     recursive_dir_search : bool, optional
         How to handle directory inputs in `paths`. If `False`, only files
         (with the correct extension) in the directory will be included.
@@ -73,8 +73,8 @@ def run_ev2csv(
         preserving their path relative to `source_dir` if relative paths were
         used.
     suffix : str, optional
-        Output filename suffix. Default is `'_Sv_raw.csv'` if `keep_ext=False`,
-        or `'.Sv_raw.csv'` if `keep_ext=True`.
+        Output filename suffix. Default is `"_Sv_raw.csv"` if `keep_ext=False`,
+        or `".Sv_raw.csv"` if `keep_ext=True`.
     keep_ext : bool, optional
         Whether to preserve the file extension in the input file name when
         generating output file name. Default is `False`, removing the
@@ -212,7 +212,7 @@ def ev2csv(
         Filename of output destination.
     variable_name : str, optional
         Name of the Echoview acoustic variable to export. Default is
-        `'Fileset1: Sv pings T1'`.
+        `"Fileset1: Sv pings T1"`.
     ev_app : win32com.client.Dispatch object or None, optional
         An object which can be used to interface with the Echoview application,
         as returned by `win32com.client.Dispatch`. If `None` (default), a

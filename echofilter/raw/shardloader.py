@@ -28,9 +28,9 @@ def segment_and_shard_transect(
     Parameters
     ----------
     transect_pth : str
-        Relative path to transect, excluding `'_Sv_raw.csv'`.
+        Relative path to transect, excluding `"_Sv_raw.csv"`.
     dataset : str, optional
-        Name of dataset. Default is `'mobile'`.
+        Name of dataset. Default is `"mobile"`.
     max_depth : float or None, optional
         The maximum depth to include in the saved shard. Data corresponding
         to deeper locations is omitted to save on load time and memory when
@@ -95,7 +95,7 @@ def write_transect_shards(dirname, transect, max_depth=None, shard_len=128):
     -----
     The output will be written to the directory `dirname`, and will contain:
 
-    - a file named `'shard_size.txt'`, which contains the sharding metadata:
+    - a file named `"shard_size.txt"`, which contains the sharding metadata:
       total number of samples, and shard size;
     - a directory for each shard, named 0, 1, ...
       Each shard directory will contain files:
@@ -180,42 +180,42 @@ def load_transect_from_shards_abs(
         `None`, which loads everything up to and including to the last sample.
     pad_mode : str, optional
         Padding method for out-of-bounds inputs. Must be supported by
-        :meth:`numpy.pad`, such as `'contast'`, `'reflect'`, or `'edge'`. If the mode
-        is `'contast'`, the array will be padded with zeros. Default is 'edge'.
+        :meth:`numpy.pad`, such as `"contast"`, `"reflect"`, or `"edge"`. If the mode
+        is `"contast"`, the array will be padded with zeros. Default is "edge".
 
     Returns
     -------
     dict
         A dictionary with keys:
 
-            - 'timestamps' : numpy.ndarray
+            - "timestamps" : numpy.ndarray
                 Timestamps (in seconds since Unix epoch), for each recording
                 timepoint. The number of entries, `num_timestamps`, is equal
                 to `i2 - i1`.
-            - 'depths' : numpy.ndarray
+            - "depths" : numpy.ndarray
                 Depths from the surface (in metres), with each entry
                 corresponding to each column in the `signals` data.
-            - 'Sv' : numpy.ndarray
+            - "Sv" : numpy.ndarray
                 Echogram Sv data, shaped (num_timestamps, num_depths).
-            - 'mask' : numpy.ndarray
+            - "mask" : numpy.ndarray
                 Logical array indicating which datapoints were kept (`True`)
                 and which removed (`False`) for the masked Sv output.
                 Shaped (num_timestamps, num_depths).
-            - 'turbulence' : numpy.ndarray
+            - "turbulence" : numpy.ndarray
                 For each timepoint, the depth of the shallowest datapoint which
                 should be included for the mask. Shaped (num_timestamps, ).
-            - 'bottom' : numpy.ndarray
+            - "bottom" : numpy.ndarray
                 For each timepoint, the depth of the deepest datapoint which
                 should be included for the mask. Shaped (num_timestamps, ).
-            - 'is_passive' : numpy.ndarray
+            - "is_passive" : numpy.ndarray
                 Logical array showing whether a timepoint is of passive data.
                 Shaped (num_timestamps, ). All passive recording data should
                 be excluded by the mask.
-            - 'is_removed' : numpy.ndarray
+            - "is_removed" : numpy.ndarray
                 Logical array showing whether a timepoint is entirely removed
                 by the mask. Shaped (num_timestamps, ). Does not include
                 periods of passive recording.
-            - 'is_upward_facing' : bool
+            - "is_upward_facing" : bool
                 Indicates whether the recording source is located at the
                 deepest depth (i.e. the seabed), facing upwards. Otherwise, the
                 recording source is at the shallowest depth (i.e. the surface),
@@ -296,7 +296,7 @@ def load_transect_from_shards_rel(
         datapoint `i2 - 1` is the right-most datapoint loaded. Default is
         `None`, which loads everything up to and including to the last sample.
     dataset : str, optional
-        Name of dataset. Default is `'mobile'`.
+        Name of dataset. Default is `"mobile"`.
     segment : int, optional
         Which segment to load. Default is `0`.
     root_data_dir : str
@@ -360,7 +360,7 @@ def load_transect_segments_from_shards_rel(
     transect_rel_pth : str
         Relative path to transect.
     dataset : str, optional
-        Name of dataset. Default is `'mobile'`.
+        Name of dataset. Default is `"mobile"`.
     segments : iterable or None
         Which segments to load. If `None` (default), all segments are loaded.
     root_data_dir : str
