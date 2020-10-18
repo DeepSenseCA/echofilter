@@ -4,6 +4,8 @@ Usage Guide
 Authors
     Scott C. Lowe, Louise McGarry
 
+.. highlight:: powershell
+
 .. raw:: latex
 
     \clearpage
@@ -11,9 +13,9 @@ Authors
 Introduction
 ------------
 
-Echofilter is an application for segmenting an echogram. It takes as its
-input an :term:`Echoview` .EV file, and produces as its output several lines and
-regions:
+:term:`Echofilter` is an application for segmenting an echogram. It takes as
+its input an :term:`Echoview` .EV file, and produces as its output several
+lines and regions:
 
 -  :term:`turbulence<turbulence line>` (:term:`entrained air`) line
 
@@ -31,10 +33,11 @@ regions:
 -  \*bad data regions for localised anomalies, in the form of polygonal
    contour patches
 
-Echofilter uses a :term:`machine learning<Machine learning (ML)>` :term:`model`
-to complete this task. The machine learning model was trained on
+:term:`Echofilter` uses a :term:`machine learning<Machine learning (ML)>`
+:term:`model` to complete this task. The machine learning model was trained on
 :term:`upfacing` :term:`stationary` and :term:`downfacing` :term:`mobile` data
-provided by Fundy Ocean Research Centre for Energy (FORCE).
+provided by Fundy Ocean Research Centre for Energy
+(`FORCE <http://fundyforce.ca>`__.).
 
 Disclaimers
 ~~~~~~~~~~~
@@ -75,10 +78,10 @@ Glossary
 
     Bad data regions
         Regions of data which must be excluded from analysis in their entirety.
-        Bad data regions identified by echofilter come in two forms:
-        rectangular regions covering the full depth-extend of the echogram for
-        a period of time, and polygonal or contour regions encompassing a
-        localised area.
+        Bad data regions identified by :ref:`echofilter<echofilter CLI>` come
+        in two forms: rectangular regions covering the full depth-extend of the
+        echogram for a period of time, and polygonal or contour regions
+        encompassing a localised area.
 
     Bottom line
         A line separating the seafloor from the :term:`water column`.
@@ -89,7 +92,7 @@ Glossary
 
     Conditional model
         A :term:`model` which outputs conditional probabilities. In the context
-        of an echofilter model, the conditional probabilities are
+        of an :term:`echofilter` model, the conditional probabilities are
         :math:`p(x|\text{upfacing})` and :math:`p(x|\text{downfacing})`,
         where :math:`x` is any of the :term:`model` output
         types; conditional models are necessarily hybrid models.
@@ -112,7 +115,8 @@ Glossary
         The topic of this usage guide.
 
     echofilter.exe
-        The compiled Echofilter program which can be run on a Windows machine.
+        The compiled :ref:`echofilter<echofilter CLI>` program which can be
+        run on a Windows machine.
 
     Echogram
         The two-dimensional representation of a temporal series of
@@ -168,7 +172,7 @@ Glossary
     Model
         A mathematical model of a particular type of data. In our context,
         the model understands an echogram-like input
-        :term:`Sample<Sample (model input)>` of :term:`Sv` data
+        :term:`sample<Sample (model input)>` of :term:`Sv` data
         (which is its input) and outputs a probability distribution for
         where it predicts the :term:`turbulence` (:term:`entrained air`)
         boundary, :term:`bottom boundary<Bottom line>`, and
@@ -272,7 +276,8 @@ Inference operations
 
 In this section, we describe the :term:`inference` process, its outputs and
 inputs. Inference is the process of generating predictions from the
-:term:`model`, and is the principal functionality of echofilter.
+:term:`model`, and is the principal functionality of
+:ref:`echofilter<echofilter CLI>`.
 
 Processing overview
 ~~~~~~~~~~~~~~~~~~~
@@ -288,7 +293,7 @@ First, the setup:
 
 -  Load the :term:`model` from the :term:`checkpoint` into memory.
 
--  If any file to process is an EV file, open :term:`Echoview`.
+-  If any file to process is an :term:`EV file`, open :term:`Echoview`.
 
 -  If it was not already open, hide the Echoview window.
 
@@ -299,24 +304,26 @@ long to process).
 
 Each file is processed in the following steps:
 
--  If the input is an EV file, export the :term:`Sv` data to CSV format.
+-  If the input is an :term:`EV file`, export the :term:`Sv` data to
+   :term:`CSV` format.
 
-   -  By default, the Sv data is taken from ``"Fileset1: Sv pings T1"``.
+   -  By default, the :term:`Sv` data is taken from ``"Fileset1: Sv pings T1"``.
 
-   -  Unless ``--cache-csv`` is provided, the CSV file is output to a
-      temporary file, which is deleted after the CSV file is
-      imported.
+   -  Unless ``--cache-csv`` is provided, the :term:`CSV file<CSV>` is
+      output to a temporary file, which is deleted after the
+      :term:`CSV file<CSV>` is imported.
 
--  Import the Sv data from the CSV file. (If the input was a CSV file,
-   this is the input; if the input was an EV file this is the CSV file
-   generated from the EV file in the preceding step.)
+-  Import the :term:`Sv` data from the :term:`CSV file<CSV>`. (If the
+   input was a :term:`CSV file<CSV>`, this is the input; if the input
+   was an :term:`EV file` this is the :term:`CSV file<CSV>` generated
+   from the :term:`EV file` in the preceding step.)
 
--  Rescale the height of the Sv input to have the number of pixels
+-  Rescale the height of the :term:`Sv` input to have the number of pixels
    expected by the :term:`model`.
 
 -  Automatically determine whether the :term:`echosounder` recording is
    :term:`upfacing` or :term:`downfacing`, based on the order of the Depths
-   data in the CSV file.
+   data in the :term:`CSV file<CSV>`.
 
    -  If the orientation was manually specified, issue a warning if it
       does not match the detected orientation.
@@ -325,14 +332,14 @@ Each file is processed in the following steps:
       that the shallowest :term:`samples<Sample (ping)>` always occur first,
       and deepest last.
 
--  Normalise the distribution of the Sv intensities to match that
+-  Normalise the distribution of the :term:`Sv` intensities to match that
    expected by the :term:`model`.
 
 -  Split the input data into segments
 
    -  Detect temporal discontinuities between :term:`pings<ping>`.
 
-   -  Split the input Sv data into segments such that each segment
+   -  Split the input :term:`Sv` data into segments such that each segment
       contains contiguous :term:`pings<ping>`.
 
 -  Pass the each segment of the input through the :term:`model` to generate
@@ -348,8 +355,8 @@ Each file is processed in the following steps:
 
    -  If more than 35% of the echogram's height (threshold value set
       with ``--autocrop-threshold``) was cropped away, pass the cropped
-      Sv data through the :term:`model` to get better predictions based on
-      the zoomed in data.
+      :term:`Sv` data through the :term:`model` to get better predictions
+      based on the zoomed in data.
 
 -  Line boundary probabilities are converted into output depths.
 
@@ -362,8 +369,8 @@ Each file is processed in the following steps:
 
 -  Bottom, surface, and turbulence lines are output to :term:`EVL` files.
 
-   -  Note: there is no EVL file for the :term:`nearfield line` since it is at a
-      constant depth as provided by the user and not generated by
+   -  Note: there is no EVL file for the :term:`nearfield line` since it
+      is at a constant depth as provided by the user and not generated by
       the :term:`model`.
 
 -  Regions are generated:
@@ -376,28 +383,29 @@ Each file is processed in the following steps:
 
    -  All regions are written to a single :term:`EVR` file.
 
--  If the input was an EV file, the lines and regions are imported into
-   the EV file, and a :term:`nearfield line` is added.
+-  If the input was an :term:`EV file`, the lines and regions are imported into
+   the :term:`EV file`, and a :term:`nearfield line` is added.
 
 Simulating processing
 ~~~~~~~~~~~~~~~~~~~~~
 
 To see which files will be processed by a command and what the output
-will be, run echofilter with the ``--dry-run`` argument.
+will be, run :ref:`echofilter<echofilter CLI>` with the ``--dry-run`` argument.
 
 Input
 ~~~~~
 
-Echofilter can process two types of file as its input: .EV files and
-.CSV files. The EV file input is more user-friendly, but requires the
-Windows operating system, and a fully operational :term:`Echoview` application
-(i.e. with an Echoview dongle). The CSV file format can be processed
-without Echoview, but must be generated in advance from the .EV file on
-a system with Echoview. The CSV files must contain raw :term:`Sv` data
-(without thresholding or masking) and in the format produced by
-exporting Sv data from Echoview. These raw CSV files can be exported
-using the utility ev2csv, which is provided as a separate executable in
-the echofilter package.
+:ref:`Echofilter<echofilter CLI>` can process two types of file as its
+input: .EV files and .CSV files. The :term:`EV file` input is more
+user-friendly, but requires the Windows operating system, and a fully
+operational :term:`Echoview` application (i.e. with an Echoview dongle).
+The :term:`CSV file<CSV>` format can be processed without Echoview, but
+must be generated in advance from the .EV file on a system with Echoview.
+The :term:`CSV files<CSV>` must contain raw :term:`Sv` data (without
+thresholding or masking) and in the format produced by exporting
+:term:`Sv` data from Echoview. These raw :term:`CSV files<CSV>` can be
+exported using the utility :ref:`ev2csv<ev2csv CLI>`, which is provided
+as a separate executable in the :ref:`echofilter<echofilter CLI>` package.
 
 If the input path is a directory, all files in the directory are
 processed. By default, all subdirectories are recursively processed;
@@ -410,29 +418,29 @@ The file extensions to include can be set with the ``--extension`` argument.
 Multiple input files or directories can also be specified (each
 separated by a space).
 
-By default, when processing an EV file, the Sv data is taken from the
-``"Fileset1: Sv pings T1"`` variable. This can be changed with the
+By default, when processing an :term:`EV file`, the :term:`Sv` data is taken
+from the ``"Fileset1: Sv pings T1"`` variable. This can be changed with the
 ``--variable-name`` argument.
 
 Loading model
 ~~~~~~~~~~~~~
 
 The :term:`model` used to process the data is loaded from a :term:`checkpoint`
-file. The executable echofilter.exe comes with its default model checkpoint
-bundled as part of the release. Aside from this, the first time a particular
-model is used, the checkpoint file will be downloaded over the internet.
-The checkpoint file will be cached on your system and will not need to be
-downloaded again unless you clear your cache.
+file. The executable :term:`echofilter.exe` comes with its default model
+checkpoint bundled as part of the release. Aside from this, the first time a
+particular model is used, the checkpoint file will be downloaded over the
+internet. The checkpoint file will be cached on your system and will not need
+to be downloaded again unless you clear your cache.
 
 Multiple models are available to select from. These can be shown by
-running the command ``echofilter --list-checkpoints``; the default model
+running the command ``echofilter --list-checkpoints``. The default model
 will be highlighted in the output. In general, it is recommended to use
 the default checkpoint. See :ref:`Model checkpoints` below for more details.
 
-When running echofilter for :term:`inference`, the checkpoint can be specified
-with the ``--checkpoint`` argument.
+When running :ref:`echofilter<echofilter CLI>` for :term:`inference`, the
+checkpoint can be specified with the ``--checkpoint`` argument.
 
-If you wish to use a custom model which is not built in to echofilter,
+If you wish to use a custom model which is not built in to :term:`echofilter`,
 specify a path to the checkpoint file using the ``--checkpoint`` argument.
 
 Output
@@ -441,7 +449,8 @@ Output
 Output files
 ^^^^^^^^^^^^
 
-For each input file, echofilter produces the following output files:
+For each input file, :ref:`echofilter<echofilter CLI>` produces the
+following output files:
 
 <input>.bottom.evl
     An Echoview line file containing the depth of the
@@ -451,7 +460,8 @@ For each input file, echofilter produces the following output files:
     An Echoview region file containing
     spatiotemporal definitions of :term:`passive<passive data>` recording
     rectangle regions, :term:`bad data<Bad data regions>` full-vertical depth
-    rectangle regions, and bad data anomaly polygonal (contour) regions.
+    rectangle regions, and :term:`bad data<Bad data regions>` anomaly
+    polygonal (contour) regions.
 
 <input>.surface.evl
     An Echoview line file containing the depth of
@@ -462,18 +472,18 @@ For each input file, echofilter produces the following output files:
     the :term:`turbulence line`.
 
 where <input> is the path to an input file, stripped of its file
-extension. There is no EVL file for the :term:`nearfield line`, since it is a
-virtual line of fixed depth added to the EV file during the *Importing
-outputs into EV file* step.
+extension. There is no :term:`EVL` file for the :term:`nearfield line`, since
+it is a virtual line of fixed depth added to the :term:`EV file` during the
+:ref:`Importing outputs into EV file` step.
 
 By default, the output files are located in the same directory as the
 file being processed. The output directory can be changed with the
 ``--output-dir`` argument, and a user-defined suffix can be added to the
 output file names using the ``--suffix`` argument.
 
-If the output files already exist, by default echofilter will stop
-running and raise an error. If you want to overwrite output files which
-already exist, supply the ``--overwrite-files`` argument. If you want to
+If the output files already exist, by default :ref:`echofilter<echofilter CLI>`
+will stop running and raise an error. If you want to overwrite output files
+which already exist, supply the ``--overwrite-files`` argument. If you want to
 skip inputs whose output files all already exist, supply the ``--skip``
 argument. Note: if both ``--skip`` and ``--overwrite-files`` are supplied,
 inputs whose outputs all exist will be skipped and those inputs for
@@ -486,19 +496,23 @@ respectively. To drop particular types of region entirely from the :term:`EVR`
 output, use ``--minimum-passive-length -1``, ``--minimum-removed-length -1``,
 or ``--minimum-patch-area -1`` respectively. By default,
 :term:`bad data<Bad data regions>` regions (rectangles and contours) are not
-included in the EVR file. To include these, set ```--minimum-removed-length``
-and ``--minimum-patch-area`` to non-negative values.
+included in the :term:`EVR` file. To include these, set
+``--minimum-removed-length`` and ``--minimum-patch-area`` to non-negative
+values.
 
-The lines written to the :term:`EVL` files are the raw output from the model and
-do not include any offset.
+The lines written to the :term:`EVL` files are the raw output from the model
+and do not include any offset.
+
+.. _Importing outputs into EV file:
 
 Importing outputs into EV file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If the input file is an Echoview EV file, by default echofilter will
-import the output files into the EV file and save the EV file
-(overwriting the original EV file). The behaviour can be disabled by
-supplying the ``--no-ev-import`` argument.
+If the input file is an Echoview :term:`EV file`, by default
+:ref:`echofilter<echofilter CLI>` will import the output files into the
+:term:`EV file` and save the :term:`EV file` (overwriting the original
+:term:`EV file`). The behaviour can be disabled by supplying the
+``--no-ev-import`` argument.
 
 All lines will be imported twice: once at the original depth and a
 second time with an offset included. This offset ensures the exclusion
@@ -511,7 +525,7 @@ set using the ``--offset`` argument. A different offset can be used for each
 line by providing the ``--offset-bottom``, ``--offset-surface``, and
 ``--offset-turbulence`` arguments.
 
-The names of the objects imported into the EV file have the suffix
+The names of the objects imported into the :term:`EV file` have the suffix
 ``"_echofilter"`` appended to them, to indicate the source of the
 line/region. However, if the ``--suffix`` argument was provided, that suffix
 is used instead. A custom suffix for the variable names within the EV
@@ -523,8 +537,8 @@ name. To instead overwrite existing line variables, supply the
 ``--overwrite-ev-lines`` argument. Note that existing regions will not be
 overwritten (only lines).
 
-By default, a :term:`nearfield line` is also added to the EV file at a fixed
-range of 1.7m from the :term:`transducer` position.
+By default, a :term:`nearfield line` is also added to the :term:`EV file`
+at a fixed range of 1.7m from the :term:`transducer` position.
 The :term:`nearfield distance` can be changed as appropriate for the
 :term:`echosounder` in use by setting the ``--nearfield`` parameter.
 
@@ -539,11 +553,12 @@ Installation
 Installing as an executable file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Echofilter is distributed as an executable binary file for Windows. All
+:ref:`Echofilter<echofilter CLI>` is distributed as an
+:term:`executable binary file<echofilter.exe>` for Windows. All
 dependencies are packaged as part of the distribution.
 
 1. Download
-   `echofilter from GDrive <https://drive.google.com/open?id=1Vq_fVNGzFGwyqHxigX-5maW9UmXfwdOk>`__.
+   :ref:`echofilter<echofilter CLI>` from `GDrive <https://drive.google.com/open?id=1Vq_fVNGzFGwyqHxigX-5maW9UmXfwdOk>`__.
    It is recommended to use the latest version available.
 
 2. Unzip the zip file, and put the directory contained within it
@@ -556,10 +571,10 @@ dependencies are packaged as part of the distribution.
 3. In File Explorer,
 
    a. navigate to the echofilter directory you unzipped. This directory
-      contains a file named echofilter.exe.
+      contains a file named :term:`echofilter.exe`.
 
    b. left click on the echofilter directory containing the
-      echofilter.exe file
+      :term:`echofilter.exe` file
 
    c. Shift+Right click on the echofilter directory
 
@@ -596,13 +611,13 @@ dependencies are packaged as part of the distribution.
    h. you will see the help for echofilter printed in the terminal
       window
 
-6. (Optional) So that you can just run echofilter without having to
-   change directory (using the ``cd`` command) to the directory containing
-   echofilter, or use the full path to echofilter.exe, every time you
-   want to use it, it is useful to add echofilter to the PATH
-   environment variable. This step is entirely optional and for your
-   convenience only. The PATH environment variable tells the terminal
-   where it should look for executable commands.
+6. (Optional) So that you can just run :ref:`echofilter<echofilter CLI>`
+   without having to change directory (using the ``cd`` command) to the
+   directory containing :term:`echofilter.exe`, or use the full path to
+   :term:`echofilter.exe`, every time you want to use it, it is useful to
+   add echofilter to the PATH environment variable. This step is entirely
+   optional and for your convenience only. The PATH environment variable
+   tells the terminal where it should look for executable commands.
 
    a. Instructions for how to do this depend on your version of Windows
       and can be found here:
@@ -621,8 +636,9 @@ dependencies are packaged as part of the distribution.
    d. If this is a list of strings (without semicolons), add your path
       from 3e (e.g. ``C:\Program Files\echofilter``) to the list
 
-7. You can now run echofilter on some files, by using the echofilter
-   command in the terminal. :ref:`Example commands` are shown below.
+7. You can now run :ref:`echofilter<echofilter CLI>` on some files, by using
+   the echofilter command in the terminal. :ref:`Example commands` are shown
+   below.
 
 .. raw:: latex
 
@@ -632,121 +648,99 @@ dependencies are packaged as part of the distribution.
 Quick Start
 -----------
 
-Note that it is recommended to close :term:`Echoview` before running echofilter
-so that echofilter can run its own Echoview instance in the background.
-After echofilter has started processing the files, you can open Echoview
-again for your own use without interrupting echofilter.
+Note that it is recommended to close :term:`Echoview` before running
+:ref:`echofilter<echofilter CLI>` so that :ref:`echofilter<echofilter CLI>`
+can run its own Echoview instance in the background.
+After :ref:`echofilter<echofilter CLI>` has started processing the files,
+you can open Echoview again for your own use without interrupting
+:ref:`echofilter<echofilter CLI>`.
 
 Recommended first time usage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The first time you use echofilter, you should run it in simulation mode
-(by supplying the ``--dry-run`` argument) before-hand so you can see what it
-will do.
-
-.. code-block:: powershell
+The first time you use :ref:`echofilter<echofilter CLI>`, you should run
+it in simulation mode (by supplying the ``--dry-run`` argument)
+before-hand so you can see what it will do::
 
     echofilter some/path/to/directory_or_file --dry-run
 
-The path you supply to echofilter can be an absolute path, or a relative
-path. If it is a relative path, it should be relative to the current
-working directory of the command prompt.
+The path you supply to :ref:`echofilter<echofilter CLI>` can be an
+absolute path, or a relative path. If it is a relative path, it should be
+relative to the current working directory of the command prompt.
 
-.. _example commands:
+.. _Example commands:
 
 Example commands
 ~~~~~~~~~~~~~~~~
 
-Specifying a single file to process, using an absolute path:
+Review echofilter's documentation help within the terminal::
 
-.. code-block:: powershell
+    echofilter --help
+
+Specifying a single file to process, using an absolute path::
 
     echofilter "C:\Users\Bob\Desktop\MinasPassage\2020\20200801_SiteA.EV"
 
 Specifying a single file to process, using a path relative to the
-current directory of the command prompt:
-
-.. code-block:: powershell
+current directory of the command prompt::
 
     echofilter "MinasPassage\2020\20200801_SiteA.EV"
 
-Simulating processing of a single file, using a relative path:
-
-.. code-block:: powershell
+Simulating processing of a single file, using a relative path::
 
     echofilter "MinasPassage\2020\20200801_SiteA.EV" --dry-run
 
 Specifying a directory of :term:`upfacing` :term:`stationary` data to process,
-and excluding the bottom line from the output:
-
-.. code-block:: powershell
+and excluding the bottom line from the output::
 
     echofilter "C:\Users\Bob\OneDrive\Desktop\MinasPassage\2020" --no-bottom-line
 
 Specifying a directory of :term:`downfacing` :term:`mobile` data to process,
-and excluding the surface line from the output:
-
-.. code-block:: powershell
+and excluding the surface line from the output::
 
     echofilter "C:\Users\Bob\Documents\MobileSurveyData\Survey11" --no-surface-line
 
 Processing the same directory after some files were added to it,
-skipping files already processed:
-
-.. code-block:: powershell
+skipping files already processed::
 
     echofilter "C:\Users\Bob\Documents\MobileSurveyData\Survey11" --no-surface --skip
 
 Processing the same directory after some files were added to it,
-overwriting files already processed:
-
-.. code-block:: powershell
+overwriting files already processed::
 
     echofilter "C:\Users\Bob\Documents\MobileSurveyData\Survey11" --no-surface --force
 
 Ignoring all :term:`bad data regions` (default),
-using ``^`` to break up the long command into multiple lines:
-
-.. code-block:: powershell
+using ``^`` to break up the long command into multiple lines::
 
     echofilter "path/to/file_or_directory" ^
         --minimum-removed-length -1 ^
         --minimum-patch-area -1
 
-Including :term:`bad data regions` in the :term:`EVR` output:
-
-.. code-block:: powershell
+Including :term:`bad data regions` in the :term:`EVR` output::
 
     echofilter "path/to/file_or_directory" ^
         --minimum-removed-length 10 ^
         --minimum-patch-area 25
 
 Keep line predictions during :term:`passive<passive data>` periods (default
-is to linearly interpolate lines during passive data collection):
-
-.. code-block:: powershell
+is to linearly interpolate lines during passive data collection)::
 
     echofilter "path/to/file_or_directory" --lines-during-passive predict
 
-Specifying file and variable suffix, and line colours and thickness:
-
-.. code-block:: powershell
+Specifying file and variable suffix, and line colours and thickness::
 
     echofilter "path/to/file_or_directory" ^
         --suffix "_echofilter_stationary-model" ^
         --color-surface "green" --thickness-surface 4 ^
         --color-nearfield "red" --thickness-nearfield 3
 
-Processing a file with more output messages displayed in the terminal:
-
-.. code-block:: powershell
+Processing a file with more output messages displayed in the terminal::
 
     echofilter "path/to/file_or_directory" --verbose
 
 Processing a file and sending the output to a log file instead of the
-terminal:
-
-.. code-block:: powershell
+terminal::
 
     echofilter "path/to/file_or_directory" -v > path/to/log_file.txt 2>&1
 
@@ -754,24 +748,25 @@ terminal:
 Argument documentation
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Echofilter has a large number of customisation options. The complete list
-of argument options available to the user can be seen in the
-:ref:`CLI Reference<Echofilter CLI>`, or by consulting the help for
-echofilter. The help documentation is output to the terminal when you run the
-command ``echofilter --help``.
+:ref:`Echofilter<echofilter CLI>` has a large number of customisation options.
+The complete list of argument options available to the user can be seen in the
+:ref:`CLI Reference<echofilter CLI>`, or by consulting the help for
+:ref:`echofilter<echofilter CLI>`. The help documentation is output to the
+terminal when you run the command ``echofilter --help``.
 
 
 Actions
 ~~~~~~~
 
-The main echofilter action is to perform :term:`inference` on a file or
-collection of files. However, certain arguments trigger different
-actions.
+The main :ref:`echofilter<echofilter CLI>` action is to perform
+:term:`inference` on a file or collection of files. However, certain
+arguments trigger different actions.
 
 help
 ^^^^
 
-Show echofilter documentation and all possible arguments.
+Show :ref:`echofilter<echofilter CLI>` documentation and all possible
+arguments.
 
 .. code-block:: powershell
 
@@ -815,24 +810,58 @@ https://xkcd.com/color/rgb/
     echofilter --list-colors full
 
 
-Pointers for users new to using the command prompt
---------------------------------------------------
+Command line interface primer
+-----------------------------
+
+In this section, we provide some pointers for users new to using the
+command prompt.
+
+Spaces in file names
+~~~~~~~~~~~~~~~~~~~~
 
 Running commands on files with spaces in their file names is
 problematic. This is because spaces are used to separate arguments from
-each other, so for instance ``command-name some path with spaces`` is
-actually running the command ``command-name`` with four arguments: ``some``,
-``path``, ``with``, and ``spaces``. You can run commands on paths containing
-spaces by encapsulating the path in quotes so it becomes a single
-string. For instance ``command-name "some path with spaces"``. In the
-long run, you may find it easier to change your directory structure to
-not include any spaces in any of the names of directories used for the
-data.
+each other, so for instance::
 
-Also, take heed of the fact that ``\`` (backslash) is an escape character.
-On Windows, ``\`` is also used to denote directories (overloading the ``\``
-symbol with multiple meanings). For this reason, you should not include
-a trailing ``\`` when specifying directory inputs.
+    command-name some path with spaces
+
+is actually running the command ``command-name`` with four arguments:
+``some``, ``path``, ``with``, and ``spaces``.
+
+You can run commands on paths containing spaces by encapsulating the path
+in quotes (either single, ``'``, or double ``"`` quotes), so it becomes
+a single string. For instance::
+
+    command-name "some path with spaces"
+
+In the long run, you may find it easier to change your directory
+structure to not include any spaces in any of the names of directories
+used for the data.
+
+Trailing backslash
+~~~~~~~~~~~~~~~~~~
+
+The backslash (``\``) character is an
+`escape character <https://en.wikipedia.org/wiki/Escape_character>`__,
+used to give alternative meanings to symbols with special meanings.
+For example, the quote characters ``"`` and ``'`` indicate the start or end
+of a string but can be escaped to obtain a literal quote character.
+
+On Windows, ``\`` is also used to denote directories. This overloads
+the ``\`` symbol with multiple meanings. For this reason, you should not
+include a trailing ``\`` when specifying directory inputs. Otherwise, if you
+provide the path in quotes, an input of ``"some\path\"`` will not be
+registered correctly, and will include a literal ``"`` character, with
+the end of the string implicitly indicated by the end of the input.
+Instead, you should use ``"some\path"``.
+
+Alternatively, you could escape the backslash character to ensure
+it is a literal backslash with ``"some\path\\"``, or use a forward
+slash with ``"some/path/"`` since :ref:`echofilter<echofilter CLI>`
+also understands forward slashes as a directory separator.
+
+Argument types
+~~~~~~~~~~~~~~
 
 Commands at the command prompt can take arguments. There are a couple of
 types of arguments:
@@ -845,12 +874,12 @@ types of arguments:
 
    -  longhand arguments which start with two hyphens (``--verbose``)
 
-For echofilter, the only positional argument is the path to the file(s)
-or directory(ies) to process.
+For :ref:`echofilter<echofilter CLI>`, the only positional argument is
+the path to the file(s) or directory(ies) to process.
 
-Arguments take differing numbers of parameters. For echofilter the
-positional argument (files to process) must have at least one entry and
-can contain as many as you like.
+Arguments take differing numbers of parameters.
+For :ref:`echofilter<echofilter CLI>` the positional argument (files to
+process) must have at least one entry and can contain as many as you like.
 
 Arguments which take zero parameters are sometimes called flags, such as
 the flag ``--skip-existing``
@@ -880,14 +909,12 @@ Pre-trained models
 ------------------
 
 The currently available model checkpoints can be seen by running the
-command
-
-.. code-block:: powershell
+command::
 
     echofilter --list-checkpoints
 
-All current checkpoints were trained on data acquired by FORCE
-(`fundyforce.ca <http://fundyforce.ca>`__).
+All current checkpoints were trained on data acquired by
+`FORCE <http://fundyforce.ca>`__.
 
 Training Datasets
 ~~~~~~~~~~~~~~~~~
@@ -1017,12 +1044,13 @@ Issues
 Known issues
 ~~~~~~~~~~~~
 
-There is a memory leak somewhere in echofilter. Consequently, its memory
-usage will slowly rise while it is in use. When processing a very large
-number of files, you may eventually run out of memory. In this case, you
-must close the Command Window (to release the memory). You can then
-restart echofilter from where it was up to, or run the same command with
-the ``--skip`` argument, to process the rest of the files.
+There is a memory leak somewhere in :ref:`echofilter<echofilter CLI>`.
+Consequently, its memory usage will slowly rise while it is in use.
+When processing a very large number of files, you may eventually run out
+of memory. In this case, you must close the Command Window (to release
+the memory). You can then restart :ref:`echofilter<echofilter CLI>`
+from where it was up to, or run the same command with the ``--skip``
+argument, to process the rest of the files.
 
 Troubleshooting
 ~~~~~~~~~~~~~~~
@@ -1045,18 +1073,45 @@ Troubleshooting
    -  if you have an error saying the checkpoint was not recognised,
       check the spelling of the checkpoint name.
 
--  If you receive error messages about writing or loading CSV files
-   automatically generated from EV files, check that sufficient
-   hard-drive space is available.
+-  If you receive error messages about writing or loading
+   :term:`CSV files<CSV>` automatically generated from
+   :term:`EV files<EV file>`, check that sufficient hard-drive space is
+   available.
 
 -  If you experience problems with operations which occur inside
-   :term:`Echoview`, please re-run the code but manually open Echoview before
-   running echofilter. This will leave the Echoview window open and you
-   will be able to read the error message within Echoview.
+   :term:`Echoview`, please re-run the code but manually open Echoview
+   before running :ref:`echofilter<echofilter CLI>`. This will leave the
+   Echoview window open and you will be able to read the error message
+   within Echoview.
 
 Reporting an issue
 ~~~~~~~~~~~~~~~~~~
 
-If you experience a problem with echofilter, please report it by
-emailing scottclowe@gmail.com. Please include all details necessary to
-reproduce the issue.
+If you experience a problem with :term:`echofilter`, please report it by
+`creating a new issue on our repository <https://github.com/DeepSenseCA/echofilter/issues/new>`__
+if possible, or otherwise by emailing scottclowe@gmail.com.
+
+Please include:
+
+-  Which version of echofilter which you are using. This is found by running
+   the command ``echofilter --version``.
+
+-  The operating system you are using.
+   On Windows 10, system information information can be found by going to
+   `Start > Settings > System > About`.
+   Instructions for other Windows versions can be
+   `found here <https://support.microsoft.com/help/13443/windows-which-version-am-i-running>`__.
+
+-  If you are using Echoview integration, your Echoview version number
+   (which can be found by going to `Help > About` in Echoview), and
+   whether you have and are using an Echoview HASP USB dongle.
+
+-  What you expected to happen.
+
+-  What actually happened.
+
+-  All steps/details necessary to reproduce the issue.
+
+-  Any error messages which were produced.
+
+.. highlight:: python

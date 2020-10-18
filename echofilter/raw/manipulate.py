@@ -791,40 +791,40 @@ def load_decomposed_transect_mask(sample_path):
     ----------
     sample_path : str
         Path to sample, without extension. The raw data should be located at
-        `sample_path + '_Sv_raw.csv'`.
+        ``sample_path + "_Sv_raw.csv"``.
 
     Returns
     -------
     dict
         A dictionary with keys:
 
-            - 'timestamps' : numpy.ndarray
+            - "timestamps" : numpy.ndarray
                 Timestamps (in seconds since Unix epoch), for each recording
                 timepoint.
-            - 'depths' : numpy.ndarray
+            - "depths" : numpy.ndarray
                 Depths from the surface (in metres), with each entry
                 corresponding to each column in the `signals` data.
-            - 'Sv' : numpy.ndarray
+            - "Sv" : numpy.ndarray
                 Echogram Sv data, shaped (num_timestamps, num_depths).
-            - 'mask' : numpy.ndarray
+            - "mask" : numpy.ndarray
                 Logical array indicating which datapoints were kept (`True`)
                 and which removed (`False`) for the masked Sv output.
                 Shaped (num_timestamps, num_depths).
-            - 'turbulence' : numpy.ndarray
+            - "turbulence" : numpy.ndarray
                 For each timepoint, the depth of the shallowest datapoint which
                 should be included for the mask. Shaped (num_timestamps, ).
-            - 'bottom' : numpy.ndarray
+            - "bottom" : numpy.ndarray
                 For each timepoint, the depth of the deepest datapoint which
                 should be included for the mask. Shaped (num_timestamps, ).
-            - 'is_passive' : numpy.ndarray
+            - "is_passive" : numpy.ndarray
                 Logical array showing whether a timepoint is of passive data.
                 Shaped (num_timestamps, ). All passive recording data should
                 be excluded by the mask.
-            - 'is_removed' : numpy.ndarray
+            - "is_removed" : numpy.ndarray
                 Logical array showing whether a timepoint is entirely removed
                 by the mask. Shaped (num_timestamps, ). Does not include
                 periods of passive recording.
-            - 'is_upward_facing' : bool
+            - "is_upward_facing" : bool
                 Indicates whether the recording source is located at the
                 deepest depth (i.e. the seabed), facing upwards. Otherwise, the
                 recording source is at the shallowest depth (i.e. the surface),

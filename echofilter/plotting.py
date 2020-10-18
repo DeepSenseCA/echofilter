@@ -33,8 +33,8 @@ def ensure_axes_inverted(axes=None, dir="y"):
     ----------
     axes : matplotlib.axes or None
         The axes to invert. If `None`, the current axes are used (default).
-    dir : {'x', 'y', 'xy'}
-        The axis to invert. Default is `'y'`.
+    dir : {"x", "y", "xy"}
+        The axis to invert. Default is `"y"`.
     """
     if axes is None:
         axes = plt.gca()
@@ -69,7 +69,7 @@ def plot_indicator_hatch(
         The upper y-value of the extent of the hatching. If `None` (default),
         the maximum y-value of the current axes is used.
     hatch : str, optional
-        Hatching pattern to use. Default is `'//'`.
+        Hatching pattern to use. Default is `"//"`.
     color : color, optional
         Color of the hatching pattern. Default is black.
     """
@@ -109,17 +109,18 @@ def plot_mask_hatch(*args, hatch="//", color="k", border=False):
     X, Y : array-like, optional
         The coordinates of the values in Z.
 
-        X and Y must both be 2-D with the same shape as Z (e.g. created via
-        numpy.meshgrid), or they must both be 1-D such that len(X) == M is the
-        number of columns in Z and len(Y) == N is the number of rows in Z.
+        X and Y must both be 2-D with the same shape as `Z` (e.g. created via
+        numpy.meshgrid), or they must both be 1-D such that ``len(X) == M`` is
+        the number of columns in `Z` and ``len(Y) == N`` is the number of rows
+        in `Z`.
 
         If not given, they are assumed to be integer indices, i.e.
-        X = range(M), Y = range(N).
+        ``X = range(M)``, ``Y = range(N)``.
     Z : array-like(N, M)
-        Indicator for which locations should be hatched. If Z is not a boolean
-        array, any location where Z > 0 will be hatched.
+        Indicator for which locations should be hatched. If `Z` is not a boolean
+        array, any location where ``Z > 0`` will be hatched.
     hatch : str, optional
-        The hatching pattern to apply. Default is '//'.
+        The hatching pattern to apply. Default is "//".
     color : color, optional
         The color of the hatch. Default is black.
     border : bool, optional
@@ -170,7 +171,7 @@ def plot_transect(
     linewidth=1,
     cmap=None,
 ):
-    """
+    r"""
     Plot a transect.
 
     Parameters
@@ -180,26 +181,26 @@ def plot_transect(
     signal_type : str, optional
         The signal to plot as a heatmap. Default is `"Sv"` if present, or
         "signals" if not. If this is `"Sv_masked"`, the mask (given by
-        `transect["mask"]`) is used to mask `'transect["Sv"]` before plotting.
-    x_scale : {'index', 'timestamp' 'time'}, optional
-        Scaling for x-axis. If `'timestamp'`, the number of seconds since the
-        Unix epoch is shown; if `'time'`, the amount of time in seconds since
-        the start of the transect is shown. Default is `'index'`.
+        `transect["mask"]`) is used to mask `transect["Sv"]` before plotting.
+    x_scale : {"index", "timestamp" "time"}, optional
+        Scaling for x-axis. If `"timestamp"`, the number of seconds since the
+        Unix epoch is shown; if `"time"`, the amount of time in seconds since
+        the start of the transect is shown. Default is `"index"`.
     show_regions : bool, optional
         Whether to show segments of data maked as removed or passive with
-        hatching. Passive data is shown with `'/'` oriented lines, other removed
-        timestamps with `'\'` oriented lines. Default is `True`.
+        hatching. Passive data is shown with `"/"` oriented lines, other removed
+        timestamps with `"\"` oriented lines. Default is `True`.
     turbulence_color : color, optional
-        Color of turbulence line. Default is `'#a6cee3'`.
+        Color of turbulence line. Default is `"#a6cee3"`.
     bottom_color : color, optional
-        Color of bottom line. Default is `'#b2df8a'`.
+        Color of bottom line. Default is `"#b2df8a"`.
     surface_color : color, optional
-        Color of surface line. Default is `'#d68ade'`.
+        Color of surface line. Default is `"#d68ade"`.
     passive_color : color, optional
         Color of passive segment hatching. Default is `[.4, .4, .4]`.
     removed_color : color, optional
-        Color of removed segment hatching. Default is `'r'` if `cmap` is
-        `'viridis'`, and `'b'` otherwise.
+        Color of removed segment hatching. Default is `"r"` if `cmap` is
+        `"viridis"`, and `"b"` otherwise.
     linewidth : int
         Width of lines. Default is `2`.
     cmap : str, optional

@@ -42,25 +42,26 @@ from echofilter.plotting import plot_transect_predictions
 from echofilter.raw.loader import get_partition_list
 from echofilter.raw.manipulate import load_decomposed_transect_mask
 import echofilter.raw.shardloader
+import echofilter.ui
 
 
 ## For mobile dataset,
 # DATA_CENTER = -81.5
 # DATA_DEVIATION = 21.9
-# CENTER_METHOD = 'mean'
-# DEVIATION_METHOD = 'stdev'
+# CENTER_METHOD = "mean"
+# DEVIATION_METHOD = "stdev"
 
 ## For stationary dataset,
 # DATA_CENTER = -78.7
 # DATA_DEVIATION = 19.2
-# CENTER_METHOD = 'mean'
-# DEVIATION_METHOD = 'stdev'
+# CENTER_METHOD = "mean"
+# DEVIATION_METHOD = "stdev"
 
 ## For intermediate values between both datasets
 # DATA_CENTER = -80.
 # DATA_DEVIATION = 20.
-# CENTER_METHOD = 'mean'
-# DEVIATION_METHOD = 'stdev'
+# CENTER_METHOD = "mean"
+# DEVIATION_METHOD = "stdev"
 # NAN_VALUE = -3
 
 ## Overall values to use
@@ -1648,12 +1649,12 @@ def meters_to_csv(meters, is_best, dirname=".", filename="meters.csv"):
         Collection of output meters, as a nested dictionary.
     is_best : bool
         Whether this model state is the best so far. If `True`, the CSV file
-        will be copied `"model_best.meters.csv"`.
+        will be copied to `"model_best.meters.csv"`.
     dirname : str, optional
         Path to directory in which the checkpoint will be saved.
         Default is `"."` (current directory of the executed script).
     filename : str, optional
-        Format for the output file. Default is `""meters.csv""`.
+        Format for the output file. Default is `"meters.csv"`.
     """
     os.makedirs(dirname, exist_ok=True)
     df = pd.DataFrame()
@@ -1689,13 +1690,24 @@ def get_parser():
     if prog == "__main__.py" or prog == "__main__":
         prog = os.path.split(__file__)[1]
     parser = argparse.ArgumentParser(
-        prog=prog, description="Echofilter model training",
+        prog=prog, description="Echofilter model training", add_help=False,
     )
-    parser.add_argument(
+
+    # Actions
+    group_action = parser.add_argument_group(
+        "Actions",
+        "These arguments specify special actions to perform. The main action"
+        " of this program is supressed if any of these are given.",
+    )
+    group_action.add_argument(
+        "-h", "--help", action="help", help="Show this help message and exit.",
+    )
+    group_action.add_argument(
         "--version",
         "-V",
         action="version",
         version="%(prog)s {version}".format(version=echofilter.__version__),
+        help="Show program's version number and exit.",
     )
 
     # Data parameters
@@ -2031,6 +2043,13 @@ def get_parser():
     )
 
     return parser
+
+
+def _get_parser_sphinx():
+    """
+    Pre-format parser help for sphinx-argparse processing.
+    """
+    return echofilter.ui.formatters.format_parser_for_sphinx(get_parser())
 
 
 def main():

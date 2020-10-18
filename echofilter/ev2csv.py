@@ -54,26 +54,27 @@ def run_ev2csv(
     paths : iterable
         Paths to input EV files to process, or directories containing EV files.
         These may be full paths or paths relative to `source_dir`. For each
-        folder specified, any files with extension `'csv'` within the folder
+        folder specified, any files with extension `"csv"` within the folder
         and all its tree of subdirectories will be processed.
     variable_name : str, optional
         Name of the Echoview acoustic variable to export. Default is
-        `'Fileset1: Sv pings T1'`.
+        `"Fileset1: Sv pings T1"`.
     source_dir : str, optional
-        Path to directory where files are found. Default is `'.'`.
+        Path to directory where files are found. Default is `"."`.
     recursive_dir_search : bool, optional
         How to handle directory inputs in `paths`. If `False`, only files
         (with the correct extension) in the directory will be included.
         If `True`, subdirectories will also be walked through to find input
         files. Default is `True`.
     output_dir : str, optional
-        Directory where output files will be written. If this is `''`, outputs
-        are written to the same directory as each input file. Otherwise, they
-        are written to `output_dir`, preserving their path relative to
-        `source_dir` if relative paths were used. Default is `''`.
+        Directory where output files will be written. If this is an empty
+        string (`""`, default), outputs are written to the same directory as
+        each input file. Otherwise, they are written to `output_dir`,
+        preserving their path relative to `source_dir` if relative paths were
+        used.
     suffix : str, optional
-        Output filename suffix. Default is `'_Sv_raw.csv'` if `keep_ext=False`,
-        or `'.Sv_raw.csv'` if `keep_ext=True`.
+        Output filename suffix. Default is `"_Sv_raw.csv"` if `keep_ext=False`,
+        or `".Sv_raw.csv"` if `keep_ext=True`.
     keep_ext : bool, optional
         Whether to preserve the file extension in the input file name when
         generating output file name. Default is `False`, removing the
@@ -211,7 +212,7 @@ def ev2csv(
         Filename of output destination.
     variable_name : str, optional
         Name of the Echoview acoustic variable to export. Default is
-        `'Fileset1: Sv pings T1'`.
+        `"Fileset1: Sv pings T1"`.
     ev_app : win32com.client.Dispatch object or None, optional
         An object which can be used to interface with the Echoview application,
         as returned by `win32com.client.Dispatch`. If `None` (default), a
@@ -311,17 +312,18 @@ def get_parser():
             either files or directories. Paths can be given
             relative to the current directory, or optionally be
             relative to the SOURCE_DIR argument specified with
-            --source-dir. For each directory given, the directory
+            ``--source-dir``. For each directory given, the directory
             will be searched recursively for files bearing an
             extension specified by SEARCH_EXTENSION (see the
-            --extension argument for details).
+            ``--extension`` argument for details).
             Multiple files and directories can be specified,
             separated by spaces.
             This is a required argument. At least one input file
             or directory must be given.
             In order to process the directory given by SOURCE_DIR,
-            specify "." for this argument, such as:
-                echofilter . --source-dir SOURCE_DIR
+            specify "." for this argument, such as::
+
+                ev2csv . --source-dir SOURCE_DIR
         """,
     )
     group_infile = parser.add_argument_group(
@@ -420,8 +422,8 @@ def get_parser():
         type=str,
         default=None,
         help="""
-            Output filename suffix. Default is "_Sv_raw.csv", or ".Sv_raw.csv"
-            if the --keep_ext argument is supplied.
+            Output filename suffix. Default is ``"_Sv_raw.csv"``, or
+            ``".Sv_raw.csv"`` if the ``--keep_ext`` argument is supplied.
         """,
     )
 
@@ -469,7 +471,7 @@ def get_parser():
         default=None,
         help="""
             Don't hide an Echoview window created to run this code. (Disables
-            the default behaviour which is equivalent to --hide-echoview.)
+            the default behaviour which is equivalent to ``--hide-echoview``.)
         """,
     )
     group_evwin_hiding.add_argument(
@@ -490,8 +492,8 @@ def get_parser():
         help="""
             Minimize any Echoview window used to runs this code while it runs.
             The window will be restored once the program is finished.
-            If this argument is supplied, --show-echoview is implied unless
-            --hide-echoview is also given.
+            If this argument is supplied, ``--show-echoview`` is implied unless
+            ``--hide-echoview`` is also given.
         """,
     )
 
@@ -525,6 +527,13 @@ def get_parser():
     )
 
     return parser
+
+
+def _get_parser_sphinx():
+    """
+    Pre-format parser help for sphinx-argparse processing.
+    """
+    return echofilter.ui.formatters.format_parser_for_sphinx(get_parser())
 
 
 def main():

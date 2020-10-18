@@ -3,6 +3,9 @@
 # Exit when any command fails
 set -e
 
+# Go to the directory containing the script
+cd "${0%/*}"
+
 # Build usage guide
 #------------------
 # Remove previous export
@@ -10,8 +13,9 @@ rm -vf -r _build_guide
 # sphinx-build does not give precedence to a master_doc argument on the
 # command line over the arugment in conf.py, so we have to edit the conf.py
 sed -i 's/master_doc = "index"/master_doc = "guide"/' conf.py
+sed -i 's/" Documentation"/" Usage Guide"/' conf.py
 # Export rST to LaTeX with sphinx
-sphinx-build -b latex -D master_doc='guide' . ./_build_guide guide.rst
+sphinx-build -b latex -D master_doc='guide' -D latex_show_urls='footnote' . ./_build_guide guide.rst
 # Remove docstring formatting indicators, which aren't stripped by
 # sphinx-argparse
 sed -in 's+^\\item\s*\[{[Rd]|}\]+\\item\[\]+' _build_guide/Echofilter.tex
@@ -19,6 +23,7 @@ sed -in 's+^\\item\s*\[{[Rd]|}\]+\\item\[\]+' _build_guide/Echofilter.tex
 make -C _build_guide
 # Restore conf.py to processing index.rst instead of guide.rst
 sed -i 's/master_doc = "guide"/master_doc = "index"/' conf.py
+sed -i 's/" Usage Guide"/" Documentation"/' conf.py
 
 # Build full documentation
 #-------------------------

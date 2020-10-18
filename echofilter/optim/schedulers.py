@@ -58,24 +58,24 @@ class MesaOneCycleLR(OneCycleLR):
         pct_end (float): The percentage of the cycle (in number of steps) spent
             before decreasing the learning rate.
             Default: 0.75
-        anneal_strategy (str): {'cos', 'linear'}
+        anneal_strategy (str): {"cos", "linear"}
             Specifies the annealing strategy: "cos" for cosine annealing, "linear" for
             linear annealing.
-            Default: 'cos'
+            Default: "cos".
         cycle_momentum (bool): If ``True``, momentum is cycled inversely
-            to learning rate between 'base_momentum' and 'max_momentum'.
+            to learning rate between "base_momentum" and "max_momentum".
             Default: True
         base_momentum (float or list): Lower momentum boundaries in the cycle
             for each parameter group. Note that momentum is cycled inversely
             to learning rate; at the peak of a cycle, momentum is
-            'base_momentum' and learning rate is 'max_lr'.
+            "base_momentum" and learning rate is "max_lr".
             Default: 0.85
         max_momentum (float or list): Upper momentum boundaries in the cycle
             for each parameter group. Functionally,
             it defines the cycle amplitude (max_momentum - base_momentum).
             Note that momentum is cycled inversely
-            to learning rate; at the start of a cycle, momentum is 'max_momentum'
-            and learning rate is 'base_lr'
+            to learning rate; at the start of a cycle, momentum is "max_momentum"
+            and learning rate is "base_lr"
             Default: 0.95
         div_factor (float): Determines the initial learning rate via
             initial_lr = max_lr/div_factor
