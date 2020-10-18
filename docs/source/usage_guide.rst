@@ -845,13 +845,14 @@ The backslash (``\``) character is an
 `escape character <https://en.wikipedia.org/wiki/Escape_character>`__,
 used to give alternative meanings to symbols with special meanings.
 For example, the quote characters ``"`` and ``'`` indicate the start or end
-of a string but can be escape to obtain a literal quote character.
+of a string but can be escaped to obtain a literal quote character.
 
 On Windows, ``\`` is also used to denote directories. This overloads
-the ``\`` symbol with multiple meanings. For this reason, you should not include
-a trailing ``\`` when specifying directory inputs. Otherwise, if you
-provide the path in quotes an input of ``"some\path\"`` will not be
-registered correctly and will include a literal ``"`` character.
+the ``\`` symbol with multiple meanings. For this reason, you should not
+include a trailing ``\`` when specifying directory inputs. Otherwise, if you
+provide the path in quotes, an input of ``"some\path\"`` will not be
+registered correctly, and will include a literal ``"`` character, with
+the end of the string implicitly indicated by the end of the input.
 Instead, you should use ``"some\path"``.
 
 Alternatively, you could escape the backslash character to ensure
