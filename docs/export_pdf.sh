@@ -3,6 +3,9 @@
 # Exit when any command fails
 set -e
 
+# Go to the directory containing the script
+cd "${0%/*}"
+
 # Build usage guide
 #------------------
 # Remove previous export
