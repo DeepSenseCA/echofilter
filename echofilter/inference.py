@@ -114,6 +114,8 @@ def run_inference(
     row_len_selector="mode",
     facing="auto",
     use_training_standardization=False,
+    prenorm_nan_value=None,
+    postnorm_nan_value=None,
     crop_min_depth=None,
     crop_max_depth=None,
     autocrop_threshold=0.35,
@@ -395,6 +397,15 @@ def run_inference(
         used during training. If `False` (default), the center and deviation
         are determined per sample, using the same method methodology as used
         to determine the center and deviation values for training.
+    prenorm_nan_value : float or None, optional
+        If this is set, replace NaN values with a given Sv value before
+        the data normalisation (Gaussian standardisation) step. If `None`
+        (default), NaNs are left as they are until after standardising the
+        data.
+    postnorm_nan_value : float, optional
+        Placeholder value to replace NaNs with. Does nothing if
+        `prenorm_nan_value` is set. If `None` (default) this is set to the
+        value used to train the model.
     crop_min_depth : float or None, optional
         Minimum depth to include in input. If `None` (default), there is no
         minimum depth.
@@ -538,7 +549,8 @@ def run_inference(
     else:
         center_param = checkpoint.get("center_method", "mean")
         deviation_param = checkpoint.get("deviation_method", "stdev")
-    nan_value = checkpoint.get("nan_value", -3)
+    if postnorm_nan_value is None:
+        postnorm_nan_value = checkpoint.get("nan_value", -3)
 
     if verbose >= 4:
         print("Constructing U-Net model, with arguments:")
@@ -875,7 +887,8 @@ def run_inference(
                     force_unconditioned=force_unconditioned,
                     data_center=center_param,
                     data_deviation=deviation_param,
-                    nan_value=nan_value,
+                    prenorm_nan_value=prenorm_nan_value,
+                    postnorm_nan_value=postnorm_nan_value,
                     verbose=verbose - 1,
                 )
             except BaseException as err:
@@ -1154,7 +1167,8 @@ def inference_transect(
     force_unconditioned=False,
     data_center="mean",
     data_deviation="stdev",
-    nan_value=-3,
+    prenorm_nan_value=None,
+    postnorm_nan_value=-3,
     dtype=torch.float,
     verbose=0,
 ):
@@ -1205,8 +1219,14 @@ def inference_transect(
         If `data_deviation` is a string, it specifies the method to use to
         determine the center value from the distribution of intensities seen
         in this sample transect. Default is `"stdev"`.
-    nan_value : float, optional
-        Placeholder value to replace NaNs with. Default is `-3`.
+    prenorm_nan_value : float or None, optional
+        If this is set, replace NaN values with a given Sv value before
+        the data normalisation (Gaussian standardisation) step. If `None`
+        (default), NaNs are left as they are until after standardising the
+        data.
+    postnorm_nan_value : float, optional
+        Placeholder value to replace NaNs with. Does nothing if
+        `prenorm_nan_value` is set. Default is `-3`.
     dtype : torch.dtype, optional
         Datatype to use for model input. Default is `torch.float`.
     verbose : int, optional
@@ -1238,6 +1258,9 @@ def inference_transect(
         transect["depths"] = transect["depths"][depth_crop_mask]
         transect["signals"] = transect["signals"][:, depth_crop_mask]
 
+    if prenorm_nan_value is not None:
+        # Replace NaNs before transforming the data
+        transect = echofilter.data.transforms.ReplaceNan(prenorm_nan_value)(transect)
     # Standardize data distribution
     transect = echofilter.data.transforms.Normalize(data_center, data_deviation)(
         transect
@@ -1304,7 +1327,7 @@ def inference_transect(
         # Preprocessing transform
         transform = torchvision.transforms.Compose(
             [
-                echofilter.data.transforms.ReplaceNan(nan_value),
+                echofilter.data.transforms.ReplaceNan(postnorm_nan_value),
                 echofilter.data.transforms.Rescale(
                     (segment["signals"].shape[0], image_height),
                     order=1,
@@ -1411,7 +1434,8 @@ def inference_transect(
         force_unconditioned=force_unconditioned,
         data_center=data_center,
         data_deviation=data_deviation,
-        nan_value=nan_value,
+        prenorm_nan_value=prenorm_nan_value,
+        postnorm_nan_value=postnorm_nan_value,
         dtype=dtype,
         verbose=verbose,
     )
