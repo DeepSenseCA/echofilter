@@ -48,6 +48,7 @@ DEFAULT_VARNAME = "Fileset1: Sv pings T1"
 def run_ev2csv(
     paths,
     variable_name=DEFAULT_VARNAME,
+    export_raw=True,
     source_dir=".",
     recursive_dir_search=True,
     output_dir="",
@@ -73,6 +74,11 @@ def run_ev2csv(
     variable_name : str, optional
         Name of the Echoview acoustic variable to export. Default is
         `"Fileset1: Sv pings T1"`.
+    export_raw : bool, optional
+        If `True` (default), exclusion and threshold settings in the EV file
+        are temporarily disabled before exporting the CSV, in order to ensure
+        all raw data is exported. If `False`, thresholds and exclusions are
+        used as per the EV file.
     source_dir : str, optional
         Path to directory where files are found. Default is `"."`.
     recursive_dir_search : bool, optional
@@ -88,7 +94,8 @@ def run_ev2csv(
         used.
     suffix : str, optional
         Output filename suffix. Default is `"_Sv_raw.csv"` if `keep_ext=False`,
-        or `".Sv_raw.csv"` if `keep_ext=True`.
+        or `".Sv_raw.csv"` if `keep_ext=True`. The `"_raw"` component is
+        excluded if `export_raw` is `False`.
     keep_ext : bool, optional
         Whether to preserve the file extension in the input file name when
         generating output file name. Default is `False`, removing the
@@ -125,9 +132,9 @@ def run_ev2csv(
     if suffix is not None:
         pass
     elif keep_ext:
-        suffix = ".Sv_raw.csv"
+        suffix = ".Sv{}.csv".format("_raw" if export_raw else "")
     else:
-        suffix = "_Sv_raw.csv"
+        suffix = "_Sv{}.csv".format("_raw" if export_raw else "")
 
     files = list(
         echofilter.path.parse_files_in_folders(
@@ -194,6 +201,7 @@ def run_ev2csv(
                 fname_full,
                 destination,
                 variable_name=variable_name,
+                export_raw=export_raw,
                 ev_app=ev_app,
                 verbose=verbose - 1,
             )
@@ -219,6 +227,7 @@ def ev2csv(
     input,
     destination,
     variable_name=DEFAULT_VARNAME,
+    export_raw=True,
     ev_app=None,
     verbose=0,
 ):
@@ -234,6 +243,10 @@ def ev2csv(
     variable_name : str, optional
         Name of the Echoview acoustic variable to export. Default is
         `"Fileset1: Sv pings T1"`.
+    export_raw : bool, optional
+        If `True` (default), exclusion and threshold settings in the EV file
+        are temporarily disabled before exporting the CSV, in order to ensure
+        all raw data is exported.
     ev_app : win32com.client.Dispatch object or None, optional
         An object which can be used to interface with the Echoview application,
         as returned by `win32com.client.Dispatch`. If `None` (default), a
@@ -260,15 +273,16 @@ def ev2csv(
         # Find the right variable
         av = ev_file.Variables.FindByName(variable_name).AsVariableAcoustic()
 
-        # Make sure we don't exclude anything, i.e. export "raw" data
-        av.Properties.Analysis.ExcludeAbove = "None"
-        av.Properties.Analysis.ExcludeBelow = "None"
-        av.Properties.Analysis.ExcludeBadDataRegions = False
-        av.Properties.Analysis.ExcludeBadLineStatusPings = False
-        av.Properties.Data.ApplyMinimumThreshold = False
-        av.Properties.Data.ApplyMaximumThreshold = False
-        av.Properties.Data.ApplyMinimumTsThreshold = False
-        av.Properties.Data.ApplyTimeVariedThreshold = False
+        if export_raw:
+            # Make sure we don't exclude anything, i.e. export "raw" data
+            av.Properties.Analysis.ExcludeAbove = "None"
+            av.Properties.Analysis.ExcludeBelow = "None"
+            av.Properties.Analysis.ExcludeBadDataRegions = False
+            av.Properties.Analysis.ExcludeBadLineStatusPings = False
+            av.Properties.Data.ApplyMinimumThreshold = False
+            av.Properties.Data.ApplyMaximumThreshold = False
+            av.Properties.Data.ApplyMinimumTsThreshold = False
+            av.Properties.Data.ApplyTimeVariedThreshold = False
 
         # Export the raw file
         if verbose >= 1:
@@ -400,6 +414,22 @@ def get_parser():
         """,
     )
 
+    # Processing arguments
+    group_inproc = parser.add_argument_group(
+        "Processing arguments", "Optional parameters specifying how to process files.",
+    )
+    group_inproc.add_argument(
+        "--keep-exclusions",
+        "--keep-thresholds",
+        dest="export_raw",
+        action="store_false",
+        help="""
+            Export CSV with all thresholds, exclusion regions, and bad data
+            exclusions set as per the EV file. Default behavior is to
+            ignore these settings and export the underlying raw data.
+        """,
+    )
+
     # Output files
     group_outfile = parser.add_argument_group(
         "Destination file arguments",
@@ -457,7 +487,9 @@ def get_parser():
         default=None,
         help="""
             Output filename suffix. Default is ``"_Sv_raw.csv"``, or
-            ``".Sv_raw.csv"`` if the ``--keep-ext`` argument is supplied.
+            ``".Sv_raw.csv"`` if the ``--keep_ext`` argument is supplied.
+            if ``--keep-exclusions`` is given, the ``"_raw"`` component is
+            dropped.
         """,
     )
 

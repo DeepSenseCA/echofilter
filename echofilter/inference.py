@@ -111,6 +111,7 @@ def run_inference(
     minimum_patch_area=-1,
     patch_mode=None,
     variable_name=DEFAULT_VARNAME,
+    export_raw_csv=True,
     row_len_selector="mode",
     facing="auto",
     use_training_standardization=False,
@@ -381,6 +382,11 @@ def run_inference(
     variable_name : str, optional
         Name of the Echoview acoustic variable to load from EV files. Default
         is `"Fileset1: Sv pings T1"`.
+    export_raw_csv : bool, optional
+        If `True` (default), exclusion and threshold settings in the EV file
+        are temporarily disabled before exporting the CSV, in order to ensure
+        all raw data is exported. If `False`, thresholds and exclusions are
+        used as per the EV file.
     row_len_selector : str, optional
         Method used to handle input csv files with different number of Sv
         values across time (i.e. a non-rectangular input). Default is `"mode"`.
@@ -815,6 +821,7 @@ def run_inference(
                         fname_full,
                         csv_fname,
                         variable_name=variable_name,
+                        export_raw=export_raw_csv,
                         ev_app=ev_app,
                         verbose=verbose - 1,
                     )
