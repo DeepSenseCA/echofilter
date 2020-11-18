@@ -117,6 +117,8 @@ def run_inference(
     use_training_standardization=False,
     prenorm_nan_value=None,
     postnorm_nan_value=None,
+    clip_Sv_range=None,
+    clip_Sv_value=None,
     crop_min_depth=None,
     crop_max_depth=None,
     autocrop_threshold=0.35,
@@ -412,6 +414,13 @@ def run_inference(
         Placeholder value to replace NaNs with. Does nothing if
         `prenorm_nan_value` is set. If `None` (default) this is set to the
         value used to train the model.
+    clip_Sv_range : list of float, optional
+        A range of Sv values in the input to clip. All intensities in
+        that range will be set to be the same value of `clip_Sv_value` if it
+        set, otherwise the minimum of `clip_Sv_range`.
+    clip_Sv_value : float, optional
+        The value to which Sv intensities within the `clip_Sv_range`
+        will be set. Default is the minimum value of the range.
     crop_min_depth : float or None, optional
         Minimum depth to include in input. If `None` (default), there is no
         minimum depth.
@@ -912,6 +921,11 @@ def run_inference(
                     with echofilter.ui.style.error_message(msg) as msg:
                         print(msg)
                         raise
+                # Clip Sv value range
+                if clip_Sv_range is not None:
+                    signals = apply_clip_range(
+                        signals, clip_Sv_range, target=clip_Sv_value
+                    )
 
             try:
                 output = inference_transect(
@@ -1192,6 +1206,26 @@ def run_inference(
                 datetime.timedelta(seconds=time.time() - t_start_prog)
             )
         )
+
+
+def apply_clip_range(a, range, target=None):
+    """
+    Clip values within a range of intensities, setting them to a target value.
+
+    Parameters
+    ----------
+    a : np.ndarary
+        Input data.
+    range : sequence of length 2
+        Minimum and maximum search range values.
+    target : float or None, optional
+        Value to set clip values to. If `None` (default), the lower bound of
+        `range` is used.
+    """
+    if target is None:
+        target = range[0]
+    a[(a > range[0]) & (a < range[1])] = target
+    return a
 
 
 def inference_transect(

@@ -876,6 +876,27 @@ def get_parser():
         """,
     )
     group_inproc.add_argument(
+        "--clip-Sv-range",
+        type=float,
+        nargs=2,
+        default=None,
+        help="""
+            Define a range of Sv values in the input to clip, setting all
+            intensities in that range to be the same value. Default is no
+            clipping.
+        """,
+    )
+    group_inproc.add_argument(
+        "--clip-Sv-value",
+        type=float,
+        default=None,
+        help="""
+            The value to which Sv intensities within the range given by
+            CLIP-SV-RANGE will be set. Default is the minimum value of the
+            range.
+        """,
+    )
+    group_inproc.add_argument(
         "--crop-max-depth",
         type=float,
         default=None,
