@@ -32,12 +32,12 @@ class Echofilter(nn.Module):
         Mapping from logit names to output channels provided by `model`.
         If `None`, a default mapping is used. The mapping is stored as
         `self.mapping`.
-    reduction_ispassive : str, optional
+    reduction_ispassive : str, default="logavgexp"
         Method used to reduce the depths dimension for the `"logit_is_passive"`
-        output. Default is `"mean"`.
-    reduction_isremoved : str, optional
+        output.
+    reduction_isremoved : str , default="logavgexp"
         Method used to reduce the depths dimension for the `"logit_is_removed"`
-        output. Default is `"mean"`.
+        output.
     conditional : bool, optional
         Whether to build a conditional model as well as an unconditional model.
         If `True`, there are additional logits in the call output named

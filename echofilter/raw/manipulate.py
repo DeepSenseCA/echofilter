@@ -28,9 +28,9 @@ def find_passive_data(signals, n_depth_use=38, threshold=25.0, deviation=None):
         Two-dimensional array of Sv values, shaped `[timestamps, depths]`.
     n_depth_use : int, optional
         How many Sv depths to use, starting with the first depths (closest
-        to the sounder device). If `None` all depths are used. Default is `26`.
+        to the sounder device). If `None` all depths are used. Default is `38`.
     threshold : float, optional
-        Threshold for start/end of passive regions. Default is `10`.
+        Threshold for start/end of passive regions. Default is `25`.
     deviation : float, optional
         Threshold for start/end of passive regions is `deviation` times the
         interquartile-range of the difference between samples at neigbouring
