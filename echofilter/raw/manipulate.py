@@ -1103,7 +1103,15 @@ def load_decomposed_transect_mask(sample_path):
     return transect
 
 
-def split_transect(timestamps=None, threshold=20, percentile=97.5, **transect):
+def split_transect(
+    timestamps=None,
+    threshold=20,
+    percentile=97.5,
+    max_length=-1,
+    pad_length=32,
+    pad_on="max",
+    **transect,
+):
     """
     Splits a transect into segments each containing contiguous recordings.
 
@@ -1121,6 +1129,15 @@ def split_transect(timestamps=None, threshold=20, percentile=97.5, **transect):
     percentile : float, optional
         The percentile at which to sample the timestamp intervals to establish
         a baseline typical interval. Default is `97.5`.
+    max_length : int, default=-1
+        Maximum length of each segment.
+        Set to ``0`` or ``-1`` to disable (default).
+    pad_length : int, default=32
+        Amount of overlap between the segments. Set to ``0`` to disable.
+    pad_on : {"max", "thr", "all", "none"}, default="max"
+        Apply overlap padding when the transect is split due to either the total
+        length exceeding the maximum (``"max"``), the time delta exceeding the
+        threshold (``"thr"``), or both (``"all"``).
     **kwargs
         Arbitrary additional transect variables, which will be split into
         segments as appropriate in accordance with `timestamps`.
@@ -1135,6 +1152,13 @@ def split_transect(timestamps=None, threshold=20, percentile=97.5, **transect):
     if timestamps is None:
         raise ValueError("The `timestamps` argument is required.")
 
+    if pad_on not in {"max", "thr", "all", "none"}:
+        raise ValueError("Unsupported pad_on values: {}".format(pad_on))
+
+    if max_length is None or max_length < 0:
+        max_length = 0
+
+    # Fix break points due to time delta threshold
     dt = np.diff(timestamps)
     break_indices = np.where(dt > np.percentile(dt, percentile) * threshold)[0]
     if len(break_indices) > 0:
@@ -1143,8 +1167,56 @@ def split_transect(timestamps=None, threshold=20, percentile=97.5, **transect):
     # Add the start and end indices
     break_indices = np.r_[0, break_indices, len(timestamps)]
 
-    for seg_start, seg_end in zip(break_indices[:-1], break_indices[1:]):
+    # Check for breaks needed due to max length
+    break_indices2 = []
+    break_from_max_pre = []
+    break_from_max_post = []
+    for i in range(len(break_indices) - 1):
+        segment_len = break_indices[i + 1] - break_indices[i]
+        if not max_length or segment_len <= max_length:
+            break_indices2.append(break_indices[i])
+            break_from_max_pre.append(False)
+            break_from_max_post.append(False)
+            continue
+        subseg = np.linspace(
+            break_indices[i],
+            break_indices[i + 1],
+            1 + int(np.ceil(segment_len / max_length)),
+        )
+        subseg = np.round(subseg).astype(int)
+        for j, subseg_idx in enumerate(subseg[:-1]):
+            break_indices2.append(subseg_idx)
+            break_from_max_pre.append(j > 0)
+            break_from_max_post.append(j < len(subseg) - 2)
+
+    break_indices2.append(len(timestamps))
+
+    for seg_start, seg_end, seg_max_pre, seg_max_post in zip(
+        break_indices2[:-1], break_indices2[1:], break_from_max_pre, break_from_max_post
+    ):
         segment = {}
+        # Determine whether to pad the start/end, and record this
+        segment["_pad_start"] = 0
+        segment["_pad_end"] = 0
+        if (
+            pad_on == "all"
+            or (pad_on == "max" and seg_max_pre)
+            or (pad_on == "thr" and not seg_max_pre)
+        ):
+            segment["_pad_start"] = pad_length
+        if (
+            pad_on == "all"
+            or (pad_on == "max" and seg_max_post)
+            or (pad_on == "thr" and not seg_max_post)
+        ):
+            segment["_pad_end"] = pad_length
+        if seg_start == 0:
+            segment["_pad_start"] = 0
+        if seg_end == len(timestamps):
+            segment["_pad_end"] = 0
+        # The padding effects the start and end of the extracted indices
+        seg_start -= segment["_pad_start"]
+        seg_end += segment["_pad_end"]
         segment["timestamps"] = timestamps[seg_start:seg_end]
         for key in transect:
             if key in ("depths",) or np.asarray(transect[key]).size <= 1:
@@ -1170,6 +1242,7 @@ def join_transect(transects):
     """
 
     non_timelike_dims = ["depths"]
+    non_output_keys = {"_pad_start", "_pad_end"}
 
     for i, transect in enumerate(transects):
         if "depths" not in transect:
@@ -1177,20 +1250,33 @@ def join_transect(transects):
                 "'depths' is a required field, not found in transect {}".format(i)
             )
         if i == 0:
-            output = {k: [] for k in transect}
+            output = {k: [] for k in transect if k not in non_output_keys}
             output["depths"] = transect["depths"]
             for key in transect:
+                if key in non_output_keys:
+                    continue
                 if np.asarray(transect[key]).size <= 1:
                     output[key] = transect[key]
                     non_timelike_dims.append(key)
         if not np.allclose(output["depths"], transect["depths"]):
             raise ValueError("'depths' must be the same for all segments.")
+
+        scan_start = 0
+        scan_end = -1
+        if "_pad_start" in transect:
+            scan_start += transect.pop("_pad_start")
+        if "_pad_end" in transect:
+            scan_end -= transect.pop("_pad_end")
+
         if transect.keys() != output.keys():
             raise ValueError("Keys mismatch.")
+
         for key in output:
+            if key in non_output_keys:
+                continue
             if key in non_timelike_dims:
                 continue
-            output[key].append(transect[key])
+            output[key].append(transect[key][scan_start:scan_end])
 
     for key in output:
         if key in non_timelike_dims:
