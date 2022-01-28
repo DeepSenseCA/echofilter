@@ -22,9 +22,7 @@ except ImportError:
 
     msg = "The Windows management module is only for Windows operating" " systems."
     with ui.style.warning_message(msg) as msg:
-        warnings.warn(
-            msg, category=RuntimeWarning,
-        )
+        warnings.warn(msg, category=RuntimeWarning)
 
 
 __all__ = ["opencom", "WindowManager"]

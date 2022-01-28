@@ -305,7 +305,10 @@ def train(
         raise ValueError("Unrecognised optimizer: {}".format(optimizer))
 
     optimizer = optimizer_class(
-        unet.parameters(), lr, betas=(momentum, 0.999), weight_decay=weight_decay,
+        unet.parameters(),
+        lr,
+        betas=(momentum, 0.999),
+        weight_decay=weight_decay,
     )
 
     schedule_data = {"name": schedule}
@@ -358,7 +361,10 @@ def train(
 
     # Add UI wrapper around model
     model = Echofilter(
-        model_inner, top="boundary", bottom="boundary", conditional=conditional,
+        model_inner,
+        top="boundary",
+        bottom="boundary",
+        conditional=conditional,
     )
 
     if schedule == "lrfinder":
@@ -651,7 +657,10 @@ def train(
             if not generate_sample_images:
                 continue
             writer.add_images(
-                "Input/" + partition, ex_input, epoch, dataformats="NCWH",
+                "Input/" + partition,
+                ex_input,
+                epoch,
+                dataformats="NCWH",
             )
             writer.add_images(
                 "Overall/" + partition + "/Target",
@@ -916,7 +925,11 @@ def build_dataset(
             echofilter.data.transforms.ColorJitter(0.5, 0.3),
             echofilter.data.transforms.ReplaceNan(NAN_VALUE),
             echofilter.data.transforms.RandomElasticGrid(
-                sample_shape, order=None, p=0.5, sigma=[8, 16], alpha=0.1,
+                sample_shape,
+                order=None,
+                p=0.5,
+                sigma=[8, 16],
+                alpha=0.1,
             ),
             echofilter.data.transforms.Rescale(sample_shape, order=None),
         ]
@@ -995,7 +1008,7 @@ def build_dataset(
         use_dynamic_offsets=True,
         crop_depth=crop_depth,
         transform=train_transform,
-        **dataset_args
+        **dataset_args,
     )
     dataset_val = echofilter.data.dataset.TransectDataset(
         val_paths,
@@ -1005,7 +1018,7 @@ def build_dataset(
         use_dynamic_offsets=False,
         crop_depth=crop_depth,
         transform=val_transform,
-        **dataset_args
+        **dataset_args,
     )
     dataset_augval = echofilter.data.dataset.TransectDataset(
         val_paths,
@@ -1015,7 +1028,7 @@ def build_dataset(
         use_dynamic_offsets=False,
         crop_depth=crop_depth,
         transform=train_transform,
-        **dataset_args
+        **dataset_args,
     )
     return dataset_train, dataset_val, dataset_augval
 
@@ -1690,7 +1703,9 @@ def get_parser():
     if prog == "__main__.py" or prog == "__main__":
         prog = os.path.split(__file__)[1]
     parser = argparse.ArgumentParser(
-        prog=prog, description="Echofilter model training", add_help=False,
+        prog=prog,
+        description="Echofilter model training",
+        add_help=False,
     )
 
     # Actions
@@ -1700,7 +1715,10 @@ def get_parser():
         " of this program is supressed if any of these are given.",
     )
     group_action.add_argument(
-        "-h", "--help", action="help", help="Show this help message and exit.",
+        "-h",
+        "--help",
+        action="help",
+        help="Show this help message and exit.",
     )
     group_action.add_argument(
         "--version",
@@ -1898,7 +1916,10 @@ def get_parser():
         help="don't use residual blocks",
     )
     group_model.add_argument(
-        "--actfn", type=str, default="InplaceReLU", help="activation function to use",
+        "--actfn",
+        type=str,
+        default="InplaceReLU",
+        help="activation function to use",
     )
     group_model.add_argument(
         "--kernel",
@@ -1917,7 +1938,9 @@ def get_parser():
         help='device to use (default: "%(default)s", using first gpu)',
     )
     group_training.add_argument(
-        "--multigpu", action="store_true", help="train on multiple GPUs",
+        "--multigpu",
+        action="store_true",
+        help="train on multiple GPUs",
     )
     group_training.add_argument(
         "--no-amp",
@@ -1969,7 +1992,10 @@ def get_parser():
         help="number of total epochs to run (default: %(default)s)",
     )
     group_training.add_argument(
-        "--seed", default=None, type=int, help="seed for initializing training.",
+        "--seed",
+        default=None,
+        type=int,
+        help="seed for initializing training.",
     )
 
     # Optimiser parameters
@@ -1999,7 +2025,10 @@ def get_parser():
         help="initial learning rate (default: %(default)s)",
     )
     group_optim.add_argument(
-        "--momentum", type=float, default=0.9, help="momentum (default: %(default)s)",
+        "--momentum",
+        type=float,
+        default=0.9,
+        help="momentum (default: %(default)s)",
     )
     group_optim.add_argument(
         "--base-momentum",

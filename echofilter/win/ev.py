@@ -15,7 +15,10 @@ ECHOVIEW_COM_NAME = "EchoviewCom.EvApplication"
 
 @contextmanager
 def maybe_open_echoview(
-    app=None, do_open=True, minimize=False, hide="new",
+    app=None,
+    do_open=True,
+    minimize=False,
+    hide="new",
 ):
     """
     If the current pointer to the Echoview is invalid, open an Echoview window.

@@ -155,7 +155,9 @@ class Rescale(object):
                 _kind = "linear"
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
-                np.arange(len(sample[key])), sample[key], kind=_kind,
+                np.arange(len(sample[key])),
+                sample[key],
+                kind=_kind,
             )(np.linspace(0, len(sample[key]) - 1, self.output_size[0]))
             sample[key] = sample[key].astype(_dtype)
 
@@ -168,7 +170,9 @@ class Rescale(object):
             _kind = "linear" if key == "depths" else kind
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
-                np.arange(len(sample[key])), sample[key], kind=_kind,
+                np.arange(len(sample[key])),
+                sample[key],
+                kind=_kind,
             )(np.linspace(0, len(sample[key]) - 1, self.output_size[1]))
             sample[key] = sample[key].astype(_dtype)
 
@@ -261,7 +265,9 @@ class RandomGridSampling(Rescale):
                 _kind = "linear"
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
-                np.linspace(0, nx - 1, len(sample[key])), sample[key], kind=_kind,
+                np.linspace(0, nx - 1, len(sample[key])),
+                sample[key],
+                kind=_kind,
             )(x_out)
             sample[key] = sample[key].astype(_dtype)
 
@@ -272,7 +278,9 @@ class RandomGridSampling(Rescale):
             _kind = "linear" if key == "depths" else kind
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
-                np.linspace(0, ny - 1, len(sample[key])), sample[key], kind=_kind,
+                np.linspace(0, ny - 1, len(sample[key])),
+                sample[key],
+                kind=_kind,
             )(y_out)
             sample[key] = sample[key].astype(_dtype)
 
@@ -394,7 +402,9 @@ class RandomElasticGrid(Rescale):
                 _kind = "linear"
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
-                np.linspace(0, nx - 1, len(sample[key])), sample[key], kind=_kind,
+                np.linspace(0, nx - 1, len(sample[key])),
+                sample[key],
+                kind=_kind,
             )(x_out)
             sample[key] = sample[key].astype(_dtype)
 
@@ -405,7 +415,9 @@ class RandomElasticGrid(Rescale):
             _kind = "linear" if key == "depths" else kind
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
-                np.linspace(0, ny - 1, len(sample[key])), sample[key], kind=_kind,
+                np.linspace(0, ny - 1, len(sample[key])),
+                sample[key],
+                kind=_kind,
             )(y_out)
             sample[key] = sample[key].astype(_dtype)
 
@@ -739,7 +751,8 @@ class RandomCropDepth(object):
         )
         if sample["is_upward_facing"]:
             close_bot_shallowest = max(
-                lim_bot_shallowest, opt_bot_depth - close_dist_shrink,
+                lim_bot_shallowest,
+                opt_bot_depth - close_dist_shrink,
             )
         else:
             close_bot_shallowest = max(
@@ -749,7 +762,8 @@ class RandomCropDepth(object):
             )
         close_bot_shallowest = min(lim_bot_deepest, close_bot_shallowest)
         close_bot_deepest = min(
-            lim_bot_deepest, max(lim_bot_shallowest, opt_bot_depth) + close_dist_grow,
+            lim_bot_deepest,
+            max(lim_bot_shallowest, opt_bot_depth) + close_dist_grow,
         )
 
         if (
@@ -787,7 +801,8 @@ class RandomCropDepth(object):
             rand_bot_shallowest = close_bot_shallowest
         else:
             rand_bot_shallowest = max(
-                lim_bot_shallowest, np.percentile(sample["d_bottom-original"], 50),
+                lim_bot_shallowest,
+                np.percentile(sample["d_bottom-original"], 50),
             )
         rand_bot_shallowest = min(lim_bot_deepest, rand_bot_shallowest)
         rand_bot_deepest = lim_bot_deepest

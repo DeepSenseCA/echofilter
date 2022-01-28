@@ -545,7 +545,7 @@ def run_inference(
     model = Echofilter(
         model,
         mapping=checkpoint.get("wrapper_mapping", None),
-        **checkpoint.get("wrapper_params", {})
+        **checkpoint.get("wrapper_params", {}),
     )
     is_conditional_model = model.params.get("conditional", False)
     if verbose >= 3:
@@ -646,7 +646,9 @@ def run_inference(
 
     # Open Echoview connection
     with echofilter.win.maybe_open_echoview(
-        do_open=do_open, minimize=minimize_echoview, hide=hide_echoview,
+        do_open=do_open,
+        minimize=minimize_echoview,
+        hide=hide_echoview,
     ) as ev_app:
         for fname in maybe_tqdm(files):
             if verbose >= 2:
@@ -706,7 +708,8 @@ def run_inference(
                 elif len(clobbers) > 1:
                     msg += "  and {} others ".format(len(clobbers) - 1)
                 msg += "already exist{} for file {}".format(
-                    "s" if len(clobbers) == 1 else "", fname,
+                    "s" if len(clobbers) == 1 else "",
+                    fname,
                 )
                 with echofilter.ui.style.error_message(msg) as msg:
                     if dry_run:
@@ -810,7 +813,7 @@ def run_inference(
                         tp = "line" if os.path.splitext(fname)[1] == ".evl" else "file"
                         print(
                             "    {} export {} {} to: {}{}".format(
-                                ww, key, tp, fname, over_txt,
+                                ww, key, tp, fname, over_txt
                             )
                         )
                 if dry_run:
@@ -1269,7 +1272,8 @@ def inference_transect(
             [
                 echofilter.data.transforms.ReplaceNan(nan_value),
                 echofilter.data.transforms.Rescale(
-                    (segment["signals"].shape[0], image_height), order=1,
+                    (segment["signals"].shape[0], image_height),
+                    order=1,
                 ),
             ]
         )
@@ -1506,7 +1510,7 @@ def import_lines_regions_to_ev(
                 with tempfile.TemporaryDirectory() as tmpdirname:
                     temp_fname = os.path.join(tmpdirname, os.path.split(fname)[1])
                     echofilter.raw.loader.evl_writer(
-                        temp_fname, ts, depths_clipped, status=line_status,
+                        temp_fname, ts, depths_clipped, status=line_status
                     )
                     # Import the edited line into the EV file
                     fname_loaded = temp_fname
@@ -1625,10 +1629,14 @@ def import_lines_regions_to_ev(
             with tempfile.TemporaryDirectory() as tmpdirname:
                 fname_noext, ext = os.path.splitext(fname)
                 temp_fname = os.path.join(
-                    tmpdirname, os.path.split(fname_noext)[1] + "_offset" + ext,
+                    tmpdirname,
+                    os.path.split(fname_noext)[1] + "_offset" + ext,
                 )
                 echofilter.raw.loader.evl_writer(
-                    temp_fname, ts, depths_offset, status=line_status,
+                    temp_fname,
+                    ts,
+                    depths_offset,
+                    status=line_status,
                 )
                 # Import the edited line into the EV file
                 is_imported = ev_file.Import(temp_fname)

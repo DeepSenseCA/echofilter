@@ -131,7 +131,8 @@ def find_passive_data(signals, n_depth_use=38, threshold=25.0, deviation=None):
                 indices_passive_start[-1] = 0
             else:
                 indices_passive_start[-1] = min(
-                    indices_passive_start[-1], nonpassives[-1] + 1,
+                    indices_passive_start[-1],
+                    nonpassives[-1] + 1,
                 )
 
         # Combine with preceding passive segments if they overlap
@@ -352,7 +353,8 @@ def find_passive_data_v2(
                 indices_passive_start[-1] = 0
             else:
                 indices_passive_start[-1] = min(
-                    indices_passive_start[-1], nonpassives[-1] + 1,
+                    indices_passive_start[-1],
+                    nonpassives[-1] + 1,
                 )
 
         # Combine with preceding passive segments if they overlap
@@ -586,14 +588,18 @@ def fixup_lines(
         d_turbulence_new[li] = d_turbulence[li]
     elif np.any(~li):
         d_turbulence_new[li] = np.interp(
-            timestamps[li], timestamps[~li], d_turbulence_new[~li],
+            timestamps[li],
+            timestamps[~li],
+            d_turbulence_new[~li],
         )
     li = np.isnan(d_bottom_new)
     if d_bottom is not None:
         d_bottom_new[li] = d_bottom[li]
     elif np.any(~li):
         d_bottom_new[li] = np.interp(
-            timestamps[li], timestamps[~li], d_bottom_new[~li],
+            timestamps[li],
+            timestamps[~li],
+            d_bottom_new[~li],
         )
 
     # Ensure that the lines cover at least as much material as they did before
@@ -920,11 +926,15 @@ def load_decomposed_transect_mask(sample_path):
         # Interpolate mask
         if is_upward_facing:
             mask = scipy.interpolate.RectBivariateSpline(
-                ts_mskd, depths_mskd[::-1], mask[:, ::-1].astype(np.float),
+                ts_mskd,
+                depths_mskd[::-1],
+                mask[:, ::-1].astype(np.float),
             )(ts_raw, depths_raw[::-1])[:, ::-1]
         else:
             mask = scipy.interpolate.RectBivariateSpline(
-                ts_mskd, depths_mskd, mask.astype(np.float),
+                ts_mskd,
+                depths_mskd,
+                mask.astype(np.float),
             )(ts_raw, depths_raw)
         # Binarise
         mask = mask > 0.5
@@ -1131,7 +1141,8 @@ def split_transect(timestamps=None, threshold=20, percentile=97.5, **transect):
         break_indices += 1
 
     for seg_start, seg_end in zip(
-        np.r_[0, break_indices], np.r_[break_indices, len(timestamps)],
+        np.r_[0, break_indices],
+        np.r_[break_indices, len(timestamps)],
     ):
         segment = {}
         segment["timestamps"] = timestamps[seg_start:seg_end]

@@ -111,7 +111,7 @@ class MesaOneCycleLR(OneCycleLR):
         total_steps=None,
         pct_start=0.25,
         pct_end=0.75,
-        **kwargs
+        **kwargs,
     ):
 
         # Validate pct_start

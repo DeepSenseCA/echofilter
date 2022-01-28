@@ -64,7 +64,7 @@ def transect_reader(fname):
                     raise
                 print(
                     "Row {} of {} contained a byte which is not in UTF-8"
-                    " and will be skipped.".format(i_row, fname,)
+                    " and will be skipped.".format(i_row, fname)
                 )
                 continue
             row = row.split(",")
@@ -104,7 +104,10 @@ def count_lines(filename):
 
 
 def transect_loader(
-    fname, skip_lines=0, warn_row_overflow=None, row_len_selector="mode",
+    fname,
+    skip_lines=0,
+    warn_row_overflow=None,
+    row_len_selector="mode",
 ):
     """
     Loads an entire survey transect CSV.
@@ -293,7 +296,10 @@ def transect_loader(
     ):
         if d0 < d1:
             data[i_entry, :n_depth_use] = utils.interp1d_preserve_nan(
-                np.linspace(d0, d1, nd), data[i_entry, :nd], depths, **interp_kwargs,
+                np.linspace(d0, d1, nd),
+                data[i_entry, :nd],
+                depths,
+                **interp_kwargs,
             )
         else:
             data[i_entry, :n_depth_use] = utils.interp1d_preserve_nan(
@@ -338,7 +344,8 @@ def evl_reader(fname):
             continuance = False
 
             timestamp = datetime.datetime.strptime(
-                row[0] + "T" + row[1], "%Y%m%dT%H%M%S%f",
+                row[0] + "T" + row[1],
+                "%Y%m%dT%H%M%S%f",
             ).timestamp()
 
             if len(row[2]) > 0:
@@ -418,7 +425,7 @@ def timestamp2evdtstr(timestamp):
     # We have to manually determine the number of "0.1 milliseconds"
     # from the microsecond component.
     dt = datetime.datetime.fromtimestamp(timestamp)
-    return "{}{:04d}".format(dt.strftime("%Y%m%d %H%M%S"), round(dt.microsecond / 100),)
+    return "{}{:04d}".format(dt.strftime("%Y%m%d %H%M%S"), round(dt.microsecond / 100))
 
 
 def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n", pad=False):
@@ -601,7 +608,10 @@ def evr_writer(
             # The points defining the region itself
             hf.write(
                 "{left} {top} {left} {bottom} {right} {bottom} {right} {top} ".format(
-                    left=left, right=right, top=top, bottom=bottom,
+                    left=left,
+                    right=right,
+                    top=top,
+                    bottom=bottom,
                 )  # Terminates with a space, not a new line
             )
             # Region type
@@ -1072,7 +1082,11 @@ def get_partition_list(
         fnames = [os.path.join(f.split("_")[0], f.strip()) for f in fnames]
     else:
         partition_file = os.path.join(
-            root_data_dir, dataset, "sets", partitioning_version, partition + ".txt",
+            root_data_dir,
+            dataset,
+            "sets",
+            partitioning_version,
+            partition + ".txt",
         )
         fnames = list_from_file(partition_file)
 
