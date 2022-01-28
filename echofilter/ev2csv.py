@@ -23,9 +23,7 @@ if not echofilter.path.check_if_windows():
     )
     with echofilter.ui.style.warning_message(msg) as msg:
         print("")
-        warnings.warn(
-            msg, category=RuntimeWarning,
-        )
+        warnings.warn(msg, category=RuntimeWarning)
 
 
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
@@ -133,7 +131,9 @@ def run_ev2csv(
 
     # Open Echoview connection
     with echofilter.win.maybe_open_echoview(
-        do_open=not dry_run, minimize=minimize_echoview, hide=hide_echoview,
+        do_open=not dry_run,
+        minimize=minimize_echoview,
+        hide=hide_echoview,
     ) as ev_app:
         for fname in maybe_tqdm(files):
             if verbose >= 2:
@@ -191,7 +191,8 @@ def run_ev2csv(
         )
         if skip_count > 0:
             s += " Of these, {} file{} skipped.".format(
-                skip_count, " was" if skip_count == 1 else "s were",
+                skip_count,
+                " was" if skip_count == 1 else "s were",
             )
         print(s)
 
@@ -199,7 +200,11 @@ def run_ev2csv(
 
 
 def ev2csv(
-    input, destination, variable_name=DEFAULT_VARNAME, ev_app=None, verbose=0,
+    input,
+    destination,
+    variable_name=DEFAULT_VARNAME,
+    ev_app=None,
+    verbose=0,
 ):
     """
     Export a single EV file to CSV.
@@ -288,7 +293,10 @@ def get_parser():
         " of this program is supressed if any of these are given.",
     )
     group_action.add_argument(
-        "-h", "--help", action="help", help="Show this help message and exit.",
+        "-h",
+        "--help",
+        action="help",
+        help="Show this help message and exit.",
     )
     group_action.add_argument(
         "--version",

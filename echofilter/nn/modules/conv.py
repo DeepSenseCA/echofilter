@@ -30,7 +30,7 @@ class Conv2dSame(nn.Conv2d):
         stride=1,
         padding="same",
         dilation=1,
-        **kwargs
+        **kwargs,
     ):
         if padding is "same":
             padding = same_to_padding(kernel_size, stride, dilation, ndim=2)
@@ -42,7 +42,7 @@ class Conv2dSame(nn.Conv2d):
             stride=stride,
             padding=padding,
             dilation=dilation,
-            **kwargs
+            **kwargs,
         )
 
 
@@ -84,7 +84,7 @@ class DepthwiseConv2d(nn.Conv2d):
             padding=padding,
             dilation=dilation,
             groups=in_channels,
-            **kwargs
+            **kwargs,
         )
 
 
@@ -102,7 +102,7 @@ class SeparableConv2d(nn.Module):
         padding="same",
         dilation=1,
         groups=1,
-        **kwargs
+        **kwargs,
     ):
         super(SeparableConv2d, self).__init__()
 
@@ -117,7 +117,7 @@ class SeparableConv2d(nn.Module):
             padding=padding,
             dilation=dilation,
             groups=in_channels,
-            **kwargs
+            **kwargs,
         )
 
         self.pointwise = nn.Conv2d(
@@ -128,7 +128,7 @@ class SeparableConv2d(nn.Module):
             padding=0,
             dilation=1,
             groups=groups,
-            **kwargs
+            **kwargs,
         )
 
     def foward(self, x):

@@ -18,7 +18,10 @@ ROOT_DATA_DIR = echofilter.raw.loader.ROOT_DATA_DIR
 
 
 def generate_shard(
-    transect_pth, verbose=False, fail_gracefully=True, **kwargs,
+    transect_pth,
+    verbose=False,
+    fail_gracefully=True,
+    **kwargs,
 ):
     """
     Shard a single transect.
@@ -44,7 +47,8 @@ def generate_shard(
         print("Sharding {}".format(transect_pth))
     try:
         echofilter.raw.shardloader.segment_and_shard_transect(
-            transect_pth, **kwargs,
+            transect_pth,
+            **kwargs,
         )
     except Exception as ex:
         with echofilter.ui.style.error_message():
@@ -150,7 +154,10 @@ def get_parser():
     prog = os.path.split(sys.argv[0])[1]
     if prog == "__main__.py" or prog == "__main__":
         prog = os.path.split(__file__)[1]
-    parser = argparse.ArgumentParser(prog=prog, description="Generate dataset shards",)
+    parser = argparse.ArgumentParser(
+        prog=prog,
+        description="Generate dataset shards",
+    )
     parser.add_argument(
         "--version",
         "-V",
@@ -158,10 +165,14 @@ def get_parser():
         version="%(prog)s {version}".format(version=echofilter.__version__),
     )
     parser.add_argument(
-        "partition", type=str, help="partition to shard",
+        "partition",
+        type=str,
+        help="partition to shard",
     )
     parser.add_argument(
-        "dataset", type=str, help="dataset to shard",
+        "dataset",
+        type=str,
+        help="dataset to shard",
     )
     parser.add_argument(
         "--root",
@@ -183,7 +194,10 @@ def get_parser():
         help="maximum depth to include in sharded data",
     )
     parser.add_argument(
-        "--shard-len", type=int, default=128, help="number of samples in each shard",
+        "--shard-len",
+        type=int,
+        default=128,
+        help="number of samples in each shard",
     )
     parser.add_argument(
         "--ncores",
@@ -193,7 +207,11 @@ def get_parser():
         " multiprocessing.",
     )
     parser.add_argument(
-        "--verbose", "-v", action="count", default=0, help="increase verbosity",
+        "--verbose",
+        "-v",
+        action="count",
+        default=0,
+        help="increase verbosity",
     )
 
     return parser

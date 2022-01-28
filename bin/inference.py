@@ -29,7 +29,7 @@ if __name__ == "__main__":
         import sys
 
         # Don't show stack traceback when KeyboardInterrupt is given.
-        print("Interrupted by user during: {}".format(" ".join(sys.argv),))
+        print("Interrupted by user during: {}".format(" ".join(sys.argv)))
         try:
             sys.exit(1)
         except SystemExit:

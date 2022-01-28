@@ -264,9 +264,7 @@ def plot_transect(
         signal[~transect["mask"]] = np.nan
     else:
         signal = transect[signal_type]
-    plt.pcolormesh(
-        tt, transect["depths"], signal.T,
-    )
+    plt.pcolormesh(tt, transect["depths"], signal.T)
     if cmap is not None:
         plt.set_cmap(cmap)
     if surface_key is not None:
