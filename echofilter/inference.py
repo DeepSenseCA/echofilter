@@ -1271,7 +1271,7 @@ def inference_transect(
 
     # To reduce memory consumption, split into segments whenever the recording
     # interval is longer than normal
-    segments = split_transect(**transect)
+    segments = split_transect(max_length=1280, **transect)
     if verbose >= 1:
         maybe_tqdm = lambda x: tqdm(list(x), desc="  Segments", position=0, ascii=True)
     else:
@@ -1297,6 +1297,8 @@ def inference_transect(
             output = {k: v.squeeze(0).cpu().numpy() for k, v in output.items()}
         output["timestamps"] = segment["timestamps"]
         output["depths"] = segment["depths"]
+        output["_pad_start"] = segment["_pad_start"]
+        output["_pad_end"] = segment["_pad_end"]
         outputs.append(output)
 
     output = join_transect(outputs)
