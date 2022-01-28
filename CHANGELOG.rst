@@ -33,7 +33,7 @@ Inference
 
 -   Add support for loading checkpoints shipped as part of the package.
     (`#228 <https://github.com/DeepSenseCA/echofilter/pull/228>`__)
--   More detailed error messages when unable to downlaod or load a model
+-   More detailed error messages when unable to download or load a model
     i.e. due to a problem with the Internet connection, a 404 error,
     or because the hard disk is out of space.
     (`#228 <https://github.com/DeepSenseCA/echofilter/pull/228>`__)
