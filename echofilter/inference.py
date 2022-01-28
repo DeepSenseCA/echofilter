@@ -53,6 +53,7 @@ def run_inference(
     skip_incompatible=False,
     output_dir="",
     dry_run=False,
+    continue_on_error=False,
     overwrite_existing=False,
     overwrite_ev_lines=False,
     import_into_evfile=True,
@@ -145,6 +146,8 @@ def run_inference(
     dry_run : bool, optional
         If `True`, perform a trial run with no changes made. Default is
         `False`.
+    continue_on_error : bool, default=False
+        Continue running on remaining files if one file hits an error.
     overwrite_existing : bool, optional
         Overwrite existing outputs without producing a warning message. If
         `False`, an error is generated if files would be overwritten.
@@ -841,23 +844,31 @@ def run_inference(
                         print(msg)
                         raise
 
-            output = inference_transect(
-                model,
-                timestamps,
-                depths,
-                signals,
-                device,
-                image_height,
-                facing=facing,
-                crop_min_depth=crop_min_depth,
-                crop_max_depth=crop_max_depth,
-                autocrop_threshold=autocrop_threshold,
-                force_unconditioned=force_unconditioned,
-                data_center=center_param,
-                data_deviation=deviation_param,
-                nan_value=nan_value,
-                verbose=verbose - 1,
-            )
+            try:
+                output = inference_transect(
+                    model,
+                    timestamps,
+                    depths,
+                    signals,
+                    device,
+                    image_height,
+                    facing=facing,
+                    crop_min_depth=crop_min_depth,
+                    crop_max_depth=crop_max_depth,
+                    autocrop_threshold=autocrop_threshold,
+                    force_unconditioned=force_unconditioned,
+                    data_center=center_param,
+                    data_deviation=deviation_param,
+                    nan_value=nan_value,
+                    verbose=verbose - 1,
+                )
+            except BaseException as err:
+                if not continue_on_error:
+                    raise
+                print(echofilter.ui.style.error_fmt("An error has occurred:"))
+                print(echofilter.ui.style.error_fmt(str(err)))
+                error_msgs.append(err)
+                continue
             if verbose >= 5:
                 s = "\n    ".join([""] + list(str(k) for k in output.keys()))
                 print("  Generated model output with fields:" + s)
@@ -1105,7 +1116,7 @@ def run_inference(
                 )
             )
             for error_msg in error_msgs:
-                print(echofilter.ui.style.error_fmt(error_msg))
+                print(echofilter.ui.style.error_fmt(str(error_msg)))
         print(
             "Total runtime: {}".format(
                 datetime.timedelta(seconds=time.time() - t_start_prog)
