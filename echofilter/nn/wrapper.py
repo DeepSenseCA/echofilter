@@ -117,7 +117,6 @@ class Echofilter(nn.Module):
         self.n_outputs_per_condition = max(self.mapping.values())
 
     def forward(self, x):
-        ""
         logits = self.model(x)
         outputs = TensorDict()
 
@@ -365,10 +364,12 @@ class EchofilterLoss(_Loss):
         loss = 0
 
         target["is_passive"] = target["is_passive"].to(
-            input["logit_is_passive"].device, input["logit_is_passive"].dtype,
+            input["logit_is_passive"].device,
+            input["logit_is_passive"].dtype,
         )
         target["is_removed"] = target["is_removed"].to(
-            input["logit_is_removed"].device, input["logit_is_removed"].dtype,
+            input["logit_is_removed"].device,
+            input["logit_is_removed"].dtype,
         )
 
         batch_size = target["is_upward_facing"].nelement()
@@ -454,7 +455,7 @@ class EchofilterLoss(_Loss):
                         ' The "boundary" is recommended instead.'
                         " The loss component for this line will be"
                         " F.binary_cross_entropy_with_logits(input[{}], target[{}])"
-                        "".format("logit_is_above_" + sfx + cs, target_key,)
+                        "".format("logit_is_above_" + sfx + cs, target_key)
                     )
                     loss_term = F.binary_cross_entropy_with_logits(
                         input["logit_is_above_" + sfx + cs],
@@ -479,7 +480,8 @@ class EchofilterLoss(_Loss):
                         "The input does not contain either {} or {} fields."
                         " At least one of these is required if the loss term weighting"
                         " is non-zero.".format(
-                            "logit_is_boundary_" + sfx, "logit_is_above_" + sfx,
+                            "logit_is_boundary_" + sfx,
+                            "logit_is_above_" + sfx,
                         )
                     )
                 if torch.isnan(loss_term).any():
@@ -531,7 +533,7 @@ class EchofilterLoss(_Loss):
                         ' The "boundary" is recommended instead.'
                         " The loss component for this line will be"
                         " F.binary_cross_entropy_with_logits(input[{}], target[{}])"
-                        "".format("logit_is_below_bottom" + sfx + cs, target_key,)
+                        "".format("logit_is_below_bottom" + sfx + cs, target_key)
                     )
                     loss_term = F.binary_cross_entropy_with_logits(
                         input["logit_is_below_bottom" + sfx + cs],

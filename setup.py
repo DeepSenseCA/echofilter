@@ -188,5 +188,5 @@ setup(
         ],
     },
     # Custom commands
-    cmdclass={"test": PyTest, "upload": UploadCommand,},
+    cmdclass={"test": PyTest, "upload": UploadCommand},
 )
