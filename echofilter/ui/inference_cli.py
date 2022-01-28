@@ -233,7 +233,7 @@ def get_parser():
         help="""
             Path to output directory. If empty (default), each output is placed
             in the same directory as its input file. If OUTPUT_DIR is
-            specified, the full output path for each file all contains the
+            specified, the full output path for each file contains the
             subtree of the input file relative to the base directory given by
             SOURCE_DIR.
         """,
@@ -672,7 +672,7 @@ def get_parser():
               undefined:
                   depths are replaced with the placeholder value
                   used by Echoview to denote undefined values,
-                  which is {}.
+                  which is -10000.99.
             Default: "%(default)s".
         """,
     )
