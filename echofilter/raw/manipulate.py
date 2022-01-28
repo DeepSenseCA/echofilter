@@ -1140,10 +1140,10 @@ def split_transect(timestamps=None, threshold=20, percentile=97.5, **transect):
     if len(break_indices) > 0:
         break_indices += 1
 
-    for seg_start, seg_end in zip(
-        np.r_[0, break_indices],
-        np.r_[break_indices, len(timestamps)],
-    ):
+    # Add the start and end indices
+    break_indices = np.r_[0, break_indices, len(timestamps)]
+
+    for seg_start, seg_end in zip(break_indices[:-1], break_indices[1:]):
         segment = {}
         segment["timestamps"] = timestamps[seg_start:seg_end]
         for key in transect:
