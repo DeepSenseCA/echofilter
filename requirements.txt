@@ -1,3 +1,4 @@
+appdirs
 colorama
 numpy
 matplotlib
