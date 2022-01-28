@@ -1282,7 +1282,7 @@ def inference_transect(
         input = input.to(device, dtype).contiguous()
         # Put data through model
         with torch.no_grad():
-            output = model(input)
+            output = model(input, output_device="cpu")
             output = {k: v.squeeze(0).cpu().numpy() for k, v in output.items()}
         output["timestamps"] = segment["timestamps"]
         output["depths"] = segment["depths"]
