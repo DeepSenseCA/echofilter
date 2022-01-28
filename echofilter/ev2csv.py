@@ -424,6 +424,16 @@ def get_parser():
         """,
     )
     group_outfile.add_argument(
+        "--keep-ext",
+        action="store_true",
+        help="""
+            If provided, the output file names (evl, evr, csv) maintain the
+            input file extension before their suffix (including a new file
+            extension). Default behaviour is to strip the input file name
+            extension before constructing the output paths.
+        """,
+    )
+    group_outfile.add_argument(
         "--output-suffix",
         "--suffix",
         dest="suffix",
@@ -431,7 +441,7 @@ def get_parser():
         default=None,
         help="""
             Output filename suffix. Default is ``"_Sv_raw.csv"``, or
-            ``".Sv_raw.csv"`` if the ``--keep_ext`` argument is supplied.
+            ``".Sv_raw.csv"`` if the ``--keep-ext`` argument is supplied.
         """,
     )
 
