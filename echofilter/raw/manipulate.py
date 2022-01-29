@@ -1284,3 +1284,83 @@ def join_transect(transects):
         output[key] = np.concatenate(output[key], axis=0)
 
     return output
+
+
+def pad_transect(transect, pad=32, pad_mode="reflect", previous_padding="diff"):
+    """
+    Pad a transect in the timestamps dimension (axis 0).
+
+    Parameters
+    ----------
+    transect : dict
+        A dictionary of transect data.
+
+    pad : int, default=32
+        Amount of padding to add.
+
+    pad_mode : str, default="reflect"
+        Padding method for out-of-bounds inputs. Must be supported by
+        :meth:`numpy.pad`, such as ``"contast"``, ``"reflect"``, or ``"edge"``.
+        If the mode is ``"contast"``, the array will be padded with zeros.
+
+    previous_padding : {"diff", "add", "noop"}, default="diff"
+        How to handle this padding if the transect has already been padded.
+
+            ``"diff"``
+                Extend the padding up to the target ``pad`` value.
+            ``"add"``
+                Add this padding irrespective of pre-existing padding.
+            ``"noop"``
+                Don't add any new padding if previously padded.
+
+    Returns
+    -------
+    transect : dict
+        Like input ``transect``, but with all time-like dimensions extended
+        with padding and fields ``"_pad_start"`` and ``"_pad_end"`` changed
+        to indicate the total padding (including any pre-existing padding).
+    """
+
+    pad_shape = [pad, pad]
+
+    if previous_padding == "diff":
+        # Only extend existing padding up to target amount of padding
+        pad_shape[0] -= transect.get("_pad_start", 0)
+        pad_shape[1] -= transect.get("_pad_end", 0)
+        pad_shape[0] = max(0, pad_shape[0])
+        pad_shape[1] = max(0, pad_shape[1])
+    elif previous_padding == "noop":
+        # Don't do anything to edges already padded
+        if transect.get("_pad_start", 0) != 0:
+            pad_shape[0] = 0
+        if transect.get("_pad_end", 0) != 0:
+            pad_shape[1] = 0
+    elif previous_padding == "add":
+        # Add new padding in addition to previous padding
+        pass
+    else:
+        raise ValueError(
+            "Unfamiliar previous_padding handling mode: {}".format(previous_padding)
+        )
+
+    if pad_shape[0] == pad_shape[1] == 0:
+        # Nothing to do
+        return transect
+
+    if "_pad_start" in transect:
+        transect["_pad_start"] += pad_shape[0]
+    else:
+        transect["_pad_start"] = pad_shape[0]
+    if "_pad_end" in transect:
+        transect["_pad_end"] += pad_shape[1]
+    else:
+        transect["_pad_end"] = pad_shape[1]
+
+    for key in transect.keys():
+        if key in ("depths", "is_upward_facing") or not hasattr(
+            transect[key], "__len__"
+        ):
+            continue
+        transect[key] = utils.pad1d(transect[key], pad_shape, axis=0, mode=pad_mode)
+
+    return transect
