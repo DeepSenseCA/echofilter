@@ -29,6 +29,7 @@ from echofilter.nn.wrapper import Echofilter
 import echofilter.path
 import echofilter.raw
 from echofilter.raw.manipulate import join_transect, split_transect
+from echofilter.raw.utils import fillholes2d
 import echofilter.ui
 import echofilter.ui.checkpoints
 import echofilter.utils
@@ -843,6 +844,14 @@ def run_inference(
                     with echofilter.ui.style.error_message(msg) as msg:
                         print(msg)
                         raise
+
+            n_nans = np.isnan(signals).sum()
+            if n_nans > 0:
+                if verbose >= 2:
+                    print(
+                        "  Interpolating to remove {} missing Sv values".format(n_nans)
+                    )
+                signals = fillholes2d(signals)
 
             try:
                 output = inference_transect(
