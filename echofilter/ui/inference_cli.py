@@ -218,6 +218,13 @@ def get_parser():
             exported from EV files and others are not.
         """,
     )
+    group_infile.add_argument(
+        "--continue-on-error",
+        action="store_true",
+        help="""
+            Continue running on remaining files if one file hits an error.
+        """,
+    )
 
     # Output files
     group_outfile = parser.add_argument_group(

@@ -116,7 +116,7 @@ class Echofilter(nn.Module):
             self.conditions += ["downfacing", "upfacing"]
         self.n_outputs_per_condition = max(self.mapping.values())
 
-    def forward(self, x):
+    def forward(self, x, output_device=None):
         logits = self.model(x)
         outputs = TensorDict()
 
@@ -136,11 +136,11 @@ class Echofilter(nn.Module):
             if self.params["reduction_isremoved"] == "mean":
                 outputs["logit_is_removed" + cs] = torch.mean(
                     outputs["logit_is_removed" + cs], dim=-1
-                )
+                ).to(device=output_device)
             elif self.params["reduction_isremoved"] in {"logavgexp", "lae"}:
                 outputs["logit_is_removed" + cs] = logavgexp(
                     outputs["logit_is_removed" + cs], dim=-1
-                )
+                ).to(device=output_device)
             else:
                 raise ValueError(
                     "Unsupported reduction_isremoved value: {}".format(
@@ -151,11 +151,11 @@ class Echofilter(nn.Module):
             if self.params["reduction_ispassive"] == "mean":
                 outputs["logit_is_passive" + cs] = torch.mean(
                     outputs["logit_is_passive" + cs], dim=-1
-                )
+                ).to(device=output_device)
             elif self.params["reduction_ispassive"] in {"logavgexp", "lae"}:
                 outputs["logit_is_passive" + cs] = logavgexp(
                     outputs["logit_is_passive" + cs], dim=-1
-                )
+                ).to(device=output_device)
             else:
                 raise ValueError(
                     "Unsupported reduction_ispassive value: {}".format(
@@ -166,23 +166,23 @@ class Echofilter(nn.Module):
             # Convert logits to probabilities
             outputs["p_is_removed" + cs] = torch.sigmoid(
                 outputs["logit_is_removed" + cs]
-            )
+            ).to(device=output_device)
             outputs["p_is_passive" + cs] = torch.sigmoid(
                 outputs["logit_is_passive" + cs]
-            )
+            ).to(device=output_device)
 
             for sfx in ("turbulence", "turbulence-original", "surface"):
                 if self.params["top"] == "mask":
                     outputs["p_is_above_" + sfx + cs] = torch.sigmoid(
                         outputs["logit_is_above_" + sfx + cs]
-                    )
+                    ).to(device=output_device)
                     outputs["p_is_below_" + sfx + cs] = (
                         1 - outputs["p_is_above_" + sfx + cs]
-                    )
+                    ).to(device=output_device)
                 elif self.params["top"] == "boundary":
                     outputs["p_is_boundary_" + sfx + cs] = F.softmax(
                         outputs["logit_is_boundary_" + sfx + cs], dim=-1
-                    )
+                    ).to(device=output_device)
                     outputs["p_is_above_" + sfx + cs] = torch.flip(
                         torch.cumsum(
                             torch.flip(
@@ -191,10 +191,10 @@ class Echofilter(nn.Module):
                             dim=-1,
                         ),
                         dims=(-1,),
-                    )
+                    ).to(device=output_device)
                     outputs["p_is_below_" + sfx + cs] = torch.cumsum(
                         outputs["p_is_boundary_" + sfx + cs], dim=-1
-                    )
+                    ).to(device=output_device)
                     # Due to floating point precision, max value can exceed 1.
                     # Fix this by clipping the values to the appropriate range.
                     outputs["p_is_above_" + sfx + cs].clamp_(0, 1)
@@ -208,17 +208,17 @@ class Echofilter(nn.Module):
                 if self.params["bottom"] == "mask":
                     outputs["p_is_below_" + sfx + cs] = torch.sigmoid(
                         outputs["logit_is_below_" + sfx + cs]
-                    )
+                    ).to(device=output_device)
                     outputs["p_is_above_" + sfx + cs] = (
                         1 - outputs["p_is_below_" + sfx + cs]
-                    )
+                    ).to(device=output_device)
                 elif self.params["bottom"] == "boundary":
                     outputs["p_is_boundary_" + sfx + cs] = F.softmax(
                         outputs["logit_is_boundary_" + sfx + cs], dim=-1
-                    )
+                    ).to(device=output_device)
                     outputs["p_is_below_" + sfx + cs] = torch.cumsum(
                         outputs["p_is_boundary_" + sfx + cs], dim=-1
-                    )
+                    ).to(device=output_device)
                     outputs["p_is_above_" + sfx + cs] = torch.flip(
                         torch.cumsum(
                             torch.flip(
@@ -227,7 +227,7 @@ class Echofilter(nn.Module):
                             dim=-1,
                         ),
                         dims=(-1,),
-                    )
+                    ).to(device=output_device)
                     # Due to floating point precision, max value can exceed 1.
                     # Fix this by clipping the values to the appropriate range.
                     outputs["p_is_below_" + sfx + cs].clamp_(0, 1)
@@ -242,7 +242,7 @@ class Echofilter(nn.Module):
             for sfx in ("", "-original", "-ntob"):
                 outputs["p_is_patch" + sfx + cs] = torch.sigmoid(
                     outputs["logit_is_patch" + sfx + cs]
-                )
+                ).to(device=output_device)
 
             outputs["p_keep_pixel" + cs] = (
                 1.0
