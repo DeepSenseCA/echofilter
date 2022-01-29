@@ -845,14 +845,6 @@ def run_inference(
                         print(msg)
                         raise
 
-            n_nans = np.isnan(signals).sum()
-            if n_nans > 0:
-                if verbose >= 2:
-                    print(
-                        "  Interpolating to remove {} missing Sv values".format(n_nans)
-                    )
-                signals = fillholes2d(signals)
-
             try:
                 output = inference_transect(
                     model,
@@ -1287,6 +1279,13 @@ def inference_transect(
         maybe_tqdm = lambda x: x
     outputs = []
     for segment in maybe_tqdm(segments):
+        # Try to remove any NaNs in the raw input with using 2d interpolation
+        n_nans = np.isnan(segment["signals"]).sum()
+        if n_nans > 0:
+            if verbose >= 1:
+                print("  Interpolating to fill in {} missing Sv values".format(n_nans))
+            segment["signals"] = fillholes2d(segment["signals"])
+
         # Preprocessing transform
         transform = torchvision.transforms.Compose(
             [
