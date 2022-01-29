@@ -29,6 +29,7 @@ from echofilter.nn.wrapper import Echofilter
 import echofilter.path
 import echofilter.raw
 from echofilter.raw.manipulate import join_transect, split_transect
+from echofilter.raw.utils import fillholes2d
 import echofilter.ui
 import echofilter.ui.checkpoints
 import echofilter.utils
@@ -1278,6 +1279,13 @@ def inference_transect(
         maybe_tqdm = lambda x: x
     outputs = []
     for segment in maybe_tqdm(segments):
+        # Try to remove any NaNs in the raw input with using 2d interpolation
+        n_nans = np.isnan(segment["signals"]).sum()
+        if n_nans > 0:
+            if verbose >= 1:
+                print("  Interpolating to fill in {} missing Sv values".format(n_nans))
+            segment["signals"] = fillholes2d(segment["signals"])
+
         # Preprocessing transform
         transform = torchvision.transforms.Compose(
             [

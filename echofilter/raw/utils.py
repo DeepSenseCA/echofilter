@@ -218,3 +218,83 @@ def integrate_area_of_contour(x, y, closed=None, preserve_sign=False):
     # Take the abs in case the curve was clockwise instead of anti-clockwise
     A = np.abs(A)
     return A
+
+
+def fillholes2d(arr, nan_thr=2, interp_method="linear", inplace=False):
+    """
+    Interpolate to replace NaN values in 2d gridded array data.
+
+    Parameters
+    ----------
+    arr : 2d numpy.ndarray
+        Array in 2d which, may contain NaNs.
+    nan_thr : int, default=2
+        Minimum number of NaN values needed in a row/column for it
+        to be included in the (rectangular) area where NaNs are fixed.
+    interp_method : str, default="linear"
+        Interpolation method.
+    inplace : bool, default=False
+        Whether to update arr instead of a copy.
+
+    Returns
+    -------
+    arr : 2d numpy.ndarray
+        Like input ``arr``, but with NaN values replaced with
+        interpolated values.
+    """
+    # Find where the nans are
+    isna = np.isnan(arr[1:-1])
+    x_extent = np.nonzero(isna.sum(1) >= nan_thr)[0]
+    y_extent = np.nonzero(isna.sum(0) >= nan_thr)[0]
+    if len(x_extent) < 1 and len(y_extent) < 1:
+        # Nothing to do
+        return arr
+    if len(x_extent) < 1:
+        # There is y-axis things to do, so be more lenient with x
+        x_extent = np.nonzero(isna.any(1))[0]
+    if len(y_extent) < 1:
+        # There is x-axis things to do, so be more lenient with y
+        y_extent = np.nonzero(isna.any(0))[0]
+    if len(x_extent) < 1 or len(y_extent) < 1:
+        # Nothing to do
+        return arr
+    x_extent = x_extent[[0, -1]] + 1
+    y_extent = y_extent[[0, -1]] + 1
+
+    # We will extract an area bigger than the space covering all NaNs
+    x_extent += [-4, 4]
+    y_extent += [-4, 4]
+    x_extent = np.minimum(arr.shape[0] - 1, np.maximum(0, x_extent))
+    y_extent = np.minimum(arr.shape[1] - 1, np.maximum(0, y_extent))
+
+    # Hanndle indexing the array
+    z_source = arr[x_extent[0] : x_extent[1] + 1, y_extent[0] : y_extent[1] + 1]
+    x_source = np.arange(x_extent[0], x_extent[1] + 1)
+    y_source = np.arange(y_extent[0], y_extent[1] + 1)
+
+    xx, yy = np.meshgrid(x_source, y_source)
+    xx = xx.T
+    yy = yy.T
+
+    # Find all the NaNs. This tells us where to update and the inverse tells us
+    # where to take training values for the interpolation
+    is_missing = np.isnan(z_source)
+    in_coords = np.stack([xx[~is_missing], yy[~is_missing]], -1)
+    out_coords = np.stack([xx[is_missing], yy[is_missing]], -1)
+
+    # Perform 2d interpolation
+    z_out = scipy.interpolate.griddata(
+        in_coords,
+        z_source[~is_missing],
+        out_coords,
+        method=interp_method,
+    )
+    # Convert 2d coordinates into linear indices for put
+    out_indices = np.ravel_multi_index((out_coords[:, 0], out_coords[:, 1]), arr.shape)
+
+    # Insert the interpolated values at their locations
+    if not inplace:
+        arr = arr.copy()
+    np.put(arr, out_indices, z_out)
+
+    return arr
