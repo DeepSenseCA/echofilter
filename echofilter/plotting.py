@@ -249,7 +249,7 @@ def plot_transect(
 
     if x_scale == "index":
         tt = np.arange(transect["timestamps"].shape[0])
-        xlabel = "Sample index"
+        xlabel = "Ping index"
     elif x_scale == "timestamp":
         tt = transect["timestamps"]
         xlabel = "Timestamp (s)"
