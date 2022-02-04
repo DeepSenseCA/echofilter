@@ -343,10 +343,7 @@ def evl_reader(fname):
                 continue
             continuance = False
 
-            timestamp = datetime.datetime.strptime(
-                row[0] + "T" + row[1],
-                "%Y%m%dT%H%M%S%f",
-            ).timestamp()
+            timestamp = evdtstr2timestamp(row[0], row[1])
 
             if len(row[2]) > 0:
                 raise ValueError("row[2] was non-empty: {}".format(row[2]))
@@ -426,6 +423,29 @@ def timestamp2evdtstr(timestamp):
     # from the microsecond component.
     dt = datetime.datetime.fromtimestamp(timestamp)
     return "{}{:04d}".format(dt.strftime("%Y%m%d %H%M%S"), round(dt.microsecond / 100))
+
+
+def evdtstr2timestamp(datestr, timestr=None):
+    """
+    Convert an Echoview-compatible datetime string into a Unix epoch timestamp.
+
+    Parameters
+    ----------
+    datestr : str
+        Datetime string in the Echoview-compatible format
+        ``"CCYYMMDD HHmmSSssss"``, or (if timestr is also provided) just
+        the date part, ``"CCYYMMDD"``.
+    timestr : str, optional
+        Time string in the Echoview-compatible format "HHmmSSssss".
+
+    Returns
+    -------
+    timestamp : float
+        Number of seconds since Unix epoch.
+    """
+    if timestr:
+        datestr = datestr + " " + timestr
+    return datetime.datetime.strptime(datestr, "%Y%m%d %H%M%S%f").timestamp()
 
 
 def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n", pad=False):
