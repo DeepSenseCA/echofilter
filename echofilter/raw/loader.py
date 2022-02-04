@@ -448,6 +448,252 @@ def evdtstr2timestamp(datestr, timestr=None):
     return datetime.datetime.strptime(datestr, "%Y%m%d %H%M%S%f").timestamp()
 
 
+def evr_reader(fname, parse_echofilter_regions=True):
+    """
+    Echoview region file (EVR) reader.
+
+    Parameters
+    ----------
+    fname : str
+        Path to .evr file.
+    parse_echofilter_regions : bool, default=True
+        Whether to separate out echofilter generated regions
+        (passive, removed vbands, and removed patches)
+        from other regions.
+
+    Returns
+    -------
+    regions_passive : list of tuples, optional
+        Start and end timestamps for passive regions.
+    regions_removed : list of tuples, optional
+        Start and end timestamps for removed vertical bands.
+    regions_patch : list of lists, optional
+        Start and end timestamps for bad data patches.
+    regions_other : list of dicts
+        Dictionary mapping creation type to points defining each region.
+    """
+    regions_passive = []
+    regions_removed = []
+    regions_patch = []
+    regions_other = []
+
+    # Line 1: EVRG file version header
+    with open(fname, "r") as hf:
+        line = hf.readline()
+        if "EVRG" not in line:
+            raise EnvironmentError("This is not an EVR/EVRG file")
+
+        # Line 2: Number of regions
+        line = hf.readline().strip("\n\r")
+        n_regions = int(line)
+
+        for i_region in range(n_regions):
+            # Line 3: Intentionally left blank
+            line = hf.readline().strip("\n\r")
+            if len(line):
+                print(
+                    "Badly formatted EVRG file. Separating line is not blank: {}".format(
+                        line
+                    )
+                )
+
+            # Individual region
+            region_is_passive = False
+            region_is_removed = False
+            region_is_patch = False
+
+            # Region header
+            line = hf.readline().strip("\n\r")
+            line = line.replace("  ", " ")
+            lparts = line.split(" ")
+            if lparts[0] != "13":
+                raise EnvironmentError(
+                    "Only Region structure version 13 is supported ({} given).".format(
+                        lparts[0]
+                    )
+                )
+            n_points = int(lparts[1])
+            region_id = int(lparts[2])
+            # Selected indicator: lparts[3] == 0
+            region_ctype = int(lparts[4])
+            # Dummy: lparts[5] == -1
+            has_bbox = bool(int(lparts[6]))
+            left = evdtstr2timestamp(lparts[7], lparts[8])
+            top = float(lparts[9])
+            right = evdtstr2timestamp(lparts[10], lparts[11])
+            bottom = float(lparts[12])
+
+            # Notes
+            line = hf.readline().strip("\n\r")
+            n_notes = int(line)
+            notes = "\n".join(hf.readline() for _ in range(n_notes))
+            if notes.startswith("Passive data"):
+                region_is_passive = True
+            if notes.startswith("Removed data block"):
+                region_is_removed = True
+            if notes.startswith("Removed patch"):
+                region_is_patch = True
+
+            # Detection settings
+            line = hf.readline().strip("\n\r")
+            n_detset = int(line)
+            for _ in range(n_detset):
+                hf.readline()
+
+            # Region classification
+            region_classification = hf.readline().strip("\n\r")
+            # Points
+            points = hf.readline().strip().replace("  ", " ").split(" ")
+            region_status = int(points.pop())
+            if len(points) % 3 != 0:
+                print("Points not composed correctly")
+            if len(points) // 3 != n_points:
+                print(
+                    "Different number of points to expected: {} vs {}".format(
+                        len(points), n_points
+                    )
+                )
+            points = [
+                (
+                    evdtstr2timestamp(points[i * 3], points[i * 3 + 1]),
+                    float(points[i * 3 + 2]),
+                )
+                for i in range(n_points)
+            ]
+            region_name = hf.readline().strip("\n\r")
+
+            # Add region to list
+            if not parse_echofilter_regions:
+                regions_other.append({region_ctype: points})
+                continue
+
+            if region_is_passive:
+                if region_ctype != 4:
+                    print(
+                        "Warning: Region creation type is {} not 4".format(region_ctype)
+                    )
+                regions_passive.append((points[0][0], points[-1][0]))
+            elif region_is_removed:
+                if region_ctype != 4:
+                    print(
+                        "Warning: Region creation type is {} not 4".format(region_ctype)
+                    )
+                regions_removed.append((points[0][0], points[-1][0]))
+            elif region_is_patch:
+                if region_ctype != 2:
+                    print(
+                        "Warning: Region creation type is {} not 2".format(region_ctype)
+                    )
+                regions_patch.append(points)
+            else:
+                regions_other.append({region_ctype: points})
+
+    if not parse_echofilter_regions:
+        return regions_other
+
+    return regions_passive, regions_removed, regions_patch, regions_other
+
+
+def regions2mask(
+    timestamps,
+    depths,
+    regions_passive=None,
+    regions_removed=None,
+    regions_patch=None,
+    regions_other=None,
+):
+    """
+    Convert regions to mask.
+
+    Takes the output from :func:evr_reader` and returns a set of masks.
+
+    Parameters
+    ----------
+    timestamps : array_like
+        Timestamps for each node in the line.
+    depths : array_like
+        Depths (in meters) for each node in the line.
+    regions_passive : list of tuples, optional
+        Start and end timestamps for passive regions.
+    regions_removed : list of tuples, optional
+        Start and end timestamps for removed vertical bands.
+    regions_patch : list of lists, optional
+        Start and end timestamps for bad data patches.
+    regions_other : list of dicts
+        Dictionary mapping creation type to points defining each region.
+
+    Returns
+    -------
+    transect : dict
+        A dictionary with keys:
+
+            - "is_passive" : numpy.ndarray
+                Logical array showing whether a timepoint is of passive data.
+                Shaped ``(num_timestamps, )``. All passive recording data should
+                be excluded by the mask.
+            - "is_removed" : numpy.ndarray
+                Logical array showing whether a timepoint is entirely removed
+                by the mask. Shaped ``(num_timestamps, )``.
+            - "mask_patches" : numpy.ndarray
+                Logical array indicating which datapoints are inside a patch
+                from regions_patch (``True``) and should be excluded by the
+                mask.
+                Shaped ``(num_timestamps, num_depths)``.
+            - "mask" : numpy.ndarray
+                Logical array indicating which datapoints should be kept
+                (``True``) and which are marked as removed
+                (``False``) by one of the other three outputs.
+                Shaped ``(num_timestamps, num_depths)``.
+    """
+    if regions_other is not None:
+        raise NotImplementedError("Other regions are not yet supported.")
+
+    is_passive = np.zeros(timestamps.shape, dtype=bool)
+    is_removed = np.zeros(timestamps.shape, dtype=bool)
+
+    for ts_start, ts_end in regions_passive:
+        is_passive[(ts_start <= timestamps) & (timestamps <= ts_end)] = 1
+
+    for ts_start, ts_end in regions_removed:
+        is_removed[(ts_start <= timestamps) & (timestamps <= ts_end)] = 1
+
+    # Create an empty image to store the masked array
+    mask_patches = np.zeros((len(timestamps), len(depths)), dtype=bool)
+
+    dt = np.abs(timestamps[-1] - timestamps[-2])
+    dd = np.abs(depths[-1] - depths[-2])
+
+    for patch in regions_patch:
+        patch = np.asarray(patch)
+        # Find closest indices to the contour coordinates given
+        x = np.searchsorted(timestamps + dt / 2, patch[:, 0], side="left")
+        y = np.searchsorted(depths + dd / 2, patch[:, 1], side="left")
+
+        # Make a mask for this patch
+        mask_i = np.zeros_like(mask_patches, dtype="bool")
+
+        # Create a contour image by using the contour coordinates rounded to their nearest integer value
+        mask_i[x, y] = 1
+
+        # Fill in the hole created by the contour boundary
+        mask_i = scipy.ndimage.binary_fill_holes(mask_i)
+
+        # Add this patch to the overall mask for all patches
+        mask_patches |= mask_i
+
+    # mask_patches shows where bad patches are; mask shows where good data is
+    mask = ~mask_patches
+    mask[is_passive | is_removed] = 0
+
+    transect = {
+        "is_passive": is_passive,
+        "is_removed": is_removed,
+        "mask": mask,
+        "mask_patches": mask_patches,
+    }
+    return transect
+
+
 def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n", pad=False):
     r"""
     EVL file writer
