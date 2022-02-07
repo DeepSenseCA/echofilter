@@ -788,7 +788,7 @@ def fix_surface_line(timestamps, d_surface, is_passive):
     return fixed_surface, is_replaced
 
 
-def load_decomposed_transect_mask(sample_path):
+def load_decomposed_transect_mask(sample_path, nearfield_distance=1.745):
     """
     Loads a raw and masked transect and decomposes the mask into turbulence and bottom
     lines, and passive and removed regions.
@@ -798,6 +798,8 @@ def load_decomposed_transect_mask(sample_path):
     sample_path : str
         Path to sample, without extension. The raw data should be located at
         ``sample_path + "_Sv_raw.csv"``.
+    nearfield_distance : float, default=1.745
+        Nearfield exclusion distance.
 
     Returns
     -------
@@ -969,11 +971,21 @@ def load_decomposed_transect_mask(sample_path):
     r_starts = []
     r_ends = []
     is_removed = np.zeros_like(is_removed_raw)
+    if is_upward_facing:
+        # For upfacing, periods where the top line crosses the nearfield
+        # line shouldn't be included in the removed-regions, and we must
+        # ensure the bottom line is elevated to the depth of the nearfield line.
+        d_bottom_or_nearfield = np.minimum(
+            d_bottom_new, np.max(depths_mskd) - nearfield_distance
+        )
+    else:
+        d_bottom_or_nearfield = d_bottom_new
     for r_start, r_end in zip(r_starts_raw, r_ends_raw):
         # Check how many points in the fully removed region don't have
         # overlapping turbulence and bottom lines
         n_without_overlap = np.sum(
-            d_turbulence_new[r_start : r_end + 1] < d_bottom_new[r_start : r_end + 1]
+            d_turbulence_new[r_start : r_end + 1]
+            < d_bottom_or_nearfield[r_start : r_end + 1]
         )
         if n_without_overlap == 0:
             # Region is removed only by virtue of the lines crossing; we
