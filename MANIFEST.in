@@ -1,5 +1,6 @@
 include README.rst
 include CHANGELOG.rst
+include COPYING
 
 global-exclude *.py[co]
 global-exclude __pycache__
