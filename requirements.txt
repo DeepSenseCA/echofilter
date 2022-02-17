@@ -1,7 +1,7 @@
 appdirs
 colorama
-numpy
 matplotlib
+numpy
 pandas
 pywin32; platform_system=="Windows"
 pyyaml
