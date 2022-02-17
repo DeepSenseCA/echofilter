@@ -33,6 +33,7 @@ docs/source/readme.rst
 
 # Ignore test result XML files
 testresults.xml
+coverage.xml
 
 
 ##---------------------------------------------------
@@ -162,6 +163,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# pytype static type analyzer
+.pytype/
 
 
 ##---------------------------------------------------
