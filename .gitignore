@@ -16,6 +16,18 @@ docs/index_pdf.rst
 
 
 ##---------------------------------------------------
+# Automated documentation .gitignore files
+##---------------------------------------------------
+
+# Automatically generated API documentation stubs from sphinx-apidoc
+docs/source/packages
+
+# Automatically converting README from markdown to rST
+docs/bin
+docs/source/readme.rst
+
+
+##---------------------------------------------------
 # Continuous Integration .gitignore files
 ##---------------------------------------------------
 
@@ -97,9 +109,6 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-docs/_build*
-# sphinx-apidoc automatically generated documentation
-docs/source/packages
 
 # PyBuilder
 target/
