@@ -403,7 +403,7 @@ Inference
 
 -   Add nearfield line to EV file when importing lines, and add ``--no-nearfield-line`` argument to disable this.
     (`#203 <https://github.com/DeepSenseCA/echofilter/pull/203>`__)
--   Add arguments to control display of nearfield line, `--color-nearfield` and ``--thickness-nearfield``.
+-   Add arguments to control display of nearfield line, ``--color-nearfield`` and ``--thickness-nearfield``.
     (`#203 <https://github.com/DeepSenseCA/echofilter/pull/203>`__)
 -   Add ``-r`` and ``-R`` short-hand arguments for recursive and non-recursive directory search.
     (`#189 <https://github.com/DeepSenseCA/echofilter/pull/189>`__)
