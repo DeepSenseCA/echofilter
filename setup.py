@@ -182,7 +182,7 @@ setup(
     entry_points={
         "console_scripts": [
             "echofilter=echofilter.__main__:main",
-            "echofilter-train=echofilter.train:main",
+            "echofilter-train=echofilter.ui.train_cli:main",
             "echofilter-generate-shards=echofilter.generate_shards:main",
             "ev2csv=echofilter.ev2csv:main",
         ],
