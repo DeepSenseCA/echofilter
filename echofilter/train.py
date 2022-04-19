@@ -45,11 +45,10 @@ import torch.optim
 import torch.utils.data
 from torch.utils.tensorboard import SummaryWriter
 import torchvision.transforms
-from torchutils.random import seed_all
 
 import echofilter.data
 from echofilter.nn.unet import UNet
-from echofilter.nn.utils import count_parameters
+from echofilter.nn.utils import count_parameters, seed_all
 from echofilter.nn.wrapper import Echofilter, EchofilterLoss
 from echofilter.optim import criterions, schedulers
 from echofilter.optim.meters import AverageMeter, ProgressMeter
