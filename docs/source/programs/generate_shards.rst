@@ -1,5 +1,7 @@
 .. highlight:: powershell
 
+.. _echofilter-generate-shards:
+
 echofilter-generate-shards
 ==========================
 

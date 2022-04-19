@@ -1,5 +1,7 @@
 .. highlight:: powershell
 
+.. _echofilter-train:
+
 echofilter-train
 ================
 
