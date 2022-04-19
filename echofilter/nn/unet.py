@@ -428,11 +428,11 @@ class UNet(nn.Module):
 
         self.initial_conv = nn.Sequential(
             modules.Conv2dSame(in_channels, initial_channels, kernel_size=kernel_size),
-            nn.BatchNorm2d(bottleneck_channels),
+            nn.BatchNorm2d(initial_channels),
             actfn_factory(),
         )
         self.first_block = horizontal_block_factory(
-            bottleneck_channels,
+            initial_channels,
             bottleneck_channels,
             expansion=1,
         )
