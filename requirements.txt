@@ -9,5 +9,4 @@ scikit-image
 scipy
 torch
 torchvision
-torchutils @ git+https://github.com/scottclowe/pytorch-utils#egg=torchutils
 tqdm
