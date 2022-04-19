@@ -2,5 +2,5 @@ myst-parser
 pypandoc>=1.6.3
 sphinx
 sphinx-autobuild
-sphinx_rtd_theme
 sphinx-argparse
+sphinx_book_theme
