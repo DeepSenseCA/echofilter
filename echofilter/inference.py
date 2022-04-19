@@ -19,7 +19,6 @@ import torch.nn
 import torch.utils.data
 import torchvision.transforms
 from torchutils.utils import count_parameters
-from torchutils.device import cuda_is_really_available
 from tqdm.auto import tqdm
 
 import echofilter.data.transforms
@@ -446,7 +445,7 @@ def run_inference(
         )
 
     if device is None:
-        device = "cuda" if cuda_is_really_available() else "cpu"
+        device = "cuda" if torch.cuda.is_available() else "cpu"
     device = torch.device(device)
 
     if facing is None:
