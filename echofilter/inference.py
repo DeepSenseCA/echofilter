@@ -18,12 +18,12 @@ import torch
 import torch.nn
 import torch.utils.data
 import torchvision.transforms
-from torchutils.utils import count_parameters
 from tqdm.auto import tqdm
 
 import echofilter.data.transforms
 import echofilter.nn
 from echofilter.nn.unet import UNet
+from echofilter.nn.utils import count_parameters
 from echofilter.nn.wrapper import Echofilter
 import echofilter.path
 import echofilter.raw
