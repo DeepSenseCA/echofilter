@@ -4,7 +4,7 @@ echofilter-train
 ================
 
 .. argparse::
-   :ref: echofilter.train._get_parser_sphinx
+   :ref: echofilter.ui.train_cli._get_parser_sphinx
    :prog: echofilter-train
    :nodefault:
 
