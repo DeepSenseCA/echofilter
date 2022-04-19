@@ -38,7 +38,6 @@ except ImportError:
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import ranger
 import torch
 import torch.nn
 import torch.optim
@@ -309,10 +308,16 @@ def train(
     elif optimizer_name == "adamw":
         optimizer_class = torch.optim.AdamW
     elif optimizer_name == "ranger":
+        import ranger
+
         optimizer_class = ranger.Ranger
     elif optimizer_name == "rangerva":
+        import ranger
+
         optimizer_class = ranger.RangerVA
     elif optimizer_name == "rangerqh":
+        import ranger
+
         optimizer_class = ranger.RangerQH
     else:
         # We don't support arbitrary optimizers from torch.optim because they
