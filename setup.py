@@ -154,6 +154,7 @@ class UploadCommand(Command):
 setup(
     # Essential details on the package and its dependencies
     name=meta["name"],
+    python_requires=">=3.6",
     version=meta["version"],
     packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
     package_dir={meta["name"]: os.path.join(".", meta["path"])},
