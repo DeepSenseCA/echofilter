@@ -42,7 +42,6 @@ import torch
 import torch.nn
 import torch.optim
 import torch.utils.data
-from torch.utils.tensorboard import SummaryWriter
 import torchvision.transforms
 
 import echofilter.data
@@ -173,6 +172,10 @@ def train(
         raise ValueError(
             "A checkpoint must be provided to restart from when doing a cold restart"
         )
+
+    # Lazy import of tensorboard, so training-only requirements are not needed
+    # for automated documentation building.
+    from torch.utils.tensorboard import SummaryWriter
 
     seed_all(seed)
     # Can't get this to be deterministic anyway, so may as well keep the
