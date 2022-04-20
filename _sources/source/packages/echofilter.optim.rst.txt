@@ -1,0 +1,50 @@
+echofilter.optim package
+========================
+
+.. automodule:: echofilter.optim
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+echofilter.optim.criterions module
+----------------------------------
+
+.. automodule:: echofilter.optim.criterions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+echofilter.optim.meters module
+------------------------------
+
+.. automodule:: echofilter.optim.meters
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+echofilter.optim.schedulers module
+----------------------------------
+
+.. automodule:: echofilter.optim.schedulers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+echofilter.optim.torch\_backports module
+----------------------------------------
+
+.. automodule:: echofilter.optim.torch_backports
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+echofilter.optim.utils module
+-----------------------------
+
+.. automodule:: echofilter.optim.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:

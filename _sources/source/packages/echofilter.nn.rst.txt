@@ -1,0 +1,42 @@
+echofilter.nn package
+=====================
+
+.. automodule:: echofilter.nn
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   echofilter.nn.modules
+
+Submodules
+----------
+
+echofilter.nn.unet module
+-------------------------
+
+.. automodule:: echofilter.nn.unet
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+echofilter.nn.utils module
+--------------------------
+
+.. automodule:: echofilter.nn.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+echofilter.nn.wrapper module
+----------------------------
+
+.. automodule:: echofilter.nn.wrapper
+   :members:
+   :undoc-members:
+   :show-inheritance:

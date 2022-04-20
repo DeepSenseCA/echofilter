@@ -1,0 +1,726 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>echofilter.plotting &#8212; Echofilter 1.0.dev0 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Echofilter 1.0.dev0 documentation</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Contents:
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../source/usage_guide.html">
+   Usage Guide
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../source/programs/programs.html">
+   CLI Reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../source/programs/inference.html">
+     echofilter
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../source/programs/ev2csv.html">
+     ev2csv
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../source/programs/train.html">
+     echofilter-train
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../source/programs/generate_shards.html">
+     echofilter-generate-shards
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../source/packages/modules.html">
+   API Reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../source/packages/echofilter.html">
+     echofilter package
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../source/packages/echofilter.data.html">
+       echofilter.data package
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../source/packages/echofilter.nn.html">
+       echofilter.nn package
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+      <label for="toctree-checkbox-4">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../source/packages/echofilter.nn.modules.html">
+         echofilter.nn.modules package
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../source/packages/echofilter.optim.html">
+       echofilter.optim package
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../source/packages/echofilter.raw.html">
+       echofilter.raw package
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../source/packages/echofilter.ui.html">
+       echofilter.ui package
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../source/packages/echofilter.win.html">
+       echofilter.win package
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../source/changelog.html">
+   Changelog
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../py-modindex.html">
+   Module Index
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../genindex.html">
+   Index
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for echofilter.plotting</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Plotting utilities.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utils</span>
+
+
+<span class="n">TURBULENCE_COLOR</span> <span class="o">=</span> <span class="s2">&quot;c&quot;</span>
+<span class="n">BOTTOM_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#00ee00&quot;</span>
+
+<span class="c1"># ColorBrewer Paired values</span>
+<span class="n">TURBULENCE_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#a6cee3&quot;</span>
+<span class="n">TURBULENCE_COLOR_DARK</span> <span class="o">=</span> <span class="s2">&quot;#1f78b4&quot;</span>
+<span class="n">BOTTOM_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#b2df8a&quot;</span>
+<span class="n">BOTTOM_COLOR_DARK</span> <span class="o">=</span> <span class="s2">&quot;#33a02c&quot;</span>
+<span class="n">SURFACE_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#4ba82a&quot;</span>
+<span class="n">SURFACE_COLOR_DARK</span> <span class="o">=</span> <span class="s2">&quot;#255e11&quot;</span>
+
+<span class="n">PASSIVE_COLOR</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]</span>
+<span class="n">REMOVED_COLOR</span> <span class="o">=</span> <span class="s2">&quot;b&quot;</span>
+
+
+<div class="viewcode-block" id="ensure_axes_inverted"><a class="viewcode-back" href="../../source/packages/echofilter.html#echofilter.plotting.ensure_axes_inverted">[docs]</a><span class="k">def</span> <span class="nf">ensure_axes_inverted</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Invert axis direction, if not already inverted.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    axes : matplotlib.axes or None</span>
+<span class="sd">        The axes to invert. If `None`, the current axes are used (default).</span>
+<span class="sd">    dir : {&quot;x&quot;, &quot;y&quot;, &quot;xy&quot;}</span>
+<span class="sd">        The axis to invert. Default is `&quot;y&quot;`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s2">&quot;y&quot;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">:</span>
+        <span class="n">lim</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">lim</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">axes</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s2">&quot;x&quot;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">:</span>
+        <span class="n">lim</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">lim</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">axes</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_indicator_hatch"><a class="viewcode-back" href="../../source/packages/echofilter.html#echofilter.plotting.plot_indicator_hatch">[docs]</a><span class="k">def</span> <span class="nf">plot_indicator_hatch</span><span class="p">(</span>
+    <span class="n">indicator</span><span class="p">,</span> <span class="n">xx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ymin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hatch</span><span class="o">=</span><span class="s2">&quot;//&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plots a hatch across indicated segments along the x-axis of a plot.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    indicator : numpy.ndarray vector</span>
+<span class="sd">        Whether to include or exclude each column along the x-axis. Included</span>
+<span class="sd">        columns are indicated with non-zero values.</span>
+<span class="sd">    xx : numpy.ndarray vector, optional</span>
+<span class="sd">        Values taken by indicator along the x-axis. If `None` (default), the</span>
+<span class="sd">        indices of `indicator` are used: `arange(len(indicator))`.</span>
+<span class="sd">    ymin : float, optional</span>
+<span class="sd">        The lower y-value of the extent of the hatching. If `None` (default),</span>
+<span class="sd">        the minimum y-value of the current axes is used.</span>
+<span class="sd">    ymax : float, optional</span>
+<span class="sd">        The upper y-value of the extent of the hatching. If `None` (default),</span>
+<span class="sd">        the maximum y-value of the current axes is used.</span>
+<span class="sd">    hatch : str, optional</span>
+<span class="sd">        Hatching pattern to use. Default is `&quot;//&quot;`.</span>
+<span class="sd">    color : color, optional</span>
+<span class="sd">        Color of the hatching pattern. Default is black.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">xx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indicator</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">ymin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ymax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ylim</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">ymin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ymin</span> <span class="o">=</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">ymax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ymax</span> <span class="o">=</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">r_starts</span><span class="p">,</span> <span class="n">r_ends</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_indicator_onoffsets</span><span class="p">(</span><span class="n">indicator</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r_starts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">for</span> <span class="n">r_start</span><span class="p">,</span> <span class="n">r_end</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">r_starts</span><span class="p">,</span> <span class="n">r_ends</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+            <span class="n">xx</span><span class="p">[[</span><span class="n">r_start</span><span class="p">,</span> <span class="n">r_end</span><span class="p">]],</span>
+            <span class="p">[</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">ymax</span><span class="p">,</span> <span class="n">ymax</span><span class="p">],</span>
+            <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+            <span class="n">hatch</span><span class="o">=</span><span class="n">hatch</span><span class="p">,</span>
+            <span class="n">edgecolor</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_mask_hatch"><a class="viewcode-back" href="../../source/packages/echofilter.html#echofilter.plotting.plot_mask_hatch">[docs]</a><span class="k">def</span> <span class="nf">plot_mask_hatch</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">hatch</span><span class="o">=</span><span class="s2">&quot;//&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot hatching according to a mask shape.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X, Y : array-like, optional</span>
+<span class="sd">        The coordinates of the values in Z.</span>
+
+<span class="sd">        X and Y must both be 2-D with the same shape as `Z` (e.g. created via</span>
+<span class="sd">        numpy.meshgrid), or they must both be 1-D such that ``len(X) == M`` is</span>
+<span class="sd">        the number of columns in `Z` and ``len(Y) == N`` is the number of rows</span>
+<span class="sd">        in `Z`.</span>
+
+<span class="sd">        If not given, they are assumed to be integer indices, i.e.</span>
+<span class="sd">        ``X = range(M)``, ``Y = range(N)``.</span>
+<span class="sd">    Z : array-like(N, M)</span>
+<span class="sd">        Indicator for which locations should be hatched. If `Z` is not a boolean</span>
+<span class="sd">        array, any location where ``Z &gt; 0`` will be hatched.</span>
+<span class="sd">    hatch : str, optional</span>
+<span class="sd">        The hatching pattern to apply. Default is &quot;//&quot;.</span>
+<span class="sd">    color : color, optional</span>
+<span class="sd">        The color of the hatch. Default is black.</span>
+<span class="sd">    border : bool, optional</span>
+<span class="sd">        Whether to include border around hatch. Default is `False`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="c1"># Transpose Z if necessary, as it expects its shape the opposite way</span>
+        <span class="c1"># around to what you might expect.</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="ow">and</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="ow">and</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">cs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">3.4e38</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">3.4e38</span><span class="p">],</span>
+        <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">],</span>
+        <span class="n">hatches</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">hatch</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="c1"># Change the color of the hatches in each layer</span>
+    <span class="k">for</span> <span class="n">collection</span> <span class="ow">in</span> <span class="n">cs</span><span class="o">.</span><span class="n">collections</span><span class="p">:</span>
+        <span class="n">collection</span><span class="o">.</span><span class="n">set_edgecolor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+    <span class="c1"># Doing this also colors in the box around each level.</span>
+    <span class="c1"># We can remove the colored line around the levels by setting the</span>
+    <span class="c1"># linewidth to 0.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">border</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">collection</span> <span class="ow">in</span> <span class="n">cs</span><span class="o">.</span><span class="n">collections</span><span class="p">:</span>
+            <span class="n">collection</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_transect"><a class="viewcode-back" href="../../source/packages/echofilter.html#echofilter.plotting.plot_transect">[docs]</a><span class="k">def</span> <span class="nf">plot_transect</span><span class="p">(</span>
+    <span class="n">transect</span><span class="p">,</span>
+    <span class="n">signal_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">x_scale</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
+    <span class="n">show_regions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">turbulence_color</span><span class="o">=</span><span class="n">TURBULENCE_COLOR</span><span class="p">,</span>
+    <span class="n">bottom_color</span><span class="o">=</span><span class="n">BOTTOM_COLOR</span><span class="p">,</span>
+    <span class="n">surface_color</span><span class="o">=</span><span class="n">SURFACE_COLOR</span><span class="p">,</span>
+    <span class="n">passive_color</span><span class="o">=</span><span class="n">PASSIVE_COLOR</span><span class="p">,</span>
+    <span class="n">removed_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot a transect.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    transect : dict</span>
+<span class="sd">        Transect values.</span>
+<span class="sd">    signal_type : str, optional</span>
+<span class="sd">        The signal to plot as a heatmap. Default is `&quot;Sv&quot;` if present, or</span>
+<span class="sd">        &quot;signals&quot; if not. If this is `&quot;Sv_masked&quot;`, the mask (given by</span>
+<span class="sd">        `transect[&quot;mask&quot;]`) is used to mask `transect[&quot;Sv&quot;]` before plotting.</span>
+<span class="sd">    x_scale : {&quot;index&quot;, &quot;timestamp&quot; &quot;time&quot;}, optional</span>
+<span class="sd">        Scaling for x-axis. If `&quot;timestamp&quot;`, the number of seconds since the</span>
+<span class="sd">        Unix epoch is shown; if `&quot;time&quot;`, the amount of time in seconds since</span>
+<span class="sd">        the start of the transect is shown. Default is `&quot;index&quot;`.</span>
+<span class="sd">    show_regions : bool, optional</span>
+<span class="sd">        Whether to show segments of data maked as removed or passive with</span>
+<span class="sd">        hatching. Passive data is shown with `&quot;/&quot;` oriented lines, other removed</span>
+<span class="sd">        timestamps with `&quot;\&quot;` oriented lines. Default is `True`.</span>
+<span class="sd">    turbulence_color : color, optional</span>
+<span class="sd">        Color of turbulence line. Default is `&quot;#a6cee3&quot;`.</span>
+<span class="sd">    bottom_color : color, optional</span>
+<span class="sd">        Color of bottom line. Default is `&quot;#b2df8a&quot;`.</span>
+<span class="sd">    surface_color : color, optional</span>
+<span class="sd">        Color of surface line. Default is `&quot;#d68ade&quot;`.</span>
+<span class="sd">    passive_color : color, optional</span>
+<span class="sd">        Color of passive segment hatching. Default is `[.4, .4, .4]`.</span>
+<span class="sd">    removed_color : color, optional</span>
+<span class="sd">        Color of removed segment hatching. Default is `&quot;r&quot;` if `cmap` is</span>
+<span class="sd">        `&quot;viridis&quot;`, and `&quot;b&quot;` otherwise.</span>
+<span class="sd">    linewidth : int</span>
+<span class="sd">        Width of lines. Default is `2`.</span>
+<span class="sd">    cmap : str, optional</span>
+<span class="sd">        Name of a registered matplotlib colormap. If `None` (default), the</span>
+<span class="sd">        current default colormap is used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x_scale</span> <span class="o">=</span> <span class="n">x_scale</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">removed_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">cmap</span> <span class="ow">is</span> <span class="s2">&quot;viridis&quot;</span><span class="p">:</span>
+        <span class="n">removed_color</span> <span class="o">=</span> <span class="s2">&quot;r&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">removed_color</span> <span class="o">=</span> <span class="n">REMOVED_COLOR</span>
+
+    <span class="k">if</span> <span class="n">signal_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="s2">&quot;Sv&quot;</span> <span class="ow">in</span> <span class="n">transect</span><span class="p">:</span>
+        <span class="n">signal_type</span> <span class="o">=</span> <span class="s2">&quot;Sv&quot;</span>
+    <span class="k">elif</span> <span class="s2">&quot;signals&quot;</span> <span class="ow">in</span> <span class="n">transect</span><span class="p">:</span>
+        <span class="n">signal_type</span> <span class="o">=</span> <span class="s2">&quot;signals&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;No signal key found in transect. Available keys were: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">transect</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">turbulence_key</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;turbulence&quot;</span><span class="p">,</span> <span class="s2">&quot;d_turbulence&quot;</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;d_top&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">transect</span><span class="p">:</span>
+            <span class="n">turbulence_key</span> <span class="o">=</span> <span class="n">k</span>
+            <span class="k">break</span>
+
+    <span class="n">bottom_key</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="s2">&quot;d_bottom&quot;</span><span class="p">,</span> <span class="s2">&quot;bot&quot;</span><span class="p">,</span> <span class="s2">&quot;d_bot&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">transect</span><span class="p">:</span>
+            <span class="n">bottom_key</span> <span class="o">=</span> <span class="n">k</span>
+            <span class="k">break</span>
+
+    <span class="n">surface_key</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;d_surface&quot;</span><span class="p">,</span> <span class="s2">&quot;d_surf&quot;</span><span class="p">,</span> <span class="s2">&quot;surf&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">transect</span><span class="p">:</span>
+            <span class="n">surface_key</span> <span class="o">=</span> <span class="n">k</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="n">x_scale</span> <span class="o">==</span> <span class="s2">&quot;index&quot;</span><span class="p">:</span>
+        <span class="n">tt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">xlabel</span> <span class="o">=</span> <span class="s2">&quot;Sample index&quot;</span>
+    <span class="k">elif</span> <span class="n">x_scale</span> <span class="o">==</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span>
+        <span class="n">tt</span> <span class="o">=</span> <span class="n">transect</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">]</span>
+        <span class="n">xlabel</span> <span class="o">=</span> <span class="s2">&quot;Timestamp (s)&quot;</span>
+    <span class="k">elif</span> <span class="n">x_scale</span> <span class="o">==</span> <span class="s2">&quot;time&quot;</span><span class="p">:</span>
+        <span class="n">tt</span> <span class="o">=</span> <span class="n">transect</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">transect</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">xlabel</span> <span class="o">=</span> <span class="s2">&quot;Time (s)&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported x_scale: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x_scale</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">signal_type</span> <span class="o">==</span> <span class="s2">&quot;Sv_masked&quot;</span><span class="p">:</span>
+        <span class="n">signal</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;Sv&quot;</span><span class="p">])</span>
+        <span class="n">signal</span><span class="p">[</span><span class="o">~</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">signal</span> <span class="o">=</span> <span class="n">transect</span><span class="p">[</span><span class="n">signal_type</span><span class="p">]</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">tt</span><span class="p">,</span> <span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">],</span> <span class="n">signal</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cmap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">set_cmap</span><span class="p">(</span><span class="n">cmap</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">surface_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tt</span><span class="p">,</span> <span class="n">transect</span><span class="p">[</span><span class="n">surface_key</span><span class="p">],</span> <span class="n">surface_color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">turbulence_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tt</span><span class="p">,</span> <span class="n">transect</span><span class="p">[</span><span class="n">turbulence_key</span><span class="p">],</span> <span class="n">turbulence_color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bottom_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tt</span><span class="p">,</span> <span class="n">transect</span><span class="p">[</span><span class="n">bottom_key</span><span class="p">],</span> <span class="n">bottom_color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">show_regions</span><span class="p">:</span>
+        <span class="n">plot_indicator_hatch</span><span class="p">(</span>
+            <span class="n">transect</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_passive&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">xx</span><span class="o">=</span><span class="n">tt</span><span class="p">,</span>
+            <span class="n">ymin</span><span class="o">=</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">ymax</span><span class="o">=</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">hatch</span><span class="o">=</span><span class="s2">&quot;//&quot;</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">passive_color</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">plot_indicator_hatch</span><span class="p">(</span>
+            <span class="n">transect</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_removed&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">xx</span><span class="o">=</span><span class="n">tt</span><span class="p">,</span>
+            <span class="n">ymin</span><span class="o">=</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">ymax</span><span class="o">=</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">hatch</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\\\\</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">removed_color</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">show_regions</span> <span class="ow">and</span> <span class="s2">&quot;mask_patches&quot;</span> <span class="ow">in</span> <span class="n">transect</span><span class="p">:</span>
+        <span class="n">plot_mask_hatch</span><span class="p">(</span>
+            <span class="n">tt</span><span class="p">,</span>
+            <span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">],</span>
+            <span class="n">transect</span><span class="p">[</span><span class="s2">&quot;mask_patches&quot;</span><span class="p">],</span>
+            <span class="n">hatch</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\\\\</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">removed_color</span><span class="p">,</span>
+            <span class="n">border</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Depth (m)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+
+    <span class="c1"># Make sure y-axis is inverted (lowest depth at the top)</span>
+    <span class="n">ensure_axes_inverted</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_transect_predictions"><a class="viewcode-back" href="../../source/packages/echofilter.html#echofilter.plotting.plot_transect_predictions">[docs]</a><span class="k">def</span> <span class="nf">plot_transect_predictions</span><span class="p">(</span><span class="n">transect</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot the generated output for a transect against its ground truth data.</span>
+
+<span class="sd">        - Ground truth data is shown in black, predictions in white.</span>
+<span class="sd">        - Passive regions are hatched in / direction for ground truth, \\ for</span>
+<span class="sd">          prediciton.</span>
+<span class="sd">        - Removed regions are hatched in \\ direction for ground truth, / for</span>
+<span class="sd">          prediction.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    transect : dict</span>
+<span class="sd">        Ground truth data for the transect.</span>
+<span class="sd">    prediction : dict</span>
+<span class="sd">        Predictions for the transect.</span>
+<span class="sd">    linewidth : int</span>
+<span class="sd">        Width of lines. Default is `2`.</span>
+<span class="sd">    cmap : str, optional</span>
+<span class="sd">        Name of a registered matplotlib colormap. If `None` (default), the</span>
+<span class="sd">        current default colormap is used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">plot_transect</span><span class="p">(</span>
+        <span class="n">transect</span><span class="p">,</span>
+        <span class="n">x_scale</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
+        <span class="n">turbulence_color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+        <span class="n">bottom_color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+        <span class="n">surface_color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+        <span class="n">passive_color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+        <span class="n">removed_color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Convert output into lines</span>
+    <span class="k">for</span> <span class="n">shape_y</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;p_is_above_turbulence&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;p_is_below_bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">shape_y</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shape mismatch: </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">shape_y</span><span class="p">))</span>
+    <span class="n">surface_depths</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">][</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">last_nonzero</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;p_is_above_surface&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">turbulence_depths</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">][</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">last_nonzero</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;p_is_above_turbulence&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">bottom_depths</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">][</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">first_nonzero</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;p_is_below_bottom&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="n">tt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">turbulence_depths</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tt</span><span class="p">,</span> <span class="n">surface_depths</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tt</span><span class="p">,</span> <span class="n">turbulence_depths</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tt</span><span class="p">,</span> <span class="n">bottom_depths</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">)</span>
+
+    <span class="c1"># Mark removed areas</span>
+    <span class="n">plot_indicator_hatch</span><span class="p">(</span>
+        <span class="n">prediction</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;p_is_passive&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]))</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">xx</span><span class="o">=</span><span class="n">tt</span><span class="p">,</span>
+        <span class="n">ymin</span><span class="o">=</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">ymax</span><span class="o">=</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">hatch</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\\\\</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">plot_indicator_hatch</span><span class="p">(</span>
+        <span class="n">prediction</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;p_is_removed&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]))</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">xx</span><span class="o">=</span><span class="n">tt</span><span class="p">,</span>
+        <span class="n">ymin</span><span class="o">=</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">ymax</span><span class="o">=</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">hatch</span><span class="o">=</span><span class="s2">&quot;//&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;p_is_patch&quot;</span> <span class="ow">in</span> <span class="n">prediction</span><span class="p">:</span>
+        <span class="n">plot_mask_hatch</span><span class="p">(</span>
+            <span class="n">tt</span><span class="p">,</span>
+            <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">],</span>
+            <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;p_is_patch&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">hatch</span><span class="o">=</span><span class="s2">&quot;//&quot;</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span>
+            <span class="n">border</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="c1"># Make sure y-axis is inverted (lowest depth at the top)</span>
+    <span class="n">ensure_axes_inverted</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By Scott C. Lowe<br/>
+  
+      &copy; Copyright 2022, Scott C. Lowe.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,50 @@
+echofilter.raw package
+======================
+
+.. automodule:: echofilter.raw
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+echofilter.raw.loader module
+----------------------------
+
+.. automodule:: echofilter.raw.loader
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+echofilter.raw.manipulate module
+--------------------------------
+
+.. automodule:: echofilter.raw.manipulate
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+echofilter.raw.metadata module
+------------------------------
+
+.. automodule:: echofilter.raw.metadata
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+echofilter.raw.shardloader module
+---------------------------------
+
+.. automodule:: echofilter.raw.shardloader
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+echofilter.raw.utils module
+---------------------------
+
+.. automodule:: echofilter.raw.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:

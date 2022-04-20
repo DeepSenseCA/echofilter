@@ -1,0 +1,630 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>echofilter.nn.utils &#8212; Echofilter 1.0.dev0 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Echofilter 1.0.dev0 documentation</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Contents:
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../source/usage_guide.html">
+   Usage Guide
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../source/programs/programs.html">
+   CLI Reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../source/programs/inference.html">
+     echofilter
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../source/programs/ev2csv.html">
+     ev2csv
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../source/programs/train.html">
+     echofilter-train
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../source/programs/generate_shards.html">
+     echofilter-generate-shards
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../source/packages/modules.html">
+   API Reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../source/packages/echofilter.html">
+     echofilter package
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../source/packages/echofilter.data.html">
+       echofilter.data package
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../source/packages/echofilter.nn.html">
+       echofilter.nn package
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+      <label for="toctree-checkbox-4">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../source/packages/echofilter.nn.modules.html">
+         echofilter.nn.modules package
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../source/packages/echofilter.optim.html">
+       echofilter.optim package
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../source/packages/echofilter.raw.html">
+       echofilter.raw package
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../source/packages/echofilter.ui.html">
+       echofilter.ui package
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../source/packages/echofilter.win.html">
+       echofilter.win package
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../source/changelog.html">
+   Changelog
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../py-modindex.html">
+   Module Index
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../genindex.html">
+   Index
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for echofilter.nn.utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">echofilter.nn utility functions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># This file is part of Echofilter.</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Affero General Public License as</span>
+<span class="c1"># published by the Free Software Foundation, version 3.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU Affero General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU Affero General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numbers</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+
+<div class="viewcode-block" id="logavgexp"><a class="viewcode-back" href="../../../source/packages/echofilter.nn.html#echofilter.nn.utils.logavgexp">[docs]</a><span class="k">def</span> <span class="nf">logavgexp</span><span class="p">(</span>
+    <span class="nb">input</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">internal_dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the log of meaned exponentials of each row of the `input` tensor in</span>
+<span class="sd">    the given dimension `dim`. The computation is numerically stabilized.</span>
+
+<span class="sd">    If `keepdim` is `True`, the output tensor is of the same size as `input`</span>
+<span class="sd">    except in the dimension `dim` where it is of size `1`. Otherwise, `dim` is</span>
+<span class="sd">    squeezed (see :meth:`torch.squeeze()`), resulting in the output tensor</span>
+<span class="sd">    having 1 fewer dimension.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input : torch.Tensor</span>
+<span class="sd">        The input tensor.</span>
+<span class="sd">    dim : int</span>
+<span class="sd">        The dimension to reduce.</span>
+<span class="sd">    keepdim : bool, optional</span>
+<span class="sd">        Whether the output tensor has `dim` retained or not.</span>
+<span class="sd">        Default is `False`.</span>
+<span class="sd">    temperature : float or None, optional</span>
+<span class="sd">        A temperature which is applied to the logits. Temperatures must be</span>
+<span class="sd">        positive. Temperatures greater than `1` make the result closer to the</span>
+<span class="sd">        average of `input`, whilst temperatures `0&lt;t&lt;1` make the result closer</span>
+<span class="sd">        to the maximum of `input`. If `None` (default) or `1`, no temperature</span>
+<span class="sd">        is applied.</span>
+<span class="sd">    internal_dtype : torch.dtype, optional</span>
+<span class="sd">        A data type which the `input` will be cast as before computing the</span>
+<span class="sd">        log-sum-exp step. Default is :attr:`torch.float32`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    torch.Tensor</span>
+<span class="sd">        The log-average-exp of `input`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">)</span> <span class="ow">and</span> <span class="n">temperature</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">input_dtype</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">dtype</span>
+
+    <span class="k">if</span> <span class="n">internal_dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">internal_dtype</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">temperature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+
+    <span class="n">log_n</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">dim</span><span class="p">])</span>  <span class="c1"># TODO: can be cached</span>
+    <span class="n">lae</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">logsumexp</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">log_n</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">temperature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">lae</span> <span class="o">=</span> <span class="n">lae</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">keepdim</span><span class="p">:</span>
+        <span class="n">lae</span> <span class="o">=</span> <span class="n">lae</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">lae</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">input_dtype</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TensorDict"><a class="viewcode-back" href="../../../source/packages/echofilter.nn.html#echofilter.nn.utils.TensorDict">[docs]</a><span class="k">class</span> <span class="nc">TensorDict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">ParameterDict</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Holds tensors in a dictionary.</span>
+
+<span class="sd">    TensorDict can be indexed like a regular Python dictionary, but implements</span>
+<span class="sd">    methods such as `to` which operate on all elements within it.</span>
+
+<span class="sd">    :class:`TensorDict` is an **ordered** dictionary that respects</span>
+
+<span class="sd">    - the order of insertion, and</span>
+
+<span class="sd">    - in :meth:`~TensorDict.update`, the order of the merged ``OrderedDict``</span>
+<span class="sd">      or another :class:`TensorDict` (the argument to :meth:`~TensorDict.update`).</span>
+
+<span class="sd">    Note that :meth:`~TensorDict.update` with other unordered mapping</span>
+<span class="sd">    types (e.g., Python&#39;s plain ``dict``) does not preserve the order of the</span>
+<span class="sd">    merged mapping.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        parameters (iterable, optional): a mapping (dictionary) of</span>
+<span class="sd">            (string : :class:`torch.Tensor`) or an iterable of key-value pairs</span>
+<span class="sd">            of type (string, :class:`torch.Tensor`)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TensorDict</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">tensors</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">parameter</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Adds a tensor to the module.</span>
+
+<span class="sd">        The parameter can be accessed as an attribute using given key.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            key (string): key of the parameter. The parameter can be accessed</span>
+<span class="sd">                from this module using the given key</span>
+<span class="sd">            parameter (Parameter): parameter to be added to the module.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;_parameters&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;cannot assign parameter before Module.__init__() call&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">_six</span><span class="o">.</span><span class="n">string_classes</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;parameter key should be a string. &quot;</span> <span class="s2">&quot;Got </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">typekey</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;parameter key can</span><span class="se">\&#39;</span><span class="s1">t contain &quot;.&quot;&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;parameter key can</span><span class="se">\&#39;</span><span class="s1">t be empty string &quot;&quot;&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;attribute &#39;</span><span class="si">{}</span><span class="s2">&#39; already exists&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">parameter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameter</span>
+
+<div class="viewcode-block" id="TensorDict.detach"><a class="viewcode-back" href="../../../source/packages/echofilter.nn.html#echofilter.nn.utils.TensorDict.detach">[docs]</a>    <span class="k">def</span> <span class="nf">detach</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">TensorDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="TensorDict.detach_"><a class="viewcode-back" href="../../../source/packages/echofilter.nn.html#echofilter.nn.utils.TensorDict.detach_">[docs]</a>    <span class="k">def</span> <span class="nf">detach_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span></div>
+
+<div class="viewcode-block" id="TensorDict.extra_repr"><a class="viewcode-back" href="../../../source/packages/echofilter.nn.html#echofilter.nn.utils.TensorDict.extra_repr">[docs]</a>    <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">child_lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">size_str</span> <span class="o">=</span> <span class="s2">&quot;x&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="k">for</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
+            <span class="n">device_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">is_cuda</span> <span class="k">else</span> <span class="s2">&quot; (GPU </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">get_device</span><span class="p">())</span>
+            <span class="n">parastr</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> containing: [</span><span class="si">{}</span><span class="s2"> of size </span><span class="si">{}{}</span><span class="s2">]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">p</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">typename</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="n">size_str</span><span class="p">,</span> <span class="n">device_str</span>
+            <span class="p">)</span>
+            <span class="n">child_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  (&quot;</span> <span class="o">+</span> <span class="n">k</span> <span class="o">+</span> <span class="s2">&quot;): &quot;</span> <span class="o">+</span> <span class="n">parastr</span><span class="p">)</span>
+        <span class="n">tmpstr</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">child_lines</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tmpstr</span></div></div>
+
+
+<div class="viewcode-block" id="count_parameters"><a class="viewcode-back" href="../../../source/packages/echofilter.nn.html#echofilter.nn.utils.count_parameters">[docs]</a><span class="k">def</span> <span class="nf">count_parameters</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">only_trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Count the number of (trainable) parameters within a model and its children.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        model (torch.nn.Model): the model.</span>
+<span class="sd">        only_trainable (bool, optional): indicates whether the count should be restricted</span>
+<span class="sd">            to only trainable parameters (ones which require grad), otherwise all</span>
+<span class="sd">            parameters are included. Default is ``True``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int: total number of (trainable) parameters possessed by the model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">only_trainable</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="seed_all"><a class="viewcode-back" href="../../../source/packages/echofilter.nn.html#echofilter.nn.utils.seed_all">[docs]</a><span class="k">def</span> <span class="nf">seed_all</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">only_current_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mirror_gpus</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialises the random number generators for random, numpy, and both CPU and GPU(s)</span>
+<span class="sd">    for torch.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        seed (int, optional): seed value to use for the random number generators.</span>
+<span class="sd">            If :attr:`seed` is ``None`` (default), seeds are picked at random using</span>
+<span class="sd">            the methods built in to each RNG.</span>
+<span class="sd">        only_current_gpu (bool, optional): indicates whether to only re-seed the current</span>
+<span class="sd">            cuda device, or to seed all of them. Default is ``False``.</span>
+<span class="sd">        mirror_gpus (bool, optional): indicates whether all cuda devices should receive</span>
+<span class="sd">            the same seed, or different seeds. If :attr:`mirror_gpus` is ``False`` and</span>
+<span class="sd">            :attr:`seed` is not ``None``, each device receives a different but</span>
+<span class="sd">            deterministically determined seed. Default is ``False``.</span>
+
+<span class="sd">    Note that we override the settings for the cudnn backend whenever this function is</span>
+<span class="sd">    called. If :attr:`seed` is not ``None``, we set::</span>
+
+<span class="sd">        torch.backends.cudnn.deterministic = True</span>
+<span class="sd">        torch.backends.cudnn.benchmark = False</span>
+
+<span class="sd">    in order to ensure experimental results behave deterministically and are repeatible.</span>
+<span class="sd">    However, enabling deterministic mode may result in an impact on performance. See</span>
+<span class="sd">    `link`_ for more details. If :attr:`seed` is ``None``, we return the cudnn backend</span>
+<span class="sd">    to its performance-optimised default settings of::</span>
+
+<span class="sd">        torch.backends.cudnn.deterministic = False</span>
+<span class="sd">        torch.backends.cudnn.benchmark = True</span>
+
+<span class="sd">    .. _link:</span>
+<span class="sd">        https://pytorch.org/docs/stable/notes/randomness.html</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Note that random, np.random and torch&#39;s RNG all have different</span>
+    <span class="c1"># implementations so they will produce different numbers even with</span>
+    <span class="c1"># when they are seeded the same.</span>
+
+    <span class="c1"># Seed Python&#39;s built-in random number generator</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="c1"># Seed numpy&#39;s random number generator</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_seed</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        On Python 3.2 and above, and when system sources of randomness are</span>
+<span class="sd">        available, use `os.urandom` to make a new seed. Otherwise, use the</span>
+<span class="sd">        current time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">os</span>
+
+            <span class="c1"># Use system&#39;s source of entropy (on Linux, syscall `getrandom()`)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">byteorder</span><span class="o">=</span><span class="s2">&quot;little&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+            <span class="c1"># Get the current time in mircoseconds, and map to an integer</span>
+            <span class="c1"># in the range [0, 2**32)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">int</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">-</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000000</span>
+                <span class="p">)</span>
+                <span class="o">%</span> <span class="mi">4294967296</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="c1"># Seed pytorch&#39;s random number generator on the CPU</span>
+    <span class="c1"># torch doesn&#39;t support a None argument, so we have to source our own seed</span>
+    <span class="c1"># with high entropy if none is given.</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">seed</span> <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">get_seed</span><span class="p">()</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Since seeds are random, we don&#39;t care about determinism and</span>
+        <span class="c1"># will set the backend up for optimal performance</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">deterministic</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">benchmark</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Ensure cudNN is deterministic, so the results are consistent</span>
+        <span class="c1"># for this seed</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">deterministic</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">benchmark</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># Seed pytorch&#39;s random number generator on the GPU(s)</span>
+    <span class="k">if</span> <span class="n">only_current_gpu</span><span class="p">:</span>
+        <span class="c1"># Only re-seed the current GPU</span>
+        <span class="k">if</span> <span class="n">mirror_gpus</span><span class="p">:</span>
+            <span class="c1"># ... re-seed with the same as the CPU seed</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">seed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># ... re-seed at random, however pytorch deems fit</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">seed</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># ... re-seed with a deterministic seed based on, but</span>
+            <span class="c1"># not equal to, the CPU seed</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">((</span><span class="n">seed</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4294967296</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">mirror_gpus</span><span class="p">:</span>
+        <span class="c1"># Seed multiple GPUs, each with the same seed</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">manual_seed_all</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">seed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Seed multiple GPUs, all with unique seeds</span>
+        <span class="c1"># ... a random seed for each GPU, however pytorch deems fit</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">seed_all</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Seed multiple GPUs, all with unique seeds</span>
+        <span class="c1"># ... different deterministic seeds for each GPU</span>
+        <span class="c1"># We assign the seeds in ascending order, and can&#39;t exceed the</span>
+        <span class="c1"># random state&#39;s maximum value of 2**32 == 4294967296</span>
+        <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_count</span><span class="p">()):</span>
+            <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="n">device</span><span class="p">):</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">((</span><span class="n">seed</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">device</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4294967296</span><span class="p">)</span></div>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By Scott C. Lowe<br/>
+  
+      &copy; Copyright 2022, Scott C. Lowe.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

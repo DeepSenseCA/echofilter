@@ -1,0 +1,1246 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>echofilter &#8212; Echofilter 1.0.dev0 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="ev2csv" href="ev2csv.html" />
+    <link rel="prev" title="CLI Reference" href="programs.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Echofilter 1.0.dev0 documentation</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Contents:
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../usage_guide.html">
+   Usage Guide
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="programs.html">
+   CLI Reference
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     echofilter
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="ev2csv.html">
+     ev2csv
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="train.html">
+     echofilter-train
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="generate_shards.html">
+     echofilter-generate-shards
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../packages/modules.html">
+   API Reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../packages/echofilter.html">
+     echofilter package
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../packages/echofilter.data.html">
+       echofilter.data package
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../packages/echofilter.nn.html">
+       echofilter.nn package
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+      <label for="toctree-checkbox-4">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../packages/echofilter.nn.modules.html">
+         echofilter.nn.modules package
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../packages/echofilter.optim.html">
+       echofilter.optim package
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../packages/echofilter.raw.html">
+       echofilter.raw package
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../packages/echofilter.ui.html">
+       echofilter.ui package
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../packages/echofilter.win.html">
+       echofilter.win package
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../changelog.html">
+   Changelog
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../py-modindex.html">
+   Module Index
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../genindex.html">
+   Index
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/source/programs/inference.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Actions">
+   Actions
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Positional arguments">
+   Positional arguments
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Input file arguments">
+   Input file arguments
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Destination file arguments">
+   Destination file arguments
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Output configuration arguments">
+   Output configuration arguments
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Input processing arguments">
+   Input processing arguments
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Model arguments">
+   Model arguments
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Echoview window management">
+   Echoview window management
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Verbosity arguments">
+   Verbosity arguments
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>echofilter</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Actions">
+   Actions
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Positional arguments">
+   Positional arguments
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Input file arguments">
+   Input file arguments
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Destination file arguments">
+   Destination file arguments
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Output configuration arguments">
+   Output configuration arguments
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Input processing arguments">
+   Input processing arguments
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Model arguments">
+   Model arguments
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Echoview window management">
+   Echoview window management
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Verbosity arguments">
+   Verbosity arguments
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <div class="section" id="echofilter">
+<span id="echofilter-cli"></span><h1>echofilter<a class="headerlink" href="#echofilter" title="Permalink to this headline">#</a></h1>
+<p><p>Remove echosounder noise by identifying the ocean floor and entrained air at the ocean surface.</p>
+</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span>usage: echofilter [-h] [--version] [--list-checkpoints]
+                  [--list-colors [{css4,full,xkcd}]] [--source-dir SOURCE_DIR]
+                  [--recursive-dir-search] [--no-recursive-dir-search]
+                  [--extension SEARCH_EXTENSION [SEARCH_EXTENSION ...]]
+                  [--skip-existing] [--skip-incompatible]
+                  [--continue-on-error] [--output-dir OUTPUT_DIR] [--dry-run]
+                  [--overwrite-files] [--overwrite-ev-lines] [--force]
+                  [--no-ev-import] [--no-turbulence-line] [--no-bottom-line]
+                  [--no-surface-line] [--no-nearfield-line]
+                  [--suffix-file SUFFIX_FILE] [--suffix-var SUFFIX_VAR]
+                  [--color-turbulence COLOR_TURBULENCE]
+                  [--color-turbulence-offset COLOR_TURBULENCE_OFFSET]
+                  [--color-bottom COLOR_BOTTOM]
+                  [--color-bottom-offset COLOR_BOTTOM_OFFSET]
+                  [--color-surface COLOR_SURFACE]
+                  [--color-surface-offset COLOR_SURFACE_OFFSET]
+                  [--color-nearfield COLOR_NEARFIELD]
+                  [--thickness-turbulence THICKNESS_TURBULENCE]
+                  [--thickness-turbulence-offset THICKNESS_TURBULENCE_OFFSET]
+                  [--thickness-bottom THICKNESS_BOTTOM]
+                  [--thickness-bottom-offset THICKNESS_BOTTOM_OFFSET]
+                  [--thickness-surface THICKNESS_SURFACE]
+                  [--thickness-surface-offset THICKNESS_SURFACE_OFFSET]
+                  [--thickness-nearfield THICKNESS_NEARFIELD]
+                  [--cache-dir CACHE_DIR] [--cache-csv [CSV_DIR]]
+                  [--suffix-csv SUFFIX_CSV] [--keep-ext]
+                  [--line-status LINE_STATUS] [--offset OFFSET]
+                  [--offset-turbulence OFFSET_TURBULENCE]
+                  [--offset-bottom OFFSET_BOTTOM]
+                  [--offset-surface OFFSET_SURFACE] [--nearfield NEARFIELD]
+                  [--cutoff-at-nearfield | --no-cutoff-at-nearfield]
+                  [--lines-during-passive {interpolate-time,interpolate-index,predict,redact,undefined}]
+                  [--collate-passive-length COLLATE_PASSIVE_LENGTH]
+                  [--collate-removed-length COLLATE_REMOVED_LENGTH]
+                  [--minimum-passive-length MINIMUM_PASSIVE_LENGTH]
+                  [--minimum-removed-length MINIMUM_REMOVED_LENGTH]
+                  [--minimum-patch-area MINIMUM_PATCH_AREA]
+                  [--patch-mode PATCH_MODE] [--variable-name VARIABLE_NAME]
+                  [--row-len-selector {init,min,max,median,mode}]
+                  [--facing {downward,upward,auto}]
+                  [--training-standardization]
+                  [--crop-min-depth CROP_MIN_DEPTH]
+                  [--crop-max-depth CROP_MAX_DEPTH]
+                  [--autocrop-threshold AUTOCROP_THRESHOLD]
+                  [--image-height IMAGE_HEIGHT] [--checkpoint CHECKPOINT]
+                  [--unconditioned]
+                  [--logit-smoothing-sigma SIGMA [SIGMA ...]]
+                  [--device DEVICE]
+                  [--hide-echoview | --show-echoview | --always-hide-echoview]
+                  [--minimize-echoview] [--verbose] [--quiet]
+                  FILE_OR_DIRECTORY [FILE_OR_DIRECTORY ...]
+</pre></div>
+</div>
+<div class="section" id="Actions">
+<h2>Actions<a class="headerlink" href="#Actions" title="Permalink to this headline">#</a></h2>
+<p>These arguments specify special actions to perform. The main action of this program is supressed if any of these are given.</p>
+<dl class="option-list">
+<dt><kbd>--version, -V</kbd></dt>
+<dd><p>Show program’s version number and exit.</p>
+</dd>
+<dt><kbd>--list-checkpoints</kbd></dt>
+<dd><p>Show the available model checkpoints and exit.</p>
+</dd>
+<dt><kbd>--list-colors, --list-colours</kbd></dt>
+<dd><p>Possible choices: css4, full, xkcd</p>
+<blockquote>
+<div><p>Show the available line color names and exit.
+The available color palette can be viewed at
+<a class="reference external" href="https://matplotlib.org/gallery/color/named_colors.html">https://matplotlib.org/gallery/color/named_colors.html</a>.
+The XKCD color palette is also available, but is not
+shown in the output by default due to its size.
+To show the just main palette, run as <code class="docutils literal notranslate"><span class="pre">--list-colors</span></code>
+without argument, or <code class="docutils literal notranslate"><span class="pre">--list-colors</span> <span class="pre">css4</span></code>. To show the
+full palette, run as <code class="docutils literal notranslate"><span class="pre">--list-colors</span> <span class="pre">full</span></code>.</p>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="Positional arguments">
+<h2>Positional arguments<a class="headerlink" href="#Positional arguments" title="Permalink to this headline">#</a></h2>
+<dl class="option-list">
+<dt><kbd>FILE_OR_DIRECTORY</kbd></dt>
+<dd><blockquote>
+<div><p>File(s)/directory(ies) to process.
+Inputs can be absolute paths or relative paths to
+either files or directories. Paths can be given
+relative to the current directory, or optionally be
+relative to the SOURCE_DIR argument specified with
+<code class="docutils literal notranslate"><span class="pre">--source-dir</span></code>. For each directory given, the directory
+will be searched recursively for files bearing an
+extension specified by SEARCH_EXTENSION (see the
+<code class="docutils literal notranslate"><span class="pre">--extension</span></code> argument for details).
+Multiple files and directories can be specified,
+separated by spaces.
+This is a required argument. At least one input file
+or directory must be given, unless one of the
+arguments listed above under “Actions” is given.
+In order to process the directory given by SOURCE_DIR,
+specify “.” for this argument, such as:</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">echofilter</span> <span class="p">.</span> <span class="p">-</span><span class="n">-source-dir</span> <span class="n">SOURCE_DIR</span>
+</pre></div>
+</div>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="Input file arguments">
+<h2>Input file arguments<a class="headerlink" href="#Input file arguments" title="Permalink to this headline">#</a></h2>
+<p>Optional parameters specifying which files will processed.</p>
+<dl class="option-list">
+<dt><kbd>--source-dir, -d</kbd></dt>
+<dd><blockquote>
+<div><p>Path to source directory which contains the files and folders
+specified by the paths argument. Default: <code class="docutils literal notranslate"><span class="pre">&quot;.&quot;</span></code> (the
+current directory).</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--recursive-dir-search, -r</kbd></dt>
+<dd><blockquote>
+<div><p>For any directories provided in the FILE_OR_DIRECTORY
+input, all subdirectories will also be recursively
+walked through to find files to process.
+This is the default behaviour.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--no-recursive-dir-search, -R</kbd></dt>
+<dd><blockquote>
+<div><p>For any directories provided in the FILE_OR_DIRECTORY
+input, only files within the specified directory will
+be included in the files to process. Subfolders within
+the directory will not be included.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--extension, -x</kbd></dt>
+<dd><blockquote>
+<div><p>File extension(s) to process. This argument is used
+when the FILE_OR_DIRECTORY is a directory; files
+within the directory (and all its recursive
+subdirectories) are filtered against this list of
+extensions to identify which files to process.
+Default: <code class="docutils literal notranslate"><span class="pre">['csv']</span></code>.
+(Note that the default SEARCH_EXTENSION value is
+OS-specific.)</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--skip-existing, --skip, -s</kbd></dt>
+<dd><blockquote>
+<div><p>Skip processing files for which all outputs already exist</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--skip-incompatible</kbd></dt>
+<dd><blockquote>
+<div><p>Skip over incompatible input CSV files, without raising an error.
+Default behaviour is to stop if an input CSV file can not be
+processed. This argument is useful if you are processing a
+directory which contains a mixture of CSV files - some are Sv data
+exported from EV files and others are not.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--continue-on-error</kbd></dt>
+<dd><blockquote>
+<div><p>Continue running on remaining files if one file hits an error.</p>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="Destination file arguments">
+<h2>Destination file arguments<a class="headerlink" href="#Destination file arguments" title="Permalink to this headline">#</a></h2>
+<p>Optional parameters specifying where output files will be located.</p>
+<dl class="option-list">
+<dt><kbd>--output-dir, -o</kbd></dt>
+<dd><blockquote>
+<div><p>Path to output directory. If empty (default), each output is placed
+in the same directory as its input file. If OUTPUT_DIR is
+specified, the full output path for each file contains the
+subtree of the input file relative to the base directory given by
+SOURCE_DIR.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--dry-run, -n</kbd></dt>
+<dd><blockquote>
+<div><p>Perform a trial run, with no changes made. Text printed to the
+command prompt indicates which files would be processed, but work
+is only simulated and not performed.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--overwrite-files</kbd></dt>
+<dd><blockquote>
+<div><p>Overwrite existing files without warning. Default behaviour is to
+stop processing if an output file already exists.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--overwrite-ev-lines</kbd></dt>
+<dd><blockquote>
+<div><p>Overwrite existing lines within the Echoview file without warning.
+Default behaviour is to append the current datetime to the name of
+the line in the event of a collision.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--force, -f</kbd></dt>
+<dd><blockquote>
+<div><p>Short-hand equivalent to supplying both <code class="docutils literal notranslate"><span class="pre">--overwrite-files</span></code> and
+<code class="docutils literal notranslate"><span class="pre">--overwrite-ev-lines</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--no-ev-import</kbd></dt>
+<dd><blockquote>
+<div><p>Do not import lines and regions back into any EV file inputs.
+Default behaviour is to import lines and regions and then
+save the file, overwriting the original EV file.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--no-turbulence-line</kbd></dt>
+<dd><blockquote>
+<div><p>Do not output an evl file for the turbulence line, and do not
+import a turbulence line into the EV file.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--no-bottom-line</kbd></dt>
+<dd><blockquote>
+<div><p>Do not output an evl file for the bottom line, and do not import
+a bottom line into the EV file.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--no-surface-line</kbd></dt>
+<dd><blockquote>
+<div><p>Do not output an evl file for the surface line, and do not import
+a surface line into the EV file.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--no-nearfield-line</kbd></dt>
+<dd><blockquote>
+<div><p>Do not add a nearfield line to the EV file.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--suffix-file, --suffix</kbd></dt>
+<dd><blockquote>
+<div><p>Suffix to append to output artifacts evl and evr files, between
+the name of the file and the extension.
+If SUFFIX_FILE begins with an alphanumeric character, “-” is
+prepended to it to act as a delimiter.
+The default behavior is to not append a suffix.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--suffix-var</kbd></dt>
+<dd><blockquote>
+<div><p>Suffix to append to line and region names when  imported back into
+EV file. If SUFFIX_VAR begins with an alphanumeric character, “-”
+is prepended to it to act as a delimiter.
+The default behaviour is to match SUFFIX_FILE if it is set, and use
+<code class="docutils literal notranslate"><span class="pre">&quot;_echofilter&quot;</span></code> otherwise.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--color-turbulence</kbd></dt>
+<dd><blockquote>
+<div><p>Color to use for the turbulence line when it is imported into
+Echoview. This can either be the name of a supported color (see
+<code class="docutils literal notranslate"><span class="pre">--list-colors</span></code> for options), or a a hexadecimal string, or a
+string representation of an RGB color to supply directly to
+Echoview (such as <code class="docutils literal notranslate"><span class="pre">&quot;(0,255,0)&quot;</span></code>). Default: <code class="docutils literal notranslate"><span class="pre">&quot;orangered&quot;</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--color-turbulence-offset</kbd></dt>
+<dd><blockquote>
+<div><p>Color to use for the offset turbulence line when it is imported
+into Echoview. If unset, this will be the same as COLOR_TURBULENCE.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--color-bottom</kbd></dt>
+<dd><blockquote>
+<div><p>Color to use for the bottom line when it is imported into Echoview.
+This can either be the name of a supported color (see
+<code class="docutils literal notranslate"><span class="pre">--list-colors</span></code> for options), or a a hexadecimal string, or a
+string representation of an RGB color to supply directly to
+Echoview (such as <code class="docutils literal notranslate"><span class="pre">&quot;(0,255,0)&quot;</span></code>). Default: <code class="docutils literal notranslate"><span class="pre">&quot;orangered&quot;</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--color-bottom-offset</kbd></dt>
+<dd><blockquote>
+<div><p>Color to use for the offset bottom line when it is imported
+into Echoview. If unset, this will be the same as COLOR_BOTTOM.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--color-surface</kbd></dt>
+<dd><blockquote>
+<div><p>Color to use for the surface line when it is imported into
+Echoview. This can either be the name of a supported color (see
+<code class="docutils literal notranslate"><span class="pre">--list-colors</span></code> for options), or a a hexadecimal string, or a
+string representation of an RGB color to supply directly to
+Echoview (such as <code class="docutils literal notranslate"><span class="pre">&quot;(0,255,0)&quot;</span></code>). Default: <code class="docutils literal notranslate"><span class="pre">&quot;green&quot;</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--color-surface-offset</kbd></dt>
+<dd><blockquote>
+<div><p>Color to use for the offset surface line when it is imported
+into Echoview. If unset, this will be the same as COLOR_SURFACE.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--color-nearfield</kbd></dt>
+<dd><blockquote>
+<div><p>Color to use for the nearfield line when it is created in
+Echoview. This can either be the name of a supported color (see
+<code class="docutils literal notranslate"><span class="pre">--list-colors</span></code> for options), or a a hexadecimal string, or a
+string representation of an RGB color to supply directly to
+Echoview (such as <code class="docutils literal notranslate"><span class="pre">&quot;(0,255,0)&quot;</span></code>). Default: <code class="docutils literal notranslate"><span class="pre">&quot;mediumseagreen&quot;</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--thickness-turbulence</kbd></dt>
+<dd><blockquote>
+<div><p>Thicknesses with which the turbulence line will be displayed in
+Echoview. Default: <code class="docutils literal notranslate"><span class="pre">2</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--thickness-turbulence-offset</kbd></dt>
+<dd><blockquote>
+<div><p>Thicknesses with which the offset turbulence line will be displayed
+in Echoview. If unset, this will be the same as
+THICKNESS_TURBULENCE.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--thickness-bottom</kbd></dt>
+<dd><blockquote>
+<div><p>Thicknesses with which the bottom line will be displayed in
+Echoview. Default: <code class="docutils literal notranslate"><span class="pre">2</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--thickness-bottom-offset</kbd></dt>
+<dd><blockquote>
+<div><p>Thicknesses with which the offset bottom line will be displayed
+in Echoview. If unset, this will be the same as
+THICKNESS_BOTTOM.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--thickness-surface</kbd></dt>
+<dd><blockquote>
+<div><p>Thicknesses with which the surface line will be displayed in
+Echoview. Default: <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--thickness-surface-offset</kbd></dt>
+<dd><blockquote>
+<div><p>Thicknesses with which the offset surface line will be displayed
+in Echoview. If unset, this will be the same as
+THICKNESS_SURFACE.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--thickness-nearfield</kbd></dt>
+<dd><blockquote>
+<div><p>Thicknesses with which the nearfield line will be displayed in
+Echoview. Default: <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--cache-dir</kbd></dt>
+<dd><blockquote>
+<div><p>Path to checkpoint cache directory.
+Default: <code class="docutils literal notranslate"><span class="pre">&quot;/github/home/.cache/echofilter&quot;</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--cache-csv</kbd></dt>
+<dd><blockquote>
+<div><p>Path to directory where CSV files generated from EV inputs should
+be cached. If this argument is supplied with an empty string,
+exported CSV files will be saved in the same directory as each
+input EV file. The default behaviour is discard any CSV files
+generated by this program once it has finished running.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--suffix-csv</kbd></dt>
+<dd><blockquote>
+<div><p>Suffix to append to the file names of cached CSV files which are
+exported from EV files. The suffix is inserted between the input
+file name and the new file extension, “.csv”.
+If SUFFIX_CSV begins with an alphanumeric character, a delimiter
+is prepended. The delimiter is “-“, or “.” if <code class="docutils literal notranslate"><span class="pre">--keep-ext</span></code> is
+given. The default behavior is to not append a suffix.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--keep-ext</kbd></dt>
+<dd><blockquote>
+<div><p>If provided, the output file names (evl, evr, csv) maintain the
+input file extension before their suffix (including a new file
+extension). Default behaviour is to strip the input file name
+extension before constructing the output paths.</p>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="Output configuration arguments">
+<h2>Output configuration arguments<a class="headerlink" href="#Output configuration arguments" title="Permalink to this headline">#</a></h2>
+<p>Optional parameters specifying the properties of the output.</p>
+<dl class="option-list">
+<dt><kbd>--line-status</kbd></dt>
+<dd><blockquote>
+<div><p>Status value for all the lines which are generated.
+Options are:</p>
+<blockquote>
+<div><p>0: none,
+1: unverified,
+2: bad,
+3: good</p>
+</div></blockquote>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">3</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--offset</kbd></dt>
+<dd><blockquote>
+<div><p>Offset for turbulence, bottom, and surface lines, in metres.
+This will shift turbulence and surface lines downwards and the
+bottom line upwards by the same distance of OFFSET.
+Default: <code class="docutils literal notranslate"><span class="pre">1.0</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--offset-turbulence</kbd></dt>
+<dd><blockquote>
+<div><p>Offset for the turbulence line, in metres. This shifts the
+turbulence line downards by some distance OFFSET_TURBULENCE.
+If this is set, it overwrites the value provided by <code class="docutils literal notranslate"><span class="pre">--offset</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--offset-bottom</kbd></dt>
+<dd><blockquote>
+<div><p>Offset for the bottom line, in metres. This shifts the bottom line
+upwards by some distance OFFSET_BOTTOM. If this is set, it
+overwrites the value provided by <code class="docutils literal notranslate"><span class="pre">--offset</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--offset-surface</kbd></dt>
+<dd><blockquote>
+<div><p>Offset for the surface line, in metres. This shifts the surface
+line downards by some distance OFFSET_SURFACE. If this is set, it
+overwrites the value provided by <code class="docutils literal notranslate"><span class="pre">--offset</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--nearfield</kbd></dt>
+<dd><blockquote>
+<div><p>Nearfield distance, in metres. Default: <code class="docutils literal notranslate"><span class="pre">1.7</span></code>.
+If the echogram is downward facing, the nearfield cutoff will be
+NEARFIELD meters below the shallowest depth recorded in the input
+data.
+If the echogram is upward facing, the nearfield cutoff will be
+NEARFIELD meters above the deepest depth recorded in the input
+data.
+When processing an EV file, by default a nearfield line will be
+added at the nearfield cutoff depth. To prevent this behaviour,
+use the <code class="docutils literal notranslate"><span class="pre">--no-nearfield-line</span></code> argument.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--cutoff-at-nearfield</kbd></dt>
+<dd><blockquote>
+<div><p>Enable cut-off at the nearfield distance for both the turbulence
+line (on downfacing data) as well as the bottom line (on upfacing
+data). Default behavior is to only clip the bottom line.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--no-cutoff-at-nearfield</kbd></dt>
+<dd><blockquote>
+<div><p>Disable cut-off at the nearfield distance for both the turbulence
+line (on downfacing data) and the bottom line (on upfacing data).
+Default behavior is to clip the bottom line but not the turbulence
+line.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--lines-during-passive</kbd></dt>
+<dd><p>Possible choices: interpolate-time, interpolate-index, predict, redact, undefined</p>
+<blockquote>
+<div><p>Method used to handle line depths during collection
+periods determined to be passive recording instead of
+active recording.
+Options are:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>interpolate-time:</dt><dd><p>depths are linearly interpolated from active
+recording periods, using the time at which
+recordings where made.</p>
+</dd>
+<dt>interpolate-index:</dt><dd><p>depths are linearly interpolated from active
+recording periods, using the index of the
+recording.</p>
+</dd>
+<dt>predict:</dt><dd><p>the model’s prediction for the lines during
+passive data collection will be kept; the nature
+of the prediction depends on how the model was
+trained.</p>
+</dd>
+<dt>redact:</dt><dd><p>no depths are provided during periods determined
+to be passive data collection.</p>
+</dd>
+<dt>undefined:</dt><dd><p>depths are replaced with the placeholder value
+used by Echoview to denote undefined values,
+which is -10000.99.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">&quot;interpolate-time&quot;</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--collate-passive-length</kbd></dt>
+<dd><blockquote>
+<div><p>Maximum interval, in ping indices, between detected passive regions
+which will removed to merge consecutive passive regions together
+into a single, collated, region. Default: <code class="docutils literal notranslate"><span class="pre">10</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--collate-removed-length</kbd></dt>
+<dd><blockquote>
+<div><p>Maximum interval, in ping indices, between detected blocks
+(vertical rectangles) marked for removal which will also be removed
+to merge consecutive removed blocks together into a single,
+collated, region. Default: <code class="docutils literal notranslate"><span class="pre">10</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--minimum-passive-length</kbd></dt>
+<dd><blockquote>
+<div><p>Minimum length, in ping indices, which a detected passive region
+must have to be included in the output. Set to -1 to omit all
+detected passive regions from the output. Default: <code class="docutils literal notranslate"><span class="pre">10</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--minimum-removed-length</kbd></dt>
+<dd><blockquote>
+<div><p>Minimum length, in ping indices, which a detected removal block
+(vertical rectangle) must have to be included in the output.
+Set to -1 to omit all detected removal blocks from the output
+(default).
+When enabling this feature, the recommended minimum length is 10.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--minimum-patch-area</kbd></dt>
+<dd><blockquote>
+<div><p>Minimum area, in pixels, which a detected removal patch
+(contour/polygon) region must have to be included in the output.
+Set to -1 to omit all detected patches from the output (default).
+When enabling this feature, the recommended minimum area is 25.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--patch-mode</kbd></dt>
+<dd><blockquote>
+<div><p>Type of mask patches to use. Must be supported by the
+model checkpoint used. Should be one of:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>merged:</dt><dd><p>Target patches for training were determined
+after merging as much as possible into the
+turbulence and bottom lines.</p>
+</dd>
+<dt>original:</dt><dd><p>Target patches for training were determined
+using original lines, before expanding the
+turbulence and bottom lines.</p>
+</dd>
+<dt>ntob:</dt><dd><p>Target patches for training were determined
+using the original bottom line and the merged
+turbulence line.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Default: “merged” is used if downfacing; “ntob” if
+upfacing.</p>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="Input processing arguments">
+<h2>Input processing arguments<a class="headerlink" href="#Input processing arguments" title="Permalink to this headline">#</a></h2>
+<p>Optional parameters specifying how data will be loaded from the input files and transformed before it given to the model.</p>
+<dl class="option-list">
+<dt><kbd>--variable-name, --vn</kbd></dt>
+<dd><blockquote>
+<div><p>Name of the Echoview acoustic variable to load from
+EV files.
+Default: <code class="docutils literal notranslate"><span class="pre">&quot;Fileset1:</span> <span class="pre">Sv</span> <span class="pre">pings</span> <span class="pre">T1&quot;</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--row-len-selector</kbd></dt>
+<dd><p>Possible choices: init, min, max, median, mode</p>
+<blockquote>
+<div><p>How to handle inputs with differing number of depth samples across
+time. This method is used to select the “master” number of depth
+samples and minimum and maximum depth. The Sv values for all
+timepoints are interpolated onto this range of depths in order to
+create an input which is sampled in a rectangular manner.
+Default: <code class="docutils literal notranslate"><span class="pre">&quot;mode&quot;</span></code>, the modal number of depths is used, and the
+modal depth range is select amongst time samples which bear this
+number of depths.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--facing</kbd></dt>
+<dd><p>Possible choices: downward, upward, auto</p>
+<blockquote>
+<div><p>Orientation of echosounder. If this is “auto” (default), the
+orientation is automatically determined from the ordering of the
+depths field in the input (increasing depth values = “downward”;
+diminishing depths = “upward”).</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--training-standardization</kbd></dt>
+<dd><blockquote>
+<div><p>If this is given, Sv intensities are scaled using the values used
+when the model was trained before being given to the model for
+inference. The default behaviour is to derive the standardization
+values from the Sv statistics of the input instead.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--crop-min-depth</kbd></dt>
+<dd><blockquote>
+<div><p>Shallowest depth, in metres, to analyse. Data will be truncated at
+this depth, with shallower data removed before the Sv input is
+shown to the model. Default behaviour is not to truncate.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--crop-max-depth</kbd></dt>
+<dd><blockquote>
+<div><p>Deepest depth, in metres, to analyse. Data will be truncated at
+this depth, with deeper data removed before the Sv input is
+shown to the model. Default behaviour is not to truncate.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--autocrop-threshold, --autozoom-threshold</kbd></dt>
+<dd><blockquote>
+<div><p>The inference routine will re-run the model with a zoomed in
+version of the data, if the fraction of the depth which it deems
+irrelevant exceeds the AUTO_CROP_THRESHOLD. The extent of the depth
+which is deemed relevant is from the shallowest point on the
+surface line to the deepest point on the bottom line.
+The data will only be zoomed in and re-analysed at most once.
+To always run the model through once (never auto zoomed), set to 1.
+To always run the model through exactly twice (always one round
+of auto-zoom), set to 0. Default: <code class="docutils literal notranslate"><span class="pre">0.35</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--image-height, --height</kbd></dt>
+<dd><blockquote>
+<div><p>Height to which the Sv image will be rescaled, in pixels, before
+being given to the model. The default behaviour is to use the same
+height as was used when the model was trained.</p>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="Model arguments">
+<h2>Model arguments<a class="headerlink" href="#Model arguments" title="Permalink to this headline">#</a></h2>
+<p>Optional parameters specifying which model checkpoint will be used and how it is run.</p>
+<dl class="option-list">
+<dt><kbd>--checkpoint</kbd></dt>
+<dd><blockquote>
+<div><p>Name of checkpoint to load, or path to a checkpoint
+file.
+Default: <code class="docutils literal notranslate"><span class="pre">&quot;conditional_mobile-stationary2_effunet6x2-1_lc32_v2.2&quot;</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--unconditioned, --force-unconditioned</kbd></dt>
+<dd><blockquote>
+<div><p>If this flag is present and a conditional model is loaded,
+it will be run for its unconditioned output. This means the
+model is output is not conditioned on the orientation of
+the echosounder. By default, conditional models are used for
+their conditional output.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--logit-smoothing-sigma</kbd></dt>
+<dd><blockquote>
+<div><p>Standard deviation of Gaussian smoothing kernel applied to the
+logits provided as the model’s output. The smoothing regularises
+the output to make it smoother.
+Multiple values can be given to use different kernel sizes for
+each dimension, in which case the first value is for the timestamp
+dimension and the second value is for the depth dimension. If a
+single value is given, the kernel is symmetric. Values are relative
+to the pixel space returned by the UNet model.
+Set to 0 to disable.
+Default: <code class="docutils literal notranslate"><span class="pre">[1]</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--device</kbd></dt>
+<dd><blockquote>
+<div><p>Device to use for running the model for inference.
+Default: use first GPU if available, otherwise use the CPU.
+Note: echofilter.exe is complied without GPU support and can only
+run on the CPU. To use the GPU you must use the source version.</p>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="Echoview window management">
+<h2>Echoview window management<a class="headerlink" href="#Echoview window management" title="Permalink to this headline">#</a></h2>
+<p>Optional parameters specifying how to interact with any Echoview windows which are used during this process.</p>
+<dl class="option-list">
+<dt><kbd>--hide-echoview</kbd></dt>
+<dd><blockquote>
+<div><p>Hide any Echoview window spawned by this program. If it must use
+an Echoview instance which was already running, that window is not
+hidden. This is the default behaviour.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--show-echoview</kbd></dt>
+<dd><blockquote>
+<div><p>Don’t hide an Echoview window created to run this code. (Disables
+the default behaviour which is equivalent to <code class="docutils literal notranslate"><span class="pre">--hide-echoview</span></code>.)</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--always-hide-echoview, --always-hide</kbd></dt>
+<dd><blockquote>
+<div><p>Hide the Echoview window while this code runs, even if this
+process is utilising an Echoview window which was already open.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--minimize-echoview</kbd></dt>
+<dd><blockquote>
+<div><p>Minimize any Echoview window used to runs this code while it runs.
+The window will be restored once the program is finished.
+If this argument is supplied, <code class="docutils literal notranslate"><span class="pre">--show-echoview</span></code> is implied unless
+<code class="docutils literal notranslate"><span class="pre">--hide-echoview</span></code> is also given.</p>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+<div class="section" id="Verbosity arguments">
+<h2>Verbosity arguments<a class="headerlink" href="#Verbosity arguments" title="Permalink to this headline">#</a></h2>
+<p>Optional parameters controlling how verbose the program should be while it is running.</p>
+<dl class="option-list">
+<dt><kbd>--verbose, -v</kbd></dt>
+<dd><blockquote>
+<div><p>Increase the level of verbosity of the program. This can be
+specified multiple times, each will increase the amount of detail
+printed to the terminal. The default verbosity level is <code class="docutils literal notranslate"><span class="pre">2</span></code>.</p>
+</div></blockquote>
+</dd>
+<dt><kbd>--quiet, -q</kbd></dt>
+<dd><blockquote>
+<div><p>Decrease the level of verbosity of the program. This can be
+specified multiple times, each will reduce the amount of detail
+printed to the terminal.</p>
+</div></blockquote>
+</dd>
+</dl>
+</div>
+</div>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="programs.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">CLI Reference</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="ev2csv.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">ev2csv</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By Scott C. Lowe<br/>
+  
+      &copy; Copyright 2022, Scott C. Lowe.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,1307 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>echofilter.data.transforms &#8212; Echofilter 1.0.dev0 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Echofilter 1.0.dev0 documentation</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Contents:
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../source/usage_guide.html">
+   Usage Guide
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../source/programs/programs.html">
+   CLI Reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../source/programs/inference.html">
+     echofilter
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../source/programs/ev2csv.html">
+     ev2csv
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../source/programs/train.html">
+     echofilter-train
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../source/programs/generate_shards.html">
+     echofilter-generate-shards
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../source/packages/modules.html">
+   API Reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../source/packages/echofilter.html">
+     echofilter package
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../source/packages/echofilter.data.html">
+       echofilter.data package
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../source/packages/echofilter.nn.html">
+       echofilter.nn package
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+      <label for="toctree-checkbox-4">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../source/packages/echofilter.nn.modules.html">
+         echofilter.nn.modules package
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../source/packages/echofilter.optim.html">
+       echofilter.optim package
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../source/packages/echofilter.raw.html">
+       echofilter.raw package
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../source/packages/echofilter.ui.html">
+       echofilter.ui package
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../source/packages/echofilter.win.html">
+       echofilter.win package
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../source/changelog.html">
+   Changelog
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../py-modindex.html">
+   Module Index
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../genindex.html">
+   Index
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for echofilter.data.transforms</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Transformations and augmentations to be applied to echogram transects.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># This file is part of Echofilter.</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Affero General Public License as</span>
+<span class="c1"># published by the Free Software Foundation, version 3.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU Affero General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU Affero General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.interpolate</span>
+<span class="kn">import</span> <span class="nn">scipy.ndimage.filters</span>
+<span class="kn">import</span> <span class="nn">skimage.transform</span>
+
+<span class="kn">from</span> <span class="nn">echofilter.nn.modules.utils</span> <span class="kn">import</span> <span class="n">_pair</span>
+
+
+<span class="n">_fields_2d</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;Sv&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;signals&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mask&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mask_turbulence&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mask_top&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mask_bottom&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mask_bot&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mask_turbulence-original&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mask_top-original&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mask_bottom-original&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mask_bot-original&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mask_surface&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mask_surf&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mask_patches&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mask_patches-original&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mask_patches-ntob&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_fields_1d_timelike</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;timestamps&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;turbulence&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;top&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;turbulence-original&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;top-original&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bottom-original&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;surface&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;surf&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;d_turbulence&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;d_top&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;d_bottom&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;d_bot&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;r_turbulence&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;r_top&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;r_bottom&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;r_bot&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;d_turbulence-original&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;d_top-original&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;d_bottom-original&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;d_bot-original&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;r_turbulence-original&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;r_top-original&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;r_bottom-original&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;r_bot-original&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;d_surface&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;d_surf&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;r_surface&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;r_surf&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_surrogate_surface&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_bad_labels&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_passive&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_removed&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_fields_1d_depthlike</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;depths&quot;</span><span class="p">,)</span>
+<span class="n">_fields_0d</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;is_upward_facing&quot;</span><span class="p">,)</span>
+<span class="n">_fields_needing_linear</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;timestamps&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;depths&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_surrogate_surface&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_bad_labels&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_passive&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_removed&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="Rescale"><a class="viewcode-back" href="../../../source/packages/echofilter.data.html#echofilter.data.transforms.Rescale">[docs]</a><span class="k">class</span> <span class="nc">Rescale</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rescale the image(s) in a sample to a given size.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    output_size : tuple or int</span>
+<span class="sd">        Desired output size. If tuple, output is matched to output_size. If</span>
+<span class="sd">        int, output is square.</span>
+<span class="sd">    order : int or None, optional</span>
+<span class="sd">        Order of the interpolation, for both image and vector elements.</span>
+<span class="sd">        For images-like components, the interpolation is 2d.</span>
+<span class="sd">        The following values are supported:</span>
+
+<span class="sd">        - 0: Nearest-neighbor</span>
+<span class="sd">        - 1: Linear (default)</span>
+<span class="sd">        - 2: Quadratic</span>
+<span class="sd">        - 3: Cubic</span>
+
+<span class="sd">        If `None`, the order is randomly selected as either `0` or `1`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">order2kind</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;quadratic&quot;</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;cubic&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_size</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span> <span class="o">=</span> <span class="n">_pair</span><span class="p">(</span><span class="n">output_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">order</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+
+        <span class="n">order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span>
+        <span class="k">if</span> <span class="n">order</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">kind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">order2kind</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+
+        <span class="c1"># 2D arrays (image-like)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_2d</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">_dtype</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
+                    <span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="s2">&quot;Bi-quadratic interpolation behavior has changed&quot;</span>
+                <span class="p">)</span>
+                <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">skimage</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">,</span>
+                    <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span>
+                    <span class="n">clip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">preserve_range</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">_dtype</span><span class="p">)</span>
+
+        <span class="c1"># 1D arrays (column-like)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_1d_timelike</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">[:</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="n">_kind</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span> <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;timestamps&quot;</span> <span class="k">else</span> <span class="n">kind</span>
+            <span class="k">if</span> <span class="n">order</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_needing_linear</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="s2">&quot;bot&quot;</span> <span class="ow">in</span> <span class="n">key</span> <span class="ow">and</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;is_upward_facing&quot;</span><span class="p">])</span>
+            <span class="p">):</span>
+                <span class="n">_kind</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span>
+            <span class="n">_dtype</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">])),</span>
+                <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                <span class="n">kind</span><span class="o">=</span><span class="n">_kind</span><span class="p">,</span>
+            <span class="p">)(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">_dtype</span><span class="p">)</span>
+
+        <span class="c1"># 1D arrays (row-like)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_1d_depthlike</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="k">continue</span>
+            <span class="n">_kind</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span> <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;depths&quot;</span> <span class="k">else</span> <span class="n">kind</span>
+            <span class="n">_dtype</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">])),</span>
+                <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                <span class="n">kind</span><span class="o">=</span><span class="n">_kind</span><span class="p">,</span>
+            <span class="p">)(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">_dtype</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sample</span></div>
+
+
+<div class="viewcode-block" id="RandomGridSampling"><a class="viewcode-back" href="../../../source/packages/echofilter.data.html#echofilter.data.transforms.RandomGridSampling">[docs]</a><span class="k">class</span> <span class="nc">RandomGridSampling</span><span class="p">(</span><span class="n">Rescale</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resample data onto a new grid, which is randomly resampled.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    output_size : tuple or int</span>
+<span class="sd">        Desired output size. If tuple, output is matched to output_size. If</span>
+<span class="sd">        int, output is square.</span>
+<span class="sd">    p : float, optional</span>
+<span class="sd">        Probability of performing the RandomGrid operation. Default is `0.5`.</span>
+<span class="sd">    order : int or None, optional</span>
+<span class="sd">        Order of the interpolation, for both image and vector elements.</span>
+<span class="sd">        For images-like components, the interpolation is 2d.</span>
+<span class="sd">        The following values are supported:</span>
+
+<span class="sd">        - 0: Nearest-neighbor</span>
+<span class="sd">        - 1: Linear (default)</span>
+<span class="sd">        - 2: Quadratic</span>
+<span class="sd">        - 3: Cubic</span>
+
+<span class="sd">        If `None`, the order is randomly selected from the set</span>
+<span class="sd">        {`0`, `1`, `3`}.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RandomGridSampling</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">p</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">:</span>
+            <span class="c1"># Nothing to do</span>
+            <span class="k">return</span> <span class="n">sample</span>
+
+        <span class="n">order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span>
+        <span class="k">if</span> <span class="n">order</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Randomly sample 0, 1, or 3</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">order</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">kind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">order2kind</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+
+        <span class="c1"># Randomly re-sample x and y</span>
+        <span class="n">nx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">])</span>
+        <span class="n">ny</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">])</span>
+        <span class="n">x_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">y_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ny</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="c1"># 2D arrays (image-like)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_2d</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">_dtype</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s1">&#39;Expected sample[&quot;</span><span class="si">{}</span><span class="s1">&quot;] to be shaped </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">))</span>
+                    <span class="p">)</span>
+                <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">x_out</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)][</span>
+                    <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">y_out</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">RectBivariateSpline</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ny</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                    <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">),</span>
+                    <span class="n">kx</span><span class="o">=</span><span class="n">order</span><span class="p">,</span>
+                    <span class="n">ky</span><span class="o">=</span><span class="n">order</span><span class="p">,</span>
+                <span class="p">)(</span><span class="n">x_out</span><span class="p">,</span> <span class="n">y_out</span><span class="p">)</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">_dtype</span><span class="p">)</span>
+
+        <span class="c1"># 1D arrays (column-like)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_1d_timelike</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">_kind</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span> <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;timestamps&quot;</span> <span class="k">else</span> <span class="n">kind</span>
+            <span class="k">if</span> <span class="n">order</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_needing_linear</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="s2">&quot;bot&quot;</span> <span class="ow">in</span> <span class="n">key</span> <span class="ow">and</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;is_upward_facing&quot;</span><span class="p">])</span>
+            <span class="p">):</span>
+                <span class="n">_kind</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span>
+            <span class="n">_dtype</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">])),</span>
+                <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                <span class="n">kind</span><span class="o">=</span><span class="n">_kind</span><span class="p">,</span>
+            <span class="p">)(</span><span class="n">x_out</span><span class="p">)</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">_dtype</span><span class="p">)</span>
+
+        <span class="c1"># 1D arrays (row-like)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_1d_depthlike</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">_kind</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span> <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;depths&quot;</span> <span class="k">else</span> <span class="n">kind</span>
+            <span class="n">_dtype</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ny</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">])),</span>
+                <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                <span class="n">kind</span><span class="o">=</span><span class="n">_kind</span><span class="p">,</span>
+            <span class="p">)(</span><span class="n">y_out</span><span class="p">)</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">_dtype</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sample</span></div>
+
+
+<div class="viewcode-block" id="RandomElasticGrid"><a class="viewcode-back" href="../../../source/packages/echofilter.data.html#echofilter.data.transforms.RandomElasticGrid">[docs]</a><span class="k">class</span> <span class="nc">RandomElasticGrid</span><span class="p">(</span><span class="n">Rescale</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resample data onto a new grid, which is elastically deformed from the</span>
+<span class="sd">    original sampling grid.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    output_size : tuple or int or None</span>
+<span class="sd">        Desired output size. If tuple, output is matched to output_size. If</span>
+<span class="sd">        int, output is square. If `None`, the size remains unchanged from the</span>
+<span class="sd">        input.</span>
+<span class="sd">    p : float, optional</span>
+<span class="sd">        Probability of performing the RandomGrid operation. Default is `0.5`.</span>
+<span class="sd">    sigma : float, optional</span>
+<span class="sd">        Gaussian filter kernel size. Default is `8.0`.</span>
+<span class="sd">    alpha : float, optional</span>
+<span class="sd">        Maximum size of image distortions, relative to the length of the side</span>
+<span class="sd">        of the image. Default is `0.05`.</span>
+<span class="sd">    order : int or None, optional</span>
+<span class="sd">        Order of the interpolation, for both image and vector elements.</span>
+<span class="sd">        For images-like components, the interpolation is 2d.</span>
+<span class="sd">        The following values are supported:</span>
+
+<span class="sd">        - 0: Nearest-neighbor</span>
+<span class="sd">        - 1: Linear (default)</span>
+<span class="sd">        - 2: Quadratic</span>
+<span class="sd">        - 3: Cubic</span>
+
+<span class="sd">        If `None`, the order is randomly selected from the set</span>
+<span class="sd">        {`1`, `2`, `3`}.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_size</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">output_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_pair</span><span class="p">(</span><span class="n">output_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">order</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">p</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">_pair</span><span class="p">(</span><span class="n">sigma</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">_pair</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">:</span>
+            <span class="c1"># Nothing to do</span>
+            <span class="k">return</span> <span class="n">sample</span>
+
+        <span class="n">order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span>
+        <span class="k">if</span> <span class="n">order</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Randomly sample 1, 2 or 3</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="n">kind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">order2kind</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+
+        <span class="c1"># Randomly re-sample x and y</span>
+        <span class="n">nx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">])</span>
+        <span class="n">ny</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">])</span>
+        <span class="n">output_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span>
+        <span class="k">if</span> <span class="n">output_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nx</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">ny</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input image shape (</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">) is too small&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">output_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">output_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Output image shape </span><span class="si">{}</span><span class="s2"> is too small&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_size</span><span class="p">))</span>
+
+        <span class="n">x_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">output_size</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">x_intv</span> <span class="o">=</span> <span class="n">x_out</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">x_intv</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="n">x_out</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">filters</span><span class="o">.</span><span class="n">gaussian_filter1d</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cval</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">dx</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">nx</span>
+        <span class="n">x_out</span> <span class="o">+=</span> <span class="n">dx</span>
+
+        <span class="n">y_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ny</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">output_size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">y_intv</span> <span class="o">=</span> <span class="n">y_out</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="n">y_intv</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="n">y_out</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">filters</span><span class="o">.</span><span class="n">gaussian_filter1d</span><span class="p">(</span><span class="n">dy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cval</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">dy</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">ny</span>
+        <span class="n">y_out</span> <span class="o">+=</span> <span class="n">dy</span>
+
+        <span class="n">x_out</span> <span class="o">=</span> <span class="n">x_out</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">y_out</span> <span class="o">=</span> <span class="n">y_out</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ny</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">x_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">x_out</span><span class="p">)</span>
+        <span class="n">y_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">y_out</span><span class="p">)</span>
+
+        <span class="c1"># 2D arrays (image-like)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_2d</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">_dtype</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s1">&#39;Expected sample[&quot;</span><span class="si">{}</span><span class="s1">&quot;] to be shaped </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">))</span>
+                    <span class="p">)</span>
+                <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">x_out</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)][</span>
+                    <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">y_out</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">RectBivariateSpline</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ny</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                    <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">),</span>
+                    <span class="n">kx</span><span class="o">=</span><span class="n">order</span><span class="p">,</span>
+                    <span class="n">ky</span><span class="o">=</span><span class="n">order</span><span class="p">,</span>
+                <span class="p">)(</span><span class="n">x_out</span><span class="p">,</span> <span class="n">y_out</span><span class="p">)</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">_dtype</span><span class="p">)</span>
+
+        <span class="c1"># 1D arrays (column-like)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_1d_timelike</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">_kind</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span> <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;timestamps&quot;</span> <span class="k">else</span> <span class="n">kind</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;is_passive&quot;</span><span class="p">,</span> <span class="s2">&quot;is_removed&quot;</span><span class="p">}</span> <span class="ow">and</span> <span class="n">order</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">_kind</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span>
+            <span class="n">_dtype</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">])),</span>
+                <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                <span class="n">kind</span><span class="o">=</span><span class="n">_kind</span><span class="p">,</span>
+            <span class="p">)(</span><span class="n">x_out</span><span class="p">)</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">_dtype</span><span class="p">)</span>
+
+        <span class="c1"># 1D arrays (row-like)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_1d_depthlike</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">_kind</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span> <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;depths&quot;</span> <span class="k">else</span> <span class="n">kind</span>
+            <span class="n">_dtype</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ny</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">])),</span>
+                <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                <span class="n">kind</span><span class="o">=</span><span class="n">_kind</span><span class="p">,</span>
+            <span class="p">)(</span><span class="n">y_out</span><span class="p">)</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">_dtype</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sample</span></div>
+
+
+<div class="viewcode-block" id="Normalize"><a class="viewcode-back" href="../../../source/packages/echofilter.data.html#echofilter.data.transforms.Normalize">[docs]</a><span class="k">class</span> <span class="nc">Normalize</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalize offset and scaling of image (mean and standard deviation).</span>
+
+<span class="sd">    Note that changes are made inplace.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    center : {&quot;mean&quot;, &quot;median&quot;, &quot;pc10&quot;} or float</span>
+<span class="sd">        If a float, a pre-computed centroid measure of the distribution of</span>
+<span class="sd">        samples, such as the pixel mean. If a string, a method to use to</span>
+<span class="sd">        determine the center value.</span>
+<span class="sd">    deviation : {&quot;stdev&quot;, &quot;mad&quot;, &quot;iqr&quot;, &quot;idr&quot;, &quot;i7r&quot;} or float</span>
+<span class="sd">        If a float, a pre-computed deviation measure of the distribution of</span>
+<span class="sd">        samples. If a string, a method to use to determine the deviation.</span>
+<span class="sd">    robust2stdev : bool, optional</span>
+<span class="sd">        Whether to convert robust measures to estimates of the standard</span>
+<span class="sd">        deviation. Default is `True`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">deviation</span><span class="p">,</span> <span class="n">robust2stdev</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="n">center</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deviation</span> <span class="o">=</span> <span class="n">deviation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robust2stdev</span> <span class="o">=</span> <span class="n">robust2stdev</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">center</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;mean&quot;</span><span class="p">:</span>
+            <span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;median&quot;</span><span class="p">:</span>
+            <span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;pc10&quot;</span><span class="p">:</span>
+            <span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">],</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognised center method: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deviation</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">deviation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deviation</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">deviation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;std&quot;</span><span class="p">,</span> <span class="s2">&quot;stdev&quot;</span><span class="p">}:</span>
+            <span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">deviation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;mad&quot;</span><span class="p">:</span>
+            <span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">]))</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">robust2stdev</span><span class="p">:</span>
+                <span class="n">deviation</span> <span class="o">*=</span> <span class="mf">1.4826</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">deviation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;iqr&quot;</span><span class="p">:</span>
+            <span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">],</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">75</span><span class="p">]))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">robust2stdev</span><span class="p">:</span>
+                <span class="n">deviation</span> <span class="o">/=</span> <span class="mf">1.35</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">deviation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;idr&quot;</span><span class="p">:</span>
+            <span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">90</span><span class="p">]))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">robust2stdev</span><span class="p">:</span>
+                <span class="n">deviation</span> <span class="o">/=</span> <span class="mf">2.56</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">deviation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;i7r&quot;</span><span class="p">:</span>
+            <span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">93</span><span class="p">]))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">robust2stdev</span><span class="p">:</span>
+                <span class="n">deviation</span> <span class="o">/=</span> <span class="mf">3.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognised deviation method: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deviation</span><span class="p">))</span>
+
+        <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="n">center</span>
+        <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">deviation</span>
+
+        <span class="k">return</span> <span class="n">sample</span></div>
+
+
+<div class="viewcode-block" id="ReplaceNan"><a class="viewcode-back" href="../../../source/packages/echofilter.data.html#echofilter.data.transforms.ReplaceNan">[docs]</a><span class="k">class</span> <span class="nc">ReplaceNan</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Replace NaNs with a finite float value.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    nan_val : float, optional</span>
+<span class="sd">        Value to replace NaNs with. Default is `0.0`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nan_val</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nan_val</span> <span class="o">=</span> <span class="n">nan_val</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+
+        <span class="c1"># Can&#39;t use np.nan_to_num to assign nan to a specific value if</span>
+        <span class="c1"># numpy version &lt;= 1.17.</span>
+        <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nan_val</span>
+
+        <span class="k">return</span> <span class="n">sample</span></div>
+
+
+<div class="viewcode-block" id="RandomReflection"><a class="viewcode-back" href="../../../source/packages/echofilter.data.html#echofilter.data.transforms.RandomReflection">[docs]</a><span class="k">class</span> <span class="nc">RandomReflection</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Randomly reflect a sample.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    axis : int, optional</span>
+<span class="sd">        Axis to reflect. Default is 0.</span>
+<span class="sd">    p : float, optional</span>
+<span class="sd">        Probability of reflection. Default is 0.5.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="n">axis</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">p</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">:</span>
+            <span class="c1"># Nothing to do</span>
+            <span class="k">return</span> <span class="n">sample</span>
+
+        <span class="c1"># Reflect data</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_2d</span> <span class="o">+</span> <span class="n">_fields_1d_timelike</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+                <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">sample</span></div>
+
+
+<div class="viewcode-block" id="RandomCropWidth"><a class="viewcode-back" href="../../../source/packages/echofilter.data.html#echofilter.data.transforms.RandomCropWidth">[docs]</a><span class="k">class</span> <span class="nc">RandomCropWidth</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Randomly crop a sample in the width dimension.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    max_crop_fraction : float</span>
+<span class="sd">        Maximum amount of material to crop away, as a fraction of the total</span>
+<span class="sd">        width. The `crop_fraction` will be sampled uniformly from the range</span>
+<span class="sd">        `[0, max_crop_fraction]`. The crop is always centred.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_crop_fraction</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_crop_fraction</span> <span class="o">=</span> <span class="n">max_crop_fraction</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+
+        <span class="n">width</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">crop_fraction</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_crop_fraction</span><span class="p">)</span>
+        <span class="n">crop_amount</span> <span class="o">=</span> <span class="n">crop_fraction</span> <span class="o">*</span> <span class="n">width</span>
+
+        <span class="n">lft</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">crop_amount</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">rgt</span> <span class="o">=</span> <span class="n">lft</span> <span class="o">+</span> <span class="n">width</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">crop_amount</span><span class="p">)</span>
+
+        <span class="c1"># Crop data</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_2d</span> <span class="o">+</span> <span class="n">_fields_1d_timelike</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+                <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">lft</span><span class="p">:</span><span class="n">rgt</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">sample</span></div>
+
+
+<div class="viewcode-block" id="optimal_crop_depth"><a class="viewcode-back" href="../../../source/packages/echofilter.data.html#echofilter.data.transforms.optimal_crop_depth">[docs]</a><span class="k">def</span> <span class="nf">optimal_crop_depth</span><span class="p">(</span><span class="n">transect</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Crop a sample depthwise to contain only the space between highest surface</span>
+<span class="sd">    and deepest seafloor.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    transect : dict</span>
+<span class="sd">        Transect dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">d0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">])</span>
+
+    <span class="n">depth_intv</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">shallowest_depth</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">transect</span><span class="p">[</span><span class="s2">&quot;is_upward_facing&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;d_surface&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;d_surf&quot;</span><span class="p">,</span> <span class="s2">&quot;surf&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">transect</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">surf_options</span> <span class="o">=</span> <span class="n">transect</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">transect</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">d0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">surf_options</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">surf_options</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">shallowest_depth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">shallowest_depth</span> <span class="o">=</span> <span class="n">d</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">shallowest_depth</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">shallowest_depth</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">shallowest_depth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">shallowest_depth</span> <span class="o">=</span> <span class="n">d0</span>
+    <span class="n">shallowest_depth</span> <span class="o">-=</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">depth_intv</span>
+
+    <span class="n">deepest_depth</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">transect</span><span class="p">[</span><span class="s2">&quot;is_upward_facing&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="s2">&quot;d_bottom-original&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;d_bot-original&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;d_bottom&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;d_bot&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bottom-original&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">transect</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">transect</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">deepest_depth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">deepest_depth</span> <span class="o">=</span> <span class="n">d</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">deepest_depth</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">deepest_depth</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">deepest_depth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">deepest_depth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">])</span>
+    <span class="n">deepest_depth</span> <span class="o">+=</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">depth_intv</span>
+
+    <span class="k">if</span> <span class="n">shallowest_depth</span> <span class="o">&gt;=</span> <span class="n">deepest_depth</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">transect</span>
+
+    <span class="n">depth_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">shallowest_depth</span> <span class="o">&lt;=</span> <span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span>
+        <span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">deepest_depth</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_1d_depthlike</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">transect</span><span class="p">:</span>
+            <span class="n">transect</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">transect</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">depth_mask</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_2d</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">transect</span><span class="p">:</span>
+            <span class="n">transect</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">transect</span><span class="p">[</span><span class="n">key</span><span class="p">][:,</span> <span class="n">depth_mask</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">transect</span></div>
+
+
+<div class="viewcode-block" id="OptimalCropDepth"><a class="viewcode-back" href="../../../source/packages/echofilter.data.html#echofilter.data.transforms.OptimalCropDepth">[docs]</a><span class="k">class</span> <span class="nc">OptimalCropDepth</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A transform which crops a sample depthwise to contain only the space</span>
+<span class="sd">    between highest surface and deepest seafloor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">optimal_crop_depth</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RandomCropDepth"><a class="viewcode-back" href="../../../source/packages/echofilter.data.html#echofilter.data.transforms.RandomCropDepth">[docs]</a><span class="k">class</span> <span class="nc">RandomCropDepth</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Randomly crop a sample depthwise.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    p_crop_is_none : float, optional</span>
+<span class="sd">        Probability of not doing any crop.</span>
+<span class="sd">        Default is `0.1`.</span>
+<span class="sd">    p_crop_is_optimal : float, optional</span>
+<span class="sd">        Probability of doing an &quot;optimal&quot; crop, running `optimal_crop_depth`.</span>
+<span class="sd">        Default is `0.1`.</span>
+<span class="sd">    p_crop_is_close : float, optional</span>
+<span class="sd">        Probability of doing crop which is zoomed in and close to the &quot;optimal&quot;</span>
+<span class="sd">        crop, running `optimal_crop_depth`. Default is `0.4`.</span>
+<span class="sd">        If neither no crop, optimal, nor close-to-optimal crop is selected,</span>
+<span class="sd">        the crop is randomly sized over the full extent of the range of depths.</span>
+<span class="sd">    p_nearfield_side_crop : float, optional</span>
+<span class="sd">        Probability that the nearfield side is cropped.</span>
+<span class="sd">        Default is `0.5`.</span>
+<span class="sd">    fraction_close : float, optional</span>
+<span class="sd">        Fraction by which crop is increased/decreased in either direction when</span>
+<span class="sd">        doing a close to optimal crop.</span>
+<span class="sd">        Default is `0.25`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">p_crop_is_none</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">p_crop_is_optimal</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">p_crop_is_close</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+        <span class="n">p_nearfield_side_crop</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">fraction_close</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_crop_is_none</span> <span class="o">=</span> <span class="n">p_crop_is_none</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_crop_is_optimal</span> <span class="o">=</span> <span class="n">p_crop_is_optimal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_crop_is_close</span> <span class="o">=</span> <span class="n">p_crop_is_close</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_nearfield_side_crop</span> <span class="o">=</span> <span class="n">p_nearfield_side_crop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fraction_close</span> <span class="o">=</span> <span class="n">fraction_close</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+
+        <span class="c1"># Possibility of doing no crop at all</span>
+        <span class="n">p</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_crop_is_none</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">sample</span>
+
+        <span class="c1"># Possibility of doing an optimal crop</span>
+        <span class="n">p</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_crop_is_optimal</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">optimal_crop_depth</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+
+        <span class="n">depth_intv</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">lim_top_shallowest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">])</span>
+        <span class="n">lim_top_deepest</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="n">lim_top_shallowest</span> <span class="o">+</span> <span class="n">depth_intv</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;d_bottom&quot;</span><span class="p">])</span> <span class="o">-</span> <span class="n">depth_intv</span>
+        <span class="p">)</span>
+        <span class="n">lim_bot_deepest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">])</span>
+        <span class="n">lim_bot_shallowest</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+            <span class="n">lim_bot_deepest</span> <span class="o">-</span> <span class="n">depth_intv</span><span class="p">,</span>
+            <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;d_turbulence&quot;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;d_bottom&quot;</span><span class="p">])),</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;is_upward_facing&quot;</span><span class="p">]:</span>
+            <span class="n">surf_options</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;d_surface&quot;</span><span class="p">][</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;d_surface&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">lim_top_shallowest</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">surf_options</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">opt_top_depth</span> <span class="o">=</span> <span class="n">lim_top_shallowest</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">opt_top_depth</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lim_top_shallowest</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">surf_options</span><span class="p">))</span>
+            <span class="n">opt_bot_depth</span> <span class="o">=</span> <span class="n">lim_bot_deepest</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">opt_top_depth</span> <span class="o">=</span> <span class="n">lim_top_shallowest</span>
+            <span class="n">opt_bot_depth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;d_bottom-original&quot;</span><span class="p">])</span>
+
+        <span class="n">depth_range</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">opt_bot_depth</span> <span class="o">-</span> <span class="n">opt_top_depth</span><span class="p">)</span>
+        <span class="n">close_dist_grow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fraction_close</span> <span class="o">*</span> <span class="n">depth_range</span>
+        <span class="n">close_dist_shrink</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">depth_range</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fraction_close</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">fraction_close</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">close_top_shallowest</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+            <span class="n">lim_top_deepest</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">lim_top_shallowest</span><span class="p">,</span> <span class="n">opt_top_depth</span> <span class="o">-</span> <span class="n">close_dist_grow</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">close_top_deepest</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+            <span class="n">lim_top_deepest</span><span class="p">,</span>
+            <span class="n">opt_top_depth</span> <span class="o">+</span> <span class="n">close_dist_shrink</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;d_turbulence&quot;</span><span class="p">],</span> <span class="mi">25</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;is_upward_facing&quot;</span><span class="p">]:</span>
+            <span class="n">close_bot_shallowest</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                <span class="n">lim_bot_shallowest</span><span class="p">,</span>
+                <span class="n">opt_bot_depth</span> <span class="o">-</span> <span class="n">close_dist_shrink</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">close_bot_shallowest</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                <span class="n">lim_bot_shallowest</span><span class="p">,</span>
+                <span class="n">opt_bot_depth</span> <span class="o">-</span> <span class="n">close_dist_shrink</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;d_bottom-original&quot;</span><span class="p">],</span> <span class="mi">50</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="n">close_bot_shallowest</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">lim_bot_deepest</span><span class="p">,</span> <span class="n">close_bot_shallowest</span><span class="p">)</span>
+        <span class="n">close_bot_deepest</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+            <span class="n">lim_bot_deepest</span><span class="p">,</span>
+            <span class="nb">max</span><span class="p">(</span><span class="n">lim_bot_shallowest</span><span class="p">,</span> <span class="n">opt_bot_depth</span><span class="p">)</span> <span class="o">+</span> <span class="n">close_dist_grow</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">close_top_shallowest</span> <span class="o">&gt;</span> <span class="n">close_top_deepest</span>
+            <span class="ow">or</span> <span class="n">close_bot_shallowest</span> <span class="o">&gt;</span> <span class="n">close_bot_deepest</span>
+            <span class="ow">or</span> <span class="n">close_top_deepest</span> <span class="o">&gt;=</span> <span class="n">close_bot_shallowest</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Nonsensical depth limits:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;  opt_top_depth        = </span><span class="si">{:7.3f}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;  opt_bot_depth        = </span><span class="si">{:7.3f}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;  close_top_shallowest = </span><span class="si">{:7.3f}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;  close_top_deepest    = </span><span class="si">{:7.3f}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;  close_bot_shallowest = </span><span class="si">{:7.3f}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;  close_bot_deepest    = </span><span class="si">{:7.3f}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">opt_top_depth</span><span class="p">,</span>
+                    <span class="n">opt_bot_depth</span><span class="p">,</span>
+                    <span class="n">close_top_shallowest</span><span class="p">,</span>
+                    <span class="n">close_top_deepest</span><span class="p">,</span>
+                    <span class="n">close_bot_shallowest</span><span class="p">,</span>
+                    <span class="n">close_bot_deepest</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">rand_top_shallowest</span> <span class="o">=</span> <span class="n">lim_top_shallowest</span>
+        <span class="n">rand_top_deepest</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+            <span class="n">lim_top_deepest</span><span class="p">,</span>
+            <span class="nb">max</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;d_turbulence&quot;</span><span class="p">],</span> <span class="mi">50</span><span class="p">),</span>
+                <span class="n">opt_top_depth</span> <span class="o">+</span> <span class="n">close_dist_shrink</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">rand_top_deepest</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lim_top_shallowest</span><span class="p">,</span> <span class="n">rand_top_deepest</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;is_upward_facing&quot;</span><span class="p">]:</span>
+            <span class="n">rand_bot_shallowest</span> <span class="o">=</span> <span class="n">close_bot_shallowest</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rand_bot_shallowest</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                <span class="n">lim_bot_shallowest</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;d_bottom-original&quot;</span><span class="p">],</span> <span class="mi">50</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="n">rand_bot_shallowest</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">lim_bot_deepest</span><span class="p">,</span> <span class="n">rand_bot_shallowest</span><span class="p">)</span>
+        <span class="n">rand_bot_deepest</span> <span class="o">=</span> <span class="n">lim_bot_deepest</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">rand_top_shallowest</span> <span class="o">&gt;</span> <span class="n">rand_top_deepest</span>
+            <span class="ow">or</span> <span class="n">rand_bot_shallowest</span> <span class="o">&gt;</span> <span class="n">rand_bot_deepest</span>
+            <span class="ow">or</span> <span class="n">rand_top_deepest</span> <span class="o">&gt;=</span> <span class="n">rand_bot_shallowest</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Nonsensical depth limits:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;  opt_top_depth       = </span><span class="si">{:7.3f}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;  opt_bot_depth       = </span><span class="si">{:7.3f}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;  rand_top_shallowest = </span><span class="si">{:7.3f}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;  rand_top_deepest    = </span><span class="si">{:7.3f}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;  rand_bot_shallowest = </span><span class="si">{:7.3f}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;  rand_bot_deepest    = </span><span class="si">{:7.3f}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">opt_top_depth</span><span class="p">,</span>
+                    <span class="n">opt_bot_depth</span><span class="p">,</span>
+                    <span class="n">rand_top_shallowest</span><span class="p">,</span>
+                    <span class="n">rand_top_deepest</span><span class="p">,</span>
+                    <span class="n">rand_bot_shallowest</span><span class="p">,</span>
+                    <span class="n">rand_bot_deepest</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Select whether to do a close or fully random crop</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_crop_is_close</span><span class="p">:</span>
+            <span class="c1"># Close crop</span>
+            <span class="n">close_crop</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">top_shallowest</span> <span class="o">=</span> <span class="n">close_top_shallowest</span>
+            <span class="n">top_deepest</span> <span class="o">=</span> <span class="n">close_top_deepest</span>
+            <span class="n">bot_shallowest</span> <span class="o">=</span> <span class="n">close_bot_shallowest</span>
+            <span class="n">bot_deepest</span> <span class="o">=</span> <span class="n">close_bot_deepest</span>
+            <span class="c1"># Select limits of depth range. Equally likely to expand or contract</span>
+            <span class="c1"># in each direction.</span>
+            <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
+                <span class="n">shallowest_depth</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">top_shallowest</span><span class="p">,</span> <span class="n">opt_top_depth</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">shallowest_depth</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">opt_top_depth</span><span class="p">,</span> <span class="n">top_deepest</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
+                <span class="n">deepest_depth</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">bot_shallowest</span><span class="p">,</span> <span class="n">opt_bot_depth</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">deepest_depth</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">opt_bot_depth</span><span class="p">,</span> <span class="n">bot_deepest</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Random crop</span>
+            <span class="n">close_crop</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">top_shallowest</span> <span class="o">=</span> <span class="n">rand_top_shallowest</span>
+            <span class="n">top_deepest</span> <span class="o">=</span> <span class="n">rand_top_deepest</span>
+            <span class="n">bot_shallowest</span> <span class="o">=</span> <span class="n">rand_bot_shallowest</span>
+            <span class="n">bot_deepest</span> <span class="o">=</span> <span class="n">rand_bot_deepest</span>
+            <span class="c1"># Select limits of depth range. Either randomly select uniformly</span>
+            <span class="c1"># across the whole range, or not.</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;is_upward_facing&quot;</span><span class="p">]</span>
+                <span class="ow">or</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_nearfield_side_crop</span>
+            <span class="p">):</span>
+                <span class="n">shallowest_depth</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">top_shallowest</span><span class="p">,</span> <span class="n">top_deepest</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">shallowest_depth</span> <span class="o">=</span> <span class="n">opt_top_depth</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="ow">not</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;is_upward_facing&quot;</span><span class="p">]</span>
+                <span class="ow">or</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_nearfield_side_crop</span>
+            <span class="p">):</span>
+                <span class="n">deepest_depth</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">bot_shallowest</span><span class="p">,</span> <span class="n">bot_deepest</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">deepest_depth</span> <span class="o">=</span> <span class="n">opt_bot_depth</span>
+
+        <span class="c1"># Crop data</span>
+        <span class="n">depth_crop_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">shallowest_depth</span> <span class="o">&lt;=</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span>
+            <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">deepest_depth</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_1d_depthlike</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+                <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">depth_crop_mask</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_fields_2d</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+                <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="n">key</span><span class="p">][:,</span> <span class="n">depth_crop_mask</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">sample</span></div>
+
+
+<div class="viewcode-block" id="ColorJitter"><a class="viewcode-back" href="../../../source/packages/echofilter.data.html#echofilter.data.transforms.ColorJitter">[docs]</a><span class="k">class</span> <span class="nc">ColorJitter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Randomly change the brightness and contrast of a normalized image.</span>
+
+<span class="sd">    Note that changes are made inplace.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    brightness : float or tuple of float (min, max)</span>
+<span class="sd">        How much to jitter brightness. `brightness_factor` is chosen uniformly</span>
+<span class="sd">        from `[-brightness, brightness]` or the given `[min, max]`.</span>
+<span class="sd">        `brightness_factor` is then added to the image.</span>
+<span class="sd">    contrast : float or tuple of float (min, max)</span>
+<span class="sd">        How much to jitter contrast. `contrast_factor` is chosen uniformly from</span>
+<span class="sd">        `[max(0, 1 - contrast), 1 + contrast]` or the given `[min, max]`.</span>
+<span class="sd">        Should be non negative numbers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">brightness</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">contrast</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">brightness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input</span><span class="p">(</span>
+            <span class="n">brightness</span><span class="p">,</span>
+            <span class="s2">&quot;brightness&quot;</span><span class="p">,</span>
+            <span class="n">center</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">bound</span><span class="o">=</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)),</span>
+            <span class="n">clip_first_on_zero</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contrast</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input</span><span class="p">(</span><span class="n">contrast</span><span class="p">,</span> <span class="s2">&quot;contrast&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_input</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)),</span> <span class="n">clip_first_on_zero</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;If </span><span class="si">{}</span><span class="s2"> is a single number, it must be non negative.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">center</span> <span class="o">-</span> <span class="n">value</span><span class="p">,</span> <span class="n">center</span> <span class="o">+</span> <span class="n">value</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">clip_first_on_zero</span><span class="p">:</span>
+                <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">bound</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">bound</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> values should be between </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bound</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> should be a single number or a list/tuple with length 2.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">name</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">center</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+        <span class="n">init_op</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i_op</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+            <span class="n">op_num</span> <span class="o">=</span> <span class="p">(</span><span class="n">init_op</span> <span class="o">+</span> <span class="n">i_op</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">op_num</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">brightness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">brightness_factor</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">brightness</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">brightness</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">brightness_factor</span>
+            <span class="k">elif</span> <span class="n">op_num</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">contrast</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">contrast_factor</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contrast</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">contrast</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">contrast_factor</span>
+        <span class="k">return</span> <span class="n">sample</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">format_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;(&quot;</span>
+        <span class="n">format_string</span> <span class="o">+=</span> <span class="s2">&quot;brightness=</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">brightness</span><span class="p">)</span>
+        <span class="n">format_string</span> <span class="o">+=</span> <span class="s2">&quot;, contrast=</span><span class="si">{0}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contrast</span><span class="p">)</span>
+        <span class="n">format_string</span> <span class="o">+=</span> <span class="s2">&quot;)&quot;</span>
+        <span class="k">return</span> <span class="n">format_string</span></div>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By Scott C. Lowe<br/>
+  
+      &copy; Copyright 2022, Scott C. Lowe.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

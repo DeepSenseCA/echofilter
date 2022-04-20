@@ -1,0 +1,1443 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>echofilter.raw.loader &#8212; Echofilter 1.0.dev0 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Echofilter 1.0.dev0 documentation</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Contents:
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../source/usage_guide.html">
+   Usage Guide
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../source/programs/programs.html">
+   CLI Reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../source/programs/inference.html">
+     echofilter
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../source/programs/ev2csv.html">
+     ev2csv
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../source/programs/train.html">
+     echofilter-train
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../source/programs/generate_shards.html">
+     echofilter-generate-shards
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../source/packages/modules.html">
+   API Reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../source/packages/echofilter.html">
+     echofilter package
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../source/packages/echofilter.data.html">
+       echofilter.data package
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../source/packages/echofilter.nn.html">
+       echofilter.nn package
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+      <label for="toctree-checkbox-4">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../source/packages/echofilter.nn.modules.html">
+         echofilter.nn.modules package
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../source/packages/echofilter.optim.html">
+       echofilter.optim package
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../source/packages/echofilter.raw.html">
+       echofilter.raw package
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../source/packages/echofilter.ui.html">
+       echofilter.ui package
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../source/packages/echofilter.win.html">
+       echofilter.win package
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../source/changelog.html">
+   Changelog
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../py-modindex.html">
+   Module Index
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../genindex.html">
+   Index
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for echofilter.raw.loader</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Input/Output handling for raw Echoview files.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># This file is part of Echofilter.</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Affero General Public License as</span>
+<span class="c1"># published by the Free Software Foundation, version 3.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU Affero General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU Affero General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">textwrap</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.interpolate</span>
+<span class="kn">import</span> <span class="nn">scipy.ndimage</span>
+<span class="kn">import</span> <span class="nn">skimage.measure</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">..ui</span> <span class="kn">import</span> <span class="n">style</span>
+
+
+<span class="n">ROOT_DATA_DIR</span> <span class="o">=</span> <span class="s2">&quot;/data/dsforce/surveyExports&quot;</span>
+
+<span class="n">TRANSECT_FIELD_TYPES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Ping_index&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="s2">&quot;Distance_gps&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="s2">&quot;Distance_vl&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="s2">&quot;Ping_date&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="s2">&quot;Ping_time&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="s2">&quot;Ping_milliseconds&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="s2">&quot;Latitude&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="s2">&quot;Longitude&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="s2">&quot;Depth_start&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="s2">&quot;Depth_stop&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="s2">&quot;Range_start&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="s2">&quot;Range_stop&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="s2">&quot;Sample_count&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="transect_reader"><a class="viewcode-back" href="../../../source/packages/echofilter.raw.html#echofilter.raw.loader.transect_reader">[docs]</a><span class="k">def</span> <span class="nf">transect_reader</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a generator which iterates through a survey csv file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname: str</span>
+<span class="sd">        Path to survey CSV file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    generator</span>
+<span class="sd">        Yields a tupule of `(metadata, data)`, where metadata is a dict,</span>
+<span class="sd">        and data is a :class:`numpy.ndarray`. Each yield corresponds to a single</span>
+<span class="sd">        row in the data. Every row (except for the header) is yielded.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">metadata_header</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hf</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i_row</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hf</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8-sig&quot;</span> <span class="k">if</span> <span class="n">i_row</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">i_row</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Row </span><span class="si">{}</span><span class="s2"> of </span><span class="si">{}</span><span class="s2"> contained a byte which is not in UTF-8&quot;</span>
+                    <span class="s2">&quot; and will be skipped.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_row</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">i_row</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">metadata_header</span> <span class="o">=</span> <span class="n">row</span>
+                <span class="k">continue</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">row</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">metadata_header</span><span class="p">)]</span>
+            <span class="n">metadata_d</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">metadata_header</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">TRANSECT_FIELD_TYPES</span><span class="p">:</span>
+                    <span class="n">metadata_d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">TRANSECT_FIELD_TYPES</span><span class="p">[</span><span class="n">k</span><span class="p">](</span><span class="n">v</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">metadata_d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">metadata_header</span><span class="p">)</span> <span class="p">:]])</span>
+            <span class="k">yield</span> <span class="n">metadata_d</span><span class="p">,</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="count_lines"><a class="viewcode-back" href="../../../source/packages/echofilter.raw.html#echofilter.raw.loader.count_lines">[docs]</a><span class="k">def</span> <span class="nf">count_lines</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Count the number of lines in a file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        Path to file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int</span>
+<span class="sd">        Number of lines in file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="transect_loader"><a class="viewcode-back" href="../../../source/packages/echofilter.raw.html#echofilter.raw.loader.transect_loader">[docs]</a><span class="k">def</span> <span class="nf">transect_loader</span><span class="p">(</span>
+    <span class="n">fname</span><span class="p">,</span>
+    <span class="n">skip_lines</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">warn_row_overflow</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">row_len_selector</span><span class="o">=</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads an entire survey transect CSV.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Path to survey CSV file.</span>
+<span class="sd">    skip_lines : int, optional</span>
+<span class="sd">        Number of initial entries to skip. Default is 0.</span>
+<span class="sd">    warn_row_overflow : bool or int, optional</span>
+<span class="sd">        Whether to print a warning message if the number of elements in a</span>
+<span class="sd">        row exceeds the expected number. If this is an int, this is the number</span>
+<span class="sd">        of times to display the warnings before they are supressed. If this</span>
+<span class="sd">        is `True`, the number of outputs is unlimited. If `None`, the</span>
+<span class="sd">        maximum number of underflow and overflow warnings differ: if</span>
+<span class="sd">        `row_len_selector` is `&quot;init&quot;` or `&quot;min&quot;`, underflow always produces a</span>
+<span class="sd">        message and the overflow messages stop at 2; otherwise the values are</span>
+<span class="sd">        reversed. Default is `None`.</span>
+<span class="sd">    row_len_selector : {&quot;init&quot;, &quot;min&quot;, &quot;max&quot;, &quot;median&quot;, &quot;mode&quot;}, optional</span>
+<span class="sd">        The method used to determine which row length (number of depth samples)</span>
+<span class="sd">        to use. Default is `&quot;mode&quot;`, the most common row length across all</span>
+<span class="sd">        the measurement timepoints.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        Timestamps for each row, in seconds. Note: not corrected for timezone</span>
+<span class="sd">        (so make sure your timezones are internally consistent).</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        Depth of each column, in metres.</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        Survey signal (Sv, for instance). Units match that of the file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">row_len_selector</span> <span class="o">=</span> <span class="n">row_len_selector</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">row_len_selector</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">}:</span>
+        <span class="n">expand_for_overflow</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">expand_for_overflow</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">warn_row_overflow</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">warn_row_overflow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+    <span class="k">if</span> <span class="n">warn_row_overflow</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">warn_row_underflow</span> <span class="o">=</span> <span class="n">warn_row_overflow</span>
+    <span class="k">elif</span> <span class="n">expand_for_overflow</span><span class="p">:</span>
+        <span class="n">warn_row_underflow</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">warn_row_overflow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">warn_row_underflow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="n">warn_row_overflow</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="c1"># We remove one from the line count because of the header</span>
+    <span class="c1"># which is excluded from output</span>
+    <span class="n">n_lines</span> <span class="o">=</span> <span class="n">count_lines</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">n_distances</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Initialise output array</span>
+    <span class="k">for</span> <span class="n">i_line</span><span class="p">,</span> <span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">transect_reader</span><span class="p">(</span><span class="n">fname</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">i_line</span> <span class="o">&lt;</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_lines</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">skip_lines</span><span class="p">)):</span>
+            <span class="k">continue</span>
+        <span class="n">n_depths_init</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="n">depth_start_init</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;Depth_start&quot;</span><span class="p">]</span>
+        <span class="n">depth_stop_init</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;Depth_stop&quot;</span><span class="p">]</span>
+        <span class="k">break</span>
+
+    <span class="n">n_depth_exp</span> <span class="o">=</span> <span class="n">n_depths_init</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n_lines</span> <span class="o">-</span> <span class="n">skip_lines</span><span class="p">,</span> <span class="n">n_depth_exp</span><span class="p">))</span>
+    <span class="n">data</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">timestamps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n_lines</span> <span class="o">-</span> <span class="n">skip_lines</span><span class="p">))</span>
+    <span class="n">timestamps</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="n">row_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n_lines</span> <span class="o">-</span> <span class="n">skip_lines</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+    <span class="n">row_depth_starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n_lines</span> <span class="o">-</span> <span class="n">skip_lines</span><span class="p">))</span>
+    <span class="n">row_depth_ends</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n_lines</span> <span class="o">-</span> <span class="n">skip_lines</span><span class="p">))</span>
+
+    <span class="n">n_warn_overflow</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">n_warn_underflow</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">n_entry</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i_line</span><span class="p">,</span> <span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">transect_reader</span><span class="p">(</span><span class="n">fname</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">i_line</span> <span class="o">&lt;</span> <span class="n">skip_lines</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">i_entry</span> <span class="o">=</span> <span class="n">i_line</span> <span class="o">-</span> <span class="n">skip_lines</span>
+
+        <span class="c1"># Track the range of depths used in the row with this length</span>
+        <span class="n">row_lengths</span><span class="p">[</span><span class="n">i_entry</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="n">row_depth_starts</span><span class="p">[</span><span class="n">i_entry</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;Depth_start&quot;</span><span class="p">]</span>
+        <span class="n">row_depth_ends</span><span class="p">[</span><span class="n">i_entry</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;Depth_stop&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">n_depth_exp</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">n_warn_overflow</span> <span class="o">&lt;</span> <span class="n">warn_row_overflow</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Row </span><span class="si">{}</span><span class="s2"> of </span><span class="si">{}</span><span class="s2"> exceeds expected n_depth of </span><span class="si">{}</span><span class="s2"> with </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">i_line</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">n_depth_exp</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">n_warn_overflow</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">expand_for_overflow</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
+                    <span class="n">data</span><span class="p">,</span>
+                    <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">-</span> <span class="n">n_depth_exp</span><span class="p">)),</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;constant&quot;</span><span class="p">,</span>
+                    <span class="n">constant_values</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">n_depth_exp</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n_depth_exp</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">n_warn_underflow</span> <span class="o">&lt;</span> <span class="n">warn_row_underflow</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Row </span><span class="si">{}</span><span class="s2"> of </span><span class="si">{}</span><span class="s2"> shorter than expected n_depth_exp of </span><span class="si">{}</span><span class="s2"> with </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">i_line</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">n_depth_exp</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">n_warn_underflow</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">i_entry</span><span class="p">,</span> <span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)]</span> <span class="o">=</span> <span class="n">row</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">i_entry</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[:</span><span class="n">n_depth_exp</span><span class="p">]</span>
+
+        <span class="n">timestamps</span><span class="p">[</span><span class="n">i_entry</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">T</span><span class="si">{}</span><span class="s2">.</span><span class="si">{:06d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;Ping_date&quot;</span><span class="p">],</span>
+                <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;Ping_time&quot;</span><span class="p">],</span>
+                <span class="nb">int</span><span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;Ping_milliseconds&quot;</span><span class="p">])),</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S.</span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span>
+        <span class="n">n_entry</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Turn NaNs into NaNs (instead of extremely negative number)</span>
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="s2">&quot;invalid value encountered in less&quot;</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="s2">&quot;invalid value encountered in greater&quot;</span><span class="p">)</span>
+        <span class="c1"># 9.9e+37 and -9.9e+37 are special values indicating missing data</span>
+        <span class="c1"># https://support.echoview.com/WebHelp/Reference/File_formats/Export_file_formats/Special_Export_Values.htm</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">data</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mf">1e37</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">data</span> <span class="o">&gt;</span> <span class="mf">1e37</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="c1"># Trim timestamps dimension down to size</span>
+    <span class="n">timestamps</span> <span class="o">=</span> <span class="n">timestamps</span><span class="p">[:</span><span class="n">n_entry</span><span class="p">]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:</span><span class="n">n_entry</span><span class="p">]</span>
+    <span class="n">row_lengths</span> <span class="o">=</span> <span class="n">row_lengths</span><span class="p">[:</span><span class="n">n_entry</span><span class="p">]</span>
+    <span class="n">row_depth_starts</span> <span class="o">=</span> <span class="n">row_depth_starts</span><span class="p">[:</span><span class="n">n_entry</span><span class="p">]</span>
+    <span class="n">row_depth_ends</span> <span class="o">=</span> <span class="n">row_depth_ends</span><span class="p">[:</span><span class="n">n_entry</span><span class="p">]</span>
+
+    <span class="c1"># Work out what row length we should return</span>
+    <span class="k">if</span> <span class="n">row_len_selector</span> <span class="o">==</span> <span class="s2">&quot;init&quot;</span><span class="p">:</span>
+        <span class="n">n_depth_use</span> <span class="o">=</span> <span class="n">n_depths_init</span>
+    <span class="k">elif</span> <span class="n">row_len_selector</span> <span class="o">==</span> <span class="s2">&quot;min&quot;</span><span class="p">:</span>
+        <span class="n">n_depth_use</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">row_lengths</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">row_len_selector</span> <span class="o">==</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span>
+        <span class="n">n_depth_use</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">row_lengths</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">row_len_selector</span> <span class="o">==</span> <span class="s2">&quot;median&quot;</span><span class="p">:</span>
+        <span class="n">n_depth_use</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">row_lengths</span><span class="p">)</span>
+        <span class="c1"># If the median is half-way between two values, round up</span>
+        <span class="k">if</span> <span class="n">n_depth_use</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">row_depth_starts</span><span class="p">:</span>
+            <span class="n">n_depth_use</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">n_depth_use</span><span class="p">))</span>
+        <span class="c1"># If the median is still not between values, drop the last value</span>
+        <span class="c1"># to make the array be odd, guaranteeing the median is an observed</span>
+        <span class="c1"># value, not an intermediary.</span>
+        <span class="k">if</span> <span class="n">n_depth_use</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">row_depth_starts</span><span class="p">:</span>
+            <span class="n">n_depth_use</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">row_lengths</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">row_len_selector</span> <span class="o">==</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span>
+        <span class="n">n_depth_use</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">row_lengths</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Unsupported row_len_selector value: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">row_len_selector</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Use depths corresponding to that declared in the rows which had the</span>
+    <span class="c1"># number of entries used.</span>
+    <span class="k">if</span> <span class="n">row_len_selector</span> <span class="o">==</span> <span class="s2">&quot;median&quot;</span><span class="p">:</span>
+        <span class="n">d_start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">row_depth_starts</span><span class="p">[</span><span class="n">row_lengths</span> <span class="o">==</span> <span class="n">n_depth_use</span><span class="p">])</span>
+        <span class="n">d_stop</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">row_depth_ends</span><span class="p">[</span><span class="n">row_lengths</span> <span class="o">==</span> <span class="n">n_depth_use</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">d_start</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">row_depth_starts</span><span class="p">[</span><span class="n">row_lengths</span> <span class="o">==</span> <span class="n">n_depth_use</span><span class="p">])</span>
+        <span class="n">d_stop</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">row_depth_ends</span><span class="p">[</span><span class="n">row_lengths</span> <span class="o">==</span> <span class="n">n_depth_use</span><span class="p">])</span>
+    <span class="n">depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">d_start</span><span class="p">,</span> <span class="n">d_stop</span><span class="p">,</span> <span class="n">n_depth_use</span><span class="p">)</span>
+
+    <span class="c1"># Interpolate depths to get a consistent sampling grid</span>
+    <span class="n">interp_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nan_threshold</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">assume_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i_entry</span><span class="p">,</span> <span class="p">(</span><span class="n">nd</span><span class="p">,</span> <span class="n">d0</span><span class="p">,</span> <span class="n">d1</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+        <span class="nb">zip</span><span class="p">(</span><span class="n">row_lengths</span><span class="p">,</span> <span class="n">row_depth_starts</span><span class="p">,</span> <span class="n">row_depth_ends</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">d0</span> <span class="o">&lt;</span> <span class="n">d1</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">i_entry</span><span class="p">,</span> <span class="p">:</span><span class="n">n_depth_use</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">interp1d_preserve_nan</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">d0</span><span class="p">,</span> <span class="n">d1</span><span class="p">,</span> <span class="n">nd</span><span class="p">),</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">i_entry</span><span class="p">,</span> <span class="p">:</span><span class="n">nd</span><span class="p">],</span>
+                <span class="n">depths</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">interp_kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">i_entry</span><span class="p">,</span> <span class="p">:</span><span class="n">n_depth_use</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">interp1d_preserve_nan</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">d0</span><span class="p">,</span> <span class="n">nd</span><span class="p">),</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">i_entry</span><span class="p">,</span> <span class="p">:</span><span class="n">nd</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">depths</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">interp_kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Crop the data down to size</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n_depth_use</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">timestamps</span><span class="p">,</span> <span class="n">depths</span><span class="p">,</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="evl_reader"><a class="viewcode-back" href="../../../source/packages/echofilter.raw.html#echofilter.raw.loader.evl_reader">[docs]</a><span class="k">def</span> <span class="nf">evl_reader</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    EVL file reader</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Path to .evl file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    generator</span>
+<span class="sd">        A generator which yields the timestamp (in seconds), depth (in</span>
+<span class="sd">        metres), and status (int) for each entry. Note that the timestamp is</span>
+<span class="sd">        not corrected for timezone (so make sure your timezones are internally</span>
+<span class="sd">        consistent).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hf</span><span class="p">:</span>
+        <span class="n">continuance</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">i_row</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">hf</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">i_row</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">continuance</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Trying to skip data after parsing began&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">continuance</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
+                <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;T&quot;</span> <span class="o">+</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">T%H%M%S</span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;row[2] was non-empty: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+            <span class="k">yield</span> <span class="n">timestamp</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="evl_loader"><a class="viewcode-back" href="../../../source/packages/echofilter.raw.html#echofilter.raw.loader.evl_loader">[docs]</a><span class="k">def</span> <span class="nf">evl_loader</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">special_to_nan</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_status</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    EVL file loader</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Path to .evl file.</span>
+<span class="sd">    special_to_nan : bool, optional</span>
+<span class="sd">        Whether to replace the special value, `-10000.99`, which indicates no</span>
+<span class="sd">        depth value, with NaN.</span>
+<span class="sd">        https://support.echoview.com/WebHelp/Reference/File_formats/Export_file_formats/Special_Export_Values.htm</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray of floats</span>
+<span class="sd">        Timestamps, in seconds.</span>
+<span class="sd">    numpy.ndarary of floats</span>
+<span class="sd">        Depth, in metres.</span>
+<span class="sd">    numpy.ndarary of ints, optional</span>
+<span class="sd">        Status codes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">timestamps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">statuses</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">evl_reader</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+        <span class="n">timestamps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timestamp</span><span class="p">)</span>
+        <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">statuses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+    <span class="n">timestamps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">timestamps</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">statuses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">statuses</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">special_to_nan</span><span class="p">:</span>
+        <span class="c1"># Replace the special value -10000.99 with NaN</span>
+        <span class="c1"># https://support.echoview.com/WebHelp/Reference/File_formats/Export_file_formats/Special_Export_Values.htm</span>
+        <span class="n">values</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="o">-</span><span class="mf">10000.99</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">if</span> <span class="n">return_status</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">timestamps</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">statuses</span>
+    <span class="k">return</span> <span class="n">timestamps</span><span class="p">,</span> <span class="n">values</span></div>
+
+
+<div class="viewcode-block" id="timestamp2evdtstr"><a class="viewcode-back" href="../../../source/packages/echofilter.raw.html#echofilter.raw.loader.timestamp2evdtstr">[docs]</a><span class="k">def</span> <span class="nf">timestamp2evdtstr</span><span class="p">(</span><span class="n">timestamp</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a timestamp into an Echoview-compatible datetime string, in the</span>
+<span class="sd">    format &quot;CCYYMMDD HHmmSSssss&quot;, where:</span>
+
+<span class="sd">    | CC: century</span>
+<span class="sd">    | YY: year</span>
+<span class="sd">    | MM: month</span>
+<span class="sd">    | DD: day</span>
+<span class="sd">    | HH: hour</span>
+<span class="sd">    | mm: minute</span>
+<span class="sd">    | SS: second</span>
+<span class="sd">    | ssss: 0.1 milliseconds</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    timestamp : float</span>
+<span class="sd">        Number of seconds since Unix epoch.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    datetimestring : str</span>
+<span class="sd">        Datetime string in the Echoview-compatible format</span>
+<span class="sd">        &quot;CCYYMMDD HHmmSSssss&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Datetime must be in the format CCYYMMDD HHmmSSssss</span>
+    <span class="c1"># where ssss = 0.1 milliseconds.</span>
+    <span class="c1"># We have to manually determine the number of &quot;0.1 milliseconds&quot;</span>
+    <span class="c1"># from the microsecond component.</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">timestamp</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}{:04d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2"> %H%M%S&quot;</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">microsecond</span> <span class="o">/</span> <span class="mi">100</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="evl_writer"><a class="viewcode-back" href="../../../source/packages/echofilter.raw.html#echofilter.raw.loader.evl_writer">[docs]</a><span class="k">def</span> <span class="nf">evl_writer</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">timestamps</span><span class="p">,</span> <span class="n">depths</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">line_ending</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    EVL file writer</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Destination of output file.</span>
+<span class="sd">    timestamps : array_like</span>
+<span class="sd">        Timestamps for each node in the line.</span>
+<span class="sd">    depths : array_like</span>
+<span class="sd">        Depths (in meters) for each node in the line.</span>
+<span class="sd">    status : 0, 1, 2, or 3; optional</span>
+<span class="sd">        Status for the line.</span>
+
+<span class="sd">        - `0` : none</span>
+<span class="sd">        - `1` : unverified</span>
+<span class="sd">        - `2` : bad</span>
+<span class="sd">        - `3` : good</span>
+
+<span class="sd">        Default is `1` (unverified). For more details on line status, see</span>
+<span class="sd">        https://support.echoview.com/WebHelp/Using_Echoview/Echogram/Lines/About_Line_Status.htm</span>
+<span class="sd">    pad : bool, optional</span>
+<span class="sd">        Whether to pad the line with an extra datapoint half a pixel before the</span>
+<span class="sd">        first and after the last given timestamp. Default is `False`.</span>
+<span class="sd">    line_ending : str, optional</span>
+<span class="sd">        Line ending. Default is `&quot;\r\n&quot;` the standard line ending on Windows/DOS,</span>
+<span class="sd">        as per the specification for the file format.</span>
+<span class="sd">        https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm</span>
+<span class="sd">        Set to `&quot;\n&quot;` to get Unix-style line endings instead.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For more details on the format specification, see</span>
+<span class="sd">    https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm#Line_definition_file_format</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">timestamps</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">depths</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Number of timestamps (</span><span class="si">{}</span><span class="s2">) and depths (</span><span class="si">{}</span><span class="s2">) are not equal&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">timestamps</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">depths</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">pad</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">timestamps</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">timestamps</span> <span class="o">=</span> <span class="n">timestamps</span><span class="p">[:]</span>
+        <span class="n">timestamps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span>
+            <span class="n">timestamps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">timestamps</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">timestamps</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="n">timestamps</span><span class="p">,</span>
+            <span class="n">timestamps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">timestamps</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">timestamps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">depths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">depths</span><span class="p">,</span> <span class="n">depths</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="c1"># The file object will automatically replace \n with our chosen line ending</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;w+&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8-sig&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="n">line_ending</span><span class="p">)</span> <span class="k">as</span> <span class="n">hf</span><span class="p">:</span>
+        <span class="c1"># Write header</span>
+        <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;EVBD 3 10.0.270.37090&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">n_row</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">depths</span><span class="p">)</span>
+        <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n_row</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># Write each row</span>
+        <span class="k">for</span> <span class="n">i_row</span><span class="p">,</span> <span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">depth</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">timestamps</span><span class="p">,</span> <span class="n">depths</span><span class="p">)):</span>
+            <span class="c1"># Datetime must be in the format CCYYMMDD HHmmSSssss</span>
+            <span class="c1"># where ssss = 0.1 milliseconds.</span>
+            <span class="c1"># We have to manually determine the number of &quot;0.1 milliseconds&quot;</span>
+            <span class="c1"># from the microsecond component.</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">timestamp</span><span class="p">)</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">  </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">timestamp2evdtstr</span><span class="p">(</span><span class="n">timestamp</span><span class="p">),</span> <span class="n">depth</span><span class="p">,</span> <span class="n">status</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="evr_writer"><a class="viewcode-back" href="../../../source/packages/echofilter.raw.html#echofilter.raw.loader.evr_writer">[docs]</a><span class="k">def</span> <span class="nf">evr_writer</span><span class="p">(</span>
+    <span class="n">fname</span><span class="p">,</span>
+    <span class="n">rectangles</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">contours</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">common_notes</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">default_region_type</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">line_ending</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    EVR file writer.</span>
+
+<span class="sd">    Writes regions to an Echoview region file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Destination of output file.</span>
+<span class="sd">    rectangles : list of dictionaries, optional</span>
+<span class="sd">        Rectangle region definitions. Default is an empty list. Each rectangle</span>
+<span class="sd">        region must implement fields `&quot;depths&quot;` and `&quot;timestamps&quot;`, which</span>
+<span class="sd">        indicate the extent of the rectangle. Optionally, `&quot;creation_type&quot;`,</span>
+<span class="sd">        `&quot;region_name&quot;`, `&quot;region_type&quot;`, and `&quot;notes&quot;` may be set.</span>
+<span class="sd">        If these are not given, the default creation_type is 4 and region_type</span>
+<span class="sd">        is set by `default_region_type`.</span>
+<span class="sd">    contours : list of dictionaries</span>
+<span class="sd">        Contour region definitions. Default is an empty list. Each contour</span>
+<span class="sd">        region must implement a `&quot;points&quot;` field containing a :class:`numpy.ndarray`</span>
+<span class="sd">        shaped `(n, 2)` defining the co-ordinates of nodes along the (open)</span>
+<span class="sd">        contour in units of timestamp and depth. Optionally, `&quot;creation_type&quot;`,</span>
+<span class="sd">        `&quot;region_name&quot;`, `&quot;region_type&quot;`, and `&quot;notes&quot;` may be set.</span>
+<span class="sd">        If these are not given, the default creation_type is 2 and region_type</span>
+<span class="sd">        is set by `default_region_type`.</span>
+<span class="sd">    common_notes : str, optional</span>
+<span class="sd">        Notes to include for every region. Default is `&quot;&quot;`, an empty string.</span>
+<span class="sd">    default_region_type : int, optional</span>
+<span class="sd">        The region type to use for rectangles and contours which do not define</span>
+<span class="sd">        a `&quot;region_type&quot;` field. Possible region types are</span>
+
+<span class="sd">        - `0` : bad (no data)</span>
+<span class="sd">        - `1` : analysis</span>
+<span class="sd">        - `2` : marker</span>
+<span class="sd">        - `3` : fishtracks</span>
+<span class="sd">        - `4` : bad (empty water)</span>
+
+<span class="sd">        Default is `0`.</span>
+<span class="sd">    line_ending : str, optional</span>
+<span class="sd">        Line ending. Default is `&quot;\r\n&quot;` the standard line ending on Windows/DOS,</span>
+<span class="sd">        as per the specification for the file format.</span>
+<span class="sd">        https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm</span>
+<span class="sd">        Set to `&quot;\n&quot;` to get Unix-style line endings instead.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For more details on the format specification, see:</span>
+<span class="sd">    https://support.echoview.com/WebHelp/Reference/File_formats/Export_file_formats/2D_Region_definition_file_format.htm</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Remove leading/trailing new lines, since we will join with our own line ending</span>
+    <span class="n">common_notes</span> <span class="o">=</span> <span class="n">common_notes</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Standardize line endings to be \n, regardless of input</span>
+    <span class="n">common_notes</span> <span class="o">=</span> <span class="n">common_notes</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">common_notes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">n_lines_common_notes</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">n_lines_common_notes</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">common_notes</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">line_ending</span><span class="p">)</span>
+    <span class="n">n_regions</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rectangles</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">contours</span><span class="p">)</span>
+    <span class="n">i_region</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># The file object will automatically replace \n with our chosen line ending</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;w+&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8-sig&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="n">line_ending</span><span class="p">)</span> <span class="k">as</span> <span class="n">hf</span><span class="p">:</span>
+        <span class="c1"># Write header</span>
+        <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;EVRG 7 10.0.283.37689&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n_regions</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Write each rectangle</span>
+        <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">rectangles</span><span class="p">:</span>
+            <span class="c1"># Regions are indexed from 1, so increment the counter first</span>
+            <span class="n">i_region</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Blank line separates regions</span>
+            <span class="c1"># Determine extent of rectangle</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">timestamp2evdtstr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">region</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">]))</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="n">timestamp2evdtstr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">region</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">]))</span>
+            <span class="n">top</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">region</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">])</span>
+            <span class="n">bottom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">region</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">])</span>
+            <span class="c1"># Region header</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="s2">&quot;13 4 </span><span class="si">{i}</span><span class="s2"> 0 </span><span class="si">{type}</span><span class="s2"> -1 1 </span><span class="si">{left}</span><span class="s2">  </span><span class="si">{top}</span><span class="s2"> </span><span class="si">{right}</span><span class="s2">  </span><span class="si">{bottom}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">i</span><span class="o">=</span><span class="n">i_region</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;creation_type&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+                    <span class="n">left</span><span class="o">=</span><span class="n">left</span><span class="p">,</span>
+                    <span class="n">right</span><span class="o">=</span><span class="n">right</span><span class="p">,</span>
+                    <span class="n">top</span><span class="o">=</span><span class="n">top</span><span class="p">,</span>
+                    <span class="n">bottom</span><span class="o">=</span><span class="n">bottom</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="c1"># Notes</span>
+            <span class="n">notes</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;notes&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">notes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">notes</span> <span class="o">=</span> <span class="n">common_notes</span>
+                <span class="n">n_lines_notes</span> <span class="o">=</span> <span class="n">n_lines_common_notes</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">notes</span> <span class="o">=</span> <span class="n">notes</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">common_notes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">notes</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">common_notes</span>
+                <span class="n">n_lines_notes</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">notes</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n_lines_notes</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Number of lines of notes</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">notes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">notes</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Detection settings</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;0&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Number of lines of detection settings</span>
+            <span class="c1"># Region classification string</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Unclassified regions&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># The points defining the region itself</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">{left}</span><span class="s2"> </span><span class="si">{top}</span><span class="s2"> </span><span class="si">{left}</span><span class="s2"> </span><span class="si">{bottom}</span><span class="s2"> </span><span class="si">{right}</span><span class="s2"> </span><span class="si">{bottom}</span><span class="s2"> </span><span class="si">{right}</span><span class="s2"> </span><span class="si">{top}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">left</span><span class="o">=</span><span class="n">left</span><span class="p">,</span>
+                    <span class="n">right</span><span class="o">=</span><span class="n">right</span><span class="p">,</span>
+                    <span class="n">top</span><span class="o">=</span><span class="n">top</span><span class="p">,</span>
+                    <span class="n">bottom</span><span class="o">=</span><span class="n">bottom</span><span class="p">,</span>
+                <span class="p">)</span>  <span class="c1"># Terminates with a space, not a new line</span>
+            <span class="p">)</span>
+            <span class="c1"># Region type</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;region_type&quot;</span><span class="p">,</span> <span class="n">default_region_type</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Region name</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;region_name&quot;</span><span class="p">,</span> <span class="s2">&quot;Region </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_region</span><span class="p">)))</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Write each contour</span>
+        <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">contours</span><span class="p">:</span>
+            <span class="c1"># Regions are indexed from 1, so increment the counter first</span>
+            <span class="n">i_region</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Blank line separates regions</span>
+            <span class="c1"># Header line</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="s2">&quot;13 </span><span class="si">{n}</span><span class="s2"> </span><span class="si">{i}</span><span class="s2"> 0 </span><span class="si">{type}</span><span class="s2"> -1 1 </span><span class="si">{left}</span><span class="s2">  </span><span class="si">{top}</span><span class="s2"> </span><span class="si">{right}</span><span class="s2">  </span><span class="si">{bottom}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">n</span><span class="o">=</span><span class="n">region</span><span class="p">[</span><span class="s2">&quot;points&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">i</span><span class="o">=</span><span class="n">i_region</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;creation_type&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                    <span class="n">left</span><span class="o">=</span><span class="n">timestamp2evdtstr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">region</span><span class="p">[</span><span class="s2">&quot;points&quot;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">])),</span>
+                    <span class="n">right</span><span class="o">=</span><span class="n">timestamp2evdtstr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">region</span><span class="p">[</span><span class="s2">&quot;points&quot;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">])),</span>
+                    <span class="n">top</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">region</span><span class="p">[</span><span class="s2">&quot;points&quot;</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]),</span>
+                    <span class="n">bottom</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">region</span><span class="p">[</span><span class="s2">&quot;points&quot;</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]),</span>
+                <span class="p">)</span>
+                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="c1"># Notes</span>
+            <span class="n">notes</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;notes&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">notes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">notes</span> <span class="o">=</span> <span class="n">common_notes</span>
+                <span class="n">n_lines_notes</span> <span class="o">=</span> <span class="n">n_lines_common_notes</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">notes</span> <span class="o">=</span> <span class="n">notes</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">common_notes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">notes</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">common_notes</span>
+                <span class="n">n_lines_notes</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">notes</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n_lines_notes</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Number of lines of notes</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">notes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">notes</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Detection settings</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;0&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Number of lines of detection settings</span>
+            <span class="c1"># Region classification string</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Unclassified regions&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># The region itself</span>
+            <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">region</span><span class="p">[</span><span class="s2">&quot;points&quot;</span><span class="p">]:</span>
+                <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">timestamp2evdtstr</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="c1"># Region type</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;region_type&quot;</span><span class="p">,</span> <span class="n">default_region_type</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Region name</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;region_name&quot;</span><span class="p">,</span> <span class="s2">&quot;Region </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_region</span><span class="p">)))</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="write_transect_regions"><a class="viewcode-back" href="../../../source/packages/echofilter.raw.html#echofilter.raw.loader.write_transect_regions">[docs]</a><span class="k">def</span> <span class="nf">write_transect_regions</span><span class="p">(</span>
+    <span class="n">fname</span><span class="p">,</span>
+    <span class="n">transect</span><span class="p">,</span>
+    <span class="n">depth_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">passive_key</span><span class="o">=</span><span class="s2">&quot;is_passive&quot;</span><span class="p">,</span>
+    <span class="n">removed_key</span><span class="o">=</span><span class="s2">&quot;is_removed&quot;</span><span class="p">,</span>
+    <span class="n">patches_key</span><span class="o">=</span><span class="s2">&quot;mask_patches&quot;</span><span class="p">,</span>
+    <span class="n">collate_passive_length</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">collate_removed_length</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">minimum_passive_length</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">minimum_removed_length</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">minimum_patch_area</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">name_suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">common_notes</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">line_ending</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">verbose_indent</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a transect dictionary to a set of regions and write as an EVR file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Destination of output file.</span>
+<span class="sd">    transect : dict</span>
+<span class="sd">        Transect dictionary.</span>
+<span class="sd">    depth_range : array_like or None, optional</span>
+<span class="sd">        The minimum and maximum depth extents (in any order) of the passive and</span>
+<span class="sd">        removed block regions. If this is `None` (default), the minimum and</span>
+<span class="sd">        maximum of `transect[&quot;depths&quot;]` is used.</span>
+<span class="sd">    passive_key : str, optional</span>
+<span class="sd">        Field name to use for passive data identification. Default is</span>
+<span class="sd">        `&quot;is_passive&quot;`.</span>
+<span class="sd">    removed_key : str, optional</span>
+<span class="sd">        Field name to use for removed blocks. Default is `&quot;is_removed&quot;`.</span>
+<span class="sd">    patches_key : str, optional</span>
+<span class="sd">        Field name to use for the mask of patch regions. Default is</span>
+<span class="sd">        `&quot;mask_patches&quot;`.</span>
+<span class="sd">    collate_passive_length : int, optional</span>
+<span class="sd">        Maximum distance (in indices) over which passive regions should be</span>
+<span class="sd">        merged together, closing small gaps between them. Default is `0`.</span>
+<span class="sd">    collate_removed_length : int, optional</span>
+<span class="sd">        Maximum distance (in indices) over which removed blocks should be</span>
+<span class="sd">        merged together, closing small gaps between them. Default is `0`.</span>
+<span class="sd">    minimum_passive_length : int, optional</span>
+<span class="sd">        Minimum length (in indices) a passive region must have to be included</span>
+<span class="sd">        in the output. Set to -1 to omit all passive regions from the output.</span>
+<span class="sd">        Default is `0`.</span>
+<span class="sd">    minimum_removed_length : int, optional</span>
+<span class="sd">        Minimum length (in indices) a removed block must have to be included in</span>
+<span class="sd">        the output. Set to -1 to omit all removed regions from the output.</span>
+<span class="sd">        Default is `0`.</span>
+<span class="sd">    minimum_patch_area : float, optional</span>
+<span class="sd">        Minimum amount of area (in input pixel space) that a patch must occupy</span>
+<span class="sd">        in order to be included in the output. Set to `0` to include all</span>
+<span class="sd">        patches, no matter their area. Set to `-1` to omit all patches.</span>
+<span class="sd">        Default is `0`.</span>
+<span class="sd">    name_suffix : str, optional</span>
+<span class="sd">        Suffix to append to variable names. Default is `&quot;&quot;`, an empty string.</span>
+<span class="sd">    common_notes : str, optional</span>
+<span class="sd">        Notes to include for every region. Default is `&quot;&quot;`, an empty string.</span>
+<span class="sd">    line_ending : str, optional</span>
+<span class="sd">        Line ending. Default is `&quot;\r\n&quot;` the standard line ending on Windows/DOS,</span>
+<span class="sd">        as per the specification for the file format,</span>
+<span class="sd">        https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm</span>
+<span class="sd">        Set to `&quot;\n&quot;` to get Unix-style line endings instead.</span>
+<span class="sd">    verbose : int, optional</span>
+<span class="sd">        Verbosity level. Default is `0`.</span>
+<span class="sd">    verbose_indent : int, optional</span>
+<span class="sd">        Level of indentation (number of preceding spaces) before verbosity</span>
+<span class="sd">        messages. Default is `0`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">depth_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">depth_range</span> <span class="o">=</span> <span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">]</span>
+    <span class="n">depth_range</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">depth_range</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">depth_range</span><span class="p">)]</span>
+
+    <span class="n">rectangles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">contours</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Regions around each period of passive data</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">passive_key</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">transect</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;p_&quot;</span> <span class="o">+</span> <span class="n">key</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">transect</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Key </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2"> not found in transect.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="n">key</span><span class="p">))</span>
+    <span class="n">is_passive</span> <span class="o">=</span> <span class="n">transect</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.5</span>
+    <span class="n">is_passive</span> <span class="o">=</span> <span class="o">~</span><span class="n">utils</span><span class="o">.</span><span class="n">squash_gaps</span><span class="p">(</span><span class="o">~</span><span class="n">is_passive</span><span class="p">,</span> <span class="n">collate_passive_length</span><span class="p">)</span>
+    <span class="n">passive_starts</span><span class="p">,</span> <span class="n">passive_ends</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_indicator_onoffsets</span><span class="p">(</span><span class="n">is_passive</span><span class="p">)</span>
+    <span class="n">i_passive</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">n_passive_skipped</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">start_index</span><span class="p">,</span> <span class="n">end_index</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">passive_starts</span><span class="p">,</span> <span class="n">passive_ends</span><span class="p">):</span>
+        <span class="n">start_index</span> <span class="o">-=</span> <span class="mf">0.5</span>
+        <span class="n">end_index</span> <span class="o">+=</span> <span class="mf">0.5</span>
+        <span class="k">if</span> <span class="n">minimum_passive_length</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># No passive regions</span>
+            <span class="k">break</span>
+        <span class="k">if</span> <span class="n">end_index</span> <span class="o">-</span> <span class="n">start_index</span> <span class="o">&lt;=</span> <span class="n">minimum_passive_length</span><span class="p">:</span>
+            <span class="n">n_passive_skipped</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+        <span class="n">region</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;region_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Passive</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name_suffix</span><span class="p">,</span> <span class="n">i_passive</span><span class="p">)</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;creation_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;region_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depth_range</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">])),</span>
+            <span class="n">transect</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">],</span>
+            <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">,</span>
+        <span class="p">)([</span><span class="n">start_index</span><span class="p">,</span> <span class="n">end_index</span><span class="p">])</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;notes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">dedent</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Passive data</span>
+<span class="sd">            Length in pixels: {}</span>
+<span class="sd">            Duration in seconds: {}</span>
+<span class="sd">            &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">end_index</span> <span class="o">-</span> <span class="n">start_index</span><span class="p">,</span>
+                <span class="n">region</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">region</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">rectangles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
+        <span class="n">i_passive</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="c1"># Regions around each period of removed data</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">removed_key</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">transect</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;p_&quot;</span> <span class="o">+</span> <span class="n">key</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">transect</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Key </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2"> not found in transect.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="n">key</span><span class="p">))</span>
+    <span class="n">is_removed</span> <span class="o">=</span> <span class="n">transect</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.5</span>
+    <span class="n">is_removed</span> <span class="o">=</span> <span class="o">~</span><span class="n">utils</span><span class="o">.</span><span class="n">squash_gaps</span><span class="p">(</span><span class="o">~</span><span class="n">is_removed</span><span class="p">,</span> <span class="n">collate_removed_length</span><span class="p">)</span>
+    <span class="n">removed_starts</span><span class="p">,</span> <span class="n">removed_ends</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_indicator_onoffsets</span><span class="p">(</span><span class="n">is_removed</span><span class="p">)</span>
+    <span class="n">i_removed</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">n_removed_skipped</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">start_index</span><span class="p">,</span> <span class="n">end_index</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">removed_starts</span><span class="p">,</span> <span class="n">removed_ends</span><span class="p">):</span>
+        <span class="n">start_index</span> <span class="o">-=</span> <span class="mf">0.5</span>
+        <span class="n">end_index</span> <span class="o">+=</span> <span class="mf">0.5</span>
+        <span class="k">if</span> <span class="n">minimum_removed_length</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># No passive regions</span>
+            <span class="k">break</span>
+        <span class="k">if</span> <span class="n">end_index</span> <span class="o">-</span> <span class="n">start_index</span> <span class="o">&lt;=</span> <span class="n">minimum_removed_length</span><span class="p">:</span>
+            <span class="n">n_removed_skipped</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+        <span class="n">region</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;region_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Removed block</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name_suffix</span><span class="p">,</span> <span class="n">i_removed</span><span class="p">)</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;creation_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;region_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depth_range</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">])),</span>
+            <span class="n">transect</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">],</span>
+            <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">,</span>
+        <span class="p">)([</span><span class="n">start_index</span><span class="p">,</span> <span class="n">end_index</span><span class="p">])</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;notes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">dedent</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Removed data block</span>
+<span class="sd">            Length in pixels: {}</span>
+<span class="sd">            Duration in seconds: {}</span>
+<span class="sd">            &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">end_index</span> <span class="o">-</span> <span class="n">start_index</span><span class="p">,</span>
+                <span class="n">region</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">region</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">rectangles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
+        <span class="n">i_removed</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="c1"># Contours around each removed patch</span>
+    <span class="k">if</span> <span class="n">patches_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">transect</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Key </span><span class="si">{}</span><span class="s2"> not found in transect.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">patches_key</span><span class="p">))</span>
+    <span class="n">patches</span> <span class="o">=</span> <span class="n">transect</span><span class="p">[</span><span class="n">patches_key</span><span class="p">]</span>
+    <span class="n">patches</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">binary_fill_holes</span><span class="p">(</span><span class="n">patches</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">contours_coords</span> <span class="o">=</span> <span class="n">skimage</span><span class="o">.</span><span class="n">measure</span><span class="o">.</span><span class="n">find_contours</span><span class="p">(</span><span class="n">patches</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">contour_dicts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">i_contour</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">n_contour_skipped</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">contour</span> <span class="ow">in</span> <span class="n">contours_coords</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">minimum_patch_area</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># No patches</span>
+            <span class="k">break</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">integrate_area_of_contour</span><span class="p">(</span>
+            <span class="n">contour</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">contour</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">closed</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">area</span> <span class="o">&lt;</span> <span class="n">minimum_patch_area</span><span class="p">:</span>
+            <span class="n">n_contour_skipped</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+        <span class="n">region</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;region_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Removed patch</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name_suffix</span><span class="p">,</span> <span class="n">i_contour</span><span class="p">)</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;creation_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;region_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">])),</span>
+            <span class="n">transect</span><span class="p">[</span><span class="s2">&quot;timestamps&quot;</span><span class="p">],</span>
+            <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">,</span>
+        <span class="p">)(</span><span class="n">contour</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">])),</span>
+            <span class="n">transect</span><span class="p">[</span><span class="s2">&quot;depths&quot;</span><span class="p">],</span>
+            <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">,</span>
+        <span class="p">)(</span><span class="n">contour</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;points&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">region</span><span class="p">[</span><span class="s2">&quot;notes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">dedent</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Removed patch</span>
+<span class="sd">            Area in pixels: {}</span>
+<span class="sd">            Area in meter-seconds: {}</span>
+<span class="sd">            &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">area</span><span class="p">,</span> <span class="n">utils</span><span class="o">.</span><span class="n">integrate_area_of_contour</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">contour_dicts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
+        <span class="n">i_contour</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">verbose_indent</span> <span class="o">+</span> <span class="s2">&quot;Outputting </span><span class="si">{}</span><span class="s2"> region</span><span class="si">{}</span><span class="s2">:&quot;</span>
+            <span class="s2">&quot; </span><span class="si">{}</span><span class="s2"> passive, </span><span class="si">{}</span><span class="s2"> removed blocks, </span><span class="si">{}</span><span class="s2"> removed patches&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">rectangles</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">contour_dicts</span><span class="p">),</span>
+                <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rectangles</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">contour_dicts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+                <span class="n">i_passive</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="n">i_removed</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="n">i_contour</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">n_skipped</span> <span class="o">=</span> <span class="n">n_passive_skipped</span> <span class="o">+</span> <span class="n">n_removed_skipped</span> <span class="o">+</span> <span class="n">n_contour_skipped</span>
+        <span class="k">if</span> <span class="n">n_skipped</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">verbose_indent</span>
+                <span class="o">+</span> <span class="n">style</span><span class="o">.</span><span class="n">skip_fmt</span><span class="p">(</span>
+                    <span class="s2">&quot;There </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> skipped (too small) region</span><span class="si">{}</span><span class="s2">:&quot;</span>
+                    <span class="s2">&quot; </span><span class="si">{}</span><span class="s2"> passive, </span><span class="si">{}</span><span class="s2"> removed blocks, </span><span class="si">{}</span><span class="s2"> removed patches&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="s2">&quot;was&quot;</span> <span class="k">if</span> <span class="n">n_skipped</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;were&quot;</span><span class="p">,</span>
+                        <span class="n">n_skipped</span><span class="p">,</span>
+                        <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">n_skipped</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+                        <span class="n">n_passive_skipped</span><span class="p">,</span>
+                        <span class="n">n_removed_skipped</span><span class="p">,</span>
+                        <span class="n">n_contour_skipped</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Write the output</span>
+    <span class="k">return</span> <span class="n">evr_writer</span><span class="p">(</span>
+        <span class="n">fname</span><span class="p">,</span>
+        <span class="n">rectangles</span><span class="o">=</span><span class="n">rectangles</span><span class="p">,</span>
+        <span class="n">contours</span><span class="o">=</span><span class="n">contour_dicts</span><span class="p">,</span>
+        <span class="n">common_notes</span><span class="o">=</span><span class="n">common_notes</span><span class="p">,</span>
+        <span class="n">line_ending</span><span class="o">=</span><span class="n">line_ending</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load_transect_data"><a class="viewcode-back" href="../../../source/packages/echofilter.raw.html#echofilter.raw.loader.load_transect_data">[docs]</a><span class="k">def</span> <span class="nf">load_transect_data</span><span class="p">(</span><span class="n">transect_pth</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="s2">&quot;mobile&quot;</span><span class="p">,</span> <span class="n">root_data_dir</span><span class="o">=</span><span class="n">ROOT_DATA_DIR</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load all data for one transect.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    transect_pth : str</span>
+<span class="sd">        Relative path to transect, excluding `&quot;_Sv_raw.csv&quot;`.</span>
+<span class="sd">    dataset : str, optional</span>
+<span class="sd">        Name of dataset. Default is `&quot;mobile&quot;`.</span>
+<span class="sd">    root_data_dir : str</span>
+<span class="sd">        Path to root directory where data is located.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    timestamps : numpy.ndarray</span>
+<span class="sd">        Timestamps (in seconds since Unix epoch), with each entry</span>
+<span class="sd">        corresponding to each row in the `signals` data.</span>
+<span class="sd">    depths : numpy.ndarray</span>
+<span class="sd">        Depths from the surface (in metres), with each entry corresponding</span>
+<span class="sd">        to each column in the `signals` data.</span>
+<span class="sd">    signals : numpy.ndarray</span>
+<span class="sd">        Echogram Sv data, shaped (num_timestamps, num_depths).</span>
+<span class="sd">    turbulence : numpy.ndarray</span>
+<span class="sd">        Depth of turbulence line, shaped (num_timestamps, ).</span>
+<span class="sd">    bottom : numpy.ndarray</span>
+<span class="sd">        Depth of bottom line, shaped (num_timestamps, ).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_data_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
+    <span class="n">raw_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">transect_pth</span> <span class="o">+</span> <span class="s2">&quot;_Sv_raw.csv&quot;</span><span class="p">)</span>
+    <span class="n">bottom_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">transect_pth</span> <span class="o">+</span> <span class="s2">&quot;_bottom.evl&quot;</span><span class="p">)</span>
+    <span class="n">turbulence_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">transect_pth</span> <span class="o">+</span> <span class="s2">&quot;_turbulence.evl&quot;</span><span class="p">)</span>
+
+    <span class="n">timestamps</span><span class="p">,</span> <span class="n">depths</span><span class="p">,</span> <span class="n">signals</span> <span class="o">=</span> <span class="n">transect_loader</span><span class="p">(</span><span class="n">raw_fname</span><span class="p">)</span>
+    <span class="n">t_bottom</span><span class="p">,</span> <span class="n">d_bottom</span> <span class="o">=</span> <span class="n">evl_loader</span><span class="p">(</span><span class="n">bottom_fname</span><span class="p">)</span>
+    <span class="n">t_turbulence</span><span class="p">,</span> <span class="n">d_turbulence</span> <span class="o">=</span> <span class="n">evl_loader</span><span class="p">(</span><span class="n">turbulence_fname</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">timestamps</span><span class="p">,</span>
+        <span class="n">depths</span><span class="p">,</span>
+        <span class="n">signals</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">timestamps</span><span class="p">,</span> <span class="n">t_turbulence</span><span class="p">,</span> <span class="n">d_turbulence</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">timestamps</span><span class="p">,</span> <span class="n">t_bottom</span><span class="p">,</span> <span class="n">d_bottom</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_partition_data"><a class="viewcode-back" href="../../../source/packages/echofilter.raw.html#echofilter.raw.loader.get_partition_data">[docs]</a><span class="k">def</span> <span class="nf">get_partition_data</span><span class="p">(</span>
+    <span class="n">partition</span><span class="p">,</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="s2">&quot;mobile&quot;</span><span class="p">,</span>
+    <span class="n">partitioning_version</span><span class="o">=</span><span class="s2">&quot;firstpass&quot;</span><span class="p">,</span>
+    <span class="n">root_data_dir</span><span class="o">=</span><span class="n">ROOT_DATA_DIR</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads partition metadata.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    transect_pth : str</span>
+<span class="sd">        Relative path to transect, excluding `&quot;_Sv_raw.csv&quot;`.</span>
+<span class="sd">    dataset : str, optional</span>
+<span class="sd">        Name of dataset. Default is `&quot;mobile&quot;`.</span>
+<span class="sd">    partitioning_version : str, optional</span>
+<span class="sd">        Name of partitioning method.</span>
+<span class="sd">    root_data_dir : str</span>
+<span class="sd">        Path to root directory where data is located.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame</span>
+<span class="sd">        Metadata for all transects in the partition. Each row is a single</span>
+<span class="sd">        sample.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_data_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;sets&quot;</span><span class="p">,</span> <span class="n">partitioning_version</span><span class="p">)</span>
+    <span class="n">fname_partition</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">partition</span> <span class="o">+</span> <span class="s2">&quot;.txt&quot;</span><span class="p">)</span>
+    <span class="n">fname_header</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="s2">&quot;header&quot;</span> <span class="o">+</span> <span class="s2">&quot;.txt&quot;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname_header</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hf</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">hf</span><span class="p">):</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span>
+            <span class="k">break</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fname_partition</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">header</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="remove_trailing_slash"><a class="viewcode-back" href="../../../source/packages/echofilter.raw.html#echofilter.raw.loader.remove_trailing_slash">[docs]</a><span class="k">def</span> <span class="nf">remove_trailing_slash</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove trailing forward slashes from a string.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    s : str</span>
+<span class="sd">        String representing a path, possibly with trailing slashes.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Same as `s`, but without trailing forward slashes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">while</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span> <span class="ow">or</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="list_from_file"><a class="viewcode-back" href="../../../source/packages/echofilter.raw.html#echofilter.raw.loader.list_from_file">[docs]</a><span class="k">def</span> <span class="nf">list_from_file</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a list from a file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        Path to file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        Contents of the file, one line per entry in the list. Trailing</span>
+<span class="sd">        whitespace is removed from each end of each line.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hf</span><span class="p">:</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="n">hf</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">contents</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">contents</span></div>
+
+
+<div class="viewcode-block" id="get_partition_list"><a class="viewcode-back" href="../../../source/packages/echofilter.raw.html#echofilter.raw.loader.get_partition_list">[docs]</a><span class="k">def</span> <span class="nf">get_partition_list</span><span class="p">(</span>
+    <span class="n">partition</span><span class="p">,</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="s2">&quot;mobile&quot;</span><span class="p">,</span>
+    <span class="n">full_path</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">partitioning_version</span><span class="o">=</span><span class="s2">&quot;firstpass&quot;</span><span class="p">,</span>
+    <span class="n">root_data_dir</span><span class="o">=</span><span class="n">ROOT_DATA_DIR</span><span class="p">,</span>
+    <span class="n">sharded</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a list of transects in a single partition.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    transect_pth : str</span>
+<span class="sd">        Relative path to transect, excluding `&quot;_Sv_raw.csv&quot;`.</span>
+<span class="sd">    dataset : str, optional</span>
+<span class="sd">        Name of dataset. Default is `&quot;mobile&quot;`.</span>
+<span class="sd">    full_path : bool, optional</span>
+<span class="sd">        Whether to return the full path to the sample. If `False`, only the</span>
+<span class="sd">        relative path (from the dataset directory) is returned.</span>
+<span class="sd">        Default is `False`.</span>
+<span class="sd">    partitioning_version : str, optional</span>
+<span class="sd">        Name of partitioning method.</span>
+<span class="sd">    root_data_dir : str, optional</span>
+<span class="sd">        Path to root directory where data is located.</span>
+<span class="sd">    sharded : bool, optional</span>
+<span class="sd">        Whether to return path to sharded version of data. Default is `False`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        Path for each sample in the partition.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dataset</span> <span class="o">==</span> <span class="s2">&quot;mobile&quot;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">get_partition_data</span><span class="p">(</span>
+            <span class="n">partition</span><span class="p">,</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
+            <span class="n">partitioning_version</span><span class="o">=</span><span class="n">partitioning_version</span><span class="p">,</span>
+            <span class="n">root_data_dir</span><span class="o">=</span><span class="n">root_data_dir</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">fnames</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Filename&quot;</span><span class="p">]</span>
+        <span class="n">fnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">f</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fnames</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">partition_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">root_data_dir</span><span class="p">,</span>
+            <span class="n">dataset</span><span class="p">,</span>
+            <span class="s2">&quot;sets&quot;</span><span class="p">,</span>
+            <span class="n">partitioning_version</span><span class="p">,</span>
+            <span class="n">partition</span> <span class="o">+</span> <span class="s2">&quot;.txt&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">fnames</span> <span class="o">=</span> <span class="n">list_from_file</span><span class="p">(</span><span class="n">partition_file</span><span class="p">)</span>
+
+    <span class="n">fnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_Sv_raw.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fnames</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">full_path</span> <span class="ow">and</span> <span class="n">sharded</span><span class="p">:</span>
+        <span class="n">root_data_dir</span> <span class="o">=</span> <span class="n">remove_trailing_slash</span><span class="p">(</span><span class="n">root_data_dir</span><span class="p">)</span>
+        <span class="n">fnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_data_dir</span> <span class="o">+</span> <span class="s2">&quot;_sharded&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fnames</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">full_path</span><span class="p">:</span>
+        <span class="n">fnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_data_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fnames</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">fnames</span></div>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By Scott C. Lowe<br/>
+  
+      &copy; Copyright 2022, Scott C. Lowe.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>
