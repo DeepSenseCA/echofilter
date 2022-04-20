@@ -6,7 +6,6 @@ import collections
 from itertools import repeat
 
 import torch
-from torch._six import container_abcs
 from torch import nn
 
 
@@ -15,7 +14,7 @@ __all__ = ["same_to_padding", "init_cnn"]
 
 def _ntuple(n):
     def parse(x):
-        if isinstance(x, container_abcs.Iterable):
+        if isinstance(x, collections.abc.Iterable):
             x = tuple(x)
             if len(x) == 0:
                 raise ValueError("Input {} is an empty iterable".format(x))
