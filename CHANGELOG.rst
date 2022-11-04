@@ -13,6 +13,69 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
+Version `1.0.1 <https://github.com/DeepSenseCA/echofilter/tree/1.0.1>`__
+------------------------------------------------------------------------
+
+Release date: 2022-11-04.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0...1.0.1>`__.
+
+This patch fix addresses requirement inconsistencies and documentation building.
+This release is provided under the `AGPLv3 <https://www.gnu.org/licenses/agpl-3.0.en.html>`__ license.
+
+.. _v1.0.1 Added:
+
+Added
+~~~~~
+
+.. _v1.0.1 Added Documentation:
+
+Documentation
+^^^^^^^^^^^^^
+
+-   Deploy documentation on github pages.
+    (`#251 <https://github.com/DeepSenseCA/echofilter/pull/251>`__)
+
+.. _v1.0.1 Changed:
+
+Changed
+~~~~~~~
+
+.. _v1.0.1 Changed Requirements:
+
+Requirements
+^^^^^^^^^^^^
+
+-   Add a vendorized copy of functions from
+    `torchutils <https://github.com/scottclowe/pytorch-utils>`__
+    and remove it from the requirements.
+    (`#249 <https://github.com/DeepSenseCA/echofilter/pull/249>`__)
+
+.. _v1.0.1 Fixed:
+
+Fixed
+~~~~~
+
+.. _v1.0.1 Fixed Requirements:
+
+Requirements
+^^^^^^^^^^^^
+
+-   Added appdirs package, required for caching model checkpoints.
+    (`#240 <https://github.com/DeepSenseCA/echofilter/pull/240>`__)
+-   Support for pytorch>=1.11 by dropping import of ``torch._six.container_abcs``.
+    (`#250 <https://github.com/DeepSenseCA/echofilter/pull/250>`__)
+
+.. _v1.0.1 Fixed Documentation:
+
+Documentation
+^^^^^^^^^^^^^
+
+-   Fix some API docstrings and CLI help text
+    (`#241 <https://github.com/DeepSenseCA/echofilter/pull/241>`__,
+    `#243 <https://github.com/DeepSenseCA/echofilter/pull/243>`__,
+    `#251 <https://github.com/DeepSenseCA/echofilter/pull/251>`__)
+
+
 Version `1.0.0 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0>`__
 ------------------------------------------------------------------------
 
