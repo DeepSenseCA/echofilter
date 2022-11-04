@@ -354,7 +354,7 @@ def load_checkpoint(
                 import shutil
 
                 _, _, free_B = shutil.disk_usage("/")
-                free_MiB = free_B // 10 ** 6
+                free_MiB = free_B // 10**6
 
                 if free_MiB < 64:
                     msg = (
