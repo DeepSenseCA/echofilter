@@ -20,7 +20,7 @@
     href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
     
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
@@ -29,7 +29,7 @@
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="echofilter.data package" href="echofilter.data.html" />
@@ -536,21 +536,21 @@ title="Print to PDF"
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to input file.</p></li>
-<li><p><strong>destination</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Filename of output destination.</p></li>
-<li><p><strong>variable_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the Echoview acoustic variable to export. Default is
+<li><p><strong>input</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Path to input file.</p></li>
+<li><p><strong>destination</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Filename of output destination.</p></li>
+<li><p><strong>variable_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the Echoview acoustic variable to export. Default is
 <cite>“Fileset1: Sv pings T1”</cite>.</p></li>
 <li><p><strong>ev_app</strong> (<em>win32com.client.Dispatch object</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – An object which can be used to interface with the Echoview application,
 as returned by <cite>win32com.client.Dispatch</cite>. If <cite>None</cite> (default), a
 new instance of the application is opened (and closed on completion).</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Level of verbosity. Default is <cite>0</cite>.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Level of verbosity. Default is <cite>0</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>destination</strong> – Absolute path to <cite>destination</cite>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -564,7 +564,7 @@ new instance of the application is opened (and closed on completion).</p></li>
 <dd class="field-odd"><p><strong>parser</strong> – CLI argument parser for ev2csv.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.10)">argparse.ArgumentParser</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.11)">argparse.ArgumentParser</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -586,29 +586,29 @@ new instance of the application is opened (and closed on completion).</p></li>
 These may be full paths or paths relative to <cite>source_dir</cite>. For each
 folder specified, any files with extension <cite>“csv”</cite> within the folder
 and all its tree of subdirectories will be processed.</p></li>
-<li><p><strong>variable_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the Echoview acoustic variable to export. Default is
+<li><p><strong>variable_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the Echoview acoustic variable to export. Default is
 <cite>“Fileset1: Sv pings T1”</cite>.</p></li>
-<li><p><strong>source_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Path to directory where files are found. Default is <cite>“.”</cite>.</p></li>
-<li><p><strong>recursive_dir_search</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – How to handle directory inputs in <cite>paths</cite>. If <cite>False</cite>, only files
+<li><p><strong>source_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Path to directory where files are found. Default is <cite>“.”</cite>.</p></li>
+<li><p><strong>recursive_dir_search</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – How to handle directory inputs in <cite>paths</cite>. If <cite>False</cite>, only files
 (with the correct extension) in the directory will be included.
 If <cite>True</cite>, subdirectories will also be walked through to find input
 files. Default is <cite>True</cite>.</p></li>
-<li><p><strong>output_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Directory where output files will be written. If this is an empty
+<li><p><strong>output_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Directory where output files will be written. If this is an empty
 string (<cite>“”</cite>, default), outputs are written to the same directory as
 each input file. Otherwise, they are written to <cite>output_dir</cite>,
 preserving their path relative to <cite>source_dir</cite> if relative paths were
 used.</p></li>
-<li><p><strong>suffix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Output filename suffix. Default is <cite>“_Sv_raw.csv”</cite> if <cite>keep_ext=False</cite>,
+<li><p><strong>suffix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Output filename suffix. Default is <cite>“_Sv_raw.csv”</cite> if <cite>keep_ext=False</cite>,
 or <cite>“.Sv_raw.csv”</cite> if <cite>keep_ext=True</cite>.</p></li>
-<li><p><strong>keep_ext</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to preserve the file extension in the input file name when
+<li><p><strong>keep_ext</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to preserve the file extension in the input file name when
 generating output file name. Default is <cite>False</cite>, removing the
 extension.</p></li>
-<li><p><strong>skip_existing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to skip processing files whose destination paths already
+<li><p><strong>skip_existing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to skip processing files whose destination paths already
 exist. If <cite>False</cite> (default), an error is raised if the destination file
 already exists.</p></li>
-<li><p><strong>overwrite_existing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to overwrite existing output files. If <cite>False</cite> (default), an
+<li><p><strong>overwrite_existing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to overwrite existing output files. If <cite>False</cite> (default), an
 error is raised if the destination file already exists.</p></li>
-<li><p><strong>minimize_echoview</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, the Echoview window being used will be minimized while this
+<li><p><strong>minimize_echoview</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, the Echoview window being used will be minimized while this
 function is running. Default is <cite>False</cite>.</p></li>
 <li><p><strong>hide_echoview</strong> (<em>{&quot;never&quot;</em><em>, </em><em>&quot;new&quot;</em><em>, </em><em>&quot;always&quot;}</em><em>, </em><em>optional</em>) – Whether to hide the Echoview window entirely while the code runs.
 If <cite>hide_echoview=”new”</cite>, the application is only hidden if it
@@ -616,8 +616,8 @@ was created by this function, and not if it was already running.
 If <cite>hide_echoview=”always”</cite>, the application is hidden even if it was
 already running. In the latter case, the window will be revealed again
 when this function is completed. Default is <cite>“new”</cite>.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Level of verbosity. Default is <cite>1</cite>.</p></li>
-<li><p><strong>dry_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, perform a trial run with no changes made. Default is
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Level of verbosity. Default is <cite>1</cite>.</p></li>
+<li><p><strong>dry_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, perform a trial run with no changes made. Default is
 <cite>False</cite>.</p></li>
 </ul>
 </dd>
@@ -643,9 +643,9 @@ adds verboseness and graceful failure options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>transect_pth</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Relative path to transect.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to print which transect is being processed. Default is <cite>False</cite>.</p></li>
-<li><p><strong>fail_gracefully</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, any transect which triggers an errors during processing
+<li><p><strong>transect_pth</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Relative path to transect.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to print which transect is being processed. Default is <cite>False</cite>.</p></li>
+<li><p><strong>fail_gracefully</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, any transect which triggers an errors during processing
 will be printed out, but processing the rest of the transects will
 continue. If <cite>False</cite>, the process will halt with an error as soon as
 any single transect hits an error. Default is <cite>True</cite>.</p></li>
@@ -664,16 +664,16 @@ adds verboseness and graceful failure options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>partition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Name of the partition to process (<cite>‘train’</cite>, <cite>‘validate’</cite>, <cite>‘test’</cite>,
+<li><p><strong>partition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Name of the partition to process (<cite>‘train’</cite>, <cite>‘validate’</cite>, <cite>‘test’</cite>,
 etc).</p></li>
-<li><p><strong>dataset</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Name of the dataset to process (<cite>‘mobile’</cite>, <cite>‘MinasPassage’</cite>, etc).</p></li>
-<li><p><strong>partitioning_version</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the partition version to use process. Default is <cite>‘firstpass’</cite>.</p></li>
-<li><p><strong>progress_bar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to output a progress bar using <cite>tqdm</cite>. Default is <cite>False</cite>.</p></li>
-<li><p><strong>ncores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Number of cores to use for multiprocessing. To disable multiprocessing,
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Name of the dataset to process (<cite>‘mobile’</cite>, <cite>‘MinasPassage’</cite>, etc).</p></li>
+<li><p><strong>partitioning_version</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the partition version to use process. Default is <cite>‘firstpass’</cite>.</p></li>
+<li><p><strong>progress_bar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to output a progress bar using <cite>tqdm</cite>. Default is <cite>False</cite>.</p></li>
+<li><p><strong>ncores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Number of cores to use for multiprocessing. To disable multiprocessing,
 set to <cite>1</cite>. Set to <cite>None</cite> to use all available cores.
 Default is <cite>None</cite>.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to print which transect is being processed. Default is <cite>False</cite>.</p></li>
-<li><p><strong>fail_gracefully</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, any transect which triggers an errors during processing
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to print which transect is being processed. Default is <cite>False</cite>.</p></li>
+<li><p><strong>fail_gracefully</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, any transect which triggers an errors during processing
 will be printed out, but processing the rest of the transects will
 continue. If <cite>False</cite>, the process will halt with an error as soon as
 any single transect hits an error. Default is <cite>True</cite>.</p></li>
@@ -692,7 +692,7 @@ any single transect hits an error. Default is <cite>True</cite>.</p></li>
 <dd class="field-odd"><p><strong>parser</strong> – CLI argument parser for generating shards.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.10)">argparse.ArgumentParser</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.11)">argparse.ArgumentParser</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -713,7 +713,7 @@ any single transect hits an error. Default is <cite>True</cite>.</p></li>
 <dd><p>Provide a mapping of named colors from matplotlib.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>include_xkcd</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to include the XKCD color palette in the output.
+<dd class="field-odd"><p><strong>include_xkcd</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to include the XKCD color palette in the output.
 Note that XKCD colors have <cite>“xkcd:”</cite> prepended to their names to
 prevent collisions with official named colors from CSS4.
 Default is <cite>True</cite>.
@@ -726,7 +726,7 @@ for the XKCD colors.</p>
 an RGB tuple (fractional, 0 to 1 range) or a hexadecimal string.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -737,7 +737,7 @@ an RGB tuple (fractional, 0 to 1 range) or a hexadecimal string.</p>
 <dd><p>Utility for mapping hexadecimal colors to uint8 RGB.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>color</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – A hexadecimal color string, with leading “#”.
+<dd class="field-odd"><p><strong>color</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – A hexadecimal color string, with leading “#”.
 If the input is not a string beginning with “#”, it is returned as-is
 without raising an error.</p>
 </dd>
@@ -745,7 +745,7 @@ without raising an error.</p>
 <dd class="field-even"><p>RGB color tuple, in uint8 format (0–255).</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)">tuple</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)">tuple</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -757,26 +757,26 @@ without raising an error.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ev_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to Echoview file to import variables into.</p></li>
-<li><p><strong>files</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Mapping from output keys to filenames.</p></li>
-<li><p><strong>target_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em>, </em><em>optional</em>) – Mapping from output keys to output variable names.</p></li>
-<li><p><strong>nearfield_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Depth at which nearfield line will be placed. If <cite>None</cite> (default), no
+<li><p><strong>ev_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Path to Echoview file to import variables into.</p></li>
+<li><p><strong>files</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – Mapping from output keys to filenames.</p></li>
+<li><p><strong>target_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a><em>, </em><em>optional</em>) – Mapping from output keys to output variable names.</p></li>
+<li><p><strong>nearfield_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Depth at which nearfield line will be placed. If <cite>None</cite> (default), no
 nearfield line will be added, irrespective of <cite>add_nearfield_line</cite>.</p></li>
-<li><p><strong>add_nearfield_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to add a nearfield line. Default is <cite>True</cite>.</p></li>
+<li><p><strong>add_nearfield_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to add a nearfield line. Default is <cite>True</cite>.</p></li>
 <li><p><strong>lines_cutoff_at_nearfield</strong> (<em>list of str</em><em>, </em><em>optional</em>) – Which lines (if any) should be clipped at the nearfield depth.
 Default is <cite>[]</cite>.</p></li>
-<li><p><strong>offsets</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em>, </em><em>optional</em>) – Amount of offset for each line.</p></li>
-<li><p><strong>line_colors</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em>, </em><em>optional</em>) – Mapping from output keys to line colours.</p></li>
-<li><p><strong>line_thicknesses</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em>, </em><em>optional</em>) – Mapping from output keys to line thicknesses.</p></li>
+<li><p><strong>offsets</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a><em>, </em><em>optional</em>) – Amount of offset for each line.</p></li>
+<li><p><strong>line_colors</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a><em>, </em><em>optional</em>) – Mapping from output keys to line colours.</p></li>
+<li><p><strong>line_thicknesses</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a><em>, </em><em>optional</em>) – Mapping from output keys to line thicknesses.</p></li>
 <li><p><strong>ev_app</strong> (<em>win32com.client.Dispatch object</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – An object which can be used to interface with the Echoview application,
 as returned by <cite>win32com.client.Dispatch</cite>. If <cite>None</cite> (default), a
 new instance of the application is opened (and closed on completion).</p></li>
-<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether existing lines with target names should be replaced.
+<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether existing lines with target names should be replaced.
 If a line with the target name already exists and <cite>overwrite=False</cite>,
 the line is named with the current datetime to prevent collisions.
 Default is <cite>False</cite>.</p></li>
-<li><p><strong>common_notes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Notes to include for every region. Default is <cite>“”</cite>.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Verbosity level. Default is <cite>1</cite>.</p></li>
+<li><p><strong>common_notes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Notes to include for every region. Default is <cite>“”</cite>.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Verbosity level. Default is <cite>1</cite>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -795,33 +795,33 @@ vector.</p></li>
 <li><p><strong>depths</strong> (<em>array_like</em>) – Recording depths from the surface (in metres). Must be a vector.</p></li>
 <li><p><strong>signals</strong> (<em>array_like</em>) – Echogram Sv data. Must be a matrix shaped
 <cite>(len(timestamps), len(depths))</cite>.</p></li>
-<li><p><strong>image_height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Height to resize echogram before passing through model.</p></li>
+<li><p><strong>image_height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Height to resize echogram before passing through model.</p></li>
 <li><p><strong>facing</strong> (<em>{&quot;downward&quot;</em><em>, </em><em>&quot;upward&quot;</em><em>, </em><em>&quot;auto&quot;}</em><em>, </em><em>optional</em>) – Orientation in which the echosounder is facing. Default is <cite>“auto”</cite>,
 in which case the orientation is determined from the ordering of the
 depth values in the data (increasing = <cite>“upward”</cite>,
 decreasing = <cite>“downward”</cite>).</p></li>
-<li><p><strong>crop_min_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Minimum depth to include in input. If <cite>None</cite> (default), there is no
+<li><p><strong>crop_min_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Minimum depth to include in input. If <cite>None</cite> (default), there is no
 minimum depth.</p></li>
-<li><p><strong>crop_max_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Maxmimum depth to include in input. If <cite>None</cite> (default), there is no
+<li><p><strong>crop_max_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Maxmimum depth to include in input. If <cite>None</cite> (default), there is no
 maximum depth.</p></li>
-<li><p><strong>autocrop_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum fraction of input height which must be found to be removable
+<li><p><strong>autocrop_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum fraction of input height which must be found to be removable
 for the model to be re-run with an automatically cropped input.
 Default is 0.35.</p></li>
-<li><p><strong>force_unconditioned</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to always use unconditioned logit outputs when deteriming the
+<li><p><strong>force_unconditioned</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to always use unconditioned logit outputs when deteriming the
 new depth range for automatic cropping.</p></li>
-<li><p><strong>data_center</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Center point to use, which will be subtracted from the Sv signals
+<li><p><strong>data_center</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Center point to use, which will be subtracted from the Sv signals
 (i.e. the overall sample mean).
 If <cite>data_center</cite> is a string, it specifies the method to use to
 determine the center value from the distribution of intensities seen
 in this sample transect. Default is <cite>“mean”</cite>.</p></li>
-<li><p><strong>data_deviation</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Deviation to use to normalise the Sv signals in divisive manner
+<li><p><strong>data_deviation</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Deviation to use to normalise the Sv signals in divisive manner
 (i.e. the overall sample standard deviation).
 If <cite>data_deviation</cite> is a string, it specifies the method to use to
 determine the center value from the distribution of intensities seen
 in this sample transect. Default is <cite>“stdev”</cite>.</p></li>
-<li><p><strong>nan_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Placeholder value to replace NaNs with. Default is <cite>-3</cite>.</p></li>
-<li><p><strong>dtype</strong> (<em>torch.dtype</em><em>, </em><em>optional</em>) – Datatype to use for model input. Default is <cite>torch.float</cite>.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Level of verbosity. Default is <cite>0</cite>.</p></li>
+<li><p><strong>nan_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Placeholder value to replace NaNs with. Default is <cite>-3</cite>.</p></li>
+<li><p><strong>dtype</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.dtype" title="(in PyTorch v1.13)"><em>torch.dtype</em></a><em>, </em><em>optional</em>) – Datatype to use for model input. Default is <cite>torch.float</cite>.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Level of verbosity. Default is <cite>0</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -829,7 +829,7 @@ in this sample transect. Default is <cite>“stdev”</cite>.</p></li>
 plus <cite>timestamps</cite> and <cite>depths</cite>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -846,107 +846,107 @@ in EVR file formats.</p>
 relative to <cite>source_dir</cite>. For each folder specified, any files with
 extension <cite>“csv”</cite> within the folder and all its tree of subdirectories
 will be processed.</p></li>
-<li><p><strong>source_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Path to directory where files are found. Default is <cite>“.”</cite>.</p></li>
-<li><p><strong>recursive_dir_search</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – How to handle directory inputs in <cite>paths</cite>. If <cite>False</cite>, only files
+<li><p><strong>source_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Path to directory where files are found. Default is <cite>“.”</cite>.</p></li>
+<li><p><strong>recursive_dir_search</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – How to handle directory inputs in <cite>paths</cite>. If <cite>False</cite>, only files
 (with the correct extension) in the directory will be included.
 If <cite>True</cite>, subdirectories will also be walked through to find input
 files. Default is <cite>True</cite>.</p></li>
-<li><p><strong>extensions</strong> (<em>iterable</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – File extensions to detect when running on a directory. Default is
+<li><p><strong>extensions</strong> (<em>iterable</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – File extensions to detect when running on a directory. Default is
 <cite>“csv”</cite>.</p></li>
-<li><p><strong>skip_existing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Skip processing files which already have all outputs present. Default
+<li><p><strong>skip_existing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Skip processing files which already have all outputs present. Default
 is <cite>False</cite>.</p></li>
-<li><p><strong>skip_incompatible</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Skip processing CSV files which do not seem to contain an exported
+<li><p><strong>skip_incompatible</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Skip processing CSV files which do not seem to contain an exported
 Echoview transect. If <cite>False</cite>, an error is raised. Default is <cite>False</cite>.</p></li>
-<li><p><strong>output_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Directory where output files will be written. If this is an empty
+<li><p><strong>output_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Directory where output files will be written. If this is an empty
 string (<cite>“”</cite>, default), outputs are written to the same directory as
 each input file. Otherwise, they are written to <cite>output_dir</cite>,
 preserving their path relative to <cite>source_dir</cite> if relative paths were
 used.</p></li>
-<li><p><strong>dry_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, perform a trial run with no changes made. Default is
+<li><p><strong>dry_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, perform a trial run with no changes made. Default is
 <cite>False</cite>.</p></li>
-<li><p><strong>continue_on_error</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=False</em>) – Continue running on remaining files if one file hits an error.</p></li>
-<li><p><strong>overwrite_existing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Overwrite existing outputs without producing a warning message. If
+<li><p><strong>continue_on_error</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>default=False</em>) – Continue running on remaining files if one file hits an error.</p></li>
+<li><p><strong>overwrite_existing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Overwrite existing outputs without producing a warning message. If
 <cite>False</cite>, an error is generated if files would be overwritten.
 Default is <cite>False</cite>.</p></li>
-<li><p><strong>overwrite_ev_lines</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Overwrite existing lines within the Echoview file without warning.
+<li><p><strong>overwrite_ev_lines</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Overwrite existing lines within the Echoview file without warning.
 If <cite>False</cite> (default), the current datetime will be appended to line
 variable names in the event of a collision.</p></li>
-<li><p><strong>import_into_evfile</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to import the output lines and regions into the EV file,
+<li><p><strong>import_into_evfile</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to import the output lines and regions into the EV file,
 whenever the file being processed in an EV file. Default is <cite>True</cite>.</p></li>
-<li><p><strong>generate_turbulence_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to output an evl file for the turbulence line. If this is
+<li><p><strong>generate_turbulence_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to output an evl file for the turbulence line. If this is
 <cite>False</cite>, the turbulence line is also never imported into Echoview.
 Default is <cite>True</cite>.</p></li>
-<li><p><strong>generate_bottom_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to output an evl file for the bottom line. If this is <cite>False</cite>,
+<li><p><strong>generate_bottom_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to output an evl file for the bottom line. If this is <cite>False</cite>,
 the bottom line is also never imported into Echoview.
 Default is <cite>True</cite>.</p></li>
-<li><p><strong>generate_surface_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to output an evl file for the surface line. If this is <cite>False</cite>,
+<li><p><strong>generate_surface_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to output an evl file for the surface line. If this is <cite>False</cite>,
 the surface line is also never imported into Echoview.
 Default is <cite>True</cite>.</p></li>
-<li><p><strong>add_nearfield_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to add a nearfield line to the EV file in Echoview.
+<li><p><strong>add_nearfield_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to add a nearfield line to the EV file in Echoview.
 Default is <cite>True</cite>.</p></li>
-<li><p><strong>suffix_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Suffix to append to output artifacts (evl and evr files), between
+<li><p><strong>suffix_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Suffix to append to output artifacts (evl and evr files), between
 the name of the file and the extension. If <cite>suffix_file</cite> begins with
 an alphanumeric character, <cite>“-“</cite> is prepended. Default is <cite>“”</cite>.</p></li>
-<li><p><strong>suffix_var</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Suffix to append to line and region names when imported back into
+<li><p><strong>suffix_var</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Suffix to append to line and region names when imported back into
 EV file. If <cite>suffix_var</cite> begins with an alphanumeric character, <cite>“-“</cite>
 is prepended. If <cite>None</cite> (default), suffix_var will match <cite>suffix_file</cite>
 if it is set, and will be “_echofilter” otherwise.</p></li>
-<li><p><strong>color_turbulence</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Color to use for the turbulence line when it is imported into Echoview.
+<li><p><strong>color_turbulence</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Color to use for the turbulence line when it is imported into Echoview.
 This can either be the name of a supported color from
 matplotlib.colors, or a hexadecimal color, or a string representation
 of an RGB color to supply directly to Echoview (such as “(0,255,0)”).
 Default is <cite>“orangered”</cite>.</p></li>
-<li><p><strong>color_turbulence_offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Color to use for the offset turbulence line when it is imported into
+<li><p><strong>color_turbulence_offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Color to use for the offset turbulence line when it is imported into
 Echoview. If <cite>None</cite> (default) <cite>color_turbulence</cite> is used.</p></li>
-<li><p><strong>color_bottom</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Color to use for the bottom line when it is imported into Echoview.
+<li><p><strong>color_bottom</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Color to use for the bottom line when it is imported into Echoview.
 This can either be the name of a supported color from
 matplotlib.colors, or a hexadecimal color, or a string representation
 of an RGB color to supply directly to Echoview (such as “(0,255,0)”).
 Default is <cite>“orangered”</cite>.</p></li>
-<li><p><strong>color_bottom_offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Color to use for the offset bottom line when it is imported into
+<li><p><strong>color_bottom_offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Color to use for the offset bottom line when it is imported into
 Echoview. If <cite>None</cite> (default) <cite>color_bottom</cite> is used.</p></li>
-<li><p><strong>color_surface</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Color to use for the surface line when it is imported into Echoview.
+<li><p><strong>color_surface</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Color to use for the surface line when it is imported into Echoview.
 This can either be the name of a supported color from
 matplotlib.colors, or a hexadecimal color, or a string representation
 of an RGB color to supply directly to Echoview (such as “(0,255,0)”).
 Default is <cite>“green”</cite>.</p></li>
-<li><p><strong>color_surface_offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Color to use for the offset surface line when it is imported into
+<li><p><strong>color_surface_offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Color to use for the offset surface line when it is imported into
 Echoview. If <cite>None</cite> (default) <cite>color_surface</cite> is used.</p></li>
-<li><p><strong>color_nearfield</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Color to use for the nearfield line when it is created in Echoview.
+<li><p><strong>color_nearfield</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Color to use for the nearfield line when it is created in Echoview.
 This can either be the name of a supported color from
 matplotlib.colors, or a hexadecimal color, or a string representation
 of an RGB color to supply directly to Echoview (such as “(0,255,0)”).
 Default is <cite>“mediumseagreen”</cite>.</p></li>
-<li><p><strong>thickness_turbulence</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Thickness with which the turbulence line will be displayed in Echoview.
+<li><p><strong>thickness_turbulence</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Thickness with which the turbulence line will be displayed in Echoview.
 Default is <cite>2</cite>.</p></li>
-<li><p><strong>thickness_turbulence_offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Thickness with which the offset turbulence line will be displayed in
+<li><p><strong>thickness_turbulence_offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Thickness with which the offset turbulence line will be displayed in
 Echoview. If <cite>None</cite> (default) <cite>thickness_turbulence</cite> is used.</p></li>
-<li><p><strong>thickness_bottom</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Thickness with which the bottom line will be displayed in Echoview.
+<li><p><strong>thickness_bottom</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Thickness with which the bottom line will be displayed in Echoview.
 Default is <cite>2</cite>.</p></li>
-<li><p><strong>thickness_bottom_offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Thickness with which the offset bottom line will be displayed in
+<li><p><strong>thickness_bottom_offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Thickness with which the offset bottom line will be displayed in
 Echoview. If <cite>None</cite> (default) <cite>thickness_bottom</cite> is used.</p></li>
-<li><p><strong>thickness_surface</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Thickness with which the surface line will be displayed in Echoview.
+<li><p><strong>thickness_surface</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Thickness with which the surface line will be displayed in Echoview.
 Default is <cite>1</cite>.</p></li>
-<li><p><strong>thickness_surface_offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Thickness with which the offset surface line will be displayed in
+<li><p><strong>thickness_surface_offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Thickness with which the offset surface line will be displayed in
 Echoview. If <cite>None</cite> (default) <cite>thickness_surface</cite> is used.</p></li>
-<li><p><strong>thickness_nearfield</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Thickness with which the nearfield line will be displayed in Echoview.
+<li><p><strong>thickness_nearfield</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Thickness with which the nearfield line will be displayed in Echoview.
 Default is <cite>1</cite>.</p></li>
-<li><p><strong>cache_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Path to directory where downloaded checkpoint files should be cached.
+<li><p><strong>cache_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Path to directory where downloaded checkpoint files should be cached.
 If <cite>None</cite> (default), an OS-appropriate application-specific default
 cache directory is used.</p></li>
-<li><p><strong>cache_csv</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Path to directory where CSV files generated from EV inputs should be
+<li><p><strong>cache_csv</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Path to directory where CSV files generated from EV inputs should be
 cached. If <cite>None</cite> (default), EV files which are exported to CSV files
 are temporary files, deleted after this program has completed. If
 <cite>cache_csv=””</cite>, the CSV files are cached in the same directory as the
 input EV files.</p></li>
-<li><p><strong>suffix_csv</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Suffix used for cached CSV files which are exported from EV files.
+<li><p><strong>suffix_csv</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Suffix used for cached CSV files which are exported from EV files.
 If <cite>suffix_file</cite> begins with an alphanumeric character, a delimiter
 is prepended. The delimiter is <cite>“.”</cite> if <cite>keep_ext=True</cite> or <cite>“-“</cite> if
 <cite>keep_ext=False</cite>. Default is <cite>“”</cite>.</p></li>
-<li><p><strong>keep_ext</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to preserve the file extension in the input file name when
+<li><p><strong>keep_ext</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to preserve the file extension in the input file name when
 generating output file name. Default is <cite>False</cite>, removing the
 extension.</p></li>
-<li><p><strong>line_status</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – <p>Status to use for the lines.
+<li><p><strong>line_status</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – <p>Status to use for the lines.
 Must be one of:</p>
 <ul>
 <li><p><cite>0</cite> : none</p></li>
@@ -956,13 +956,13 @@ Must be one of:</p>
 </ul>
 <p>Default is <cite>3</cite>.</p>
 </p></li>
-<li><p><strong>offset_turbulence</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Offset for turbulence line, which moves the turbulence line deeper.
+<li><p><strong>offset_turbulence</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Offset for turbulence line, which moves the turbulence line deeper.
 Default is <cite>1.0</cite>.</p></li>
-<li><p><strong>offset_bottom</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Offset for bottom line, which moves the line to become more shallow.
+<li><p><strong>offset_bottom</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Offset for bottom line, which moves the line to become more shallow.
 Default is <cite>1.0</cite>.</p></li>
-<li><p><strong>offset_surface</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Offset for surface line, which moves the surface line deeper.
+<li><p><strong>offset_surface</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Offset for surface line, which moves the surface line deeper.
 Default is <cite>1.0</cite>.</p></li>
-<li><p><strong>nearfield</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Nearfield approach distance, in metres.
+<li><p><strong>nearfield</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Nearfield approach distance, in metres.
 If the echogram is downward facing, the nearfield cutoff depth
 will be at a depth equal to the nearfield distance.
 If the echogram is upward facing, the nearfield cutoff will be
@@ -972,12 +972,12 @@ When processing an EV file, by default a nearfield line will be
 added at the nearfield cutoff depth. To prevent this behaviour,
 use the –no-nearfield-line argument.
 Default is <cite>1.7</cite>.</p></li>
-<li><p><strong>cutoff_at_nearfield</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Whether to cut-off the turbulence line (for downfacing data) or bottom
+<li><p><strong>cutoff_at_nearfield</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Whether to cut-off the turbulence line (for downfacing data) or bottom
 line (for upfacing) when it is closer to the echosounder than the
 <cite>nearfield</cite> distance.
 If <cite>None</cite> (default), the bottom line is clipped (for upfacing data),
 but the turbulence line is not clipped (even with downfacing data).</p></li>
-<li><p><strong>lines_during_passive</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – <p>Method used to handle line depths during collection
+<li><p><strong>lines_during_passive</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – <p>Method used to handle line depths during collection
 periods determined to be passive recording instead of
 active recording.
 Options are:</p>
@@ -1005,25 +1005,25 @@ which is <cite>-10000.99</cite>.</p>
 </dl>
 <p>Default: “interpolate-time”.</p>
 </p></li>
-<li><p><strong>collate_passive_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Maximum interval, in ping indices, between detected passive regions
+<li><p><strong>collate_passive_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Maximum interval, in ping indices, between detected passive regions
 which will removed to merge consecutive passive regions together
 into a single, collated, region. Default is 10.</p></li>
 <li><p><strong>collate_passive_length</strong> – Maximum interval, in ping indices, between detected blocks
 (vertical rectangles) marked for removal which will also be removed
 to merge consecutive removed blocks together into a single,
 collated, region. Default is 10.</p></li>
-<li><p><strong>minimum_passive_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Minimum length, in ping indices, which a detected passive region
+<li><p><strong>minimum_passive_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Minimum length, in ping indices, which a detected passive region
 must have to be included in the output. Set to -1 to omit all
 detected passive regions from the output. Default is 10.</p></li>
-<li><p><strong>minimum_removed_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Minimum length, in ping indices, which a detected removal block
+<li><p><strong>minimum_removed_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Minimum length, in ping indices, which a detected removal block
 (vertical rectangle) must have to be included in the output.
 Set to -1 to omit all detected removal blocks from the output
 (default). Recommended minimum length is 10.</p></li>
-<li><p><strong>minimum_patch_area</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Minimum area, in pixels, which a detected removal patch
+<li><p><strong>minimum_patch_area</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Minimum area, in pixels, which a detected removal patch
 (contour/polygon) region must have to be included in the output.
 Set to -1 to omit all detected patches from the output (default).
 Recommended minimum length 25.</p></li>
-<li><p><strong>patch_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – <p>Type of mask patches to use. Must be supported by the
+<li><p><strong>patch_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – <p>Type of mask patches to use. Must be supported by the
 model checkpoint used. Should be one of:</p>
 <dl class="simple">
 <dt><cite>”merged”</cite></dt><dd><p>Target patches for training were determined
@@ -1042,39 +1042,39 @@ turbulence line.</p>
 <p>If <cite>None</cite> (default), <cite>“merged”</cite> is used if downfacing and <cite>“ntob”</cite> is
 used if upfacing.</p>
 </p></li>
-<li><p><strong>variable_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the Echoview acoustic variable to load from EV files. Default
+<li><p><strong>variable_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the Echoview acoustic variable to load from EV files. Default
 is <cite>“Fileset1: Sv pings T1”</cite>.</p></li>
-<li><p><strong>row_len_selector</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Method used to handle input csv files with different number of Sv
+<li><p><strong>row_len_selector</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Method used to handle input csv files with different number of Sv
 values across time (i.e. a non-rectangular input). Default is <cite>“mode”</cite>.
 See <a class="reference internal" href="echofilter.raw.html#echofilter.raw.loader.transect_loader" title="echofilter.raw.loader.transect_loader"><code class="xref py py-meth docutils literal notranslate"><span class="pre">echofilter.raw.loader.transect_loader()</span></code></a> for options.</p></li>
 <li><p><strong>facing</strong> (<em>{&quot;downward&quot;</em><em>, </em><em>&quot;upward&quot;</em><em>, </em><em>&quot;auto&quot;}</em><em>, </em><em>optional</em>) – Orientation in which the echosounder is facing. Default is <cite>“auto”</cite>,
 in which case the orientation is determined from the ordering of the
 depth values in the data (increasing = <cite>“upward”</cite>,
 decreasing = <cite>“downward”</cite>).</p></li>
-<li><p><strong>use_training_standardization</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to use the exact normalization center and deviation values as
+<li><p><strong>use_training_standardization</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to use the exact normalization center and deviation values as
 used during training. If <cite>False</cite> (default), the center and deviation
 are determined per sample, using the same method methodology as used
 to determine the center and deviation values for training.</p></li>
-<li><p><strong>crop_min_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Minimum depth to include in input. If <cite>None</cite> (default), there is no
+<li><p><strong>crop_min_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Minimum depth to include in input. If <cite>None</cite> (default), there is no
 minimum depth.</p></li>
-<li><p><strong>crop_max_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Maxmimum depth to include in input. If <cite>None</cite> (default), there is no
+<li><p><strong>crop_max_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Maxmimum depth to include in input. If <cite>None</cite> (default), there is no
 maximum depth.</p></li>
-<li><p><strong>autocrop_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum fraction of input height which must be found to be removable
+<li><p><strong>autocrop_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum fraction of input height which must be found to be removable
 for the model to be re-run with an automatically cropped input.
 Default is 0.35.</p></li>
-<li><p><strong>image_height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Height in pixels of input to model. The data loaded from the csv will
+<li><p><strong>image_height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Height in pixels of input to model. The data loaded from the csv will
 be resized to this height (the width of the image is unchanged).
 If <cite>None</cite> (default), the height matches that used when the model was
 trained.</p></li>
-<li><p><strong>checkpoint</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – A path to a checkpoint file, or name of a checkpoint known to this
+<li><p><strong>checkpoint</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – A path to a checkpoint file, or name of a checkpoint known to this
 package (listed in <cite>echofilter/checkpoints.yaml</cite>). If <cite>None</cite> (default),
 the first checkpoint in <cite>checkpoints.yaml</cite> is used.</p></li>
-<li><p><strong>force_unconditioned</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to always use unconditioned logit outputs. If <cite>False</cite>
+<li><p><strong>force_unconditioned</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to always use unconditioned logit outputs. If <cite>False</cite>
 (default) conditional logits will be used if the checkpoint loaded is
 for a conditional model.</p></li>
-<li><p><strong>logit_smoothing_sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Standard deviation over which logits will be smoothed before being
+<li><p><strong>logit_smoothing_sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Standard deviation over which logits will be smoothed before being
 converted into output. Default is <cite>1</cite>.</p></li>
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>torch.device</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Name of device on which the model will be run. If <cite>None</cite>, the first
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v1.13)"><em>torch.device</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Name of device on which the model will be run. If <cite>None</cite>, the first
 available CUDA GPU is used if any are found, and otherwise the CPU is
 used. Set to <cite>“cpu”</cite> to use the CPU even if a CUDA GPU is available.</p></li>
 <li><p><strong>hide_echoview</strong> (<em>{&quot;never&quot;</em><em>, </em><em>&quot;new&quot;</em><em>, </em><em>&quot;always&quot;}</em><em>, </em><em>optional</em>) – Whether to hide the Echoview window entirely while the code runs.
@@ -1083,9 +1083,9 @@ was created by this function, and not if it was already running.
 If <code class="docutils literal notranslate"><span class="pre">hide_echoview=&quot;always&quot;</span></code>, the application is hidden even if it was
 already running. In the latter case, the window will be revealed again
 when this function is completed. Default is <cite>“new”</cite>.</p></li>
-<li><p><strong>minimize_echoview</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, the Echoview window being used will be minimized while this
+<li><p><strong>minimize_echoview</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, the Echoview window being used will be minimized while this
 function is running. Default is <cite>False</cite>.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Verbosity level. Default is <cite>2</cite>. Set to <cite>0</cite> to disable print
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Verbosity level. Default is <cite>2</cite>. Set to <cite>0</cite> to disable print
 statements, or elevate to a higher number to increase verbosity.</p></li>
 </ul>
 </dd>
@@ -1105,7 +1105,7 @@ statements, or elevate to a higher number to increase verbosity.</p></li>
 <dd class="field-odd"><p>Whether the OS is Windows.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)">bool</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1118,19 +1118,19 @@ paths.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Original input path.</p></li>
-<li><p><strong>fname_full</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to file, either absolute or relative; possibly containing
+<li><p><strong>fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Original input path.</p></li>
+<li><p><strong>fname_full</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Path to file, either absolute or relative; possibly containing
 <cite>source_dir</cite>.</p></li>
-<li><p><strong>source_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to a directory where the file bearing name <cite>fname</cite> is expected to
+<li><p><strong>source_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Path to a directory where the file bearing name <cite>fname</cite> is expected to
 be located.</p></li>
-<li><p><strong>output_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to root output directory.</p></li>
+<li><p><strong>output_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Path to root output directory.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Path to where file can be found, either absolute or relative.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1142,9 +1142,9 @@ be located.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to an input file. Either an absolute path, or a path relative to
+<li><p><strong>fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Path to an input file. Either an absolute path, or a path relative to
 to <cite>source_dir</cite>, or a path relative to the working directory.</p></li>
-<li><p><strong>source_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to a directory where the file bearing name <cite>fname</cite> is expected to
+<li><p><strong>source_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Path to a directory where the file bearing name <cite>fname</cite> is expected to
 be located.</p></li>
 </ul>
 </dd>
@@ -1152,7 +1152,7 @@ be located.</p></li>
 <dd class="field-even"><p>Path to where file can be found, either absolute or relative.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1165,12 +1165,12 @@ be located.</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>files_or_folders</strong> (<em>iterable</em>) – List of files and folders.</p></li>
-<li><p><strong>source_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Root directory within which elements of <cite>files_or_folders</cite> may
+<li><p><strong>source_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Root directory within which elements of <cite>files_or_folders</cite> may
 be found.</p></li>
-<li><p><strong>extension</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>Collection</em>) – Extension (or list of extensions) which files within directories must
+<li><p><strong>extension</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>Collection</em>) – Extension (or list of extensions) which files within directories must
 bear to be included, without leading <cite>‘.’</cite>, for instance <cite>‘.csv’</cite>.
 Note that explicitly given files are always used.</p></li>
-<li><p><strong>recursive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to walk through the tree of files in a subfolders of a
+<li><p><strong>recursive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to walk through the tree of files in a subfolders of a
 directory input. If <cite>False</cite>, only files in the folder itself and
 not its child folders will be included.</p></li>
 </ul>
@@ -1211,11 +1211,11 @@ extension <cite>extension</cite>.</p>
 columns are indicated with non-zero values.</p></li>
 <li><p><strong>xx</strong> (<em>numpy.ndarray vector</em><em>, </em><em>optional</em>) – Values taken by indicator along the x-axis. If <cite>None</cite> (default), the
 indices of <cite>indicator</cite> are used: <cite>arange(len(indicator))</cite>.</p></li>
-<li><p><strong>ymin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – The lower y-value of the extent of the hatching. If <cite>None</cite> (default),
+<li><p><strong>ymin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – The lower y-value of the extent of the hatching. If <cite>None</cite> (default),
 the minimum y-value of the current axes is used.</p></li>
-<li><p><strong>ymax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – The upper y-value of the extent of the hatching. If <cite>None</cite> (default),
+<li><p><strong>ymax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – The upper y-value of the extent of the hatching. If <cite>None</cite> (default),
 the maximum y-value of the current axes is used.</p></li>
-<li><p><strong>hatch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Hatching pattern to use. Default is <cite>“//”</cite>.</p></li>
+<li><p><strong>hatch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Hatching pattern to use. Default is <cite>“//”</cite>.</p></li>
 <li><p><strong>color</strong> (<em>color</em><em>, </em><em>optional</em>) – Color of the hatching pattern. Default is black.</p></li>
 </ul>
 </dd>
@@ -1247,9 +1247,9 @@ in <cite>Z</cite>.</p>
 </p></li>
 <li><p><strong>Z</strong> (<em>array-like</em><em>(</em><em>N</em><em>, </em><em>M</em><em>)</em>) – Indicator for which locations should be hatched. If <cite>Z</cite> is not a boolean
 array, any location where <code class="docutils literal notranslate"><span class="pre">Z</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> will be hatched.</p></li>
-<li><p><strong>hatch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – The hatching pattern to apply. Default is “//”.</p></li>
+<li><p><strong>hatch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – The hatching pattern to apply. Default is “//”.</p></li>
 <li><p><strong>color</strong> (<em>color</em><em>, </em><em>optional</em>) – The color of the hatch. Default is black.</p></li>
-<li><p><strong>border</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to include border around hatch. Default is <cite>False</cite>.</p></li>
+<li><p><strong>border</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to include border around hatch. Default is <cite>False</cite>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1262,14 +1262,14 @@ array, any location where <code class="docutils literal notranslate"><span class
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>transect</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Transect values.</p></li>
-<li><p><strong>signal_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – The signal to plot as a heatmap. Default is <cite>“Sv”</cite> if present, or
+<li><p><strong>transect</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – Transect values.</p></li>
+<li><p><strong>signal_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – The signal to plot as a heatmap. Default is <cite>“Sv”</cite> if present, or
 “signals” if not. If this is <cite>“Sv_masked”</cite>, the mask (given by
 <cite>transect[“mask”]</cite>) is used to mask <cite>transect[“Sv”]</cite> before plotting.</p></li>
 <li><p><strong>x_scale</strong> (<em>{&quot;index&quot;</em><em>, </em><em>&quot;timestamp&quot; &quot;time&quot;}</em><em>, </em><em>optional</em>) – Scaling for x-axis. If <cite>“timestamp”</cite>, the number of seconds since the
 Unix epoch is shown; if <cite>“time”</cite>, the amount of time in seconds since
 the start of the transect is shown. Default is <cite>“index”</cite>.</p></li>
-<li><p><strong>show_regions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to show segments of data maked as removed or passive with
+<li><p><strong>show_regions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to show segments of data maked as removed or passive with
 hatching. Passive data is shown with <cite>“/”</cite> oriented lines, other removed
 timestamps with <cite>“&quot;</cite> oriented lines. Default is <cite>True</cite>.</p></li>
 <li><p><strong>turbulence_color</strong> (<em>color</em><em>, </em><em>optional</em>) – Color of turbulence line. Default is <cite>“#a6cee3”</cite>.</p></li>
@@ -1278,8 +1278,8 @@ timestamps with <cite>“&quot;</cite> oriented lines. Default is <cite>True</ci
 <li><p><strong>passive_color</strong> (<em>color</em><em>, </em><em>optional</em>) – Color of passive segment hatching. Default is <cite>[.4, .4, .4]</cite>.</p></li>
 <li><p><strong>removed_color</strong> (<em>color</em><em>, </em><em>optional</em>) – Color of removed segment hatching. Default is <cite>“r”</cite> if <cite>cmap</cite> is
 <cite>“viridis”</cite>, and <cite>“b”</cite> otherwise.</p></li>
-<li><p><strong>linewidth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Width of lines. Default is <cite>2</cite>.</p></li>
-<li><p><strong>cmap</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Name of a registered matplotlib colormap. If <cite>None</cite> (default), the
+<li><p><strong>linewidth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Width of lines. Default is <cite>2</cite>.</p></li>
+<li><p><strong>cmap</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Name of a registered matplotlib colormap. If <cite>None</cite> (default), the
 current default colormap is used.</p></li>
 </ul>
 </dd>
@@ -1302,10 +1302,10 @@ prediction.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>transect</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Ground truth data for the transect.</p></li>
-<li><p><strong>prediction</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Predictions for the transect.</p></li>
-<li><p><strong>linewidth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Width of lines. Default is <cite>2</cite>.</p></li>
-<li><p><strong>cmap</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Name of a registered matplotlib colormap. If <cite>None</cite> (default), the
+<li><p><strong>transect</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – Ground truth data for the transect.</p></li>
+<li><p><strong>prediction</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – Predictions for the transect.</p></li>
+<li><p><strong>linewidth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Width of lines. Default is <cite>2</cite>.</p></li>
+<li><p><strong>cmap</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Name of a registered matplotlib colormap. If <cite>None</cite> (default), the
 current default colormap is used.</p></li>
 </ul>
 </dd>
@@ -1323,18 +1323,18 @@ current default colormap is used.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Name of the dataset. This can optionally be a list of
+<li><p><strong>dataset_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Name of the dataset. This can optionally be a list of
 multiple datasets joined with <cite>“+”</cite>.</p></li>
-<li><p><strong>data_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to root data directory, containing the dataset.</p></li>
+<li><p><strong>data_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Path to root data directory, containing the dataset.</p></li>
 <li><p><strong>sample_shape</strong> (<em>iterable of length 2</em>) – The shape which will be used for training.</p></li>
-<li><p><strong>train_partition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the partition to use for training. Can optionally be a list of
+<li><p><strong>train_partition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the partition to use for training. Can optionally be a list of
 multiple partitions joined with <cite>“+”</cite>. Default is <cite>“train”</cite>
 (except for <cite>stationary2</cite> where it is mixed).</p></li>
-<li><p><strong>val_partition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the partition to use for validation. Can optionally be a list
+<li><p><strong>val_partition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the partition to use for validation. Can optionally be a list
 of multiple partitions joined with <cite>“+”</cite>. Default is <cite>“validate”</cite>
 (except for <cite>stationary2</cite> where it is mixed).</p></li>
-<li><p><strong>crop_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Depth at which to crop samples. Default is <cite>None</cite>.</p></li>
-<li><p><strong>random_crop_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em>, </em><em>optional</em>) – Arguments to control the random crop used during training. Default is
+<li><p><strong>crop_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Depth at which to crop samples. Default is <cite>None</cite>.</p></li>
+<li><p><strong>random_crop_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a><em>, </em><em>optional</em>) – Arguments to control the random crop used during training. Default is
 an empty dict, which uses the default arguments of
 <cite>echofilter.data.transforms.RandomCropDepth</cite>.</p></li>
 </ul>
@@ -1378,11 +1378,11 @@ sharded data.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>meters</strong> (<em>dict of dict</em>) – Collection of output meters, as a nested dictionary.</p></li>
-<li><p><strong>is_best</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether this model state is the best so far. If <cite>True</cite>, the CSV file
+<li><p><strong>is_best</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether this model state is the best so far. If <cite>True</cite>, the CSV file
 will be copied to <cite>“model_best.meters.csv”</cite>.</p></li>
-<li><p><strong>dirname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Path to directory in which the checkpoint will be saved.
+<li><p><strong>dirname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Path to directory in which the checkpoint will be saved.
 Default is <cite>“.”</cite> (current directory of the executed script).</p></li>
-<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Format for the output file. Default is <cite>“meters.csv”</cite>.</p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Format for the output file. Default is <cite>“meters.csv”</cite>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1395,15 +1395,15 @@ Default is <cite>“.”</cite> (current directory of the executed script).</p><
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Model checkpoint state to record.</p></li>
-<li><p><strong>is_best</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether this model state is the best so far. If <cite>True</cite>, the best
+<li><p><strong>state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – Model checkpoint state to record.</p></li>
+<li><p><strong>is_best</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether this model state is the best so far. If <cite>True</cite>, the best
 checkpoint (by default named <cite>“checkpoint_best.pt”</cite>) will be overwritten
 with this <cite>state</cite>.</p></li>
-<li><p><strong>dirname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Path to directory in which the checkpoint will be saved.
+<li><p><strong>dirname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Path to directory in which the checkpoint will be saved.
 Default is <cite>“.”</cite> (current directory of the executed script).</p></li>
-<li><p><strong>fname_fmt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Format for the file name(s) of the saved checkpoint(s). Must include
+<li><p><strong>fname_fmt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Format for the file name(s) of the saved checkpoint(s). Must include
 one string argument output. Default is <cite>“checkpoint{}.pt”</cite>.</p></li>
-<li><p><strong>dup</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>None</em>) – If this is not <cite>None</cite>, a duplicate copy of the checkpoint is recorded
+<li><p><strong>dup</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>None</em>) – If this is not <cite>None</cite>, a duplicate copy of the checkpoint is recorded
 in accordance with <cite>fname_fmt</cite>. By default the duplicate output file
 name will be styled as <cite>“checkpoint_&lt;dup&gt;.pt”</cite>.</p></li>
 </ul>
@@ -1424,19 +1424,19 @@ name will be styled as <cite>“checkpoint_&lt;dup&gt;.pt”</cite>.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>loader</strong> (<em>iterable</em><em>, </em><a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="(in PyTorch v1.11.0)"><em>torch.utils.data.DataLoader</em></a>) – Dataloader.</p></li>
+<li><p><strong>loader</strong> (<em>iterable</em><em>, </em><a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="(in PyTorch v1.13)"><em>torch.utils.data.DataLoader</em></a>) – Dataloader.</p></li>
 <li><p><strong>model</strong> (<em>callable</em><em>, </em><a class="reference internal" href="echofilter.nn.html#echofilter.nn.wrapper.Echofilter" title="echofilter.nn.wrapper.Echofilter"><em>echofilter.nn.wrapper.Echofilter</em></a>) – Model.</p></li>
 <li><p><strong>criterion</strong> (<em>callable</em><em>, </em><em>torch.nn.modules.loss._Loss</em>) – Loss function.</p></li>
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>torch.device</em>) – Which device the data should be loaded onto.</p></li>
-<li><p><strong>epoch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Which epoch is being performed.</p></li>
-<li><p><strong>dtype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>torch.dtype</em>) – Datatype which which the data should be loaded.</p></li>
-<li><p><strong>print_freq</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Number of batches between reporting progress. Default is <cite>10</cite>.</p></li>
-<li><p><strong>schedule_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> or </em><em>None</em>) – If a learning rate schedule is being used, this may be passed as a
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v1.13)"><em>torch.device</em></a>) – Which device the data should be loaded onto.</p></li>
+<li><p><strong>epoch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Which epoch is being performed.</p></li>
+<li><p><strong>dtype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.dtype" title="(in PyTorch v1.13)"><em>torch.dtype</em></a>) – Datatype which which the data should be loaded.</p></li>
+<li><p><strong>print_freq</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Number of batches between reporting progress. Default is <cite>10</cite>.</p></li>
+<li><p><strong>schedule_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a><em> or </em><em>None</em>) – If a learning rate schedule is being used, this may be passed as a
 dictionary with the key <cite>“scheduler”</cite> mapping to the learning rate
 schedule as a callable.</p></li>
-<li><p><strong>use_mixed_precision</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether to use <code class="xref py py-meth docutils literal notranslate"><span class="pre">apex.amp.scale_loss()</span></code> to automatically scale the
+<li><p><strong>use_mixed_precision</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether to use <code class="xref py py-meth docutils literal notranslate"><span class="pre">apex.amp.scale_loss()</span></code> to automatically scale the
 loss. Default is <cite>False</cite>.</p></li>
-<li><p><strong>continue_through_error</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether to catch errors within an individual batch, ignore them and
+<li><p><strong>continue_through_error</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether to catch errors within an individual batch, ignore them and
 continue running training on the rest of the batches. If there are
 five or more errors while processing the batch, training will halt
 regardless of <cite>continue_through_error</cite>. Default is <cite>True</cite>.</p></li>
@@ -1464,14 +1464,14 @@ dictionary of evaluation criterions: “Accuracy”, “Precision”, “Recall�
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>loader</strong> (<em>iterable</em><em>, </em><a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="(in PyTorch v1.11.0)"><em>torch.utils.data.DataLoader</em></a>) – Dataloader.</p></li>
+<li><p><strong>loader</strong> (<em>iterable</em><em>, </em><a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="(in PyTorch v1.13)"><em>torch.utils.data.DataLoader</em></a>) – Dataloader.</p></li>
 <li><p><strong>model</strong> (<em>callable</em><em>, </em><a class="reference internal" href="echofilter.nn.html#echofilter.nn.wrapper.Echofilter" title="echofilter.nn.wrapper.Echofilter"><em>echofilter.nn.wrapper.Echofilter</em></a>) – Model.</p></li>
 <li><p><strong>criterion</strong> (<em>callable</em><em>, </em><em>torch.nn.modules.loss._Loss</em>) – Loss function.</p></li>
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>torch.device</em>) – Which device the data should be loaded onto.</p></li>
-<li><p><strong>dtype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>torch.dtype</em>) – Datatype which which the data should be loaded.</p></li>
-<li><p><strong>print_freq</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Number of batches between reporting progress. Default is <cite>10</cite>.</p></li>
-<li><p><strong>prefix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Prefix string to prepend to progress meter names. Default is <cite>“Test”</cite>.</p></li>
-<li><p><strong>num_examples</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Number of example inputs to return. Default is <cite>32</cite>.</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v1.13)"><em>torch.device</em></a>) – Which device the data should be loaded onto.</p></li>
+<li><p><strong>dtype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.dtype" title="(in PyTorch v1.13)"><em>torch.dtype</em></a>) – Datatype which which the data should be loaded.</p></li>
+<li><p><strong>print_freq</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Number of batches between reporting progress. Default is <cite>10</cite>.</p></li>
+<li><p><strong>prefix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Prefix string to prepend to progress meter names. Default is <cite>“Test”</cite>.</p></li>
+<li><p><strong>num_examples</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Number of example inputs to return. Default is <cite>32</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1499,8 +1499,8 @@ dictionary of evaluation criterions: “Accuracy”, “Precision”, “Recall�
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>arr</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Array to search.</p></li>
-<li><p><strong>axis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Axis along which to search for a non-zero element. Default is <cite>-1</cite>.</p></li>
+<li><p><strong>arr</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><em>numpy.ndarray</em></a>) – Array to search.</p></li>
+<li><p><strong>axis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Axis along which to search for a non-zero element. Default is <cite>-1</cite>.</p></li>
 <li><p><strong>invalid_val</strong> (<em>any</em><em>, </em><em>optional</em>) – Value to return if all elements are zero. Default is <cite>-1</cite>.</p></li>
 </ul>
 </dd>
@@ -1535,8 +1535,8 @@ values in the input <cite>indicator</cite>, such that
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>arr</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Array to search.</p></li>
-<li><p><strong>axis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Axis along which to search for a non-zero element. Default is <cite>-1</cite>.</p></li>
+<li><p><strong>arr</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><em>numpy.ndarray</em></a>) – Array to search.</p></li>
+<li><p><strong>axis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Axis along which to search for a non-zero element. Default is <cite>-1</cite>.</p></li>
 <li><p><strong>invalid_val</strong> (<em>any</em><em>, </em><em>optional</em>) – Value to return if all elements are zero. Default is <cite>-1</cite>.</p></li>
 </ul>
 </dd>
@@ -1552,10 +1552,10 @@ values in the input <cite>indicator</cite>, such that
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>a</strong> (<em>array_like</em>) – n-dimensional array of which to find mode(s).</p></li>
-<li><p><strong>axis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Axis or axes along which the mode is computed. The default,
+<li><p><strong>axis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Axis or axes along which the mode is computed. The default,
 <cite>axis=None</cite>, will sum all of the elements of the input array.
 If axis is negative it counts from the last to the first axis.</p></li>
-<li><p><strong>keepdims</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – If this is set to <cite>True</cite>, the axes which are reduced are left
+<li><p><strong>keepdims</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If this is set to <cite>True</cite>, the axes which are reduced are left
 in the result as dimensions with size one. With this option, the result
 will broadcast correctly against the input array. Default is <cite>False</cite>.</p></li>
 <li><p><strong>**kwargs</strong> – Additional arguments as per <code class="xref py py-meth docutils literal notranslate"><span class="pre">scipy.stats.mode()</span></code>.</p></li>
@@ -1567,12 +1567,12 @@ If <cite>keepdims=True</cite> and either <cite>a</cite> is a 0-d array or <cite>
 a scalar is returned.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)">numpy.ndarray</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)">numpy.ndarray</a></p>
 </dd>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mode.html#scipy.stats.mode" title="(in SciPy v1.8.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.stats.mode</span></code></a></p>
+<p><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mode.html#scipy.stats.mode" title="(in SciPy v1.9.3)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.stats.mode</span></code></a></p>
 </div>
 </dd></dl>
 

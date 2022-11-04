@@ -20,7 +20,7 @@
     href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
     
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
@@ -29,7 +29,7 @@
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Changelog" href="../changelog.html" />
@@ -412,11 +412,11 @@ title="Print to PDF"
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>app</strong> (<em>COM object</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Existing COM object to interface with Echoview.</p></li>
-<li><p><strong>do_open</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>False</cite> (dry-run mode), we don’t actually need Echoview open and so
+<li><p><strong>do_open</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>False</cite> (dry-run mode), we don’t actually need Echoview open and so
 don’t try to open it. In this case, <cite>None</cite> is yielded. Present so a
 context manager can be used even if the application isn’t opened.
 Default is <cite>True</cite>, do open Echoview.</p></li>
-<li><p><strong>minimize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, the Echoview window being used will be minimized while the
+<li><p><strong>minimize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, the Echoview window being used will be minimized while the
 code runs. Default is <cite>False</cite>.</p></li>
 <li><p><strong>hide</strong> (<em>{&quot;never&quot;</em><em>, </em><em>&quot;new&quot;</em><em>, </em><em>&quot;always&quot;}</em><em>, </em><em>optional</em>) – Whether to hide the Echoview window entirely. If <cite>hide=”new”</cite>, the
 application is only hidden if it was created by this context, and not
@@ -435,7 +435,7 @@ will be revealed again when leaving this context. Default is <cite>“new”</ci
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to file to open.</p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Path to file to open.</p></li>
 <li><p><strong>app</strong> (<em>COM object</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Existing COM object to interface with Echoview. If <cite>None</cite>, a new
 COM interface is created. If that requires opening a new instance
 of Echoview, it is hidden while the file is in use.</p></li>
@@ -451,7 +451,7 @@ of Echoview, it is hidden while the file is in use.</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.win.manager.WindowManager">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.win.manager.</span></span><span class="sig-name descname"><span class="pre">WindowManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/win/manager.html#WindowManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.win.manager.WindowManager" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Encapsulates calls to window management using the Windows api.</p>
 <p class="rubric">Notes</p>
 <p>Based on: <a class="reference external" href="https://stackoverflow.com/a/2091530">https://stackoverflow.com/a/2091530</a> and <a class="reference external" href="https://stackoverflow.com/a/4440622">https://stackoverflow.com/a/4440622</a></p>
@@ -496,16 +496,16 @@ was not already open, the application is closed when leaving the context.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>com_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Name of COM object to dispatch.</p></li>
-<li><p><strong>can_make_anew</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether arbitrarily many sessions of the COM object can be created, and
+<li><p><strong>com_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Name of COM object to dispatch.</p></li>
+<li><p><strong>can_make_anew</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether arbitrarily many sessions of the COM object can be created, and
 if so whether they should be. Default is <cite>False</cite>, in which case the
 context manager will check to see if the application is already running
 before connecting to it. If it was already running, it will not be
 closed when this context closes.</p></li>
-<li><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Exact title of window. If the title can not be determined exactly, use
+<li><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Exact title of window. If the title can not be determined exactly, use
 <cite>title_pattern</cite> instead.</p></li>
-<li><p><strong>title_pattern</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Regular expression for the window title.</p></li>
-<li><p><strong>minimize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, the application will be minimized while the code runs.
+<li><p><strong>title_pattern</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Regular expression for the window title.</p></li>
+<li><p><strong>minimize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, the application will be minimized while the code runs.
 Default is <cite>False</cite>.</p></li>
 <li><p><strong>hide</strong> (<em>{&quot;never&quot;</em><em>, </em><em>&quot;new&quot;</em><em>, </em><em>&quot;always&quot;}</em><em>, </em><em>optional</em>) – Whether to hide the application window entirely. Default is <cite>“never”</cite>.
 If this is enabled, at least one of <cite>title</cite> and <cite>title_pattern</cite> must

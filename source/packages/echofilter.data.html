@@ -20,7 +20,7 @@
     href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
     
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
@@ -29,7 +29,7 @@
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="echofilter.nn package" href="echofilter.nn.html" />
@@ -417,8 +417,8 @@ title="Print to PDF"
 and sampling from it.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.data.dataset.ConcatDataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.data.dataset.</span></span><span class="sig-name descname"><span class="pre">ConcatDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.10)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><span class="pre">torch.utils.data.dataset.Dataset</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/data/dataset.html#ConcatDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.data.dataset.ConcatDataset" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.dataset.ConcatDataset</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.data.dataset.</span></span><span class="sig-name descname"><span class="pre">ConcatDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.11)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.Dataset" title="(in PyTorch v1.13)"><span class="pre">torch.utils.data.dataset.Dataset</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/data/dataset.html#ConcatDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.data.dataset.ConcatDataset" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.ConcatDataset" title="(in PyTorch v1.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.dataset.ConcatDataset</span></code></a></p>
 <p>Dataset as a concatenation of multiple TransectDatasets.</p>
 <p>This class is useful to assemble different existing datasets.</p>
 <dl class="field-list simple">
@@ -431,12 +431,12 @@ and sampling from it.</p>
 <cite>initialise_datapoints</cite> method.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="echofilter.data.dataset.ConcatDataset.cumulative_sizes">
-<span class="sig-name descname"><span class="pre">cumulative_sizes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#echofilter.data.dataset.ConcatDataset.cumulative_sizes" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cumulative_sizes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#echofilter.data.dataset.ConcatDataset.cumulative_sizes" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="echofilter.data.dataset.ConcatDataset.datasets">
-<span class="sig-name descname"><span class="pre">datasets</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.utils.data.dataset.Dataset</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.utils.data.dataset.T_co</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#echofilter.data.dataset.ConcatDataset.datasets" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">datasets</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.Dataset" title="(in PyTorch v1.13)"><span class="pre">torch.utils.data.dataset.Dataset</span></a><span class="p"><span class="pre">[</span></span><span class="pre">torch.utils.data.dataset.T_co</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#echofilter.data.dataset.ConcatDataset.datasets" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -449,12 +449,12 @@ and sampling from it.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.data.dataset.StratifiedRandomSampler">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.data.dataset.</span></span><span class="sig-name descname"><span class="pre">StratifiedRandomSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/data/dataset.html#StratifiedRandomSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.data.dataset.StratifiedRandomSampler" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.sampler.Sampler</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.Sampler" title="(in PyTorch v1.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.sampler.Sampler</span></code></a></p>
 <p>Samples elements randomly without repetition, stratified across datasets in
 the data_source.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data_source</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.ConcatDataset" title="(in PyTorch v1.11.0)"><em>torch.utils.data.ConcatDataset</em></a>) – Dataset to sample from. Must possess a <cite>cumulative_sizes</cite> attribute.</p>
+<dd class="field-odd"><p><strong>data_source</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.ConcatDataset" title="(in PyTorch v1.13)"><em>torch.utils.data.ConcatDataset</em></a>) – Dataset to sample from. Must possess a <cite>cumulative_sizes</cite> attribute.</p>
 </dd>
 </dl>
 <dl class="py property">
@@ -467,46 +467,46 @@ the data_source.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.data.dataset.TransectDataset">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.data.dataset.</span></span><span class="sig-name descname"><span class="pre">TransectDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transect_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_scale_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_sf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_windows_per_transect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_dynamic_offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crop_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_nearfield</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nearfield_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nearfield_visible_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_offset_turbulence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_offset_bottom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/data/dataset.html#TransectDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.data.dataset.TransectDataset" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.dataset.Dataset</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.Dataset" title="(in PyTorch v1.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.dataset.Dataset</span></code></a></p>
 <p>Load a collection of transects as a PyTorch dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>transect_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – Absolute paths to transects.</p></li>
-<li><p><strong>window_len</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Width (number of timestamps) to load. Default is <cite>128</cite>.</p></li>
-<li><p><strong>p_scale_window</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Probability of rescaling window. Default is <cite>0</cite>, which results in no
+<li><p><strong>transect_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – Absolute paths to transects.</p></li>
+<li><p><strong>window_len</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Width (number of timestamps) to load. Default is <cite>128</cite>.</p></li>
+<li><p><strong>p_scale_window</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Probability of rescaling window. Default is <cite>0</cite>, which results in no
 randomization of the window widths.</p></li>
-<li><p><strong>window_sf</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Maximum window scale factor. Scale factors will be log-uniformly
+<li><p><strong>window_sf</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Maximum window scale factor. Scale factors will be log-uniformly
 sampled in the range <cite>1/window_sf</cite> to <cite>window_sf</cite>. Default is <cite>2</cite>.</p></li>
-<li><p><strong>num_windows_per_transect</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of windows to extract for each transect. Start indices for
+<li><p><strong>num_windows_per_transect</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Number of windows to extract for each transect. Start indices for
 the windows will be equally spaced across the total width of the
 transect. If this is <cite>0</cite>, the number of windows will be inferred
 automatically based on <cite>window_len</cite> and the total width of the
 transect, resulting in a different number of windows for each
 transect. Default is <cite>0</cite>.</p></li>
-<li><p><strong>use_dynamic_offsets</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether starting indices for each window should be randomly offset.
+<li><p><strong>use_dynamic_offsets</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether starting indices for each window should be randomly offset.
 Set to <cite>True</cite> for training and <cite>False</cite> for testing. Default is
 <cite>True</cite>.</p></li>
-<li><p><strong>crop_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Maximum depth to include, in metres. Deeper data will be cropped
+<li><p><strong>crop_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Maximum depth to include, in metres. Deeper data will be cropped
 away. Default is <cite>None</cite>.</p></li>
 <li><p><strong>transform</strong> (<em>callable</em>) – Operations to perform to the dictionary containing a single sample.
 These are performed before generating the turbulence/bottom/overall
 mask. Default is <cite>None</cite>.</p></li>
-<li><p><strong>remove_nearfield</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to remove turbulence and bottom lines affected by nearfield
+<li><p><strong>remove_nearfield</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to remove turbulence and bottom lines affected by nearfield
 removal. If <cite>True</cite> (default), targets for the line near to the
 sounder (bottom if upward facing, turbulence otherwise) which are
 closer than or equal to a distance of <cite>nearfield_distance</cite> become
 reduced to <cite>nearfield_visible_dist</cite>.</p></li>
-<li><p><strong>nearfield_distance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Nearfield distance in metres. Regions closer than the nearfield
+<li><p><strong>nearfield_distance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Nearfield distance in metres. Regions closer than the nearfield
 may have been masked out from the dataset, but their effect will
 be removed from the targets if <cite>remove_nearfield=True</cite>.
 Default is <cite>1.7</cite>.</p></li>
-<li><p><strong>nearfield_visible_dist</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – The distance at which the effect of being to close to the sounder
+<li><p><strong>nearfield_visible_dist</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – The distance at which the effect of being to close to the sounder
 is obvious to the naked eye, and hence the distance which nearfield
 will be mapped to if <cite>remove_nearfield=True</cite>. Default is <cite>0.0</cite>.</p></li>
-<li><p><strong>remove_offset_turbulence</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Line offset built in to the turbulence line. If given, this will be
+<li><p><strong>remove_offset_turbulence</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Line offset built in to the turbulence line. If given, this will be
 removed from the samples within the dataset. Default is <cite>0</cite>.</p></li>
-<li><p><strong>remove_offset_bottom</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Line offset built in to the bottom line. If given, this will be
+<li><p><strong>remove_offset_bottom</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Line offset built in to the bottom line. If given, this will be
 removed from the samples within the dataset. Default is <cite>0</cite>.</p></li>
 </ul>
 </dd>
@@ -528,16 +528,16 @@ widths if they were randomly generated.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.data.transforms.ColorJitter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.data.transforms.</span></span><span class="sig-name descname"><span class="pre">ColorJitter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">brightness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contrast</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/data/transforms.html#ColorJitter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.data.transforms.ColorJitter" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Randomly change the brightness and contrast of a normalized image.</p>
 <p>Note that changes are made inplace.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>brightness</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>tuple of float</em><em> (</em><em>min</em><em>, </em><em>max</em><em>)</em>) – How much to jitter brightness. <cite>brightness_factor</cite> is chosen uniformly
+<li><p><strong>brightness</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>tuple of float</em><em> (</em><em>min</em><em>, </em><em>max</em><em>)</em>) – How much to jitter brightness. <cite>brightness_factor</cite> is chosen uniformly
 from <cite>[-brightness, brightness]</cite> or the given <cite>[min, max]</cite>.
 <cite>brightness_factor</cite> is then added to the image.</p></li>
-<li><p><strong>contrast</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>tuple of float</em><em> (</em><em>min</em><em>, </em><em>max</em><em>)</em>) – How much to jitter contrast. <cite>contrast_factor</cite> is chosen uniformly from
+<li><p><strong>contrast</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>tuple of float</em><em> (</em><em>min</em><em>, </em><em>max</em><em>)</em>) – How much to jitter contrast. <cite>contrast_factor</cite> is chosen uniformly from
 <cite>[max(0, 1 - contrast), 1 + contrast]</cite> or the given <cite>[min, max]</cite>.
 Should be non negative numbers.</p></li>
 </ul>
@@ -548,18 +548,18 @@ Should be non negative numbers.</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.data.transforms.Normalize">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.data.transforms.</span></span><span class="sig-name descname"><span class="pre">Normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deviation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">robust2stdev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/data/transforms.html#Normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.data.transforms.Normalize" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Normalize offset and scaling of image (mean and standard deviation).</p>
 <p>Note that changes are made inplace.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>center</strong> (<em>{&quot;mean&quot;</em><em>, </em><em>&quot;median&quot;</em><em>, </em><em>&quot;pc10&quot;}</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – If a float, a pre-computed centroid measure of the distribution of
+<li><p><strong>center</strong> (<em>{&quot;mean&quot;</em><em>, </em><em>&quot;median&quot;</em><em>, </em><em>&quot;pc10&quot;}</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – If a float, a pre-computed centroid measure of the distribution of
 samples, such as the pixel mean. If a string, a method to use to
 determine the center value.</p></li>
-<li><p><strong>deviation</strong> (<em>{&quot;stdev&quot;</em><em>, </em><em>&quot;mad&quot;</em><em>, </em><em>&quot;iqr&quot;</em><em>, </em><em>&quot;idr&quot;</em><em>, </em><em>&quot;i7r&quot;}</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – If a float, a pre-computed deviation measure of the distribution of
+<li><p><strong>deviation</strong> (<em>{&quot;stdev&quot;</em><em>, </em><em>&quot;mad&quot;</em><em>, </em><em>&quot;iqr&quot;</em><em>, </em><em>&quot;idr&quot;</em><em>, </em><em>&quot;i7r&quot;}</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – If a float, a pre-computed deviation measure of the distribution of
 samples. If a string, a method to use to determine the deviation.</p></li>
-<li><p><strong>robust2stdev</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to convert robust measures to estimates of the standard
+<li><p><strong>robust2stdev</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to convert robust measures to estimates of the standard
 deviation. Default is <cite>True</cite>.</p></li>
 </ul>
 </dd>
@@ -569,7 +569,7 @@ deviation. Default is <cite>True</cite>.</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.data.transforms.OptimalCropDepth">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.data.transforms.</span></span><span class="sig-name descname"><span class="pre">OptimalCropDepth</span></span><a class="reference internal" href="../../_modules/echofilter/data/transforms.html#OptimalCropDepth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.data.transforms.OptimalCropDepth" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A transform which crops a sample depthwise to contain only the space
 between highest surface and deepest seafloor.</p>
 </dd></dl>
@@ -577,22 +577,22 @@ between highest surface and deepest seafloor.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.data.transforms.RandomCropDepth">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.data.transforms.</span></span><span class="sig-name descname"><span class="pre">RandomCropDepth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p_crop_is_none</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_crop_is_optimal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_crop_is_close</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_nearfield_side_crop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fraction_close</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/data/transforms.html#RandomCropDepth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.data.transforms.RandomCropDepth" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Randomly crop a sample depthwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>p_crop_is_none</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Probability of not doing any crop.
+<li><p><strong>p_crop_is_none</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Probability of not doing any crop.
 Default is <cite>0.1</cite>.</p></li>
-<li><p><strong>p_crop_is_optimal</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Probability of doing an “optimal” crop, running <cite>optimal_crop_depth</cite>.
+<li><p><strong>p_crop_is_optimal</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Probability of doing an “optimal” crop, running <cite>optimal_crop_depth</cite>.
 Default is <cite>0.1</cite>.</p></li>
-<li><p><strong>p_crop_is_close</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Probability of doing crop which is zoomed in and close to the “optimal”
+<li><p><strong>p_crop_is_close</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Probability of doing crop which is zoomed in and close to the “optimal”
 crop, running <cite>optimal_crop_depth</cite>. Default is <cite>0.4</cite>.
 If neither no crop, optimal, nor close-to-optimal crop is selected,
 the crop is randomly sized over the full extent of the range of depths.</p></li>
-<li><p><strong>p_nearfield_side_crop</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Probability that the nearfield side is cropped.
+<li><p><strong>p_nearfield_side_crop</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Probability that the nearfield side is cropped.
 Default is <cite>0.5</cite>.</p></li>
-<li><p><strong>fraction_close</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Fraction by which crop is increased/decreased in either direction when
+<li><p><strong>fraction_close</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Fraction by which crop is increased/decreased in either direction when
 doing a close to optimal crop.
 Default is <cite>0.25</cite>.</p></li>
 </ul>
@@ -603,11 +603,11 @@ Default is <cite>0.25</cite>.</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.data.transforms.RandomCropWidth">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.data.transforms.</span></span><span class="sig-name descname"><span class="pre">RandomCropWidth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_crop_fraction</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/data/transforms.html#RandomCropWidth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.data.transforms.RandomCropWidth" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Randomly crop a sample in the width dimension.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>max_crop_fraction</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Maximum amount of material to crop away, as a fraction of the total
+<dd class="field-odd"><p><strong>max_crop_fraction</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Maximum amount of material to crop away, as a fraction of the total
 width. The <cite>crop_fraction</cite> will be sampled uniformly from the range
 <cite>[0, max_crop_fraction]</cite>. The crop is always centred.</p>
 </dd>
@@ -623,14 +623,14 @@ original sampling grid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>output_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>None</em>) – Desired output size. If tuple, output is matched to output_size. If
+<li><p><strong>output_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><em>tuple</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>None</em>) – Desired output size. If tuple, output is matched to output_size. If
 int, output is square. If <cite>None</cite>, the size remains unchanged from the
 input.</p></li>
-<li><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Probability of performing the RandomGrid operation. Default is <cite>0.5</cite>.</p></li>
-<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Gaussian filter kernel size. Default is <cite>8.0</cite>.</p></li>
-<li><p><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Maximum size of image distortions, relative to the length of the side
+<li><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Probability of performing the RandomGrid operation. Default is <cite>0.5</cite>.</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Gaussian filter kernel size. Default is <cite>8.0</cite>.</p></li>
+<li><p><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Maximum size of image distortions, relative to the length of the side
 of the image. Default is <cite>0.05</cite>.</p></li>
-<li><p><strong>order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – <p>Order of the interpolation, for both image and vector elements.
+<li><p><strong>order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – <p>Order of the interpolation, for both image and vector elements.
 For images-like components, the interpolation is 2d.
 The following values are supported:</p>
 <ul>
@@ -655,10 +655,10 @@ The following values are supported:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>output_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Desired output size. If tuple, output is matched to output_size. If
+<li><p><strong>output_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><em>tuple</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Desired output size. If tuple, output is matched to output_size. If
 int, output is square.</p></li>
-<li><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Probability of performing the RandomGrid operation. Default is <cite>0.5</cite>.</p></li>
-<li><p><strong>order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – <p>Order of the interpolation, for both image and vector elements.
+<li><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Probability of performing the RandomGrid operation. Default is <cite>0.5</cite>.</p></li>
+<li><p><strong>order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – <p>Order of the interpolation, for both image and vector elements.
 For images-like components, the interpolation is 2d.
 The following values are supported:</p>
 <ul>
@@ -678,13 +678,13 @@ The following values are supported:</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.data.transforms.RandomReflection">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.data.transforms.</span></span><span class="sig-name descname"><span class="pre">RandomReflection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/data/transforms.html#RandomReflection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.data.transforms.RandomReflection" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Randomly reflect a sample.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>axis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Axis to reflect. Default is 0.</p></li>
-<li><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Probability of reflection. Default is 0.5.</p></li>
+<li><p><strong>axis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Axis to reflect. Default is 0.</p></li>
+<li><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Probability of reflection. Default is 0.5.</p></li>
 </ul>
 </dd>
 </dl>
@@ -693,11 +693,11 @@ The following values are supported:</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.data.transforms.ReplaceNan">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.data.transforms.</span></span><span class="sig-name descname"><span class="pre">ReplaceNan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nan_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/data/transforms.html#ReplaceNan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.data.transforms.ReplaceNan" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Replace NaNs with a finite float value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>nan_val</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Value to replace NaNs with. Default is <cite>0.0</cite>.</p>
+<dd class="field-odd"><p><strong>nan_val</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Value to replace NaNs with. Default is <cite>0.0</cite>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -705,14 +705,14 @@ The following values are supported:</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.data.transforms.Rescale">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.data.transforms.</span></span><span class="sig-name descname"><span class="pre">Rescale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/data/transforms.html#Rescale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.data.transforms.Rescale" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Rescale the image(s) in a sample to a given size.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>output_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Desired output size. If tuple, output is matched to output_size. If
+<li><p><strong>output_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><em>tuple</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Desired output size. If tuple, output is matched to output_size. If
 int, output is square.</p></li>
-<li><p><strong>order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – <p>Order of the interpolation, for both image and vector elements.
+<li><p><strong>order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – <p>Order of the interpolation, for both image and vector elements.
 For images-like components, the interpolation is 2d.
 The following values are supported:</p>
 <ul>
@@ -740,7 +740,7 @@ The following values are supported:</p>
 and deepest seafloor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>transect</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Transect dictionary.</p>
+<dd class="field-odd"><p><strong>transect</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – Transect dictionary.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -757,7 +757,7 @@ which seeds builtin <cite>random</cite> and <cite>numpy</cite> with <code class=
 stable if torch is manually seeded in the main program).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>worker_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The ID of the worker.</p>
+<dd class="field-odd"><p><strong>worker_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The ID of the worker.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -765,12 +765,12 @@ stable if torch is manually seeded in the main program).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="echofilter.data.utils.worker_staticseed_fn">
 <span class="sig-prename descclassname"><span class="pre">echofilter.data.utils.</span></span><span class="sig-name descname"><span class="pre">worker_staticseed_fn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">worker_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/data/utils.html#worker_staticseed_fn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.data.utils.worker_staticseed_fn" title="Permalink to this definition">#</a></dt>
-<dd><p>A worker initialization function for <a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="(in PyTorch v1.11.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code></a>
+<dd><p>A worker initialization function for <a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="(in PyTorch v1.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code></a>
 objects which produces the same seed for builtin <cite>random</cite>, <cite>numpy</cite>, and
 <cite>torch</cite> every time, so it is the same for every epoch.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>worker_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The ID of the worker.</p>
+<dd class="field-odd"><p><strong>worker_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The ID of the worker.</p>
 </dd>
 </dl>
 </dd></dl>

@@ -20,7 +20,7 @@
     href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
     
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
@@ -29,7 +29,7 @@
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="echofilter.raw package" href="echofilter.raw.html" />
@@ -441,11 +441,11 @@ title="Print to PDF"
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – Input tensor.</p></li>
-<li><p><strong>target</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – Target tensor, the same shape as <cite>input</cite>.</p></li>
-<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Threshold which entries in <cite>input</cite> and <cite>target</cite> must exceed to be
+<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)"><em>torch.Tensor</em></a>) – Input tensor.</p></li>
+<li><p><strong>target</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)"><em>torch.Tensor</em></a>) – Target tensor, the same shape as <cite>input</cite>.</p></li>
+<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Threshold which entries in <cite>input</cite> and <cite>target</cite> must exceed to be
 binarised as the positive class. Default is <cite>0.5</cite>.</p></li>
-<li><p><strong>ndim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>None</em>) – Number of dimensions to keep. If <cite>None</cite>, only the first (batch)
+<li><p><strong>ndim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>None</em>) – Number of dimensions to keep. If <cite>None</cite>, only the first (batch)
 dimension is kept and the rest are flattened. Default is <cite>None</cite>.</p></li>
 <li><p><strong>reduction</strong> (<cite>“none”</cite> or <cite>“mean”</cite> or <cite>“sum”</cite>, optional) – Specifies the reduction to apply to the output:
 <cite>“none”</cite> | <cite>“mean”</cite> | <cite>“sum”</cite>.
@@ -461,7 +461,7 @@ Default: <cite>“mean”</cite>.</p></li>
 thresholding.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)">torch.Tensor</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)">torch.Tensor</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -484,9 +484,9 @@ through a sigmoid function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – Input tensor.</p></li>
-<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Threshold which entries in <cite>input</cite> must exceed. Default is <cite>0.5</cite>.</p></li>
-<li><p><strong>ndim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>None</em>) – Number of dimensions to keep. If <cite>None</cite>, only the first (batch)
+<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)"><em>torch.Tensor</em></a>) – Input tensor.</p></li>
+<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Threshold which entries in <cite>input</cite> must exceed. Default is <cite>0.5</cite>.</p></li>
+<li><p><strong>ndim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>None</em>) – Number of dimensions to keep. If <cite>None</cite>, only the first (batch)
 dimension is kept and the rest are flattened. Default is <cite>None</cite>.</p></li>
 <li><p><strong>reduction</strong> (<cite>“none”</cite> or <cite>“mean”</cite> or <cite>“sum”</cite>, optional) – Specifies the reduction to apply to the output:
 <cite>“none”</cite> | <cite>“mean”</cite> | <cite>“sum”</cite>.
@@ -502,7 +502,7 @@ Default: <cite>“mean”</cite>.</p></li>
 corresponding to <cite>reduction</cite>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)">torch.Tensor</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)">torch.Tensor</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -526,11 +526,11 @@ after binarising with a threshold.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – Input tensor.</p></li>
-<li><p><strong>target</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – Target tensor, the same shape as <cite>input</cite>.</p></li>
-<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Threshold which entries in <cite>input</cite> and <cite>target</cite> must exceed to be
+<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)"><em>torch.Tensor</em></a>) – Input tensor.</p></li>
+<li><p><strong>target</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)"><em>torch.Tensor</em></a>) – Target tensor, the same shape as <cite>input</cite>.</p></li>
+<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Threshold which entries in <cite>input</cite> and <cite>target</cite> must exceed to be
 binarised as the positive class. Default is <cite>0.5</cite>.</p></li>
-<li><p><strong>ndim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>None</em>) – Number of dimensions to keep. If <cite>None</cite>, only the first (batch)
+<li><p><strong>ndim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>None</em>) – Number of dimensions to keep. If <cite>None</cite>, only the first (batch)
 dimension is kept and the rest are flattened. Default is <cite>None</cite>.</p></li>
 <li><p><strong>reduction</strong> (<cite>“none”</cite> or <cite>“mean”</cite> or <cite>“sum”</cite>, optional) – Specifies the reduction to apply to the output:
 <cite>“none”</cite> | <cite>“mean”</cite> | <cite>“sum”</cite>.
@@ -546,7 +546,7 @@ Default: <cite>“mean”</cite>.</p></li>
 The F1-score is the harmonic mean of precision and recall.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)">torch.Tensor</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)">torch.Tensor</a></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -574,11 +574,11 @@ compared to a ground truth target, after binarising with a threshold.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – Input tensor.</p></li>
-<li><p><strong>target</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – Target tensor, the same shape as <cite>input</cite>.</p></li>
-<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Threshold which entries in <cite>input</cite> and <cite>target</cite> must exceed to be
+<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)"><em>torch.Tensor</em></a>) – Input tensor.</p></li>
+<li><p><strong>target</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)"><em>torch.Tensor</em></a>) – Target tensor, the same shape as <cite>input</cite>.</p></li>
+<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Threshold which entries in <cite>input</cite> and <cite>target</cite> must exceed to be
 binarised as the positive class. Default is <cite>0.5</cite>.</p></li>
-<li><p><strong>ndim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>None</em>) – Number of dimensions to keep. If <cite>None</cite>, only the first (batch)
+<li><p><strong>ndim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>None</em>) – Number of dimensions to keep. If <cite>None</cite>, only the first (batch)
 dimension is kept and the rest are flattened. Default is <cite>None</cite>.</p></li>
 <li><p><strong>reduction</strong> (<cite>“none”</cite> or <cite>“mean”</cite> or <cite>“sum”</cite>, optional) – Specifies the reduction to apply to the output:
 <cite>“none”</cite> | <cite>“mean”</cite> | <cite>“sum”</cite>.
@@ -596,7 +596,7 @@ The Jaccard Index is the number of elements where both <cite>input</cite> and
 at least one of <cite>input</cite> and <cite>target</cite> exceeds <cite>threshold</cite>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)">torch.Tensor</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)">torch.Tensor</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -621,11 +621,11 @@ after binarising with a threshold.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – Input tensor.</p></li>
-<li><p><strong>target</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – Target tensor, the same shape as <cite>input</cite>.</p></li>
-<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Threshold which entries in <cite>input</cite> and <cite>target</cite> must exceed to be
+<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)"><em>torch.Tensor</em></a>) – Input tensor.</p></li>
+<li><p><strong>target</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)"><em>torch.Tensor</em></a>) – Target tensor, the same shape as <cite>input</cite>.</p></li>
+<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Threshold which entries in <cite>input</cite> and <cite>target</cite> must exceed to be
 binarised as the positive class. Default is <cite>0.5</cite>.</p></li>
-<li><p><strong>ndim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>None</em>) – Number of dimensions to keep. If <cite>None</cite>, only the first (batch)
+<li><p><strong>ndim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>None</em>) – Number of dimensions to keep. If <cite>None</cite>, only the first (batch)
 dimension is kept and the rest are flattened. Default is <cite>None</cite>.</p></li>
 <li><p><strong>reduction</strong> (<cite>“none”</cite> or <cite>“mean”</cite> or <cite>“sum”</cite>, optional) – Specifies the reduction to apply to the output:
 <cite>“none”</cite> | <cite>“mean”</cite> | <cite>“sum”</cite>.
@@ -644,7 +644,7 @@ If there are no predicted positives, the output is <cite>0</cite> if there are
 any positives to predict and <cite>1</cite> if there are none.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)">torch.Tensor</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)">torch.Tensor</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -668,11 +668,11 @@ after binarising with a threshold.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – Input tensor.</p></li>
-<li><p><strong>target</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – Target tensor, the same shape as <cite>input</cite>.</p></li>
-<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Threshold which entries in <cite>input</cite> and <cite>target</cite> must exceed to be
+<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)"><em>torch.Tensor</em></a>) – Input tensor.</p></li>
+<li><p><strong>target</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)"><em>torch.Tensor</em></a>) – Target tensor, the same shape as <cite>input</cite>.</p></li>
+<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Threshold which entries in <cite>input</cite> and <cite>target</cite> must exceed to be
 binarised as the positive class. Default is <cite>0.5</cite>.</p></li>
-<li><p><strong>ndim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>None</em>) – Number of dimensions to keep. If <cite>None</cite>, only the first (batch)
+<li><p><strong>ndim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>None</em>) – Number of dimensions to keep. If <cite>None</cite>, only the first (batch)
 dimension is kept and the rest are flattened. Default is <cite>None</cite>.</p></li>
 <li><p><strong>reduction</strong> (<cite>“none”</cite> or <cite>“mean”</cite> or <cite>“sum”</cite>, optional) – Specifies the reduction to apply to the output:
 <cite>“none”</cite> | <cite>“mean”</cite> | <cite>“sum”</cite>.
@@ -690,7 +690,7 @@ true positive cases (<cite>input &gt; 0.5 and `target &gt; 0.5</cite>).
 If there are no true positives, the output is <cite>1</cite>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)">torch.Tensor</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)">torch.Tensor</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -713,7 +713,7 @@ measure the recall of the tensor as compared to ground truth.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.optim.meters.AverageMeter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.optim.meters.</span></span><span class="sig-name descname"><span class="pre">AverageMeter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">':f'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/optim/meters.html#AverageMeter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.optim.meters.AverageMeter" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Computes and stores the average and current value</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="echofilter.optim.meters.AverageMeter.reset">
@@ -730,7 +730,7 @@ measure the recall of the tensor as compared to ground truth.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.optim.meters.ProgressMeter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.optim.meters.</span></span><span class="sig-name descname"><span class="pre">ProgressMeter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_batches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/optim/meters.html#ProgressMeter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.optim.meters.ProgressMeter" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="echofilter.optim.meters.ProgressMeter.display">
 <span class="sig-name descname"><span class="pre">display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/optim/meters.html#ProgressMeter.display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.optim.meters.ProgressMeter.display" title="Permalink to this definition">#</a></dt>
@@ -772,52 +772,52 @@ epochs and steps_per_epoch.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>optimizer</strong> (<em>Optimizer</em>) – Wrapped optimizer.</p></li>
-<li><p><strong>max_lr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – Upper learning rate boundaries in the cycle
+<li><p><strong>max_lr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – Upper learning rate boundaries in the cycle
 for each parameter group.</p></li>
-<li><p><strong>total_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The total number of steps in the cycle. Note that
+<li><p><strong>total_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The total number of steps in the cycle. Note that
 if a value is provided here, then it must be inferred by providing
 a value for epochs and steps_per_epoch.
 Default: None</p></li>
-<li><p><strong>epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of epochs to train for. This is used along
+<li><p><strong>epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The number of epochs to train for. This is used along
 with steps_per_epoch in order to infer the total number of steps in the cycle
 if a value for total_steps is not provided.
 Default: None</p></li>
-<li><p><strong>steps_per_epoch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of steps per epoch to train for. This is
+<li><p><strong>steps_per_epoch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The number of steps per epoch to train for. This is
 used along with epochs in order to infer the total number of steps in the
 cycle if a value for total_steps is not provided.
 Default: None</p></li>
-<li><p><strong>pct_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The percentage of the cycle (in number of steps) spent
+<li><p><strong>pct_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The percentage of the cycle (in number of steps) spent
 increasing the learning rate.
 Default: 0.25</p></li>
-<li><p><strong>pct_end</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The percentage of the cycle (in number of steps) spent
+<li><p><strong>pct_end</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The percentage of the cycle (in number of steps) spent
 before decreasing the learning rate.
 Default: 0.75</p></li>
-<li><p><strong>anneal_strategy</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – {“cos”, “linear”}
+<li><p><strong>anneal_strategy</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – {“cos”, “linear”}
 Specifies the annealing strategy: “cos” for cosine annealing, “linear” for
 linear annealing.
 Default: “cos”.</p></li>
-<li><p><strong>cycle_momentum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, momentum is cycled inversely
+<li><p><strong>cycle_momentum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, momentum is cycled inversely
 to learning rate between “base_momentum” and “max_momentum”.
 Default: True</p></li>
-<li><p><strong>base_momentum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – Lower momentum boundaries in the cycle
+<li><p><strong>base_momentum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – Lower momentum boundaries in the cycle
 for each parameter group. Note that momentum is cycled inversely
 to learning rate; at the peak of a cycle, momentum is
 “base_momentum” and learning rate is “max_lr”.
 Default: 0.85</p></li>
-<li><p><strong>max_momentum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – Upper momentum boundaries in the cycle
+<li><p><strong>max_momentum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – Upper momentum boundaries in the cycle
 for each parameter group. Functionally,
 it defines the cycle amplitude (max_momentum - base_momentum).
 Note that momentum is cycled inversely
 to learning rate; at the start of a cycle, momentum is “max_momentum”
 and learning rate is “base_lr”
 Default: 0.95</p></li>
-<li><p><strong>div_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Determines the initial learning rate via
+<li><p><strong>div_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Determines the initial learning rate via
 initial_lr = max_lr/div_factor
 Default: 25</p></li>
-<li><p><strong>final_div_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Determines the minimum learning rate via
+<li><p><strong>final_div_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Determines the minimum learning rate via
 min_lr = initial_lr/final_div_factor
 Default: 1e4</p></li>
-<li><p><strong>last_epoch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The index of the last batch. This parameter is used when
+<li><p><strong>last_epoch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The index of the last batch. This parameter is used when
 resuming a training job. Since <cite>step()</cite> should be invoked after each
 batch instead of after each epoch, this number represents the total
 number of <em>batches</em> computed, not the total number of epochs computed.
@@ -936,49 +936,49 @@ epochs and steps_per_epoch.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>optimizer</strong> (<em>Optimizer</em>) – Wrapped optimizer.</p></li>
-<li><p><strong>max_lr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – Upper learning rate boundaries in the cycle
+<li><p><strong>max_lr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – Upper learning rate boundaries in the cycle
 for each parameter group.</p></li>
-<li><p><strong>total_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The total number of steps in the cycle. Note that
+<li><p><strong>total_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The total number of steps in the cycle. Note that
 if a value is provided here, then it must be inferred by providing
 a value for epochs and steps_per_epoch.
 Default: None</p></li>
-<li><p><strong>epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of epochs to train for. This is used along
+<li><p><strong>epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The number of epochs to train for. This is used along
 with steps_per_epoch in order to infer the total number of steps in the cycle
 if a value for total_steps is not provided.
 Default: None</p></li>
-<li><p><strong>steps_per_epoch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of steps per epoch to train for. This is
+<li><p><strong>steps_per_epoch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The number of steps per epoch to train for. This is
 used along with epochs in order to infer the total number of steps in the
 cycle if a value for total_steps is not provided.
 Default: None</p></li>
-<li><p><strong>pct_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The percentage of the cycle (in number of steps) spent
+<li><p><strong>pct_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The percentage of the cycle (in number of steps) spent
 increasing the learning rate.
 Default: 0.3</p></li>
-<li><p><strong>anneal_strategy</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – {‘cos’, ‘linear’}
+<li><p><strong>anneal_strategy</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – {‘cos’, ‘linear’}
 Specifies the annealing strategy: “cos” for cosine annealing, “linear” for
 linear annealing.
 Default: ‘cos’</p></li>
-<li><p><strong>cycle_momentum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, momentum is cycled inversely
+<li><p><strong>cycle_momentum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, momentum is cycled inversely
 to learning rate between ‘base_momentum’ and ‘max_momentum’.
 Default: True</p></li>
-<li><p><strong>base_momentum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – Lower momentum boundaries in the cycle
+<li><p><strong>base_momentum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – Lower momentum boundaries in the cycle
 for each parameter group. Note that momentum is cycled inversely
 to learning rate; at the peak of a cycle, momentum is
 ‘base_momentum’ and learning rate is ‘max_lr’.
 Default: 0.85</p></li>
-<li><p><strong>max_momentum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – Upper momentum boundaries in the cycle
+<li><p><strong>max_momentum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – Upper momentum boundaries in the cycle
 for each parameter group. Functionally,
 it defines the cycle amplitude (max_momentum - base_momentum).
 Note that momentum is cycled inversely
 to learning rate; at the start of a cycle, momentum is ‘max_momentum’
 and learning rate is ‘base_lr’
 Default: 0.95</p></li>
-<li><p><strong>div_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Determines the initial learning rate via
+<li><p><strong>div_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Determines the initial learning rate via
 initial_lr = max_lr/div_factor
 Default: 25</p></li>
-<li><p><strong>final_div_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Determines the minimum learning rate via
+<li><p><strong>final_div_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Determines the minimum learning rate via
 min_lr = initial_lr/final_div_factor
 Default: 1e4</p></li>
-<li><p><strong>last_epoch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The index of the last batch. This parameter is used when
+<li><p><strong>last_epoch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The index of the last batch. This parameter is used when
 resuming a training job. Since <cite>step()</cite> should be invoked after each
 batch instead of after each epoch, this number represents the total
 number of <em>batches</em> computed, not the total number of epochs computed.
@@ -1014,13 +1014,13 @@ Default: -1</p></li>
 <dd><p>Get the learning rate of an optimizer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>optimizer</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/optim.html#torch.optim.Optimizer" title="(in PyTorch v1.11.0)"><em>torch.optim.Optimizer</em></a>) – An optimizer, with a learning rate common to all parameter groups.</p>
+<dd class="field-odd"><p><strong>optimizer</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/optim.html#torch.optim.Optimizer" title="(in PyTorch v1.13)"><em>torch.optim.Optimizer</em></a>) – An optimizer, with a learning rate common to all parameter groups.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The learning rate of the first parameter group.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1031,15 +1031,15 @@ Default: -1</p></li>
 <dd><p>Get the momentum of an optimizer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>optimizer</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/optim.html#torch.optim.Optimizer" title="(in PyTorch v1.11.0)"><em>torch.optim.Optimizer</em></a>) – An optimizer which implements momentum or betas (where momentum is the
-first beta, c.f. <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.optim.Adam.html#torch.optim.Adam" title="(in PyTorch v1.11.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.optim.Adam</span></code></a>) with a momentum common to all
+<dd class="field-odd"><p><strong>optimizer</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/optim.html#torch.optim.Optimizer" title="(in PyTorch v1.13)"><em>torch.optim.Optimizer</em></a>) – An optimizer which implements momentum or betas (where momentum is the
+first beta, c.f. <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.optim.Adam.html#torch.optim.Adam" title="(in PyTorch v1.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.optim.Adam</span></code></a>) with a momentum common to all
 parameter groups.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The momentum of the first parameter group.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a></p>
 </dd>
 </dl>
 </dd></dl>

@@ -20,7 +20,7 @@
     href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
     
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
@@ -29,7 +29,7 @@
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="echofilter.nn.modules package" href="echofilter.nn.modules.html" />
@@ -443,7 +443,7 @@ title="Print to PDF"
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.nn.unet.Down">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.nn.unet.</span></span><span class="sig-name descname"><span class="pre">Down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'max'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/nn/unet.html#Down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.nn.unet.Down" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v1.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></a></p>
 <p>Downscaling layer, downsampling by a factor of two in one or more dimensions.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="echofilter.nn.unet.Down.forward">
@@ -461,7 +461,7 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="echofilter.nn.unet.Down.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><a class="headerlink" href="#echofilter.nn.unet.Down.training" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#echofilter.nn.unet.Down.training" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -469,29 +469,29 @@ registered hooks while the latter silently ignores them.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.nn.unet.UNet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.nn.unet.</span></span><span class="sig-name descname"><span class="pre">UNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bottleneck_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unet_expansion_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand_only_on_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blocks_per_downsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blocks_before_first_downsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">always_include_skip_connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deepest_inner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'identity'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intrablock_expansion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">se_reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downsampling_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'max'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upsampling_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bilinear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depthwise_separable_conv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actfn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'InplaceReLU'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/nn/unet.html#UNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.nn.unet.UNet" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v1.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></a></p>
 <p>UNet model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>in_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of input channels.</p></li>
-<li><p><strong>out_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of output channels.</p></li>
-<li><p><strong>initial_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Number of latent channels to output from the initial convolution
+<li><p><strong>in_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Number of input channels.</p></li>
+<li><p><strong>out_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Number of output channels.</p></li>
+<li><p><strong>initial_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Number of latent channels to output from the initial convolution
 facing the input layer. Default is <cite>32</cite>.</p></li>
-<li><p><strong>bottleneck_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Number of channels to output from the first block, before the first
+<li><p><strong>bottleneck_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Number of channels to output from the first block, before the first
 unet downsampling step can occur. Default is the same as
 <cite>initial_channels</cite>.</p></li>
-<li><p><strong>n_block</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Number of blocks, both up and down. Default is <cite>4</cite>.</p></li>
-<li><p><strong>unet_expansion_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Channel expansion factor between unet blocks. Default is <cite>2</cite>.</p></li>
-<li><p><strong>expand_only_on_down</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to only apply <cite>unet_expansion_factor</cite> on unet blocks which
+<li><p><strong>n_block</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Number of blocks, both up and down. Default is <cite>4</cite>.</p></li>
+<li><p><strong>unet_expansion_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Channel expansion factor between unet blocks. Default is <cite>2</cite>.</p></li>
+<li><p><strong>expand_only_on_down</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to only apply <cite>unet_expansion_factor</cite> on unet blocks which
 actually containg a down/up sampling component, and not on vanilla
 blocks. Default is <cite>False</cite>.</p></li>
-<li><p><strong>blocks_per_downsample</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>sequence</em><em>, </em><em>optional</em>) – Block interval between dowsampling steps in the unet. If this is
+<li><p><strong>blocks_per_downsample</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>sequence</em><em>, </em><em>optional</em>) – Block interval between dowsampling steps in the unet. If this is
 a sequence, it corresponds to the number of blocks for each spatial
 dimension. Default is <cite>1</cite>.</p></li>
-<li><p><strong>blocks_before_first_downsample</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Number of blocks to use before and after the main unet structure.
+<li><p><strong>blocks_before_first_downsample</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Number of blocks to use before and after the main unet structure.
 Must be at least <cite>1</cite>. Default is <cite>1</cite>.</p></li>
-<li><p><strong>always_include_skip_connection</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, a skip connection is included between all blocks equally
+<li><p><strong>always_include_skip_connection</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, a skip connection is included between all blocks equally
 far from the start and end of the UNet. If <cite>False</cite>, skip connections
 are only used between downsampling and upsampling operations. Default
 is <cite>True</cite>.</p></li>
@@ -501,27 +501,27 @@ pre-instantiated layer, or the string <cite>“horizontal_block”</cite>, to in
 an additional block as generated by the <cite>horizontal_block_factory</cite>.
 If it is the string <cite>“identity”</cite> or <cite>None</cite> (default), no additional
 layer is included at the deepest point before upsampling begins.</p></li>
-<li><p><strong>intrablock_expansion</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Channel expansion factor within inverse residual block. Default is <cite>6</cite>.</p></li>
-<li><p><strong>se_reduction</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Channel reduction factor within squeeze and excite block.
+<li><p><strong>intrablock_expansion</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Channel expansion factor within inverse residual block. Default is <cite>6</cite>.</p></li>
+<li><p><strong>se_reduction</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Channel reduction factor within squeeze and excite block.
 Default is <cite>4</cite>.</p></li>
 <li><p><strong>downsampling_modes</strong> (<em>{&quot;max&quot;</em><em>, </em><em>&quot;avg&quot;</em><em>, </em><em>&quot;stride&quot;}</em><em> or </em><em>sequence</em><em>, </em><em>optional</em>) – The downsampling mode to use. If this is a string, the same
 downsampling mode is used for every downsampling step. If it is
 a sequence, it should contain a string for each downsampling step.
 If the input sequence is too short, the final value will be used
 for all remaining downsampling steps. Default is <cite>“max”</cite>.</p></li>
-<li><p><strong>upsampling_modes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>sequence</em><em>, </em><em>optional</em>) – The upsampling mode to use. If this is a string, it must be <cite>“conv”</cite>,
-or something supported by <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample" title="(in PyTorch v1.11.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Upsample</span></code></a>; the same
+<li><p><strong>upsampling_modes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>sequence</em><em>, </em><em>optional</em>) – The upsampling mode to use. If this is a string, it must be <cite>“conv”</cite>,
+or something supported by <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample" title="(in PyTorch v1.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Upsample</span></code></a>; the same
 upsampling mode is used for every upsampling step. If it is
 a sequence, it should contain a string for each upsampling step.
 If the input sequence is too short, the final value will be used
 for all remaining upsampling steps. Default is <cite>“bilinear”</cite>.</p></li>
-<li><p><strong>depthwise_separable_conv</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to use depthwise separable convolutions in the MBConv block.
+<li><p><strong>depthwise_separable_conv</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to use depthwise separable convolutions in the MBConv block.
 Otherwise, the depth and pointwise convolutions are fused together
 into a regular convolution. Default is <cite>True</cite>.</p></li>
-<li><p><strong>residual</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to use a residual architecture for the MBConv blocks.
+<li><p><strong>residual</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to use a residual architecture for the MBConv blocks.
 Default is <cite>True</cite>.</p></li>
-<li><p><strong>actfn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the activation function to use. Default is <cite>“InplaceReLU”</cite>.</p></li>
-<li><p><strong>kernel_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Size of convolution kernel to use. Default is <cite>5</cite>.</p></li>
+<li><p><strong>actfn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the activation function to use. Default is <cite>“InplaceReLU”</cite>.</p></li>
+<li><p><strong>kernel_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Size of convolution kernel to use. Default is <cite>5</cite>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -541,7 +541,7 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="echofilter.nn.unet.UNet.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><a class="headerlink" href="#echofilter.nn.unet.UNet.training" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#echofilter.nn.unet.UNet.training" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -549,7 +549,7 @@ registered hooks while the latter silently ignores them.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.nn.unet.UNetBlock">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.nn.unet.</span></span><span class="sig-name descname"><span class="pre">UNetBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizontal_block_factory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_expansion_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand_only_on_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blocks_per_downsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blocks_before_first_downsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">always_include_skip_connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deepest_inner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'identity'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downsampling_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'max'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upsampling_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bilinear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_i_block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_i_down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/nn/unet.html#UNetBlock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.nn.unet.UNetBlock" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v1.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></a></p>
 <p>Create a (cascading set of) UNet block(s).</p>
 <dl class="simple">
 <dt>Each block performs the steps:</dt><dd><ul class="simple">
@@ -567,21 +567,21 @@ registered hooks while the latter silently ignores them.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>in_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of input channels to this block.</p></li>
-<li><p><strong>horizontal_block_factory</strong> (<em>callable</em>) – A <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v1.11.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></a> constructor or function which returns a
+<li><p><strong>in_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Number of input channels to this block.</p></li>
+<li><p><strong>horizontal_block_factory</strong> (<em>callable</em>) – A <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v1.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></a> constructor or function which returns a
 block of layers. The resulting module must accept <cite>in_channels</cite> and
 <cite>out_channels</cite> as its first two arguments.</p></li>
-<li><p><strong>n_block</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – The number of nested UNetBlocks to use. Default is <cite>1</cite> (no nesting).</p></li>
-<li><p><strong>block_expansion_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Expansion factor for the number of channels between nested UNetBlocks.
+<li><p><strong>n_block</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – The number of nested UNetBlocks to use. Default is <cite>1</cite> (no nesting).</p></li>
+<li><p><strong>block_expansion_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Expansion factor for the number of channels between nested UNetBlocks.
 Default is <cite>2</cite>.</p></li>
-<li><p><strong>expand_only_on_down</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to exand the number of channels only when one of the spatial
+<li><p><strong>expand_only_on_down</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to exand the number of channels only when one of the spatial
 dimensions is compressed. Default is <cite>False</cite>.</p></li>
-<li><p><strong>blocks_per_downsample</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>sequence</em><em>, </em><em>optional</em>) – How many blocks to include between each downsample operation. This can
+<li><p><strong>blocks_per_downsample</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>sequence</em><em>, </em><em>optional</em>) – How many blocks to include between each downsample operation. This can
 be a tuple of values for each spatial dimension, or an int which
 uses the same value for each spatial dimension. Default is <cite>1</cite>.</p></li>
-<li><p><strong>blocks_before_first_downsample</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>sequence</em><em>, </em><em>optional</em>) – How many blocks to include before the first spatial downsampling
+<li><p><strong>blocks_before_first_downsample</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>sequence</em><em>, </em><em>optional</em>) – How many blocks to include before the first spatial downsampling
 occurs. Default is <cite>1</cite>.</p></li>
-<li><p><strong>always_include_skip_connection</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, a skip connection is included even if no dimensions were
+<li><p><strong>always_include_skip_connection</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, a skip connection is included even if no dimensions were
 downsampled in this block. Default is <cite>True</cite>.</p></li>
 <li><p><strong>deepest_inner</strong> (<em>{callable</em><em>, </em><em>&quot;horizontal_block&quot;</em><em>, </em><em>&quot;identity&quot;</em><em>, </em><em>None}</em><em>, </em><em>optional</em>) – A layer which should be applied at the deepest part of the network,
 before the first upsampling step. The parameter should either be a
@@ -594,15 +594,15 @@ downsampling mode is used for every downsampling step. If it is
 a sequence, it should contain a string for each downsampling step.
 If the input sequence is too short, the final value will be used
 for all remaining downsampling steps. Default is <cite>“max”</cite>.</p></li>
-<li><p><strong>upsampling_modes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>sequence</em><em>, </em><em>optional</em>) – The upsampling mode to use. If this is a string, it must be <cite>“conv”</cite>,
-or something supported by <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample" title="(in PyTorch v1.11.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Upsample</span></code></a>; the same
+<li><p><strong>upsampling_modes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>sequence</em><em>, </em><em>optional</em>) – The upsampling mode to use. If this is a string, it must be <cite>“conv”</cite>,
+or something supported by <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample" title="(in PyTorch v1.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Upsample</span></code></a>; the same
 upsampling mode is used for every upsampling step. If it is
 a sequence, it should contain a string for each upsampling step.
 If the input sequence is too short, the final value will be used
 for all remaining upsampling steps. Default is <cite>“bilinear”</cite>.</p></li>
-<li><p><strong>_i_block</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – The current block number. Used internally to track recursion.
+<li><p><strong>_i_block</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – The current block number. Used internally to track recursion.
 Default is <cite>0</cite>.</p></li>
-<li><p><strong>_i_down</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Used internally to track downsampling depth. Default is <cite>0</cite>.</p></li>
+<li><p><strong>_i_down</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Used internally to track downsampling depth. Default is <cite>0</cite>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -625,7 +625,7 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="echofilter.nn.unet.UNetBlock.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><a class="headerlink" href="#echofilter.nn.unet.UNetBlock.training" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#echofilter.nn.unet.UNetBlock.training" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -633,7 +633,7 @@ registered hooks while the latter silently ignores them.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.nn.unet.Up">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.nn.unet.</span></span><span class="sig-name descname"><span class="pre">Up</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bilinear'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/nn/unet.html#Up"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.nn.unet.Up" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v1.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></a></p>
 <p>Upscaling layer, upsampling by a factor of two in one or more dimensions.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="echofilter.nn.unet.Up.forward">
@@ -651,7 +651,7 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="echofilter.nn.unet.Up.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><a class="headerlink" href="#echofilter.nn.unet.Up.training" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#echofilter.nn.unet.Up.training" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -663,7 +663,7 @@ registered hooks while the latter silently ignores them.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.nn.utils.TensorDict">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.nn.utils.</span></span><span class="sig-name descname"><span class="pre">TensorDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/nn/utils.html#TensorDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.nn.utils.TensorDict" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.container.ParameterDict</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.ParameterDict.html#torch.nn.ParameterDict" title="(in PyTorch v1.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.container.ParameterDict</span></code></a></p>
 <p>Holds tensors in a dictionary.</p>
 <p>TensorDict can be indexed like a regular Python dictionary, but implements
 methods such as <cite>to</cite> which operate on all elements within it.</p>
@@ -679,8 +679,8 @@ merged mapping.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>parameters</strong> (<em>iterable</em><em>, </em><em>optional</em>) – a mapping (dictionary) of
-(string : <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a>) or an iterable of key-value pairs
-of type (string, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a>)</p>
+(string : <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a>) or an iterable of key-value pairs
+of type (string, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a>)</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -702,6 +702,11 @@ this method in your own modules. Both single-line and multi-line
 strings are acceptable.</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="echofilter.nn.utils.TensorDict.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#echofilter.nn.utils.TensorDict.training" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
@@ -712,7 +717,7 @@ strings are acceptable.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<em>torch.nn.Model</em>) – the model.</p></li>
-<li><p><strong>only_trainable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – indicates whether the count should be restricted
+<li><p><strong>only_trainable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – indicates whether the count should be restricted
 to only trainable parameters (ones which require grad), otherwise all
 parameters are included. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
 </ul>
@@ -721,7 +726,7 @@ parameters are included. Default is <code class="docutils literal notranslate"><
 <dd class="field-even"><p>total number of (trainable) parameters possessed by the model.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -738,16 +743,16 @@ having 1 fewer dimension.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
-<li><p><strong>dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The dimension to reduce.</p></li>
-<li><p><strong>keepdim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether the output tensor has <cite>dim</cite> retained or not.
+<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
+<li><p><strong>dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The dimension to reduce.</p></li>
+<li><p><strong>keepdim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether the output tensor has <cite>dim</cite> retained or not.
 Default is <cite>False</cite>.</p></li>
-<li><p><strong>temperature</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – A temperature which is applied to the logits. Temperatures must be
+<li><p><strong>temperature</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – A temperature which is applied to the logits. Temperatures must be
 positive. Temperatures greater than <cite>1</cite> make the result closer to the
 average of <cite>input</cite>, whilst temperatures <cite>0&lt;t&lt;1</cite> make the result closer
 to the maximum of <cite>input</cite>. If <cite>None</cite> (default) or <cite>1</cite>, no temperature
 is applied.</p></li>
-<li><p><strong>internal_dtype</strong> (<em>torch.dtype</em><em>, </em><em>optional</em>) – A data type which the <cite>input</cite> will be cast as before computing the
+<li><p><strong>internal_dtype</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.dtype" title="(in PyTorch v1.13)"><em>torch.dtype</em></a><em>, </em><em>optional</em>) – A data type which the <cite>input</cite> will be cast as before computing the
 log-sum-exp step. Default is <code class="xref py py-attr docutils literal notranslate"><span class="pre">torch.float32</span></code>.</p></li>
 </ul>
 </dd>
@@ -755,7 +760,7 @@ log-sum-exp step. Default is <code class="xref py py-attr docutils literal notra
 <dd class="field-even"><p>The log-average-exp of <cite>input</cite>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)">torch.Tensor</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.13)">torch.Tensor</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -768,12 +773,12 @@ for torch.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – seed value to use for the random number generators.
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – seed value to use for the random number generators.
 If <code class="xref py py-attr docutils literal notranslate"><span class="pre">seed</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), seeds are picked at random using
 the methods built in to each RNG.</p></li>
-<li><p><strong>only_current_gpu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – indicates whether to only re-seed the current
+<li><p><strong>only_current_gpu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – indicates whether to only re-seed the current
 cuda device, or to seed all of them. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
-<li><p><strong>mirror_gpus</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – indicates whether all cuda devices should receive
+<li><p><strong>mirror_gpus</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – indicates whether all cuda devices should receive
 the same seed, or different seeds. If <code class="xref py py-attr docutils literal notranslate"><span class="pre">mirror_gpus</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code> and
 <code class="xref py py-attr docutils literal notranslate"><span class="pre">seed</span></code> is not <code class="docutils literal notranslate"><span class="pre">None</span></code>, each device receives a different but
 deterministically determined seed. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
@@ -803,26 +808,26 @@ to its performance-optimised default settings of:</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="echofilter.nn.wrapper.Echofilter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echofilter.nn.wrapper.</span></span><span class="sig-name descname"><span class="pre">Echofilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'boundary'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bottom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'boundary'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction_ispassive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'logavgexp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction_isremoved</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'logavgexp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/echofilter/nn/wrapper.html#Echofilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#echofilter.nn.wrapper.Echofilter" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v1.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></a></p>
 <p>Echofilter logit mapping wrapper.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<cite>torch.nn.Module</cite>) – The model backbone, which converts inputs to logits.</p></li>
-<li><p><strong>top</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Type of output for top line and surface line. If <cite>“mask”</cite>, the top
+<li><p><strong>top</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Type of output for top line and surface line. If <cite>“mask”</cite>, the top
 output corresponds to logits, which are converted into probabilities
 with sigmoid. If <cite>“boundary”</cite> (default), the output corresponds to
 logits for the location of the line, which is converted into a
 probability mask using softmax and cumsum.</p></li>
-<li><p><strong>bottom</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – As for <cite>top</cite>, but for the bottom line. Default is <cite>“boundary”</cite>.</p></li>
-<li><p><strong>mapping</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Mapping from logit names to output channels provided by <cite>model</cite>.
+<li><p><strong>bottom</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – As for <cite>top</cite>, but for the bottom line. Default is <cite>“boundary”</cite>.</p></li>
+<li><p><strong>mapping</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Mapping from logit names to output channels provided by <cite>model</cite>.
 If <cite>None</cite>, a default mapping is used. The mapping is stored as
 <cite>self.mapping</cite>.</p></li>
-<li><p><strong>reduction_ispassive</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>default=&quot;logavgexp&quot;</em>) – Method used to reduce the depths dimension for the <cite>“logit_is_passive”</cite>
+<li><p><strong>reduction_ispassive</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default=&quot;logavgexp&quot;</em>) – Method used to reduce the depths dimension for the <cite>“logit_is_passive”</cite>
 output.</p></li>
-<li><p><strong>reduction_isremoved</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> , </em><em>default=&quot;logavgexp&quot;</em>) – Method used to reduce the depths dimension for the <cite>“logit_is_removed”</cite>
+<li><p><strong>reduction_isremoved</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> , </em><em>default=&quot;logavgexp&quot;</em>) – Method used to reduce the depths dimension for the <cite>“logit_is_removed”</cite>
 output.</p></li>
-<li><p><strong>conditional</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to build a conditional model as well as an unconditional model.
+<li><p><strong>conditional</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to build a conditional model as well as an unconditional model.
 If <cite>True</cite>, there are additional logits in the call output named
 <cite>“x|downfacing”</cite> and <cite>“x|upfacing”</cite>, in addition to
 <cite>“x”</cite>. For instance, <cite>“p_is_above_turbulence|downfacing”</cite>. Default is <cite>False</cite>.</p></li>
@@ -850,7 +855,7 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="echofilter.nn.wrapper.Echofilter.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><a class="headerlink" href="#echofilter.nn.wrapper.Echofilter.training" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#echofilter.nn.wrapper.Echofilter.training" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -865,23 +870,23 @@ registered hooks while the latter silently ignores them.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>reduction</strong> (<cite>“mean”</cite> or <cite>“sum”</cite>, optional) – The reduction method, which is used to collapse batch and timestamp
 dimensions. Default is <cite>“mean”</cite>.</p></li>
-<li><p><strong>turbulence_mask</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Weighting for turbulence line/mask loss term. Default is <cite>1.0</cite>.</p></li>
-<li><p><strong>bottom_mask</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Weighting for bottom line/mask loss term. Default is <cite>1.0</cite>.</p></li>
-<li><p><strong>removed_segment</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Weighting for <cite>is_removed</cite> loss term. Default is <cite>1.0</cite>.</p></li>
-<li><p><strong>passive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Weighting for <cite>is_passive</cite> loss term. Default is <cite>1.0</cite>.</p></li>
-<li><p><strong>patch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Weighting for <cite>mask_patch</cite> loss term. Default is <cite>1.0</cite>.</p></li>
-<li><p><strong>overall</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Weighting for overall mask loss term. Default is <cite>0.0</cite>.</p></li>
-<li><p><strong>surface</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Weighting for surface line/mask loss term. Default is <cite>1.0</cite>.</p></li>
-<li><p><strong>auxiliary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Weighting for auxiliary loss terms <cite>“turbulence-original”</cite>,
+<li><p><strong>turbulence_mask</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Weighting for turbulence line/mask loss term. Default is <cite>1.0</cite>.</p></li>
+<li><p><strong>bottom_mask</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Weighting for bottom line/mask loss term. Default is <cite>1.0</cite>.</p></li>
+<li><p><strong>removed_segment</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Weighting for <cite>is_removed</cite> loss term. Default is <cite>1.0</cite>.</p></li>
+<li><p><strong>passive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Weighting for <cite>is_passive</cite> loss term. Default is <cite>1.0</cite>.</p></li>
+<li><p><strong>patch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Weighting for <cite>mask_patch</cite> loss term. Default is <cite>1.0</cite>.</p></li>
+<li><p><strong>overall</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Weighting for overall mask loss term. Default is <cite>0.0</cite>.</p></li>
+<li><p><strong>surface</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Weighting for surface line/mask loss term. Default is <cite>1.0</cite>.</p></li>
+<li><p><strong>auxiliary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Weighting for auxiliary loss terms <cite>“turbulence-original”</cite>,
 <cite>“bottom-original”</cite>, <cite>“mask_patches-original”</cite>, and
 <cite>“mask_patches-ntob”</cite>. Default is <cite>1.0</cite>.</p></li>
-<li><p><strong>ignore_lines_during_passive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether targets for turbulence and bottom lines should be excluded from
+<li><p><strong>ignore_lines_during_passive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether targets for turbulence and bottom lines should be excluded from
 the loss during passive data collection. Default is <cite>True</cite>.</p></li>
-<li><p><strong>ignore_lines_during_removed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether targets for turbulence and bottom lines should be excluded from
+<li><p><strong>ignore_lines_during_removed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether targets for turbulence and bottom lines should be excluded from
 the loss during entirely removed sections. Default is <cite>True</cite>.</p></li>
-<li><p><strong>ignore_surface_during_passive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether target for the surface line should be excluded from the loss
+<li><p><strong>ignore_surface_during_passive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether target for the surface line should be excluded from the loss
 during passive data collection. Default is <cite>False</cite>.</p></li>
-<li><p><strong>ignore_surface_during_removed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether target for the surface line should be excluded from the loss
+<li><p><strong>ignore_surface_during_removed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether target for the surface line should be excluded from the loss
 during entirely removed sections. Default is <cite>True</cite>.</p></li>
 </ul>
 </dd>
@@ -893,8 +898,8 @@ during entirely removed sections. Default is <cite>True</cite>.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Output from <cite>echofilter.wrapper.Echofilter</cite> layer.</p></li>
-<li><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – A transect, as provided by <cite>TransectDataset</cite>.</p></li>
+<li><p><strong>input</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – Output from <cite>echofilter.wrapper.Echofilter</cite> layer.</p></li>
+<li><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – A transect, as provided by <cite>TransectDataset</cite>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -902,7 +907,7 @@ during entirely removed sections. Default is <cite>True</cite>.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="echofilter.nn.wrapper.EchofilterLoss.reduction">
-<span class="sig-name descname"><span class="pre">reduction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#echofilter.nn.wrapper.EchofilterLoss.reduction" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">reduction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#echofilter.nn.wrapper.EchofilterLoss.reduction" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
