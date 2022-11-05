@@ -1,0 +1,153 @@
+# Build wheels and executables for Windows
+
+name: build release candidate
+
+on:
+  push:
+  pull_request:
+  release:
+
+jobs:
+  build-executable:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        python-version: ["3.7"]
+        frozen: ["frozen"]
+    env:
+      OS: ${{ matrix.os }}
+      PYTHON: ${{ matrix.python-version }}
+
+    defaults:
+      run:
+        shell: cmd
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: System information
+      run: python .github/workflows/system_info.py
+
+    - name: Get pip cache dir
+      id: pip-cache
+      run: echo "::set-output name=dir::$(pip cache dir)"
+
+    - name: pip cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.pip-cache.outputs.dir }}
+        key: ${{ runner.os }}-pip-py${{ matrix.python-version }}-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: ${{ runner.os }}-pip-
+
+    - name: Install common dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install flake8
+
+    - name: Install frozen dependencies
+      if: ${{ matrix.frozen }}
+      run: |
+        python -m pip install torch==1.4.0+cpu torchvision==0.5.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
+        python -m pip install -r frozen_requirements.txt
+
+    - name: Install package
+      run: python -m pip install .[dev,test]
+
+    - name: Get appdirs cache dir
+      id: appdirs-cache
+      run: echo "::set-output name=dir::$(python -c 'from echofilter.ui.checkpoints import get_default_cache_dir as c; print(c())')"
+
+    - name: Cache checkpoints
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.appdirs-cache.outputs.dir }}
+        key: checkpoints-${{ hashFiles('**/echofilter/checkpoints.yaml') }}
+        restore-keys: checkpoints-
+
+    - name: Sanity check with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        python -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings
+        python -m flake8 . --count --exit-zero --statistics
+
+    - name: Debug environment
+      run: python -m pip freeze
+
+    - name: Test with pytest
+      run: |
+        python -m pytest --cov=echofilter --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        flags: unittests
+        env_vars: OS,PYTHON
+        name: Python ${{ matrix.python-version }} on ${{ runner.os }}
+
+    - name: Build wheels
+      run: |
+        python -m pip install --upgrade setuptools wheel twine
+        python setup.py sdist bdist_wheel
+
+    - name: Compile echofilter inference exe
+      run: |
+        pyinstaller bin\inference.py echofilter\ev2csv.py ^
+            --name echofilter ^
+            --add-data echofilter\checkpoints.yaml;. ^
+            --icon images/deepsense.ico ^
+            --hidden-import pkg_resources.py2_warn ^
+            --hidden-import colorama ^
+            --hidden-import torch ^
+            --hidden-import torchvision ^
+            --hidden-import Pillow ^
+            --hidden-import numpy ^
+            --hidden-import matplotlib ^
+            --hidden-import scipy ^
+            --hidden-import scipy.spatial ^
+            --hidden-import pandas ^
+            --hidden-import scikit-image ^
+            --hidden-import tqdm ^
+            --hidden-import echofilter ^
+            --hidden-import echofilter.data ^
+            --hidden-import echofilter.nn ^
+            --hidden-import echofilter.optim ^
+            --hidden-import echofilter.raw ^
+            --hidden-import echofilter.path ^
+            --hidden-import echofilter.win ^
+            -y --clean ^
+            --distpath executable
+
+    - name: Test show help
+      run: executable\echofilter\echofilter.exe -h
+
+    - name: Test show version
+      run: executable\echofilter\echofilter.exe --version
+
+    - name: Test list-checkpoints
+      run: executable\echofilter\echofilter.exe --list-checkpoints
+
+    - name: Test list-colors
+      run: executable\echofilter\echofilter.exe --list-colors
+
+    - name: Test dry-run
+      run: executable\echofilter\echofilter.exe test-resources -n
+
+    - name: Test run
+      run: executable\echofilter\echofilter.exe test-resources
+
+    - name: Test skip after already ran
+      run: executable\echofilter\echofilter.exe test-resources -s
+
+    - name: Store wheel artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: executable-windows-py3.7
+        path: executable/*
