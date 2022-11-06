@@ -38,6 +38,8 @@ Inference
     or because the hard disk is out of space.
     (`#228 <https://github.com/DeepSenseCA/echofilter/pull/228>`__)
 
+.. _v1.0.0 Added Documentation:
+
 Documentation
 ^^^^^^^^^^^^^
 
