@@ -52,6 +52,8 @@ Requirements
     and remove it from the requirements.
     (`#249 <https://github.com/DeepSenseCA/echofilter/pull/249>`__)
 
+.. _v1.0.1 Changed Checkpoints:
+
 Checkpoints
 ^^^^^^^^^^^
 
