@@ -323,7 +323,9 @@ title="Fullscreen mode"
 
 
 <span class="n">PACKAGE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<span class="n">REPO_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">PACKAGE_DIR</span><span class="p">)</span>
 <span class="n">CHECKPOINT_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PACKAGE_DIR</span><span class="p">,</span> <span class="s2">&quot;checkpoints.yaml&quot;</span><span class="p">)</span>
+<span class="n">CHECKPOINT_FILE_ALT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">REPO_DIR</span><span class="p">,</span> <span class="s2">&quot;checkpoints.yaml&quot;</span><span class="p">)</span>
 <span class="n">CHECKPOINT_EXT</span> <span class="o">=</span> <span class="s2">&quot;.pt&quot;</span>
 
 
@@ -337,7 +339,14 @@ title="Fullscreen mode"
 <span class="sd">        Dictionary with a key for each checkpoint. Each key maps to a dictionary</span>
 <span class="sd">        whose elements describe the checkpoint.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">CHECKPOINT_FILE</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hf</span><span class="p">:</span>
+    <span class="n">checkpoint_file_use</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">CHECKPOINT_FILE</span><span class="p">):</span>
+        <span class="n">checkpoint_file_use</span> <span class="o">=</span> <span class="n">CHECKPOINT_FILE</span>
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">CHECKPOINT_FILE_ALT</span><span class="p">):</span>
+        <span class="n">checkpoint_file_use</span> <span class="o">=</span> <span class="n">CHECKPOINT_FILE_ALT</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No such file: &#39;</span><span class="si">{CHECKPOINT_FILE}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">checkpoint_file_use</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hf</span><span class="p">:</span>
         <span class="n">checkpoints</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">hf</span><span class="p">)[</span><span class="s2">&quot;checkpoints&quot;</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">checkpoints</span></div>
 
