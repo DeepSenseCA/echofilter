@@ -2,4 +2,4 @@ apex
 seaborn
 tensorboard
 ranger @ git+https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer.git@8d636a560b71e740e9423aa10ba4c7f751bb9120#egg=ranger
-torch_lr_finder @ git+https://github.com/davidtvs/pytorch-lr-finder.git@1d1e3e7170db3d784ac7e268a63fa8a077880b50#egg=torch_lr_finder
+torch_lr_finder>=0.2.0
