@@ -40,7 +40,7 @@ def mode(a, axis=None, keepdims=False, **kwargs):
     --------
     scipy.stats.mode
     """
-    m = scipy.stats.mode(a, axis=axis, **kwargs)[0]
+    m = scipy.stats.mode(a, axis=axis, keepdims=True, **kwargs)[0]
     if keepdims:
         return m
     m = m.squeeze(0 if axis is None else axis)
