@@ -16,7 +16,7 @@ Security.
 Version `1.0.1 <https://github.com/DeepSenseCA/echofilter/tree/1.0.1>`__
 ------------------------------------------------------------------------
 
-Release date: 2022-11-04.
+Release date: 2022-11-06.
 `Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.0...1.0.1>`__.
 
 This patch fix addresses requirement inconsistencies and documentation building.
