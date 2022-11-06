@@ -4,6 +4,22 @@
 Inference routine.
 """
 
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import datetime
 import os
 import pprint
@@ -18,13 +34,12 @@ import torch
 import torch.nn
 import torch.utils.data
 import torchvision.transforms
-from torchutils.utils import count_parameters
-from torchutils.device import cuda_is_really_available
 from tqdm.auto import tqdm
 
 import echofilter.data.transforms
 import echofilter.nn
 from echofilter.nn.unet import UNet
+from echofilter.nn.utils import count_parameters
 from echofilter.nn.wrapper import Echofilter
 import echofilter.path
 import echofilter.raw
@@ -446,7 +461,7 @@ def run_inference(
         )
 
     if device is None:
-        device = "cuda" if cuda_is_really_available() else "cpu"
+        device = "cuda" if torch.cuda.is_available() else "cpu"
     device = torch.device(device)
 
     if facing is None:
@@ -545,7 +560,7 @@ def run_inference(
     model = Echofilter(
         model,
         mapping=checkpoint.get("wrapper_mapping", None),
-        **checkpoint.get("wrapper_params", {})
+        **checkpoint.get("wrapper_params", {}),
     )
     is_conditional_model = model.params.get("conditional", False)
     if verbose >= 3:
@@ -646,7 +661,9 @@ def run_inference(
 
     # Open Echoview connection
     with echofilter.win.maybe_open_echoview(
-        do_open=do_open, minimize=minimize_echoview, hide=hide_echoview,
+        do_open=do_open,
+        minimize=minimize_echoview,
+        hide=hide_echoview,
     ) as ev_app:
         for fname in maybe_tqdm(files):
             if verbose >= 2:
@@ -706,7 +723,8 @@ def run_inference(
                 elif len(clobbers) > 1:
                     msg += "  and {} others ".format(len(clobbers) - 1)
                 msg += "already exist{} for file {}".format(
-                    "s" if len(clobbers) == 1 else "", fname,
+                    "s" if len(clobbers) == 1 else "",
+                    fname,
                 )
                 with echofilter.ui.style.error_message(msg) as msg:
                     if dry_run:
@@ -810,7 +828,7 @@ def run_inference(
                         tp = "line" if os.path.splitext(fname)[1] == ".evl" else "file"
                         print(
                             "    {} export {} {} to: {}{}".format(
-                                ww, key, tp, fname, over_txt,
+                                ww, key, tp, fname, over_txt
                             )
                         )
                 if dry_run:
@@ -1269,7 +1287,8 @@ def inference_transect(
             [
                 echofilter.data.transforms.ReplaceNan(nan_value),
                 echofilter.data.transforms.Rescale(
-                    (segment["signals"].shape[0], image_height), order=1,
+                    (segment["signals"].shape[0], image_height),
+                    order=1,
                 ),
             ]
         )
@@ -1506,7 +1525,7 @@ def import_lines_regions_to_ev(
                 with tempfile.TemporaryDirectory() as tmpdirname:
                     temp_fname = os.path.join(tmpdirname, os.path.split(fname)[1])
                     echofilter.raw.loader.evl_writer(
-                        temp_fname, ts, depths_clipped, status=line_status,
+                        temp_fname, ts, depths_clipped, status=line_status
                     )
                     # Import the edited line into the EV file
                     fname_loaded = temp_fname
@@ -1625,10 +1644,14 @@ def import_lines_regions_to_ev(
             with tempfile.TemporaryDirectory() as tmpdirname:
                 fname_noext, ext = os.path.splitext(fname)
                 temp_fname = os.path.join(
-                    tmpdirname, os.path.split(fname_noext)[1] + "_offset" + ext,
+                    tmpdirname,
+                    os.path.split(fname_noext)[1] + "_offset" + ext,
                 )
                 echofilter.raw.loader.evl_writer(
-                    temp_fname, ts, depths_offset, status=line_status,
+                    temp_fname,
+                    ts,
+                    depths_offset,
+                    status=line_status,
                 )
                 # Import the edited line into the EV file
                 is_imported = ev_file.Import(temp_fname)

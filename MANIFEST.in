@@ -1,5 +1,8 @@
 include README.rst
 include CHANGELOG.rst
+include COPYING
+include echofilter/checkpoints.yaml
+include requirements*.txt
 
 global-exclude *.py[co]
 global-exclude __pycache__

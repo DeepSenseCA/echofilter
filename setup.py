@@ -158,7 +158,7 @@ setup(
     packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
     package_dir={meta["name"]: os.path.join(".", meta["path"])},
     # If any package contains *.txt or *.rst files, include them:
-    # package_data={'': ['*.txt', '*.rst'],}
+    package_data={"echofilter": ["checkpoints.yaml"]},
     install_requires=install_requires,
     extras_require=extras_require,
     dependency_links=dependency_links,
@@ -173,7 +173,7 @@ setup(
     classifiers=[
         # Trove classifiers
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: GNU Affero General Public License v3",
         "Natural Language :: English",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
@@ -182,11 +182,11 @@ setup(
     entry_points={
         "console_scripts": [
             "echofilter=echofilter.__main__:main",
-            "echofilter-train=echofilter.train:main",
+            "echofilter-train=echofilter.ui.train_cli:main",
             "echofilter-generate-shards=echofilter.generate_shards:main",
             "ev2csv=echofilter.ev2csv:main",
         ],
     },
     # Custom commands
-    cmdclass={"test": PyTest, "upload": UploadCommand,},
+    cmdclass={"test": PyTest, "upload": UploadCommand},
 )

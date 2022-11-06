@@ -3,6 +3,22 @@
 Export raw EV files in CSV format.
 """
 
+# ev2csv is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import os
 import sys
 import warnings
@@ -23,9 +39,7 @@ if not echofilter.path.check_if_windows():
     )
     with echofilter.ui.style.warning_message(msg) as msg:
         print("")
-        warnings.warn(
-            msg, category=RuntimeWarning,
-        )
+        warnings.warn(msg, category=RuntimeWarning)
 
 
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
@@ -133,7 +147,9 @@ def run_ev2csv(
 
     # Open Echoview connection
     with echofilter.win.maybe_open_echoview(
-        do_open=not dry_run, minimize=minimize_echoview, hide=hide_echoview,
+        do_open=not dry_run,
+        minimize=minimize_echoview,
+        hide=hide_echoview,
     ) as ev_app:
         for fname in maybe_tqdm(files):
             if verbose >= 2:
@@ -191,7 +207,8 @@ def run_ev2csv(
         )
         if skip_count > 0:
             s += " Of these, {} file{} skipped.".format(
-                skip_count, " was" if skip_count == 1 else "s were",
+                skip_count,
+                " was" if skip_count == 1 else "s were",
             )
         print(s)
 
@@ -199,7 +216,11 @@ def run_ev2csv(
 
 
 def ev2csv(
-    input, destination, variable_name=DEFAULT_VARNAME, ev_app=None, verbose=0,
+    input,
+    destination,
+    variable_name=DEFAULT_VARNAME,
+    ev_app=None,
+    verbose=0,
 ):
     """
     Export a single EV file to CSV.
@@ -288,7 +309,10 @@ def get_parser():
         " of this program is supressed if any of these are given.",
     )
     group_action.add_argument(
-        "-h", "--help", action="help", help="Show this help message and exit.",
+        "-h",
+        "--help",
+        action="help",
+        help="Show this help message and exit.",
     )
     group_action.add_argument(
         "--version",

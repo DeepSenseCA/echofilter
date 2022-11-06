@@ -1,4 +1,6 @@
-sphinx
+myst-parser
+pypandoc>=1.6.3
+sphinx<5,>=3.5.4
 sphinx-autobuild
-sphinx_rtd_theme
 sphinx-argparse
+sphinx_book_theme

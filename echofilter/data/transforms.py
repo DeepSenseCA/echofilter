@@ -2,6 +2,22 @@
 Transformations and augmentations to be applied to echogram transects.
 """
 
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import collections
 import os
 import random
@@ -155,7 +171,9 @@ class Rescale(object):
                 _kind = "linear"
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
-                np.arange(len(sample[key])), sample[key], kind=_kind,
+                np.arange(len(sample[key])),
+                sample[key],
+                kind=_kind,
             )(np.linspace(0, len(sample[key]) - 1, self.output_size[0]))
             sample[key] = sample[key].astype(_dtype)
 
@@ -168,7 +186,9 @@ class Rescale(object):
             _kind = "linear" if key == "depths" else kind
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
-                np.arange(len(sample[key])), sample[key], kind=_kind,
+                np.arange(len(sample[key])),
+                sample[key],
+                kind=_kind,
             )(np.linspace(0, len(sample[key]) - 1, self.output_size[1]))
             sample[key] = sample[key].astype(_dtype)
 
@@ -261,7 +281,9 @@ class RandomGridSampling(Rescale):
                 _kind = "linear"
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
-                np.linspace(0, nx - 1, len(sample[key])), sample[key], kind=_kind,
+                np.linspace(0, nx - 1, len(sample[key])),
+                sample[key],
+                kind=_kind,
             )(x_out)
             sample[key] = sample[key].astype(_dtype)
 
@@ -272,7 +294,9 @@ class RandomGridSampling(Rescale):
             _kind = "linear" if key == "depths" else kind
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
-                np.linspace(0, ny - 1, len(sample[key])), sample[key], kind=_kind,
+                np.linspace(0, ny - 1, len(sample[key])),
+                sample[key],
+                kind=_kind,
             )(y_out)
             sample[key] = sample[key].astype(_dtype)
 
@@ -394,7 +418,9 @@ class RandomElasticGrid(Rescale):
                 _kind = "linear"
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
-                np.linspace(0, nx - 1, len(sample[key])), sample[key], kind=_kind,
+                np.linspace(0, nx - 1, len(sample[key])),
+                sample[key],
+                kind=_kind,
             )(x_out)
             sample[key] = sample[key].astype(_dtype)
 
@@ -405,7 +431,9 @@ class RandomElasticGrid(Rescale):
             _kind = "linear" if key == "depths" else kind
             _dtype = sample[key].dtype
             sample[key] = scipy.interpolate.interp1d(
-                np.linspace(0, ny - 1, len(sample[key])), sample[key], kind=_kind,
+                np.linspace(0, ny - 1, len(sample[key])),
+                sample[key],
+                kind=_kind,
             )(y_out)
             sample[key] = sample[key].astype(_dtype)
 
@@ -739,7 +767,8 @@ class RandomCropDepth(object):
         )
         if sample["is_upward_facing"]:
             close_bot_shallowest = max(
-                lim_bot_shallowest, opt_bot_depth - close_dist_shrink,
+                lim_bot_shallowest,
+                opt_bot_depth - close_dist_shrink,
             )
         else:
             close_bot_shallowest = max(
@@ -749,7 +778,8 @@ class RandomCropDepth(object):
             )
         close_bot_shallowest = min(lim_bot_deepest, close_bot_shallowest)
         close_bot_deepest = min(
-            lim_bot_deepest, max(lim_bot_shallowest, opt_bot_depth) + close_dist_grow,
+            lim_bot_deepest,
+            max(lim_bot_shallowest, opt_bot_depth) + close_dist_grow,
         )
 
         if (
@@ -787,7 +817,8 @@ class RandomCropDepth(object):
             rand_bot_shallowest = close_bot_shallowest
         else:
             rand_bot_shallowest = max(
-                lim_bot_shallowest, np.percentile(sample["d_bottom-original"], 50),
+                lim_bot_shallowest,
+                np.percentile(sample["d_bottom-original"], 50),
             )
         rand_bot_shallowest = min(lim_bot_deepest, rand_bot_shallowest)
         rand_bot_deepest = lim_bot_deepest

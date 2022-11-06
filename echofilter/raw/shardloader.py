@@ -162,7 +162,10 @@ def write_transect_shards(dirname, transect, max_depth=None, shard_len=128):
 
 
 def load_transect_from_shards_abs(
-    transect_abs_pth, i1=0, i2=None, pad_mode="edge",
+    transect_abs_pth,
+    i1=0,
+    i2=None,
+    pad_mode="edge",
 ):
     """
     Load transect data from shard files.
@@ -312,11 +315,17 @@ def load_transect_from_shards_rel(
     root_data_dir = loader.remove_trailing_slash(root_data_dir)
     root_shard_dir = os.path.join(root_data_dir + "_sharded", dataset)
     dirname = os.path.join(root_shard_dir, transect_rel_pth, str(segment))
-    return load_transect_from_shards_abs(dirname, i1=i1, i2=i2, **kwargs,)
+    return load_transect_from_shards_abs(
+        dirname,
+        i1=i1,
+        i2=i2,
+        **kwargs,
+    )
 
 
 def load_transect_segments_from_shards_abs(
-    transect_abs_pth, segments=None,
+    transect_abs_pth,
+    segments=None,
 ):
     """
     Load transect data from shard files.
@@ -350,7 +359,10 @@ def load_transect_segments_from_shards_abs(
 
 
 def load_transect_segments_from_shards_rel(
-    transect_rel_pth, dataset="mobile", segments=None, root_data_dir=ROOT_DATA_DIR,
+    transect_rel_pth,
+    dataset="mobile",
+    segments=None,
+    root_data_dir=ROOT_DATA_DIR,
 ):
     """
     Load transect data from shard files.
@@ -376,7 +388,7 @@ def load_transect_segments_from_shards_rel(
     root_data_dir = loader.remove_trailing_slash(root_data_dir)
     root_shard_dir = os.path.join(root_data_dir + "_sharded", dataset)
     dirname = os.path.join(root_shard_dir, transect_rel_pth)
-    return load_transect_segments_from_shards_abs(dirname, segments=segments,)
+    return load_transect_segments_from_shards_abs(dirname, segments=segments)
 
 
 # Backwards compatibility

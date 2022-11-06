@@ -2,6 +2,22 @@
 Interacting with the list of available checkpoints.
 """
 
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import argparse
 from collections import OrderedDict
 import os
@@ -14,7 +30,9 @@ from . import style
 
 
 PACKAGE_DIR = os.path.dirname(os.path.dirname(__file__))
+REPO_DIR = os.path.dirname(PACKAGE_DIR)
 CHECKPOINT_FILE = os.path.join(PACKAGE_DIR, "checkpoints.yaml")
+CHECKPOINT_FILE_ALT = os.path.join(REPO_DIR, "checkpoints.yaml")
 CHECKPOINT_EXT = ".pt"
 
 
@@ -28,7 +46,14 @@ def get_checkpoint_list():
         Dictionary with a key for each checkpoint. Each key maps to a dictionary
         whose elements describe the checkpoint.
     """
-    with open(CHECKPOINT_FILE, "r") as hf:
+    checkpoint_file_use = None
+    if os.path.isfile(CHECKPOINT_FILE):
+        checkpoint_file_use = CHECKPOINT_FILE
+    elif os.path.isfile(CHECKPOINT_FILE_ALT):
+        checkpoint_file_use = CHECKPOINT_FILE_ALT
+    else:
+        raise EnvironmentError(f"No such file: '{CHECKPOINT_FILE}'")
+    with open(checkpoint_file_use, "r") as hf:
         checkpoints = OrderedDict(yaml.safe_load(hf)["checkpoints"])
     return checkpoints
 
@@ -118,7 +143,7 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
         cache_dir = get_default_cache_dir()
 
     checkpoint_name = cannonise_checkpoint_name(checkpoint_name)
-    destination = os.path.join(cache_dir, checkpoint_name + CHECKPOINT_EXT,)
+    destination = os.path.join(cache_dir, checkpoint_name + CHECKPOINT_EXT)
 
     if os.path.exists(destination):
         return destination
@@ -242,10 +267,14 @@ def load_checkpoint(
     ckpt_name_cannon = cannonise_checkpoint_name(ckpt_name)
     checkpoint_resources = get_checkpoint_list()
     builtin_ckpt_path_a = os.path.join(
-        PACKAGE_DIR, "checkpoints", os.path.split(ckpt_name)[1],
+        PACKAGE_DIR,
+        "checkpoints",
+        os.path.split(ckpt_name)[1],
     )
     builtin_ckpt_path_b = os.path.join(
-        PACKAGE_DIR, "checkpoints", ckpt_name_cannon + CHECKPOINT_EXT,
+        PACKAGE_DIR,
+        "checkpoints",
+        ckpt_name_cannon + CHECKPOINT_EXT,
     )
 
     using_cache = False

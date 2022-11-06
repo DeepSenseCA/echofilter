@@ -34,7 +34,10 @@ class SqueezeExcite(nn.Module):
     """
 
     def __init__(
-        self, in_channels, reduction=4, actfn="InplaceReLU",
+        self,
+        in_channels,
+        reduction=4,
+        actfn="InplaceReLU",
     ):
         super(SqueezeExcite, self).__init__()
 
@@ -54,7 +57,6 @@ class SqueezeExcite(nn.Module):
         self.layers = nn.Sequential(*layers)
 
     def forward(self, input):
-        ""
         return input * self.layers(input)
 
 
@@ -104,7 +106,7 @@ class MBConv(nn.Module):
         residual=True,
         actfn="InplaceReLU",
         bias=False,
-        **conv_args
+        **conv_args,
     ):
         super(MBConv, self).__init__()
 
@@ -132,7 +134,7 @@ class MBConv(nn.Module):
             conv = Conv2dSame(in_channels, expanded_chns, bias=bias, **conv_args)
         else:
             conv = DepthwiseConv2d(expanded_chns, bias=bias, **conv_args)
-        self.conv = nn.Sequential(conv, nn.BatchNorm2d(expanded_chns), actfn_factory(),)
+        self.conv = nn.Sequential(conv, nn.BatchNorm2d(expanded_chns), actfn_factory())
 
         if se_reduction:
             self.se = SqueezeExcite(expanded_chns, reduction=se_reduction)
@@ -152,7 +154,6 @@ class MBConv(nn.Module):
             self.connector = ResidualConnect(in_channels, out_channels)
 
     def forward(self, input):
-        ""
         x = self.expansion_conv(input)
         x = self.conv(x)
         x = self.se(x)
@@ -163,5 +164,6 @@ class MBConv(nn.Module):
 
     def extra_repr(self):
         return "residual={residual}, fused={fused}".format(
-            residual=self.residual, fused=self.fused,
+            residual=self.residual,
+            fused=self.fused,
         )

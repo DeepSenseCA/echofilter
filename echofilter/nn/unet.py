@@ -2,6 +2,22 @@
 U-Net model.
 """
 
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import functools
 
 import torch
@@ -31,7 +47,6 @@ class Down(nn.Module):
             raise ValueError("Unsupported pooling method: {}".format(mode))
 
     def forward(self, x):
-        ""
         return self.pool(x)
 
 
@@ -56,7 +71,10 @@ class Up(nn.Module):
                     "transposed convolution."
                 )
             self.up = nn.ConvTranspose2d(
-                in_channels, in_channels, kernel_size=kernel_sizes, stride=kernel_sizes,
+                in_channels,
+                in_channels,
+                kernel_size=kernel_sizes,
+                stride=kernel_sizes,
             )
         else:
             self.up = nn.Upsample(
@@ -64,7 +82,6 @@ class Up(nn.Module):
             )
 
     def forward(self, x):
-        ""
         return self.up(x)
 
 
@@ -210,7 +227,9 @@ class UNetBlock(nn.Module):
         # First horizontal block. It might begin with a downsampling stride,
         # and might increase the number of channels.
         self.horizontal_block_a = horizontal_block_factory(
-            in_channels, out_channels, stride=stride,
+            in_channels,
+            out_channels,
+            stride=stride,
         )
 
         # In the sequence, the inner step comes next. But we will define it
@@ -236,7 +255,7 @@ class UNetBlock(nn.Module):
 
         # Second horizontal block. Takes both the skip connection and the
         # upsampled data as its input.
-        self.horizontal_block_b = horizontal_block_factory(b_in_channels, in_channels,)
+        self.horizontal_block_b = horizontal_block_factory(b_in_channels, in_channels)
 
         if _i_block + 1 < n_block:
             # Recurse deeper! Call this class again, but with the
@@ -263,14 +282,13 @@ class UNetBlock(nn.Module):
             self.nested = nn.Identity()
         elif deepest_inner == "horizontal_block":
             # End recursion, by doing an extra regular block.
-            self.nested = horizontal_block_factory(out_channels, out_channels,)
+            self.nested = horizontal_block_factory(out_channels, out_channels)
         else:
             raise ValueError(
                 "Unsupported deepest_inner value: {}".format(deepest_inner)
             )
 
     def forward(self, input):
-        ""
         x = self.down(input)
         x = self.horizontal_block_a(x)
         x = self.nested(x)
@@ -414,7 +432,9 @@ class UNet(nn.Module):
             actfn_factory(),
         )
         self.first_block = horizontal_block_factory(
-            bottleneck_channels, bottleneck_channels, expansion=1,
+            bottleneck_channels,
+            bottleneck_channels,
+            expansion=1,
         )
         self.main_blocks = UNetBlock(
             bottleneck_channels,
@@ -434,7 +454,6 @@ class UNet(nn.Module):
         self.final_block = horizontal_block_factory(bottleneck_channels, out_channels)
 
     def forward(self, x):
-        ""
         x = self.initial_conv(x)
         x = self.first_block(x)
         x = self.main_blocks(x)

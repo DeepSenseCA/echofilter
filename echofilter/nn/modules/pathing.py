@@ -34,7 +34,6 @@ class ResidualConnect(nn.Module):
             self.op = PointwiseConv2d(in_channels, out_channels)
 
     def forward(self, residual, passed_thru):
-        ""
         if self.in_channels < self.out_channels:
             return residual + torch.cat([passed_thru, self.op(passed_thru)], dim=1)
         return residual + self.op(passed_thru)

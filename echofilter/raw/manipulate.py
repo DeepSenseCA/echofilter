@@ -2,6 +2,22 @@
 Manipulating lines and masks contained in Echoview files.
 """
 
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import copy
 import os
 import warnings
@@ -28,9 +44,9 @@ def find_passive_data(signals, n_depth_use=38, threshold=25.0, deviation=None):
         Two-dimensional array of Sv values, shaped `[timestamps, depths]`.
     n_depth_use : int, optional
         How many Sv depths to use, starting with the first depths (closest
-        to the sounder device). If `None` all depths are used. Default is `26`.
+        to the sounder device). If `None` all depths are used. Default is `38`.
     threshold : float, optional
-        Threshold for start/end of passive regions. Default is `10`.
+        Threshold for start/end of passive regions. Default is `25`.
     deviation : float, optional
         Threshold for start/end of passive regions is `deviation` times the
         interquartile-range of the difference between samples at neigbouring
@@ -131,7 +147,8 @@ def find_passive_data(signals, n_depth_use=38, threshold=25.0, deviation=None):
                 indices_passive_start[-1] = 0
             else:
                 indices_passive_start[-1] = min(
-                    indices_passive_start[-1], nonpassives[-1] + 1,
+                    indices_passive_start[-1],
+                    nonpassives[-1] + 1,
                 )
 
         # Combine with preceding passive segments if they overlap
@@ -352,7 +369,8 @@ def find_passive_data_v2(
                 indices_passive_start[-1] = 0
             else:
                 indices_passive_start[-1] = min(
-                    indices_passive_start[-1], nonpassives[-1] + 1,
+                    indices_passive_start[-1],
+                    nonpassives[-1] + 1,
                 )
 
         # Combine with preceding passive segments if they overlap
@@ -586,14 +604,18 @@ def fixup_lines(
         d_turbulence_new[li] = d_turbulence[li]
     elif np.any(~li):
         d_turbulence_new[li] = np.interp(
-            timestamps[li], timestamps[~li], d_turbulence_new[~li],
+            timestamps[li],
+            timestamps[~li],
+            d_turbulence_new[~li],
         )
     li = np.isnan(d_bottom_new)
     if d_bottom is not None:
         d_bottom_new[li] = d_bottom[li]
     elif np.any(~li):
         d_bottom_new[li] = np.interp(
-            timestamps[li], timestamps[~li], d_bottom_new[~li],
+            timestamps[li],
+            timestamps[~li],
+            d_bottom_new[~li],
         )
 
     # Ensure that the lines cover at least as much material as they did before
@@ -920,11 +942,15 @@ def load_decomposed_transect_mask(sample_path):
         # Interpolate mask
         if is_upward_facing:
             mask = scipy.interpolate.RectBivariateSpline(
-                ts_mskd, depths_mskd[::-1], mask[:, ::-1].astype(np.float),
+                ts_mskd,
+                depths_mskd[::-1],
+                mask[:, ::-1].astype(np.float),
             )(ts_raw, depths_raw[::-1])[:, ::-1]
         else:
             mask = scipy.interpolate.RectBivariateSpline(
-                ts_mskd, depths_mskd, mask.astype(np.float),
+                ts_mskd,
+                depths_mskd,
+                mask.astype(np.float),
             )(ts_raw, depths_raw)
         # Binarise
         mask = mask > 0.5
@@ -1131,7 +1157,8 @@ def split_transect(timestamps=None, threshold=20, percentile=97.5, **transect):
         break_indices += 1
 
     for seg_start, seg_end in zip(
-        np.r_[0, break_indices], np.r_[break_indices, len(timestamps)],
+        np.r_[0, break_indices],
+        np.r_[break_indices, len(timestamps)],
     ):
         segment = {}
         segment["timestamps"] = timestamps[seg_start:seg_end]

@@ -25,6 +25,9 @@ Echofilter uses a machine learning model to complete this task.
 The machine learning model was trained on upfacing stationary and downfacing
 mobile data provided by Fundy Ocean Research Centre for Energy (FORCE).
 
+Full documentation can be viewed `here <https://deepsenseca.github.io/echofilter/>`__.
+
+
 Usage
 -----
 
@@ -58,3 +61,21 @@ The package can be installed using pip as follows:
 
 
 .. _Echoview: https://www.echoview.com/
+
+
+License
+-------
+
+Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.

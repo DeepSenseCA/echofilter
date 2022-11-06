@@ -8,6 +8,22 @@ commands like ``--help`` and ``--version`` is faster, not needing to import
 the full dependency stack.
 """
 
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import argparse
 import os
 import sys
@@ -66,7 +82,10 @@ def get_parser():
         " of this program is supressed if any of these are given.",
     )
     group_action.add_argument(
-        "-h", "--help", action="help", help="Show this help message and exit.",
+        "-h",
+        "--help",
+        action="help",
+        help="Show this help message and exit.",
     )
     group_action.add_argument(
         "--version",
@@ -230,7 +249,7 @@ def get_parser():
         help="""
             Path to output directory. If empty (default), each output is placed
             in the same directory as its input file. If OUTPUT_DIR is
-            specified, the full output path for each file all contains the
+            specified, the full output path for each file contains the
             subtree of the input file relative to the base directory given by
             SOURCE_DIR.
         """,
@@ -669,7 +688,7 @@ def get_parser():
               undefined:
                   depths are replaced with the placeholder value
                   used by Echoview to denote undefined values,
-                  which is {}.
+                  which is -10000.99.
             Default: "%(default)s".
         """,
     )
