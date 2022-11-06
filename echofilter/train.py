@@ -140,7 +140,7 @@ def train(
     n_epoch=20,
     seed=None,
     print_freq=50,
-    optimizer="rangerva",
+    optimizer="adam",
     schedule="constant",
     lr=0.1,
     momentum=0.9,
