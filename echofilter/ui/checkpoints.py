@@ -292,7 +292,9 @@ def load_checkpoint(
         ckpt_dscr = "builtin"
     elif ckpt_name_cannon in checkpoint_resources:
         using_cache = True
-        ckpt_path = download_checkpoint(ckpt_name_cannon, cache_dir=cache_dir)
+        ckpt_path = download_checkpoint(
+            ckpt_name_cannon, cache_dir=cache_dir, verbose=verbose
+        )
         ckpt_dscr = "cached"
     else:
         msg = style.error_fmt(
@@ -330,7 +332,9 @@ def load_checkpoint(
             # Delete the checkpoint and try again, in case it is just a
             # malformed download (interrupted download, etc)
             os.remove(ckpt_path)
-            ckpt_path = download_checkpoint(ckpt_name, cache_dir=cache_dir)
+            ckpt_path = download_checkpoint(
+                ckpt_name, cache_dir=cache_dir, verbose=verbose
+            )
             try:
                 checkpoint = torch.load(ckpt_path, **load_args)
 
