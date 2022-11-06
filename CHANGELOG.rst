@@ -34,6 +34,8 @@ Documentation
 
 -   Deploy documentation on github pages.
     (`#251 <https://github.com/DeepSenseCA/echofilter/pull/251>`__)
+-   Include link to built documentation in README.
+    (`#253 <https://github.com/DeepSenseCA/echofilter/pull/253>`__)
 
 .. _v1.0.1 Changed:
 
@@ -50,16 +52,24 @@ Requirements
     and remove it from the requirements.
     (`#249 <https://github.com/DeepSenseCA/echofilter/pull/249>`__)
 
+Checkpoints
+^^^^^^^^^^^
+
+-   Look for checkpoints.yaml in repo/executable dir as well as package dir.
+    (`#256 <https://github.com/DeepSenseCA/echofilter/pull/256>`__)
+
 .. _v1.0.1 Fixed:
 
 Fixed
 ~~~~~
 
-.. _v1.0.1 Fixed Requirements:
+.. _v1.0.1 Fixed Release:
 
-Requirements
-^^^^^^^^^^^^
+Release
+^^^^^^^
 
+-   Added checkpoints.yaml file to package_data.
+    (`#255 <https://github.com/DeepSenseCA/echofilter/pull/255>`__)
 -   Added appdirs package, required for caching model checkpoints.
     (`#240 <https://github.com/DeepSenseCA/echofilter/pull/240>`__)
 -   Support for pytorch>=1.11 by dropping import of ``torch._six.container_abcs``.
