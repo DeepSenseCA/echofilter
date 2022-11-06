@@ -158,7 +158,7 @@ setup(
     packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
     package_dir={meta["name"]: os.path.join(".", meta["path"])},
     # If any package contains *.txt or *.rst files, include them:
-    # package_data={'': ['*.txt', '*.rst'],}
+    package_data={"echofilter": ["checkpoints.yaml"]},
     install_requires=install_requires,
     extras_require=extras_require,
     dependency_links=dependency_links,
