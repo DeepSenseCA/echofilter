@@ -13,6 +13,38 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
+Version `1.0.2 <https://github.com/DeepSenseCA/echofilter/tree/1.0.2>`__
+------------------------------------------------------------------------
+
+Release date: 2022-11-06.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.1...1.0.2>`__.
+
+This minor patch fix addresses github dependencies so the package can be pushed to PyPI.
+
+.. _v1.0.2 Changed:
+
+Changed
+~~~~~~~
+
+.. _v1.0.2 Changed Requirements:
+
+Requirements
+^^^^^^^^^^^^
+
+-   Change ``torch_lr_finder`` train requirement from a specific github commit ref to >=0.2.0.
+    (`#260 <https://github.com/DeepSenseCA/echofilter/pull/260>`__)
+-   Remove `ranger <https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer>`__ from train requirements.
+    (`#261 <https://github.com/DeepSenseCA/echofilter/pull/261>`__)
+
+.. _v1.0.2 Changed Training:
+
+Training
+^^^^^^^^
+
+-   Default optimizer changed from ``"rangerva"`` to ``"adam"``.
+    (`#261 <https://github.com/DeepSenseCA/echofilter/pull/261>`__)
+
+
 Version `1.0.1 <https://github.com/DeepSenseCA/echofilter/tree/1.0.1>`__
 ------------------------------------------------------------------------
 
