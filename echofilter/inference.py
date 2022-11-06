@@ -465,7 +465,17 @@ def run_inference(
         )
 
     if device is None:
+        if verbose >= 2:
+            print("Checking for available GPU device with CUDA capability...")
         device = "cuda" if torch.cuda.is_available() else "cpu"
+        if verbose >= 2:
+            print(
+                "Will run on {}{}{}".format(
+                    echofilter.ui.style.HighlightStyle.start,
+                    device,
+                    echofilter.ui.style.HighlightStyle.reset,
+                )
+            )
     device = torch.device(device)
 
     if facing is None:
@@ -520,6 +530,9 @@ def run_inference(
         if line_thicknesses[key_dest] is None:
             line_thicknesses[key_dest] = line_thicknesses[key_source]
 
+    if verbose >= 2:
+        print("Fetching checkpoint...")
+
     # Load checkpoint
     checkpoint, ckpt_name = echofilter.ui.checkpoints.load_checkpoint(
         checkpoint,
@@ -543,6 +556,8 @@ def run_inference(
     if verbose >= 4:
         print("Constructing U-Net model, with arguments:")
         pprint.pprint(checkpoint["model_parameters"])
+    elif verbose >= 2:
+        print("Constructing U-Net model...")
     unet = UNet(**checkpoint["model_parameters"])
     if hasattr(logit_smoothing_sigma, "__len__"):
         max_logit_smoothing_sigma = max(logit_smoothing_sigma)
