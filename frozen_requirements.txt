@@ -1,7 +1,5 @@
 absl-py==0.7.1
-adatune==1.0
 alabaster==0.7.12
-apex==0.1
 appdirs==1.4.4
 argh==0.26.2
 asn1crypto==1.3.0
@@ -20,17 +18,14 @@ colorama==0.4.3
 coverage==4.5.4
 cryptography==2.8
 cycler==0.10.0
-cytoolz==0.10.1
 dask==2.14.0
 decorator==4.4.2
 defusedxml==0.6.0
 docutils==0.16
--e git+git@github.com:DeepSenseCA/echofilter.git@0ab10288fc69738c401200d78a7d5d390b9f4b82#egg=echofilter
 entrypoints==0.3
 future==0.17.1
 gast==0.2.2
 google-pasta==0.1.6
-graphsurgeon==0.4.1
 grpcio==1.16.1
 h5py==2.8.0
 hypothesis==3.59.1
@@ -54,7 +49,6 @@ Keras-Preprocessing==1.1.0
 kiwisolver==1.1.0
 livereload==2.6.1
 llvmlite==0.29.0
-lmdb==0.94
 Markdown==3.1.1
 MarkupSafe==1.1.1
 matplotlib==3.1.3
@@ -84,7 +78,6 @@ port-for==0.3.1
 prometheus-client==0.7.1
 prompt-toolkit==3.0.4
 protobuf==3.8.0
-psutil==5.5.0
 ptyprocess==0.6.0
 py==1.8.1
 pycparser==2.20
@@ -101,7 +94,7 @@ PyYAML==5.1.2
 pyzmq==18.1.1
 qtconsole==4.7.3
 QtPy==1.9.0
-ranger==0.1.dev0
+ranger @ git+https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer.git@8d636a560b71e740e9423aa10ba4c7f751bb9120#egg=ranger
 requests==2.22.0
 scikit-image==0.15.0
 scipy==1.3.1
@@ -123,21 +116,18 @@ tabulate==0.8.2
 tensorboard==1.15.0
 tensorflow==1.15.2
 tensorflow-estimator==1.15.1
-tensorrt==6.0.1.5
 termcolor==1.1.0
 terminado==0.8.3
 testpath==0.4.4
 toolz==0.10.0
 torch==1.2.0
-torch-lr-finder==0.1.4
+torch_lr_finder @ git+https://github.com/davidtvs/pytorch-lr-finder.git@1d1e3e7170db3d784ac7e268a63fa8a077880b50#egg=torch_lr_finder
 torchtext==0.4.0
-torchutils==0.1.dev0
-torchvision==0.4.0a0
+torchvision==0.4.0
 tornado==6.0.4
 tqdm==4.32.1
 traitlets==4.3.3
 typing==3.6.4
-uff==0.6.5
 urllib3==1.25.8
 watchdog==0.10.2
 wcwidth==0.1.9
