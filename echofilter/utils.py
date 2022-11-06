@@ -45,7 +45,7 @@ def mode(a, axis=None, keepdims=False, **kwargs):
         return m
     m = m.squeeze(0 if axis is None else axis)
     if m.size == 1:
-        m = np.asscalar(m)
+        m = m.item()
     return m
 
 
