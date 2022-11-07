@@ -85,3 +85,11 @@
 # Jupyter Notebooks
 # =================
 *.ipynb     text
+
+
+##---------------------------------------------------
+# Project specific
+##---------------------------------------------------
+
+# Don't manipulate test resources
+test-resources/*  binary
