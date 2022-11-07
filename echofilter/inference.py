@@ -1297,6 +1297,8 @@ def inference_transect(
             ]
         )
         segment = transform(segment)
+        # Pad the edges of the segment with extra data. Any padding we add
+        # now will be stripped away from the output by join_transect later.
         segment = pad_transect(segment)
         input = torch.tensor(segment["signals"]).unsqueeze(0).unsqueeze(0)
         input = input.to(device, dtype).contiguous()
