@@ -416,7 +416,8 @@ def get_parser():
 
     # Processing arguments
     group_inproc = parser.add_argument_group(
-        "Processing arguments", "Optional parameters specifying how to process files.",
+        "Processing arguments",
+        "Optional parameters specifying how to process files.",
     )
     group_inproc.add_argument(
         "--keep-exclusions",
