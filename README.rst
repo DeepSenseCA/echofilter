@@ -27,6 +27,7 @@ mobile data provided by Fundy Ocean Research Centre for Energy (FORCE).
 
 Full documentation can be viewed at `readthedocs <https://echofilter.readthedocs.io/en/stable/>`__.
 
+.. _doi: https://www.doi.org/10.3389/fmars.2022.867857
 
 Usage
 -----
