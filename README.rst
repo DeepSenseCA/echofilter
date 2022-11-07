@@ -1,6 +1,20 @@
 echofilter
 ==========
 
++------------------+----------------------------------------------------------------------+
+| Latest Release   | |PyPI badge|                                                         |
++------------------+----------------------------------------------------------------------+
+| License          | |License|                                                            |
++------------------+----------------------------------------------------------------------+
+| Documentation    | |readthedocs|                                                        |
++------------------+----------------------------------------------------------------------+
+| Build Status     | |pre-commit-status|                                                  |
++------------------+----------------------------------------------------------------------+
+| Code style       | |black| |pre-commit|                                                 |
++------------------+----------------------------------------------------------------------+
+| Citation         | |DOI badge|                                                          |
++------------------+----------------------------------------------------------------------+
+
 Echofilter is an application for segmenting an echogram. It takes as its
 input an Echoview_ .EV file, and produces as its output several lines and
 regions:
@@ -102,3 +116,27 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 .. |nbsp| unicode:: 0xA0
    :trim:
+.. |PyPI badge| image:: https://img.shields.io/pypi/v/echofilter.svg
+   :target: PyPI_
+   :alt: Latest PyPI release
+.. |readthedocs| image:: https://img.shields.io/badge/docs-readthedocs-blue
+   :target: https://echofilter.readthedocs.io/
+   :alt: Documentation
+.. |Documentation| image:: https://readthedocs.org/projects/echofilter/badge/
+   :target: https://echofilter.readthedocs.io/
+   :alt: Documentation Status
+.. |DOI badge| image:: https://img.shields.io/badge/DOI-10.3389/fmars.2022.867857-blue.svg
+   :target: doi_
+   :alt: DOI
+.. |License| image:: https://img.shields.io/pypi/l/echofilter
+   :target: https://raw.githubusercontent.com/DeepSenseCA/echofilter/master/COPYING
+   :alt: AGPLv3 License
+.. |pre-commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
+   :target: https://github.com/pre-commit/pre-commit
+   :alt: pre-commit enabled
+.. |pre-commit-status| image:: https://results.pre-commit.ci/badge/github/DeepSenseCA/echofilter/master.svg
+   :target: https://results.pre-commit.ci/latest/github/DeepSenseCA/echofilter/master
+   :alt: pre-commit.ci status
+.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
+   :alt: black
