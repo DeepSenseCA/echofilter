@@ -576,7 +576,8 @@ dependencies are packaged as part of the distribution.
    wherever you like on your Windows machine. It is recommended to put
    it as an "echofilter" directory within your Programs folder, or
    similar. (You may need the
-   `WinZip <https://www.winzip.com/win/en/>`__ application to unzip
+   `WinZip <https://www.winzip.com/win/en/>`__ or
+   `7z <https://www.7-zip.org/download.html>`__ application to unzip
    the .zip file.)
 
 3. In File Explorer,
