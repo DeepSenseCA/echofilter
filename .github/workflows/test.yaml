@@ -90,3 +90,15 @@ jobs:
 
     - name: Test list-colors
       run: echofilter --list-colors
+
+    - name: Test dry-run
+      run: echofilter test-resources -n
+
+    - name: Test run
+      run: echofilter test-resources --output-dir test-output
+
+    - name: Test run skip
+      run: echofilter test-resources --output-dir test-output --skip
+
+    - name: Test run again
+      run: echofilter test-resources --output-dir test-output -f
