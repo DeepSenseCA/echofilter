@@ -63,6 +63,24 @@ The package can be installed using pip as follows:
 .. _Echoview: https://www.echoview.com/
 
 
+Citing Echofilter
+-----------------
+
+If you use Echofilter for your research, we would be grateful if you could cite our
+paper on echofilter in any resulting publications:
+
+    SC Lowe, LP McGarry, J Douglas, J Newport, S Oore, C Whidden, DJ Hasselman (2022). Echofilter: A Deep Learning Segmention Model Improves the Automation, Standardization, and Timeliness for Post-Processing Echosounder Data in Tidal Energy Streams. *Front. Mar. Sci.*, **9**, 1–21.
+    doi: |nbsp| `10.3389/fmars.2022.867857 <doi_>`_.
+
+For your convenience, we provide a copy of this citation in `bibtex`_ format.
+
+.. _bibtex: https://raw.githubusercontent.com/DeepSenseCA/echofilter/master/CITATION.bib
+
+You can browse papers which utilise Echofilter `here <gscholarcitations_>`_.
+
+.. _gscholarcitations: https://scholar.google.com/scholar?cites=18122679926970563847
+
+
 License
 -------
 
@@ -79,3 +97,7 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+.. |nbsp| unicode:: 0xA0
+   :trim:
