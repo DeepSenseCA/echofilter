@@ -836,6 +836,25 @@ def get_parser():
         """,
     )
     group_inproc.add_argument(
+        "--prenorm-nan-value",
+        type=float,
+        default=None,
+        help="""
+            If set, NaN values in the imported CSV data will be replaced with
+            this Sv intensity value.
+        """,
+    )
+    group_inproc.add_argument(
+        "--postnorm-nan-value",
+        type=float,
+        default=None,
+        help="""
+            If set, NaN values in the imported CSV data will be replaced with
+            this Sv intensity value after the input distribution has been
+            standardized to have zero mean and unit variance.
+        """,
+    )
+    group_inproc.add_argument(
         "--crop-min-depth",
         type=float,
         default=None,
