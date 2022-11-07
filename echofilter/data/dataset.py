@@ -181,6 +181,19 @@ class TransectDataset(torch.utils.data.Dataset):
             center_idx - int(win_len / 2) + win_len,
             pad_mode="reflect",
         )
+
+        # Fixup sample
+        sample = fixup_dataset_sample(
+            sample,
+            remove_nearfield=self.remove_nearfield,
+            nearfield_distance=self.nearfield_distance,
+            nearfield_visible_dist=self.nearfield_visible_dist,
+            remove_offset_turbulence=self.remove_offset_turbulence,
+            remove_offset_bottom=self.remove_offset_bottom,
+            transform=self.transform,
+        )
+
+        # Rename keys for depth of lines
         sample["d_turbulence"] = sample.pop("turbulence")
         sample["d_bottom"] = sample.pop("bottom")
         sample["d_surface"] = sample.pop("surface")
@@ -197,189 +210,9 @@ class TransectDataset(torch.utils.data.Dataset):
             sample["mask_patches" + suffix] = sample["mask_patches" + suffix].astype(
                 np.float32
             )
+        sample["mask"] = sample["mask"].astype(np.float32)
 
-        sample["depths"] = sample["depths"].astype(np.float32)
-
-        # Fix any broken surface lines (these were generated automatically
-        # by Echoview and not adjusted by human annotator, so are not
-        # guaranteed to be sane).
-        # Note any locations where the labels are not sane. These can be
-        # removed from the training loss.
-        sample["is_bad_labels"] = sample["d_surface"] >= sample["d_bottom"]
-        # Surface line can not be below turbulence line
-        sample["d_surface"] = np.minimum(sample["d_surface"], sample["d_turbulence"])
-        # Ensure the bottom line is always below the surface line as well
-        sample["d_bottom"] = np.maximum(sample["d_bottom"], sample["d_surface"] + 0.02)
-
-        if sample["is_upward_facing"]:
-            min_top_depth = np.min(sample["depths"])
-            max_bot_depth = np.max(sample["depths"]) - self.nearfield_visible_dist
-        else:
-            min_top_depth = 0.966
-            max_bot_depth = np.max(sample["depths"])
-
-        if self.remove_nearfield:
-            depth_intv = np.abs(sample["depths"][-1] - sample["depths"][-2])
-            if sample["is_upward_facing"]:
-                nearfield_threshold = (
-                    np.max(sample["depths"])
-                    - depth_intv * 2.5
-                    - self.nearfield_distance
-                )
-                was_in_nearfield = sample["d_bottom"] >= nearfield_threshold
-                sample["d_bottom"][was_in_nearfield] = max_bot_depth
-                was_in_nearfield_og = sample["d_bottom-original"] >= nearfield_threshold
-                sample["d_bottom-original"][was_in_nearfield_og] = max_bot_depth
-                # Extend/contract mask_patches where necessary
-                idx_search = utils.last_nonzero(sample["depths"] < nearfield_threshold)
-                idx_fillto = utils.first_nonzero(sample["depths"] > max_bot_depth)
-                is_close_patch = np.any(
-                    sample["mask_patches"][:, idx_search:idx_fillto], -1
-                )
-                sample["mask_patches"][is_close_patch, idx_search:idx_fillto] = 1
-                is_close_patch_og = sample["mask_patches-original"][:, idx_search] > 0
-                is_close_patch_og = np.expand_dims(is_close_patch_og, -1)
-                sample["mask_patches-original"][:, idx_search:] = is_close_patch_og
-                sample["mask_patches-ntob"][:, idx_search:] = is_close_patch_og
-            else:
-                was_in_nearfield = (
-                    sample["d_turbulence"] < self.nearfield_distance + depth_intv
-                )
-                sample["d_turbulence"][was_in_nearfield] = min_top_depth
-                was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
-                # Extend/contract mask_patches where necessary
-                idx_search = utils.first_nonzero(
-                    sample["depths"] > self.nearfield_distance, invalid_val=0
-                )
-                idx_fillfr = utils.last_nonzero(
-                    sample["depths"] < min_top_depth, invalid_val=-1
-                )
-                is_close_patch = np.any(
-                    sample["mask_patches"][:, idx_fillfr + 1 : idx_search + 1], -1
-                )
-                sample["mask_patches"][is_close_patch, idx_fillfr + 1 : idx_search] = 1
-                is_close_patch = np.any(
-                    sample["mask_patches-ntob"][:, idx_fillfr + 1 : idx_search + 1], -1
-                )
-                sample["mask_patches-ntob"][
-                    is_close_patch, idx_fillfr + 1 : idx_search
-                ] = 1
-                is_close_patch_og = sample["mask_patches-original"][:, idx_search] > 0
-                is_close_patch_og = np.expand_dims(is_close_patch_og, -1)
-                sample["mask_patches-original"][:, :idx_search] = is_close_patch_og
-        else:
-            was_in_nearfield = np.zeros_like(sample["is_removed"], dtype="bool")
-            was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
-
-        if self.remove_offset_turbulence:
-            # Check the mask beforehand
-            _ddepths = np.broadcast_to(sample["depths"], sample["signals"].shape)
-            _in_mask = _ddepths < np.expand_dims(sample["d_turbulence"], -1)
-            _in_mask_og = _ddepths < np.expand_dims(sample["d_turbulence-original"], -1)
-            # Shift lines up higher (less deep)
-            sample["d_turbulence"][
-                (~was_in_nearfield) | sample["is_upward_facing"]
-            ] -= self.remove_offset_turbulence
-            sample["d_turbulence-original"][
-                (~was_in_nearfield_og) | sample["is_upward_facing"]
-            ] -= self.remove_offset_turbulence
-            # Extend mask_patches where necessary
-            _fx_mask = _ddepths < np.expand_dims(sample["d_turbulence"], -1)
-            _df_mask = _in_mask * (_in_mask ^ _fx_mask)
-            is_close_patch = np.any(
-                _df_mask[:, :-1] * sample["mask_patches"][:, 1:], -1
-            )
-            sample["mask_patches"][is_close_patch, :] += _df_mask[is_close_patch, :]
-            # ... and extend ntob mask patches too
-            sample["mask_patches-ntob"][is_close_patch, :] += _df_mask[
-                is_close_patch, :
-            ]
-            # ... and extend og mask patches too
-            _fx_mask_og = _ddepths < np.expand_dims(sample["d_turbulence-original"], -1)
-            _df_mask = _in_mask_og * (_in_mask_og ^ _fx_mask_og)
-            is_close_patch = np.any(
-                _df_mask[:, :-1] * sample["mask_patches-original"][:, 1:], -1
-            )
-            sample["mask_patches-original"][is_close_patch, :] += _df_mask[
-                is_close_patch, :
-            ]
-
-        if self.remove_offset_bottom:
-            # Check the mask beforehand
-            _ddepths = np.broadcast_to(sample["depths"], sample["signals"].shape)
-            _in_mask = _ddepths > np.expand_dims(sample["d_bottom"], -1)
-            _in_mask_og = _ddepths > np.expand_dims(sample["d_bottom-original"], -1)
-            # Shift lines down lower (more deep)
-            sample["d_bottom"][
-                (~was_in_nearfield) | ~sample["is_upward_facing"]
-            ] += self.remove_offset_bottom
-            sample["d_bottom-original"][
-                (~was_in_nearfield_og) | sample["is_upward_facing"]
-            ] += self.remove_offset_bottom
-            # Extend mask_patches where necessary
-            _fx_mask = _ddepths > np.expand_dims(sample["d_bottom"], -1)
-            _df_mask = _in_mask * (_in_mask ^ _fx_mask)
-            is_close_patch = np.any(
-                _df_mask[:, 1:] * sample["mask_patches"][:, :-1], -1
-            )
-            sample["mask_patches"][is_close_patch, :] += _df_mask[is_close_patch, :]
-            # ... and extend og mask patches too
-            _fx_mask_og = _ddepths > np.expand_dims(sample["d_bottom-original"], -1)
-            _df_mask = _in_mask_og * (_in_mask_og ^ _fx_mask_og)
-            is_close_patch = np.any(
-                _df_mask[:, 1:] * sample["mask_patches-original"][:, :-1], -1
-            )
-            sample["mask_patches-original"][is_close_patch, :] += _df_mask[
-                is_close_patch, :
-            ]
-            # ... and extend ntob mask patches too
-            sample["mask_patches-ntob"][is_close_patch, :] += _df_mask[
-                is_close_patch, :
-            ]
-
-        if self.remove_offset_turbulence or self.remove_offset_bottom:
-            # Change any 2s in the mask to be 1s
-            for suffix in ("", "-original", "-ntob"):
-                sample["mask_patches" + suffix] = (
-                    sample["mask_patches" + suffix] > 0.5
-                ).astype(np.float32)
-
-        # Ensure all line values are finite
-        for key in [
-            "d_surface",
-            "d_turbulence",
-            "d_turbulence-original",
-            "d_bottom",
-            "d_bottom-original",
-        ]:
-            where_invalid = ~np.isfinite(sample[key])
-            if np.sum(where_invalid) > 0 and np.sum(where_invalid) < len(sample[key]):
-                sample[key][where_invalid] = np.interp(
-                    sample["timestamps"][where_invalid],
-                    sample["timestamps"][~where_invalid],
-                    sample[key][~where_invalid],
-                )
-
-        # Apply depth crop
-        if self.crop_depth is not None:
-            depth_crop_mask = sample["depths"] <= self.crop_depth
-            sample["depths"] = sample["depths"][depth_crop_mask]
-            sample["signals"] = sample["signals"][:, depth_crop_mask]
-
-        if self.transform is not None:
-            sample = self.transform(sample)
-
-        # Convert lines to masks and relative lines
-        ddepths = np.broadcast_to(sample["depths"], sample["signals"].shape)
-        for suffix in ["", "-original"]:
-            sample["mask_turbulence" + suffix] = ddepths < np.expand_dims(
-                sample["d_turbulence" + suffix], -1
-            )
-            sample["mask_bottom" + suffix] = ddepths > np.expand_dims(
-                sample["d_bottom" + suffix], -1
-            )
-        sample["mask_surface"] = ddepths < np.expand_dims(sample["d_surface"], -1)
-
+        # Add relative depth for lines
         depth_range = abs(sample["depths"][-1] - sample["depths"][0])
         for key in [
             "d_turbulence",
@@ -389,41 +222,6 @@ class TransectDataset(torch.utils.data.Dataset):
             "d_bottom-original",
         ]:
             sample["r" + key[1:]] = sample[key] / depth_range
-
-        # Change is_surrogate_surface to exclude passive data
-        sample["is_surrogate_surface"][sample["is_passive"] > 0.5] = 0
-
-        # Create mask corresponding to the aggregate of all elements we need
-        # masked in/out
-        sample["mask"] = np.ones_like(sample["signals"])
-        sample["mask"][sample["is_passive"] > 0.5] = 0
-        sample["mask"][sample["is_removed"] > 0.5] = 0
-        sample["mask"][sample["mask_turbulence"] > 0.5] = 0
-        sample["mask"][sample["mask_bottom"] > 0.5] = 0
-        sample["mask"][sample["mask_patches"] > 0.5] = 0
-
-        # Determine the boundary index for depths
-        for sfx in {"turbulence", "turbulence-original", "surface"}:
-            # Ties are broken to the smaller index
-            sample["index_" + sfx] = np.searchsorted(
-                sample["depths"], sample["d_" + sfx], side="left"
-            )
-            # It is possible for the turbulence line to be above the field of
-            # view, and impossible for the turbulence line to below
-            sample["index_" + sfx] = np.maximum(
-                0, np.minimum(len(sample["depths"]) - 1, sample["index_" + sfx])
-            )
-        for sfx in {"bottom", "bottom-original"}:
-            # Ties are broken to the larger index
-            sample["index_" + sfx] = np.searchsorted(
-                sample["depths"], sample["d_" + sfx], side="right"
-            )
-            # It is possible for the bottom line to be below the field of view,
-            # and impossible for the bottom line to above
-            sample["index_" + sfx] -= 1
-            sample["index_" + sfx] = np.maximum(
-                0, np.minimum(len(sample["depths"]) - 1, sample["index_" + sfx])
-            )
 
         # Ensure everything is float32 datatype
         for key in sample:
@@ -519,3 +317,263 @@ class StratifiedRandomSampler(torch.utils.data.Sampler):
 
     def __len__(self):
         return self.num_samples
+
+
+def fixup_dataset_sample(
+    sample,
+    remove_nearfield=True,
+    nearfield_distance=1.7,
+    nearfield_visible_dist=0.0,
+    remove_offset_turbulence=0.0,
+    remove_offset_bottom=0.0,
+    transform=None,
+):
+    """
+    Handle a dataset transect sample.
+
+    Parameters
+    ----------
+    sample : dict
+        Transect dictionary.
+    remove_nearfield : bool, default=True
+        Whether to remove turbulence and bottom lines affected by nearfield
+        removal. If ``True`` (default), targets for the line near to the
+        sounder (bottom if upward facing, turbulence otherwise) which are
+        closer than or equal to a distance of ``nearfield_distance`` become
+        reduced to ``nearfield_visible_dist``.
+    nearfield_distance : float, default=1.7
+        Nearfield distance in metres. Regions closer than the nearfield
+        may have been masked out from the dataset, but their effect will
+        be removed from the targets if ``remove_nearfield=True``.
+    nearfield_visible_dist : float, default=0
+        The distance at which the effect of being to close to the sounder
+        is obvious to the naked eye, and hence the distance which nearfield
+        will be mapped to if ``remove_nearfield=True``.
+    remove_offset_turbulence : float, default=0
+        Line offset built in to the turbulence line. If given, this will be
+        removed from the samples within the dataset.
+    remove_offset_bottom : float, default=0
+        Line offset built in to the bottom line. If given, this will be
+        removed from the samples within the dataset.
+    transform : callable, optional
+        Operations to perform to the dictionary containing a single sample.
+        These are performed before generating the turbulence/bottom/overall
+        mask.
+
+    Returns
+    -------
+    dict
+        Like ``sample``, but contents fixed.
+    """
+
+    # Rename Sv to signals if necessary
+    if "signals" not in sample and "Sv" in sample:
+        sample["signals"] = sample.pop("Sv")
+
+    if sample["depths"][-1] < sample["depths"][0]:
+        # Found some upward-facing data that needs to be reflected
+        for k in ["depths", "signals", "mask"]:
+            sample[k] = np.flip(sample[k], -1).copy()
+
+    sample["depths"] = sample["depths"].astype(np.float32)
+
+    # Fix any broken surface lines (these were generated automatically
+    # by Echoview and not adjusted by human annotator, so are not
+    # guaranteed to be sane).
+    # Note any locations where the labels are not sane. These can be
+    # removed from the training loss.
+    sample["is_bad_labels"] = sample["surface"] >= sample["bottom"]
+    # Surface line can not be below turbulence line
+    sample["surface"] = np.minimum(sample["surface"], sample["turbulence"])
+    # Ensure the bottom line is always below the surface line as well
+    sample["bottom"] = np.maximum(sample["bottom"], sample["surface"] + 0.02)
+
+    if sample["is_upward_facing"]:
+        min_top_depth = np.min(sample["depths"])
+        max_bot_depth = np.max(sample["depths"]) - nearfield_visible_dist
+    else:
+        min_top_depth = 0.966
+        max_bot_depth = np.max(sample["depths"])
+
+    if remove_nearfield:
+        depth_intv = np.abs(sample["depths"][-1] - sample["depths"][-2])
+        if sample["is_upward_facing"]:
+            nearfield_threshold = (
+                np.max(sample["depths"]) - depth_intv * 2.5 - nearfield_distance
+            )
+            was_in_nearfield = sample["bottom"] >= nearfield_threshold
+            sample["bottom"][was_in_nearfield] = max_bot_depth
+            was_in_nearfield_og = sample["bottom-original"] >= nearfield_threshold
+            sample["bottom-original"][was_in_nearfield_og] = max_bot_depth
+            # Extend/contract mask_patches where necessary
+            idx_search = utils.last_nonzero(sample["depths"] < nearfield_threshold)
+            idx_fillto = utils.first_nonzero(sample["depths"] > max_bot_depth)
+            is_close_patch = np.any(
+                sample["mask_patches"][:, idx_search:idx_fillto], -1
+            )
+            sample["mask_patches"][is_close_patch, idx_search:idx_fillto] = 1
+            is_close_patch_og = sample["mask_patches-original"][:, idx_search] > 0
+            is_close_patch_og = np.expand_dims(is_close_patch_og, -1)
+            sample["mask_patches-original"][:, idx_search:] = is_close_patch_og
+            sample["mask_patches-ntob"][:, idx_search:] = is_close_patch_og
+        else:
+            was_in_nearfield = sample["turbulence"] < nearfield_distance + depth_intv
+            sample["turbulence"][was_in_nearfield] = min_top_depth
+            was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
+            # Extend/contract mask_patches where necessary
+            idx_search = utils.first_nonzero(
+                sample["depths"] > nearfield_distance, invalid_val=0
+            )
+            idx_fillfr = utils.last_nonzero(
+                sample["depths"] < min_top_depth, invalid_val=-1
+            )
+            is_close_patch = np.any(
+                sample["mask_patches"][:, idx_fillfr + 1 : idx_search + 1], -1
+            )
+            sample["mask_patches"][is_close_patch, idx_fillfr + 1 : idx_search] = 1
+            is_close_patch = np.any(
+                sample["mask_patches-ntob"][:, idx_fillfr + 1 : idx_search + 1], -1
+            )
+            sample["mask_patches-ntob"][is_close_patch, idx_fillfr + 1 : idx_search] = 1
+            is_close_patch_og = sample["mask_patches-original"][:, idx_search] > 0
+            is_close_patch_og = np.expand_dims(is_close_patch_og, -1)
+            sample["mask_patches-original"][:, :idx_search] = is_close_patch_og
+    else:
+        was_in_nearfield = np.zeros_like(sample["is_removed"], dtype="bool")
+        was_in_nearfield_og = np.zeros_like(sample["is_removed"], dtype="bool")
+
+    if remove_offset_turbulence:
+        # Check the mask beforehand
+        _ddepths = np.broadcast_to(sample["depths"], sample["signals"].shape)
+        _in_mask = _ddepths < np.expand_dims(sample["turbulence"], -1)
+        _in_mask_og = _ddepths < np.expand_dims(sample["turbulence-original"], -1)
+        # Shift lines up higher (less deep)
+        sample["turbulence"][
+            (~was_in_nearfield) | sample["is_upward_facing"]
+        ] -= remove_offset_turbulence
+        sample["turbulence-original"][
+            (~was_in_nearfield_og) | sample["is_upward_facing"]
+        ] -= remove_offset_turbulence
+        # Extend mask_patches where necessary
+        _fx_mask = _ddepths < np.expand_dims(sample["turbulence"], -1)
+        _df_mask = _in_mask * (_in_mask ^ _fx_mask)
+        is_close_patch = np.any(_df_mask[:, :-1] * sample["mask_patches"][:, 1:], -1)
+        sample["mask_patches"][is_close_patch, :] += _df_mask[is_close_patch, :]
+        # ... and extend ntob mask patches too
+        sample["mask_patches-ntob"][is_close_patch, :] += _df_mask[is_close_patch, :]
+        # ... and extend og mask patches too
+        _fx_mask_og = _ddepths < np.expand_dims(sample["turbulence-original"], -1)
+        _df_mask = _in_mask_og * (_in_mask_og ^ _fx_mask_og)
+        is_close_patch = np.any(
+            _df_mask[:, :-1] * sample["mask_patches-original"][:, 1:], -1
+        )
+        sample["mask_patches-original"][is_close_patch, :] += _df_mask[
+            is_close_patch, :
+        ]
+
+    if remove_offset_bottom:
+        # Check the mask beforehand
+        _ddepths = np.broadcast_to(sample["depths"], sample["signals"].shape)
+        _in_mask = _ddepths > np.expand_dims(sample["bottom"], -1)
+        _in_mask_og = _ddepths > np.expand_dims(sample["bottom-original"], -1)
+        # Shift lines down lower (more deep)
+        sample["bottom"][
+            (~was_in_nearfield) | ~sample["is_upward_facing"]
+        ] += remove_offset_bottom
+        sample["bottom-original"][
+            (~was_in_nearfield_og) | sample["is_upward_facing"]
+        ] += remove_offset_bottom
+        # Extend mask_patches where necessary
+        _fx_mask = _ddepths > np.expand_dims(sample["bottom"], -1)
+        _df_mask = _in_mask * (_in_mask ^ _fx_mask)
+        is_close_patch = np.any(_df_mask[:, 1:] * sample["mask_patches"][:, :-1], -1)
+        sample["mask_patches"][is_close_patch, :] += _df_mask[is_close_patch, :]
+        # ... and extend og mask patches too
+        _fx_mask_og = _ddepths > np.expand_dims(sample["bottom-original"], -1)
+        _df_mask = _in_mask_og * (_in_mask_og ^ _fx_mask_og)
+        is_close_patch = np.any(
+            _df_mask[:, 1:] * sample["mask_patches-original"][:, :-1], -1
+        )
+        sample["mask_patches-original"][is_close_patch, :] += _df_mask[
+            is_close_patch, :
+        ]
+        # ... and extend ntob mask patches too
+        sample["mask_patches-ntob"][is_close_patch, :] += _df_mask[is_close_patch, :]
+
+    if remove_offset_turbulence or remove_offset_bottom:
+        # Change any 2s in the mask to be 1s
+        for suffix in ("", "-original", "-ntob"):
+            sample["mask_patches" + suffix] = sample["mask_patches" + suffix] > 0.5
+
+    # Ensure all line values are finite
+    for key in [
+        "surface",
+        "turbulence",
+        "turbulence-original",
+        "bottom",
+        "bottom-original",
+    ]:
+        where_invalid = ~np.isfinite(sample[key])
+        if np.sum(where_invalid) > 0 and np.sum(where_invalid) < len(sample[key]):
+            sample[key][where_invalid] = np.interp(
+                sample["timestamps"][where_invalid],
+                sample["timestamps"][~where_invalid],
+                sample[key][~where_invalid],
+            )
+
+    # Apply depth crop
+    if crop_depth is not None:
+        depth_crop_mask = sample["depths"] <= crop_depth
+        sample["depths"] = sample["depths"][depth_crop_mask]
+        sample["signals"] = sample["signals"][:, depth_crop_mask]
+
+    if transform is not None:
+        sample = transform(sample)
+
+    # Convert lines to masks
+    ddepths = np.broadcast_to(sample["depths"], sample["signals"].shape)
+    for suffix in ["", "-original"]:
+        sample["mask_turbulence" + suffix] = ddepths < np.expand_dims(
+            sample["turbulence" + suffix], -1
+        )
+        sample["mask_bottom" + suffix] = ddepths > np.expand_dims(
+            sample["bottom" + suffix], -1
+        )
+    sample["mask_surface"] = ddepths < np.expand_dims(sample["surface"], -1)
+
+    # Ensure is_surrogate_surface excludes passive data
+    sample["is_surrogate_surface"][sample["is_passive"] > 0.5] = 0
+
+    # Create mask corresponding to the aggregate of all elements we need
+    # masked in/out
+    sample["mask"] = np.ones_like(sample["signals"], dtype="bool")
+    sample["mask"][sample["is_passive"] > 0.5] = 0
+    sample["mask"][sample["is_removed"] > 0.5] = 0
+    sample["mask"][sample["mask_turbulence"] > 0.5] = 0
+    sample["mask"][sample["mask_bottom"] > 0.5] = 0
+    sample["mask"][sample["mask_patches"] > 0.5] = 0
+
+    # Determine the boundary index for depths
+    for sfx in {"turbulence", "turbulence-original", "surface"}:
+        # Ties are broken to the smaller index
+        sample["index_" + sfx] = np.searchsorted(
+            sample["depths"], sample[sfx], side="left"
+        )
+        # It is possible for the turbulence line to be above the field of
+        # view, and impossible for the turbulence line to below
+        sample["index_" + sfx] = np.maximum(
+            0, np.minimum(len(sample["depths"]) - 1, sample["index_" + sfx])
+        )
+    for sfx in {"bottom", "bottom-original"}:
+        # Ties are broken to the larger index
+        sample["index_" + sfx] = np.searchsorted(
+            sample["depths"], sample[sfx], side="right"
+        )
+        # It is possible for the bottom line to be below the field of view,
+        # and impossible for the bottom line to above
+        sample["index_" + sfx] -= 1
+        sample["index_" + sfx] = np.maximum(
+            0, np.minimum(len(sample["depths"]) - 1, sample["index_" + sfx])
+        )
+
+    return sample
