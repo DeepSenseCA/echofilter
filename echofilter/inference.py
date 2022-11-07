@@ -43,7 +43,7 @@ from echofilter.nn.utils import count_parameters
 from echofilter.nn.wrapper import Echofilter
 import echofilter.path
 import echofilter.raw
-from echofilter.raw.manipulate import join_transect, split_transect
+from echofilter.raw.manipulate import join_transect, pad_transect, split_transect
 from echofilter.raw.utils import fillholes2d
 import echofilter.ui
 import echofilter.ui.checkpoints
@@ -1376,6 +1376,9 @@ def inference_transect(
             ]
         )
         segment = transform(segment)
+        # Pad the edges of the segment with extra data. Any padding we add
+        # now will be stripped away from the output by join_transect later.
+        segment = pad_transect(segment)
         input = torch.tensor(segment["signals"]).unsqueeze(0).unsqueeze(0)
         input = input.to(device, dtype).contiguous()
         # Put data through model
