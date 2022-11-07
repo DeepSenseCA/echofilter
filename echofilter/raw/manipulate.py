@@ -1278,11 +1278,13 @@ def join_transect(transects):
             raise ValueError("'depths' must be the same for all segments.")
 
         scan_start = 0
-        scan_end = -1
+        scan_end = 0
         if "_pad_start" in transect:
             scan_start += transect.pop("_pad_start")
         if "_pad_end" in transect:
             scan_end -= transect.pop("_pad_end")
+        if scan_end == 0:
+            scan_end = None
 
         if transect.keys() != output.keys():
             raise ValueError("Keys mismatch.")
