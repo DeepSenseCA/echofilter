@@ -113,44 +113,6 @@ class PyTest(TestCommand):
         pytest.main(self.test_args)
 
 
-class UploadCommand(Command):
-    """Support setup.py upload."""
-
-    description = "Build and publish the package."
-    user_options = []
-
-    @staticmethod
-    def status(s):
-        """Prints things in bold."""
-        print("\033[1m{0}\033[0m".format(s))
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        try:
-            self.status("Removing previous builds...")
-            here = os.path.abspath(os.path.dirname(__file__))
-            rmtree(here, "dist")
-        except OSError:
-            pass
-
-        self.status("Building Source and Wheel (universal) distribution...")
-        os.system("{0} setup.py sdist bdist_wheel --universal".format(sys.executable))
-
-        self.status("Uploading the package to PyPI via Twine...")
-        os.system("twine upload dist/*")
-
-        self.status("Pushing git tags...")
-        os.system("git tag v{0}".format(meta["__version__"]))
-        os.system("git push --tags")
-
-        sys.exit()
-
-
 setup(
     # Essential details on the package and its dependencies
     name=meta["name"],
@@ -189,5 +151,5 @@ setup(
         ],
     },
     # Custom commands
-    cmdclass={"test": PyTest, "upload": UploadCommand},
+    cmdclass={"test": PyTest},
 )
