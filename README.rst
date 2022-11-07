@@ -8,7 +8,7 @@ echofilter
 +------------------+----------------------------------------------------------------------+
 | Documentation    | |readthedocs|                                                        |
 +------------------+----------------------------------------------------------------------+
-| Build Status     | |pre-commit-status|                                                  |
+| Build Status     | |Documentation| |GHA tests| |pre-commit-status|                      |
 +------------------+----------------------------------------------------------------------+
 | Code style       | |black| |pre-commit|                                                 |
 +------------------+----------------------------------------------------------------------+
@@ -129,6 +129,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .. |PyPI badge| image:: https://img.shields.io/pypi/v/echofilter.svg
    :target: PyPI_
    :alt: Latest PyPI release
+.. |GHA tests| image:: https://github.com/DeepSenseCA/echofilter/workflows/tests/badge.svg
+   :target: https://github.com/DeepSenseCA/echofilter/actions?query=workflow%3Atest
+   :alt: GHA Status
 .. |readthedocs| image:: https://img.shields.io/badge/docs-readthedocs-blue
    :target: https://echofilter.readthedocs.io/
    :alt: Documentation
