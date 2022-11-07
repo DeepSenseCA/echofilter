@@ -121,7 +121,7 @@ terminado==0.8.3
 testpath==0.4.4
 toolz==0.10.0
 torch==1.4.0
-torch_lr_finder @ git+https://github.com/davidtvs/pytorch-lr-finder.git@1d1e3e7170db3d784ac7e268a63fa8a077880b50#egg=torch_lr_finder
+torch_lr_finder==0.2.0
 torchtext==0.4.0
 torchvision==0.5.0
 tornado==6.0.4
