@@ -25,7 +25,7 @@ Echofilter uses a machine learning model to complete this task.
 The machine learning model was trained on upfacing stationary and downfacing
 mobile data provided by Fundy Ocean Research Centre for Energy (FORCE).
 
-Full documentation can be viewed `here <https://deepsenseca.github.io/echofilter/>`__.
+Full documentation can be viewed at `readthedocs <https://echofilter.readthedocs.io/en/stable/>`__.
 
 
 Usage
