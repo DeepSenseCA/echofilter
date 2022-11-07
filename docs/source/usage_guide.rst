@@ -557,15 +557,27 @@ Installing as an executable file
 :term:`executable binary file<echofilter.exe>` for Windows. All
 dependencies are packaged as part of the distribution.
 
-1. Download
-   :ref:`echofilter<echofilter CLI>` from `GDrive <https://drive.google.com/open?id=1Vq_fVNGzFGwyqHxigX-5maW9UmXfwdOk>`__.
-   It is recommended to use the latest version available.
+1. Download the zip file containing the echofilter executable as follows:
+
+   a. Go to the `releases tab <https://github.com/DeepSenseCA/echofilter/releases>`__ of the echofilter repository.
+
+   b. Select the release to download. It is recommended to use the latest
+      version, with the highest release number.
+
+   c. Click on the file named echofilter-executable-M.N.P.zip, where M.N.P is
+      replaced with the version number, to download it.
+      For example:
+      `echofilter-executable-1.0.2.zip <https://github.com/DeepSenseCA/echofilter/releases/download/1.0.2/echofilter-executable-1.0.2.zip>`__
+
+      Alternatively, the zipped executables can be downloaded from a mirror on
+      `GDrive <https://drive.google.com/open?id=1Vq_fVNGzFGwyqHxigX-5maW9UmXfwdOk>`__.
 
 2. Unzip the zip file, and put the directory contained within it
    wherever you like on your Windows machine. It is recommended to put
    it as an "echofilter" directory within your Programs folder, or
    similar. (You may need the
-   `WinZip <https://www.winzip.com/win/en/>`__ application to unzip
+   `WinZip <https://www.winzip.com/win/en/>`__ or
+   `7z <https://www.7-zip.org/download.html>`__ application to unzip
    the .zip file.)
 
 3. In File Explorer,
