@@ -38,10 +38,20 @@ regions:
 Echofilter uses a machine learning model to complete this task.
 The machine learning model was trained on upfacing stationary and downfacing
 mobile data provided by Fundy Ocean Research Centre for Energy (FORCE).
+The training and evaluation data is
+`available for download <https://data.fundyforce.ca/forceCloud/index.php/s/BzC87LpbGtnFsjT>`__.
+Queries regarding dataset access should be directed to FORCE, info@fundyforce.ca.
 
-Full documentation can be viewed at `readthedocs <https://echofilter.readthedocs.io/en/stable/>`__.
+The experimental methodology and results can be found in our
+`companion paper <doi_>`_, published in Frontiers in Marine Science.
+
+Full documentation of how to use echofilter can be viewed at `readthedocs`_.
+
+If you encounter a specific problem please `open a new issue`_.
 
 .. _doi: https://www.doi.org/10.3389/fmars.2022.867857
+.. _readthedocs: https://echofilter.readthedocs.io
+.. _open a new issue: https://github.com/DeepSenseCA/echofilter/issues/new
 
 Usage
 -----
