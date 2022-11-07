@@ -797,6 +797,17 @@ def get_parser():
         """,
     )
     group_inproc.add_argument(
+        "--keep-exclusions",
+        "--keep-thresholds",
+        dest="export_raw_csv",
+        action="store_false",
+        help="""
+            Export CSV with all thresholds, exclusion regions, and bad data
+            exclusions set as per the EV file. Default behavior is to
+            ignore these settings and export the underlying raw data.
+        """,
+    )
+    group_inproc.add_argument(
         "--row-len-selector",
         type=str,
         choices=["init", "min", "max", "median", "mode"],
