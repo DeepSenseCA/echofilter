@@ -151,8 +151,7 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     import urllib
 
     import requests
-    from torchvision.datasets.utils import (download_file_from_google_drive,
-                                            download_url)
+    from torchvision.datasets.utils import download_file_from_google_drive, download_url
 
     os.makedirs(cache_dir, exist_ok=True)
 

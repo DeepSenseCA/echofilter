@@ -29,13 +29,20 @@ import sys
 from inspect import getsourcefile
 
 import numpy as np
-from numpy.testing import (assert_allclose,  # assert_raises_regex,
-                           assert_almost_equal, assert_approx_equal,
-                           assert_array_almost_equal,
-                           assert_array_almost_equal_nulp, assert_array_equal,
-                           assert_array_less, assert_array_max_ulp,
-                           assert_equal, assert_raises, assert_string_equal,
-                           assert_warns)
+from numpy.testing import assert_allclose  # assert_raises_regex,
+from numpy.testing import (
+    assert_almost_equal,
+    assert_approx_equal,
+    assert_array_almost_equal,
+    assert_array_almost_equal_nulp,
+    assert_array_equal,
+    assert_array_less,
+    assert_array_max_ulp,
+    assert_equal,
+    assert_raises,
+    assert_string_equal,
+    assert_warns,
+)
 
 # For Python < 2.7, unittest2 is a backport of unittest
 if sys.version_info[:2] <= (2, 6):

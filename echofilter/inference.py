@@ -47,8 +47,7 @@ import echofilter.win
 from echofilter.nn.unet import UNet
 from echofilter.nn.utils import count_parameters
 from echofilter.nn.wrapper import Echofilter
-from echofilter.raw.manipulate import (join_transect, pad_transect,
-                                       split_transect)
+from echofilter.raw.manipulate import join_transect, pad_transect, split_transect
 from echofilter.raw.utils import fillholes2d
 from echofilter.ui.inference_cli import DEFAULT_VARNAME, cli, main
 
