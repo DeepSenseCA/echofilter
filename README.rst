@@ -163,7 +163,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .. |nbsp| unicode:: 0xA0
    :trim:
 .. |PyPI badge| image:: https://img.shields.io/pypi/v/echofilter.svg
-   :target: PyPI_
+   :target: https://pypi.org/project/echofilter/
    :alt: Latest PyPI release
 .. |GHA tests| image:: https://github.com/DeepSenseCA/echofilter/workflows/tests/badge.svg
    :target: https://github.com/DeepSenseCA/echofilter/actions?query=workflow%3Atest
