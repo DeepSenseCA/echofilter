@@ -249,7 +249,7 @@ def plot_transect(
 
     if x_scale == "index":
         tt = np.arange(transect["timestamps"].shape[0])
-        xlabel = "Sample index"
+        xlabel = "Ping index"
     elif x_scale == "timestamp":
         tt = transect["timestamps"]
         xlabel = "Timestamp (s)"
@@ -288,7 +288,7 @@ def plot_transect(
             xx=tt,
             ymin=transect["depths"][0],
             ymax=transect["depths"][-1],
-            hatch="\\\\",
+            hatch=r"\\",
             color=removed_color,
         )
     if show_regions and "mask_patches" in transect:
@@ -296,7 +296,7 @@ def plot_transect(
             tt,
             transect["depths"],
             transect["mask_patches"],
-            hatch="\\\\",
+            hatch=r"\\",
             color=removed_color,
             border=True,
         )
