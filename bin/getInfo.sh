@@ -23,7 +23,7 @@ for survey in Survey* ; do
     tide=""
     [[ $fname =~ "_F_" ]] && tide="Flow"
     [[ $fname =~ "_E_" ]] && tide="Ebb"
-    
+
     width=`head -n 5 $fname | tail -n 1 | sed 's/[^,]//g' | wc -c `
 
     echo "${survey}/$fname , $tide , $width , $inventory"
