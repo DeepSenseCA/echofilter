@@ -700,11 +700,7 @@ def run_inference(
         )
     )
 
-    if len(files) == 1 or verbose <= 0:
-        maybe_tqdm = lambda x: x
-    else:
-        maybe_tqdm = lambda x: tqdm(x, desc="Files", ascii=True)
-
+    disable_tqdm = len(files) == 1 or verbose <= 0
     skip_count = 0
     incompatible_count = 0
     error_msgs = []
@@ -715,7 +711,7 @@ def run_inference(
         minimize=minimize_echoview,
         hide=hide_echoview,
     ) as ev_app:
-        for fname in maybe_tqdm(files):
+        for fname in tqdm(files, desc="Files", ascii=True, disable=disable_tqdm):
             if verbose >= 2:
                 print(
                     "\n"
@@ -1346,12 +1342,11 @@ def inference_transect(
     # To reduce memory consumption, split into segments whenever the recording
     # interval is longer than normal
     segments = split_transect(max_length=1280, **transect)
-    if verbose >= 1:
-        maybe_tqdm = lambda x: tqdm(list(x), desc="  Segments", position=0, ascii=True)
-    else:
-        maybe_tqdm = lambda x: x
+    disable_tqdm = verbose < 1
     outputs = []
-    for segment in maybe_tqdm(segments):
+    for segment in tqdm(
+        list(segments), desc="  Segments", position=0, ascii=True, disable=disable_tqdm
+    ):
         # Try to remove any NaNs in the raw input with using 2d interpolation
         n_nans = np.isnan(segment["signals"]).sum()
         if n_nans > 0:
