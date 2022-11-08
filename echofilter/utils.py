@@ -52,7 +52,7 @@ def mode(a, axis=None, keepdims=False, **kwargs):
         If `keepdims=True` and either `a` is a 0-d array or `axis` is None,
         a scalar is returned.
 
-    See also
+    See Also
     --------
     scipy.stats.mode
     """

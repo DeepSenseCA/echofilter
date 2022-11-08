@@ -4,7 +4,7 @@ import os
 import sys
 from shutil import rmtree
 
-from setuptools import find_packages, setup, Command
+from setuptools import Command, find_packages, setup
 from setuptools.command.test import test as TestCommand
 
 
@@ -14,7 +14,7 @@ def read(fname):
 
 
 def process_requirements(requirements):
-    """Parse requirements, handling git repositories"""
+    """Parse requirements, handling git repositories."""
     EGG_MARK = "#egg="
     required = []
     dependency_links = []
@@ -25,7 +25,7 @@ def process_requirements(requirements):
             or req.startswith("git:")
             or req.startswith("git+")
         ):
-            if not EGG_MARK in req:
+            if EGG_MARK not in req:
                 raise ValueError(
                     "Dependency to a git repository should have the format:\n"
                     "git+ssh://git@github.com/org/repo@ref#egg=package\n"

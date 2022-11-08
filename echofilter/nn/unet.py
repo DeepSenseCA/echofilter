@@ -275,7 +275,7 @@ class UNetBlock(nn.Module):
                 _i_block=_i_block + 1,
                 _i_down=_i_down + compress_any_dims,
             )
-        elif hasattr(deepest_inner, "__call__"):
+        elif callable(deepest_inner):
             self.nested = deepest_inner
         elif deepest_inner is None or deepest_inner.lower() == "identity":
             # End recursion, by doing nothing for the inner loop.

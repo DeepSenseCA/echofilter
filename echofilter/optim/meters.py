@@ -1,5 +1,5 @@
 """
-Meters
+Meters for tracking measurements during training.
 """
 
 # This file is part of Echofilter.
@@ -23,7 +23,7 @@ import torch
 
 
 class AverageMeter(object):
-    """Computes and stores the average and current value"""
+    """Compute and store the average and current value."""
 
     def __init__(self, name, fmt=":f"):
         self.name = name

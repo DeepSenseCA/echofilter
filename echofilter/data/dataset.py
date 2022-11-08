@@ -1,4 +1,6 @@
 """
+Convert echograms into Pytorch dataset.
+
 Tools for converting a dataset of echograms (transects) into a Pytorch dataset
 and sampling from it.
 """
@@ -122,10 +124,10 @@ class TransectDataset(torch.utils.data.Dataset):
     def initialise_datapoints(self):
         """
         Parse `transect_paths` to generate sampling windows for each transect.
+
         Manually calling this method will resample the transect offsets and
         widths if they were randomly generated.
         """
-
         self.datapoints = []
 
         for transect_path in self.transect_paths:
@@ -190,6 +192,7 @@ class TransectDataset(torch.utils.data.Dataset):
             nearfield_visible_dist=self.nearfield_visible_dist,
             remove_offset_turbulence=self.remove_offset_turbulence,
             remove_offset_bottom=self.remove_offset_bottom,
+            crop_depth=self.crop_depth,
             transform=self.transform,
         )
 
@@ -271,8 +274,7 @@ class ConcatDataset(torch.utils.data.ConcatDataset):
 
 class StratifiedRandomSampler(torch.utils.data.Sampler):
     """
-    Samples elements randomly without repetition, stratified across datasets in
-    the data_source.
+    Sample elements randomly without repetition, stratified across datasets.
 
     Parameters
     ----------
@@ -326,6 +328,7 @@ def fixup_dataset_sample(
     nearfield_visible_dist=0.0,
     remove_offset_turbulence=0.0,
     remove_offset_bottom=0.0,
+    crop_depth=None,
     transform=None,
 ):
     """
@@ -355,6 +358,9 @@ def fixup_dataset_sample(
     remove_offset_bottom : float, default=0
         Line offset built in to the bottom line. If given, this will be
         removed from the samples within the dataset.
+    crop_depth : float
+        Maximum depth to include, in metres. Deeper data will be cropped
+        away. Default is `None`.
     transform : callable, optional
         Operations to perform to the dictionary containing a single sample.
         These are performed before generating the turbulence/bottom/overall
@@ -365,7 +371,6 @@ def fixup_dataset_sample(
     dict
         Like ``sample``, but contents fixed.
     """
-
     # Rename Sv to signals if necessary
     if "signals" not in sample and "Sv" in sample:
         sample["signals"] = sample.pop("Sv")

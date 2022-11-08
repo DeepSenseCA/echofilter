@@ -18,11 +18,10 @@ Echoview interface management.
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from contextlib import contextmanager
 import os
+from contextlib import contextmanager
 
 from .. import ui
-
 
 __all__ = ["ECHOVIEW_COM_NAME", "maybe_open_echoview", "open_ev_file"]
 
@@ -67,9 +66,9 @@ def maybe_open_echoview(
     else:
         try:
             # If we can check for a license, the COM handle is working
-            is_licensed = app.IsLicensed()
+            app.IsLicensed()
             need_to_open = False
-        except:
+        except Exception:
             need_to_open = True
     if not need_to_open:
         yield app
@@ -107,7 +106,9 @@ def open_ev_file(filename, app=None):
     filename = os.path.abspath(filename)
     with maybe_open_echoview(app, hide="new") as app:
         ev_file = app.OpenFile(filename)
-        if ev_file is None or ev_file is "None" or ev_file is "NoneValue":
+        if ev_file is None or (
+            isinstance(ev_file, str) and ev_file in ("None", "NoneValue")
+        ):
             raise EnvironmentError(
                 "Could not open file '{}'."
                 "\nIt appears that you already have a file open in Echoview."
@@ -124,7 +125,7 @@ def open_ev_file(filename, app=None):
         finally:
             try:
                 ev_file.Close()
-            except:
+            except Exception:
                 print(
                     ui.style.warning_fmt(
                         "Could not close Echoview file {}".format(filename)

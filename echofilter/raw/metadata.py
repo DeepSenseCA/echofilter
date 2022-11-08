@@ -25,7 +25,7 @@ import numpy as np
 
 def recall_passive_edges(sample_path, timestamps):
     """
-    Defines passive data edges for samples within known datasets.
+    Define passive data edges for samples within known datasets.
 
     Parameters
     ----------
@@ -46,7 +46,6 @@ def recall_passive_edges(sample_path, timestamps):
         If `passive_starts` and `passive_ends`, this string may be present to
         indicate which passive finder algorithm works best for this dataset.
     """
-
     sample_path = sample_path.lower()
     sample_parts = os.path.normpath(sample_path).split(os.path.sep)
 

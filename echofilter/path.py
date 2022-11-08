@@ -84,7 +84,7 @@ def parse_files_in_folders(files_or_folders, source_dir, extension, recursive=Tr
 
         if recursive:
             full_filenames = []
-            for dirpath, dirnames, fnames in os.walk(folder):
+            for dirpath, _dirnames, fnames in os.walk(folder):
                 for fname in fnames:
                     full_filenames.append(os.path.join(dirpath, fname))
         else:
@@ -133,8 +133,7 @@ def determine_file_path(fname, source_dir):
 
 def determine_destination(fname, fname_full, source_dir, output_dir):
     """
-    Determine where destination should be placed for a file, preserving subtree
-    paths.
+    Determine where destination should be placed for a file, preserving subtree paths.
 
     Parameters
     ----------

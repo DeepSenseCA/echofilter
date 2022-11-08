@@ -30,7 +30,6 @@ import echofilter.ui
 import echofilter.utils
 import echofilter.win
 
-
 # Provide a warning for non-Windows users
 if not echofilter.path.check_if_windows():
     msg = (
@@ -128,7 +127,6 @@ def run_ev2csv(
     list of str
         Paths to generated CSV files.
     """
-
     if suffix is not None:
         pass
     elif keep_ext:
@@ -144,11 +142,7 @@ def run_ev2csv(
     if verbose >= 1:
         print("Processing {} file{}".format(len(files), "" if len(files) == 1 else "s"))
 
-    if len(files) == 1 or verbose <= 0:
-        maybe_tqdm = lambda x: x
-    else:
-        maybe_tqdm = lambda x: tqdm(x, desc="ev2csv")
-
+    disable_tqdm = len(files) == 1 or verbose <= 0
     skip_count = 0
     output_files = []
 
@@ -158,7 +152,7 @@ def run_ev2csv(
         minimize=minimize_echoview,
         hide=hide_echoview,
     ) as ev_app:
-        for fname in maybe_tqdm(files):
+        for fname in tqdm(files, desc="ev2csv", disable=disable_tqdm):
             if verbose >= 2:
                 print("Exporting {} to raw CSV".format(fname))
 
@@ -259,7 +253,6 @@ def ev2csv(
     destination : str
         Absolute path to `destination`.
     """
-
     if verbose >= 1:
         print("  Opening {} in Echoview".format(input))
 
@@ -303,7 +296,6 @@ def get_parser():
     parser : argparse.ArgumentParser
         CLI argument parser for ev2csv.
     """
-
     import argparse
 
     prog = os.path.split(sys.argv[0])[1]

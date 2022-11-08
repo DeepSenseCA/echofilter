@@ -28,10 +28,8 @@ import argparse
 import os
 import sys
 
-from .. import __meta__
-from .. import path
+from .. import __meta__, path
 from . import checkpoints, formatters, style
-
 
 DEFAULT_CHECKPOINT = checkpoints.get_default_checkpoint()
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
@@ -39,7 +37,7 @@ DEFAULT_VARNAME = "Fileset1: Sv pings T1"
 
 class ListColors(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
-        from ..inference import hexcolor2rgb8, get_color_palette
+        from ..inference import get_color_palette, hexcolor2rgb8
 
         if values is None:
             include_xkcd = False
@@ -1069,8 +1067,7 @@ def _get_parser_sphinx():
 
 def cli():
     """
-    Run `run_inference` with arguments taken from the command line using
-    argparse.
+    Run :func:`run_inference` with arguments taken from the command line.
     """
     parser = get_parser()
     kwargs = vars(parser.parse_args())
@@ -1106,7 +1103,7 @@ def main():
     """
     try:
         cli()
-    except KeyboardInterrupt as err:
+    except KeyboardInterrupt:
         # Don't show stack traceback when KeyboardInterrupt is given.
         print(
             style.warning_fmt(
@@ -1119,7 +1116,7 @@ def main():
             sys.exit(1)
         except SystemExit:
             os._exit(1)
-    except:
+    except Exception:
         # Ensure all other errors are shown in red.
         with style.error_message():
             raise

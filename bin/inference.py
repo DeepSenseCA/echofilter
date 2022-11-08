@@ -34,6 +34,7 @@ if __name__ == "__main__":
         )
 
         import torch.jit
+
         from echofilter.ui.inference_cli import main
 
         torch.jit.script_method = script_method
@@ -41,7 +42,7 @@ if __name__ == "__main__":
 
         main()
 
-    except KeyboardInterrupt as err:
+    except KeyboardInterrupt:
         import sys
 
         # Don't show stack traceback when KeyboardInterrupt is given.

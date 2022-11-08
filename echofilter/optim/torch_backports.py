@@ -1,4 +1,6 @@
 """
+Pytorch classes backported from later versions.
+
 This contains functions copied from newer versions of pytorch than v1.2.0,
 which is the latest version currently available from IBM compiled for ppc64
 architectures.
@@ -76,11 +78,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
-from collections import Counter
-from functools import wraps
 import math
 import warnings
 import weakref
+from collections import Counter
+from functools import wraps
 
 from torch._six import inf
 from torch.optim.optimizer import Optimizer
@@ -109,9 +111,9 @@ class _LRScheduler(object):
                         "param 'initial_lr' is not specified "
                         "in param_groups[{}] when resuming an optimizer".format(i)
                     )
-        self.base_lrs = list(
-            map(lambda group: group["initial_lr"], optimizer.param_groups)
-        )
+        self.base_lrs = list(  # noqa: C417
+            map(lambda group: group["initial_lr"], optimizer.param_groups)  # noqa: C417
+        )  # noqa: C417
         self.last_epoch = last_epoch
 
         # Following https://github.com/pytorch/pytorch/issues/20124
@@ -149,7 +151,7 @@ class _LRScheduler(object):
         self.step()
 
     def state_dict(self):
-        """Returns the state of the scheduler as a :class:`dict`.
+        """Return the state of the scheduler as a :class:`dict`.
 
         It contains an entry for every variable in self.__dict__ which
         is not the optimizer.
@@ -159,11 +161,12 @@ class _LRScheduler(object):
         }
 
     def load_state_dict(self, state_dict):
-        """Loads the schedulers state.
+        """Load the schedulers state.
 
-        Arguments:
-            state_dict (dict): scheduler state. Should be an object returned
-                from a call to :meth:`state_dict`.
+        Arguments
+        ---------
+        state_dict : dict
+            Scheduler state. Should be an object returned from a call to :meth:`state_dict`.
         """
         self.__dict__.update(state_dict)
 
@@ -218,7 +221,7 @@ class _LRScheduler(object):
                 self.last_epoch += 1
                 values = self.get_lr()
             else:
-                warnings.warn(EPOCH_DEPRECATION_WARNING, DeprecationWarning)
+                warnings.warn("Something deprecated!", DeprecationWarning)
                 self.last_epoch = epoch
                 if hasattr(self, "_get_closed_form_lr"):
                     values = self._get_closed_form_lr()
@@ -260,66 +263,81 @@ class OneCycleLR(_LRScheduler):
     You must either provide a value for total_steps or provide a value for both
     epochs and steps_per_epoch.
 
-    Args:
-        optimizer (Optimizer): Wrapped optimizer.
-        max_lr (float or list): Upper learning rate boundaries in the cycle
-            for each parameter group.
-        total_steps (int): The total number of steps in the cycle. Note that
-            if a value is provided here, then it must be inferred by providing
-            a value for epochs and steps_per_epoch.
-            Default: None
-        epochs (int): The number of epochs to train for. This is used along
-            with steps_per_epoch in order to infer the total number of steps in the cycle
-            if a value for total_steps is not provided.
-            Default: None
-        steps_per_epoch (int): The number of steps per epoch to train for. This is
-            used along with epochs in order to infer the total number of steps in the
-            cycle if a value for total_steps is not provided.
-            Default: None
-        pct_start (float): The percentage of the cycle (in number of steps) spent
-            increasing the learning rate.
-            Default: 0.3
-        anneal_strategy (str): {'cos', 'linear'}
-            Specifies the annealing strategy: "cos" for cosine annealing, "linear" for
-            linear annealing.
-            Default: 'cos'
-        cycle_momentum (bool): If ``True``, momentum is cycled inversely
-            to learning rate between 'base_momentum' and 'max_momentum'.
-            Default: True
-        base_momentum (float or list): Lower momentum boundaries in the cycle
-            for each parameter group. Note that momentum is cycled inversely
-            to learning rate; at the peak of a cycle, momentum is
-            'base_momentum' and learning rate is 'max_lr'.
-            Default: 0.85
-        max_momentum (float or list): Upper momentum boundaries in the cycle
-            for each parameter group. Functionally,
-            it defines the cycle amplitude (max_momentum - base_momentum).
-            Note that momentum is cycled inversely
-            to learning rate; at the start of a cycle, momentum is 'max_momentum'
-            and learning rate is 'base_lr'
-            Default: 0.95
-        div_factor (float): Determines the initial learning rate via
-            initial_lr = max_lr/div_factor
-            Default: 25
-        final_div_factor (float): Determines the minimum learning rate via
-            min_lr = initial_lr/final_div_factor
-            Default: 1e4
-        last_epoch (int): The index of the last batch. This parameter is used when
-            resuming a training job. Since `step()` should be invoked after each
-            batch instead of after each epoch, this number represents the total
-            number of *batches* computed, not the total number of epochs computed.
-            When last_epoch=-1, the schedule is started from the beginning.
-            Default: -1
+    Parameters
+    ----------
+    optimizer : :class:`torch.optim.optimizer.Optimizer`
+        Wrapped optimizer.
+    max_lr : float or list
+        Upper learning rate boundaries in the cycle
+        for each parameter group.
+    total_steps : int
+        The total number of steps in the cycle. Note that
+        if a value is provided here, then it must be inferred by providing
+        a value for epochs and steps_per_epoch.
+        Default: None
+    epochs : int
+        The number of epochs to train for. This is used along
+        with steps_per_epoch in order to infer the total number of steps in the cycle
+        if a value for total_steps is not provided.
+        Default: None
+    steps_per_epoch : int
+        The number of steps per epoch to train for. This is
+        used along with epochs in order to infer the total number of steps in the
+        cycle if a value for total_steps is not provided.
+        Default: None
+    pct_start : float
+        The percentage of the cycle (in number of steps) spent
+        increasing the learning rate.
+        Default: 0.3
+    anneal_strategy : {'cos', 'linear'}
+        Specifies the annealing strategy: "cos" for cosine annealing, "linear" for
+        linear annealing.
+        Default: 'cos'
+    cycle_momentum : bool
+        If ``True``, momentum is cycled inversely
+        to learning rate between 'base_momentum' and 'max_momentum'.
+        Default: True
+    base_momentum : float or list
+        Lower momentum boundaries in the cycle
+        for each parameter group. Note that momentum is cycled inversely
+        to learning rate; at the peak of a cycle, momentum is
+        'base_momentum' and learning rate is 'max_lr'.
+        Default: 0.85
+    max_momentum : float or list
+        Upper momentum boundaries in the cycle
+        for each parameter group. Functionally,
+        it defines the cycle amplitude (max_momentum - base_momentum).
+        Note that momentum is cycled inversely
+        to learning rate; at the start of a cycle, momentum is 'max_momentum'
+        and learning rate is 'base_lr'
+        Default: 0.95
+    div_factor : float
+        Determines the initial learning rate via
+        initial_lr = max_lr/div_factor
+        Default: 25
+    final_div_factor : float
+        Determines the minimum learning rate via
+        min_lr = initial_lr/final_div_factor
+        Default: 1e4
+    last_epoch : int
+        The index of the last batch. This parameter is used when
+        resuming a training job. Since `step()` should be invoked after each
+        batch instead of after each epoch, this number represents the total
+        number of *batches* computed, not the total number of epochs computed.
+        When last_epoch=-1, the schedule is started from the beginning.
+        Default: -1
 
-    Example:
-        >>> data_loader = torch.utils.data.DataLoader(...)
-        >>> optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
-        >>> scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(data_loader), epochs=10)
-        >>> for epoch in range(10):
-        >>>     for batch in data_loader:
-        >>>         train_batch(...)
-        >>>         scheduler.step()
-
+    Example
+    -------
+    >>> data_loader = torch.utils.data.DataLoader(...)
+    >>> optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
+    >>> scheduler = torch.optim.lr_scheduler.OneCycleLR(
+    >>>     optimizer, max_lr=0.01, steps_per_epoch=len(data_loader), epochs=10
+    >>> )
+    >>> for epoch in range(10):
+    >>>     for batch in data_loader:
+    >>>         train_batch(...)
+    >>>         scheduler.step()
 
     .. _Super-Convergence\: Very Fast Training of Neural Networks Using Large Learning Rates:
         https://arxiv.org/abs/1708.07120
@@ -444,12 +462,12 @@ class OneCycleLR(_LRScheduler):
             return [param] * len(optimizer.param_groups)
 
     def _annealing_cos(self, start, end, pct):
-        "Cosine anneal from `start` to `end` as pct goes from 0.0 to 1.0."
+        """Cosine anneal from `start` to `end` as pct goes from 0.0 to 1.0."""
         cos_out = math.cos(math.pi * pct) + 1
         return end + (start - end) / 2.0 * cos_out
 
     def _annealing_linear(self, start, end, pct):
-        "Linearly anneal from `start` to `end` as pct goes from 0.0 to 1.0."
+        """Linearly anneal from `start` to `end` as pct goes from 0.0 to 1.0."""
         return (end - start) * pct + start
 
     def get_lr(self):

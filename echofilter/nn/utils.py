@@ -30,6 +30,8 @@ def logavgexp(
     input, dim, keepdim=False, temperature=None, internal_dtype=torch.float32
 ):
     """
+    Take the log-average-exp.
+
     Returns the log of meaned exponentials of each row of the `input` tensor in
     the given dimension `dim`. The computation is numerically stabilized.
 
@@ -62,7 +64,6 @@ def logavgexp(
     torch.Tensor
         The log-average-exp of `input`.
     """
-
     if isinstance(temperature, numbers.Number) and temperature == 1:
         temperature = None
 
@@ -90,7 +91,8 @@ def logavgexp(
 
 
 class TensorDict(torch.nn.ParameterDict):
-    r"""Holds tensors in a dictionary.
+    r"""
+    Hold tensors in a dictionary.
 
     TensorDict can be indexed like a regular Python dictionary, but implements
     methods such as `to` which operate on all elements within it.
@@ -106,24 +108,29 @@ class TensorDict(torch.nn.ParameterDict):
     types (e.g., Python's plain ``dict``) does not preserve the order of the
     merged mapping.
 
-    Arguments:
-        parameters (iterable, optional): a mapping (dictionary) of
-            (string : :class:`torch.Tensor`) or an iterable of key-value pairs
-            of type (string, :class:`torch.Tensor`)
+    Parameters
+    ----------
+    tensors : iterable
+        A mapping (dictionary) of (string : :class:`torch.Tensor`) or an
+        iterable of key-value pairs of type (string, :class:`torch.Tensor`)
     """
 
     def __init__(self, tensors=None):
         super(TensorDict, self).__init__(tensors)
 
     def __setitem__(self, key, parameter):
-        r"""Adds a tensor to the module.
+        r"""
+        Add a tensor to the module.
 
         The parameter can be accessed as an attribute using given key.
 
-        Args:
-            key (string): key of the parameter. The parameter can be accessed
-                from this module using the given key
-            parameter (Parameter): parameter to be added to the module.
+        Parameters
+        ----------
+        key : string
+            Key of the parameter. The parameter can be accessed
+            from this module using the given key
+        parameter : :class:`torch.nn.Parameter`
+            Parameter to be added to the module.
         """
         if "_parameters" not in self.__dict__:
             raise AttributeError(
@@ -132,7 +139,7 @@ class TensorDict(torch.nn.ParameterDict):
 
         elif not isinstance(key, torch._six.string_classes):
             raise TypeError(
-                "parameter key should be a string. " "Got {}".format(torch.typekey(key))
+                "parameter key should be a string. Got {}".format(torch.typekey(key))
             )
         elif "." in key:
             raise KeyError('parameter key can\'t contain "."')
@@ -174,14 +181,19 @@ def count_parameters(model, only_trainable=True):
     r"""
     Count the number of (trainable) parameters within a model and its children.
 
-    Arguments:
-        model (torch.nn.Model): the model.
-        only_trainable (bool, optional): indicates whether the count should be restricted
-            to only trainable parameters (ones which require grad), otherwise all
-            parameters are included. Default is ``True``.
+    Parameters
+    ----------
+    model : torch.nn.Model
+        The model.
+    only_trainable : bool, default=True
+        Whether the count should be restricted to only trainable parameters
+        (ones which require grad), otherwise all parameters are included.
+        Default is ``True``.
 
-    Returns:
-        int: total number of (trainable) parameters possessed by the model.
+    Returns
+    -------
+    int
+        Total number of (trainable) parameters possessed by the model.
     """
     if only_trainable:
         return sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -191,19 +203,21 @@ def count_parameters(model, only_trainable=True):
 
 def seed_all(seed=None, only_current_gpu=False, mirror_gpus=False):
     r"""
-    Initialises the random number generators for random, numpy, and both CPU and GPU(s)
-    for torch.
+    Initialize the RNGs for random, numpy, and both CPU and GPU(s) for torch.
 
-    Arguments:
-        seed (int, optional): seed value to use for the random number generators.
-            If :attr:`seed` is ``None`` (default), seeds are picked at random using
-            the methods built in to each RNG.
-        only_current_gpu (bool, optional): indicates whether to only re-seed the current
-            cuda device, or to seed all of them. Default is ``False``.
-        mirror_gpus (bool, optional): indicates whether all cuda devices should receive
-            the same seed, or different seeds. If :attr:`mirror_gpus` is ``False`` and
-            :attr:`seed` is not ``None``, each device receives a different but
-            deterministically determined seed. Default is ``False``.
+    Parameters
+    ----------
+    seed : int, optional)
+        Seed value to use for the random number generators.
+        If :attr:`seed` is ``None`` (default), seeds are picked at random using
+        the methods built in to each RNG.
+    only_current_gpu : bool, default=False
+        Whether to only re-seed the current cuda device, or to seed all of them.
+    mirror_gpus : bool, default=False
+        Whether all cuda devices should receive
+        the same seed, or different seeds. If :attr:`mirror_gpus` is ``False`` and
+        :attr:`seed` is not ``None``, each device receives a different but
+        deterministically determined seed. Default is ``False``.
 
     Note that we override the settings for the cudnn backend whenever this function is
     called. If :attr:`seed` is not ``None``, we set::
@@ -233,6 +247,8 @@ def seed_all(seed=None, only_current_gpu=False, mirror_gpus=False):
 
     def get_seed():
         """
+        Get a random seed value.
+
         On Python 3.2 and above, and when system sources of randomness are
         available, use `os.urandom` to make a new seed. Otherwise, use the
         current time.

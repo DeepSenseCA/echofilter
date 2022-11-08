@@ -26,9 +26,10 @@ import os
 import sys
 import traceback
 
+from tqdm.autonotebook import tqdm
+
 import echofilter.raw
 import echofilter.ui
-
 
 ROOT_DATA_DIR = echofilter.raw.loader.ROOT_DATA_DIR
 
@@ -129,13 +130,7 @@ def generate_shards(
         print("Will process {} transects".format(len(transect_pths)))
         print()
 
-    if progress_bar:
-        from tqdm.autonotebook import tqdm
-
-        maybe_tqdm = lambda x: tqdm(x, total=len(session_paths))
-    else:
-        maybe_tqdm = lambda x: x
-
+    disable_tqdm = not progress_bar
     fn = functools.partial(
         generate_shard,
         dataset=dataset,
@@ -145,11 +140,17 @@ def generate_shards(
         **kwargs,
     )
     if ncores == 1:
-        for transect_pth in maybe_tqdm(transect_pths):
+        for transect_pth in tqdm(
+            transect_pths, total=len(transect_pths), disable=disable_tqdm
+        ):
             fn(transect_pth)
     else:
         with multiprocessing.Pool(ncores) as pool:
-            for _ in maybe_tqdm(pool.imap_unordered(fn, transect_pths)):
+            for _ in tqdm(
+                pool.imap_unordered(fn, transect_pths),
+                total=len(transect_pths),
+                disable=disable_tqdm,
+            ):
                 pass
 
 
@@ -162,7 +163,6 @@ def get_parser():
     parser : argparse.ArgumentParser
         CLI argument parser for generating shards.
     """
-
     import argparse
 
     # Create parser

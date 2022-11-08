@@ -18,22 +18,21 @@ Input/Output handling for raw Echoview files.
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from collections import OrderedDict
 import csv
 import datetime
 import os
 import textwrap
 import warnings
+from collections import OrderedDict
 
 import numpy as np
+import pandas as pd
 import scipy.interpolate
 import scipy.ndimage
 import skimage.measure
-import pandas as pd
 
-from . import utils
 from ..ui import style
-
+from . import utils
 
 ROOT_DATA_DIR = "/data/dsforce/surveyExports"
 
@@ -56,7 +55,7 @@ TRANSECT_FIELD_TYPES = {
 
 def transect_reader(fname):
     """
-    Creates a generator which iterates through a survey csv file.
+    Create a generator which iterates through a survey csv file.
 
     Parameters
     ----------
@@ -75,7 +74,7 @@ def transect_reader(fname):
         for i_row, row in enumerate(hf):
             try:
                 row = row.decode("utf-8-sig" if i_row == 0 else "utf-8")
-            except:
+            except Exception:
                 if i_row == 0:
                     raise
                 print(
@@ -114,9 +113,9 @@ def count_lines(filename):
         Number of lines in file.
     """
     with open(filename, "rb") as f:
-        for i, _ in enumerate(f):
+        for _i, _ in enumerate(f):
             pass
-    return i + 1
+    return _i + 1
 
 
 def transect_loader(
@@ -126,7 +125,7 @@ def transect_loader(
     row_len_selector="mode",
 ):
     """
-    Loads an entire survey transect CSV.
+    Load an entire survey transect CSV.
 
     Parameters
     ----------
@@ -158,7 +157,6 @@ def transect_loader(
     numpy.ndarray
         Survey signal (Sv, for instance). Units match that of the file.
     """
-
     row_len_selector = row_len_selector.lower()
     if row_len_selector in {"init", "min"}:
         expand_for_overflow = False
@@ -180,15 +178,12 @@ def transect_loader(
     # We remove one from the line count because of the header
     # which is excluded from output
     n_lines = count_lines(fname) - 1
-    n_distances = 0
 
     # Initialise output array
-    for i_line, (meta, row) in enumerate(transect_reader(fname)):
+    for i_line, (_, row) in enumerate(transect_reader(fname)):
         if i_line < min(n_lines, max(1, skip_lines)):
             continue
         n_depths_init = len(row)
-        depth_start_init = meta["Depth_start"]
-        depth_stop_init = meta["Depth_stop"]
         break
 
     n_depth_exp = n_depths_init
@@ -333,7 +328,7 @@ def transect_loader(
 
 def evl_reader(fname):
     """
-    EVL file reader
+    EVL file reader.
 
     Parameters
     ----------
@@ -369,7 +364,7 @@ def evl_reader(fname):
 
 def evl_loader(fname, special_to_nan=True, return_status=False):
     """
-    EVL file loader
+    EVL file loader.
 
     Parameters
     ----------
@@ -410,8 +405,9 @@ def evl_loader(fname, special_to_nan=True, return_status=False):
 
 def timestamp2evdtstr(timestamp):
     """
-    Converts a timestamp into an Echoview-compatible datetime string, in the
-    format "CCYYMMDD HHmmSSssss", where:
+    Convert a timestamp into an Echoview-compatible datetime string.
+
+    The output is in the format "CCYYMMDD HHmmSSssss", where:
 
     | CC: century
     | YY: year
@@ -503,7 +499,7 @@ def evr_reader(fname, parse_echofilter_regions=True):
         line = hf.readline().strip("\n\r")
         n_regions = int(line)
 
-        for i_region in range(n_regions):
+        for _ in range(n_regions):
             # Line 3: Intentionally left blank
             line = hf.readline().strip("\n\r")
             if len(line):
@@ -529,15 +525,15 @@ def evr_reader(fname, parse_echofilter_regions=True):
                     )
                 )
             n_points = int(lparts[1])
-            region_id = int(lparts[2])
+            _region_id = int(lparts[2])  # noqa: F841
             # Selected indicator: lparts[3] == 0
             region_ctype = int(lparts[4])
             # Dummy: lparts[5] == -1
-            has_bbox = bool(int(lparts[6]))
-            left = evdtstr2timestamp(lparts[7], lparts[8])
-            top = float(lparts[9])
-            right = evdtstr2timestamp(lparts[10], lparts[11])
-            bottom = float(lparts[12])
+            _has_bbox = bool(int(lparts[6]))  # noqa: F841
+            _left = evdtstr2timestamp(lparts[7], lparts[8])  # noqa: F841
+            _top = float(lparts[9])  # noqa: F841
+            _right = evdtstr2timestamp(lparts[10], lparts[11])  # noqa: F841
+            _bottom = float(lparts[12])  # noqa: F841
 
             # Notes
             line = hf.readline().strip("\n\r")
@@ -557,10 +553,10 @@ def evr_reader(fname, parse_echofilter_regions=True):
                 hf.readline()
 
             # Region classification
-            region_classification = hf.readline().strip("\n\r")
+            _region_classification = hf.readline().strip("\n\r")  # noqa: F841
             # Points
             points = hf.readline().strip().replace("  ", " ").split(" ")
-            region_status = int(points.pop())
+            _region_status = int(points.pop())  # noqa: F841
             if len(points) % 3 != 0:
                 print("Points not composed correctly")
             if len(points) // 3 != n_points:
@@ -576,7 +572,7 @@ def evr_reader(fname, parse_echofilter_regions=True):
                 )
                 for i in range(n_points)
             ]
-            region_name = hf.readline().strip("\n\r")
+            _region_name = hf.readline().strip("\n\r")  # noqa: F841
 
             # Add region to list
             if not parse_echofilter_regions:
@@ -712,7 +708,7 @@ def regions2mask(
 
 def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n", pad=False):
     r"""
-    EVL file writer
+    EVL file writer.
 
     Parameters
     ----------
@@ -763,23 +759,22 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n", pad=Fals
     # The file object will automatically replace \n with our chosen line ending
     with open(fname, "w+", encoding="utf-8-sig", newline=line_ending) as hf:
         # Write header
-        hf.write("EVBD 3 10.0.270.37090" + "\n")
+        hf.write("EVBD 3 10.0.270.37090\n")
         n_row = len(depths)
         hf.write(str(n_row) + "\n")
         # Write each row
-        for i_row, (timestamp, depth) in enumerate(zip(timestamps, depths)):
+        for timestamp, depth in zip(timestamps, depths):
             # Datetime must be in the format CCYYMMDD HHmmSSssss
             # where ssss = 0.1 milliseconds.
             # We have to manually determine the number of "0.1 milliseconds"
             # from the microsecond component.
-            dt = datetime.datetime.fromtimestamp(timestamp)
             hf.write("{}  {} {} \n".format(timestamp2evdtstr(timestamp), depth, status))
 
 
 def evr_writer(
     fname,
-    rectangles=[],
-    contours=[],
+    rectangles=None,
+    contours=None,
     common_notes="",
     default_region_type=0,
     line_ending="\r\n",
@@ -832,6 +827,10 @@ def evr_writer(
     For more details on the format specification, see:
     https://support.echoview.com/WebHelp/Reference/File_formats/Export_file_formats/2D_Region_definition_file_format.htm
     """
+    if rectangles is None:
+        rectangles = []
+    if contours is None:
+        contours = []
     # Remove leading/trailing new lines, since we will join with our own line ending
     common_notes = common_notes.strip("\r\n")
     # Standardize line endings to be \n, regardless of input
@@ -845,7 +844,7 @@ def evr_writer(
     # The file object will automatically replace \n with our chosen line ending
     with open(fname, "w+", encoding="utf-8-sig", newline=line_ending) as hf:
         # Write header
-        hf.write("EVRG 7 10.0.283.37689" + "\n")
+        hf.write("EVRG 7 10.0.283.37689\n")
         hf.write(str(n_regions) + "\n")
 
         # Write each rectangle
@@ -884,9 +883,9 @@ def evr_writer(
             if len(notes) > 0:
                 hf.write(notes + "\n")
             # Detection settings
-            hf.write("0" + "\n")  # Number of lines of detection settings
+            hf.write("0\n")  # Number of lines of detection settings
             # Region classification string
-            hf.write("Unclassified regions" + "\n")
+            hf.write("Unclassified regions\n")
             # The points defining the region itself
             hf.write(
                 "{left} {top} {left} {bottom} {right} {bottom} {right} {top} ".format(
@@ -935,9 +934,9 @@ def evr_writer(
             if len(notes) > 0:
                 hf.write(notes + "\n")
             # Detection settings
-            hf.write("0" + "\n")  # Number of lines of detection settings
+            hf.write("0\n")  # Number of lines of detection settings
             # Region classification string
-            hf.write("Unclassified regions" + "\n")
+            hf.write("Unclassified regions\n")
             # The region itself
             for point in region["points"]:
                 hf.write("{} {} ".format(timestamp2evdtstr(point[0]), point[1]))
@@ -1027,7 +1026,6 @@ def write_transect_regions(
     depth_range = [np.min(depth_range), np.max(depth_range)]
 
     rectangles = []
-    contours = []
     # Regions around each period of passive data
     key = passive_key
     if key not in transect:
@@ -1248,7 +1246,7 @@ def get_partition_data(
     root_data_dir=ROOT_DATA_DIR,
 ):
     """
-    Loads partition metadata.
+    Load partition metadata.
 
     Parameters
     ----------
@@ -1269,7 +1267,7 @@ def get_partition_data(
     """
     dirname = os.path.join(root_data_dir, dataset, "sets", partitioning_version)
     fname_partition = os.path.join(dirname, partition + ".txt")
-    fname_header = os.path.join(dirname, "header" + ".txt")
+    fname_header = os.path.join(dirname, "header.txt")
 
     with open(fname_header, "r") as hf:
         for row in csv.reader(hf):

@@ -3,16 +3,15 @@ Connectors and pathing modules.
 """
 
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
 
 from .conv import PointwiseConv2d
 
 
 class ResidualConnect(nn.Module):
     """
-    Joins up a residual connection, with smart mapping for changes in the
-    number of channels.
+    Joins up a residual connection, correcting for changes in number of channels.
     """
 
     def __init__(self, in_channels, out_channels):
@@ -46,6 +45,8 @@ class FlexibleConcat2d(nn.Module):
 
     def forward(self, x1, x2):
         """
+        Forward step.
+
         Parameters
         ----------
         x1 : torch.Tensor

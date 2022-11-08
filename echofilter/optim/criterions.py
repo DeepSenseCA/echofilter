@@ -23,7 +23,7 @@ import torch
 
 def _binarise_and_reshape(arg, threshold=0.5, ndim=None):
     """
-    Binarise and partially flatten a tensor.
+    Binarize and partially flatten a tensor.
 
     Parameters
     ----------
@@ -100,10 +100,9 @@ def mask_active_fraction(input, threshold=0.5, ndim=None, reduction="mean"):
 
 def mask_active_fraction_with_logits(input, *args, **kwargs):
     """
-    Convert logits to probabilities with sigmoid, then measure the fraction
-    of the tensor which exceeds a threshold.
+    Convert logits to probabilities, and measure what fraction exceed threshold.
 
-    See also
+    See Also
     --------
     mask_active_fraction
     """
@@ -112,7 +111,7 @@ def mask_active_fraction_with_logits(input, *args, **kwargs):
 
 def mask_accuracy(input, target, threshold=0.5, ndim=None, reduction="mean"):
     """
-    Measure the fraction of input which exceeds a threshold.
+    Measure accuracy of input compared to binary targets.
 
     Parameters
     ----------
@@ -163,10 +162,12 @@ def mask_accuracy(input, target, threshold=0.5, ndim=None, reduction="mean"):
 
 def mask_accuracy_with_logits(input, *args, **kwargs):
     """
-    Measure the accuracy between input and target, after passing `input`
-    through a sigmoid function.
+    Measure accuracy with logit inputs.
 
-    See also
+    Pass through a sigmoid, binarize, then measure accuracy of predictions
+    compared to ground truth target.
+
+    See Also
     --------
     mask_accuracy
     """
@@ -175,8 +176,9 @@ def mask_accuracy_with_logits(input, *args, **kwargs):
 
 def mask_precision(input, target, threshold=0.5, ndim=None, reduction="mean"):
     """
-    Measure the precision of the input as compared to a ground truth target,
-    after binarising with a threshold.
+    Measure precision of probability input.
+
+    Binarize with a threshold, then measure precision compared to a ground truth target.
 
     Parameters
     ----------
@@ -233,10 +235,11 @@ def mask_precision(input, target, threshold=0.5, ndim=None, reduction="mean"):
 
 def mask_precision_with_logits(input, *args, **kwargs):
     """
-    Convert logits to probabilities with sigmoid, apply a threshold, then
-    measure the precision of the tensor as compared to ground truth.
+    Measure precision of logit input.
 
-    See also
+    Pass through sigmoid, threshold, then measure precision.
+
+    See Also
     --------
     mask_precision
     """
@@ -245,8 +248,9 @@ def mask_precision_with_logits(input, *args, **kwargs):
 
 def mask_recall(input, target, threshold=0.5, ndim=None, reduction="mean"):
     """
-    Measure the recall of the input as compared to a ground truth target,
-    after binarising with a threshold.
+    Measure recall of probability input.
+
+    Binarize with a threshold, then measure the recall compared to a ground truth target.
 
     Parameters
     ----------
@@ -301,10 +305,11 @@ def mask_recall(input, target, threshold=0.5, ndim=None, reduction="mean"):
 
 def mask_recall_with_logits(input, *args, **kwargs):
     """
-    Convert logits to probabilities with sigmoid, apply a threshold, then
-    measure the recall of the tensor as compared to ground truth.
+    Measure recall of logit input.
 
-    See also
+    Pass through sigmoid, binarize, then measure recall of ground truth target.
+
+    See Also
     --------
     mask_recall
     """
@@ -313,8 +318,9 @@ def mask_recall_with_logits(input, *args, **kwargs):
 
 def mask_f1_score(input, target, reduction="mean", **kwargs):
     """
-    Measure the F1-score of the input as compared to a ground truth target,
-    after binarising with a threshold.
+    Measure F1-score of probability input.
+
+    Binarize, then measure the F1-score of the input vs ground truth target,
 
     Parameters
     ----------
@@ -343,7 +349,7 @@ def mask_f1_score(input, target, reduction="mean", **kwargs):
         The F1-score of `input` as compared to `target` after thresholding.
         The F1-score is the harmonic mean of precision and recall.
 
-    See also
+    See Also
     --------
     mask_precision
     mask_recall
@@ -368,10 +374,12 @@ def mask_f1_score(input, target, reduction="mean", **kwargs):
 
 def mask_f1_score_with_logits(input, *args, **kwargs):
     """
+    Measure F1-score of logit input.
+
     Convert logits to probabilities with sigmoid, apply a threshold, then
     measure the F1-score of the tensor as compared to ground truth.
 
-    See also
+    See Also
     --------
     mask_f1_score
     """
@@ -380,6 +388,8 @@ def mask_f1_score_with_logits(input, *args, **kwargs):
 
 def mask_jaccard_index(input, target, threshold=0.5, ndim=None, reduction="mean"):
     """
+    Measure Jaccard Index from probabilities.
+
     Measure the Jaccard Index (intersection over union) of the input as
     compared to a ground truth target, after binarising with a threshold.
 
@@ -439,11 +449,13 @@ def mask_jaccard_index(input, target, threshold=0.5, ndim=None, reduction="mean"
 
 def mask_jaccard_index_with_logits(input, *args, **kwargs):
     """
+    Measure Jaccard Index from logits.
+
     Convert logits to probabilities with sigmoid, apply a threshold, then
     measure the Jaccard Index (intersection over union) of the tensor as
     compared to ground truth.
 
-    See also
+    See Also
     --------
     mask_jaccard_index
     """

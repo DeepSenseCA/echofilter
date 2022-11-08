@@ -20,8 +20,8 @@ Tests for utils.py.
 
 import numpy as np
 
-from .base_test import BaseTestCase, unittest
 from .. import utils
+from .base_test import BaseTestCase, unittest
 
 
 class test_get_indicator_onoffsets(BaseTestCase):

@@ -9,7 +9,6 @@ import numpy as np
 from . import loader, manipulate
 from .utils import pad1d
 
-
 ROOT_DATA_DIR = loader.ROOT_DATA_DIR
 
 
@@ -21,9 +20,10 @@ def segment_and_shard_transect(
     root_data_dir=ROOT_DATA_DIR,
 ):
     """
-    Creates a sharded copy of a transect, with the transect cut into segments
-    based on recording starts/stops. Each segment is split across multiple
-    files (shards) for efficient loading.
+    Create a sharded copy of a transect.
+
+    The transect is cut into segments based on recording starts/stops.
+    Each segment is split across multiple files (shards) for efficient loading.
 
     Parameters
     ----------
@@ -74,8 +74,9 @@ def segment_and_shard_transect(
 
 def write_transect_shards(dirname, transect, max_depth=None, shard_len=128):
     """
-    Creates a sharded copy of a transect, with the transect cut by timestamp
-    and split across multiple files.
+    Create a sharded copy of a transect.
+
+    The transect is cut by timestamp and split across multiple files.
 
     Parameters
     ----------
@@ -112,7 +113,6 @@ def write_transect_shards(dirname, transect, max_depth=None, shard_len=128):
 
       which contain pickled numpy dumps of the matrices for each shard.
     """
-
     # Remove depths which are too deep for us to care about
     if max_depth is not None:
         depth_mask = transect["depths"] <= max_depth
