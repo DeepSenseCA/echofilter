@@ -190,6 +190,7 @@ class TransectDataset(torch.utils.data.Dataset):
             nearfield_visible_dist=self.nearfield_visible_dist,
             remove_offset_turbulence=self.remove_offset_turbulence,
             remove_offset_bottom=self.remove_offset_bottom,
+            crop_depth=self.crop_depth,
             transform=self.transform,
         )
 
@@ -326,6 +327,7 @@ def fixup_dataset_sample(
     nearfield_visible_dist=0.0,
     remove_offset_turbulence=0.0,
     remove_offset_bottom=0.0,
+    crop_depth=None,
     transform=None,
 ):
     """
@@ -355,6 +357,9 @@ def fixup_dataset_sample(
     remove_offset_bottom : float, default=0
         Line offset built in to the bottom line. If given, this will be
         removed from the samples within the dataset.
+    crop_depth : float
+        Maximum depth to include, in metres. Deeper data will be cropped
+        away. Default is `None`.
     transform : callable, optional
         Operations to perform to the dictionary containing a single sample.
         These are performed before generating the turbulence/bottom/overall
