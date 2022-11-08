@@ -131,7 +131,7 @@ def generate_shards(
     if progress_bar:
         from tqdm.autonotebook import tqdm
 
-        maybe_tqdm = lambda x: tqdm(x, total=len(session_paths))
+        maybe_tqdm = lambda x: tqdm(x, total=len(transect_pths))
     else:
         maybe_tqdm = lambda x: x
 
