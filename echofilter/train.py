@@ -20,7 +20,6 @@ Model training routine.
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from collections import OrderedDict
 import copy
 import datetime
 import os
@@ -29,6 +28,7 @@ import shutil
 import sys
 import time
 import traceback
+from collections import OrderedDict
 
 try:
     import apex
@@ -45,16 +45,16 @@ import torch.utils.data
 import torchvision.transforms
 
 import echofilter.data
+import echofilter.optim.utils
+import echofilter.raw.shardloader
 from echofilter.nn.unet import UNet
 from echofilter.nn.utils import count_parameters, seed_all
 from echofilter.nn.wrapper import Echofilter, EchofilterLoss
 from echofilter.optim import criterions, schedulers
 from echofilter.optim.meters import AverageMeter, ProgressMeter
-import echofilter.optim.utils
 from echofilter.plotting import plot_transect_predictions
 from echofilter.raw.loader import get_partition_list
 from echofilter.raw.manipulate import load_decomposed_transect_mask
-import echofilter.raw.shardloader
 from echofilter.ui.train_cli import main
 
 ## For mobile dataset,

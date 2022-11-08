@@ -18,8 +18,8 @@ Window management for Windows.
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from contextlib import contextmanager
 import re
+from contextlib import contextmanager
 
 from .. import ui
 

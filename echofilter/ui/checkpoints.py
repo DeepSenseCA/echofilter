@@ -19,15 +19,14 @@ Interacting with the list of available checkpoints.
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import argparse
-from collections import OrderedDict
 import os
 import pickle
+from collections import OrderedDict
 
 import appdirs
 import yaml
 
 from . import style
-
 
 PACKAGE_DIR = os.path.dirname(os.path.dirname(__file__))
 REPO_DIR = os.path.dirname(PACKAGE_DIR)
@@ -149,8 +148,11 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
         return destination
 
     # Import packages needed for downloading files
-    import requests, urllib
-    from torchvision.datasets.utils import download_url, download_file_from_google_drive
+    import urllib
+
+    import requests
+    from torchvision.datasets.utils import (download_file_from_google_drive,
+                                            download_url)
 
     os.makedirs(cache_dir, exist_ok=True)
 

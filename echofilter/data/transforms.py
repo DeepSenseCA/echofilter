@@ -30,7 +30,6 @@ import skimage.transform
 
 from echofilter.nn.modules.utils import _pair
 
-
 _fields_2d = (
     "Sv",
     "signals",

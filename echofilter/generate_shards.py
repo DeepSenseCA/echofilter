@@ -29,7 +29,6 @@ import traceback
 import echofilter.raw
 import echofilter.ui
 
-
 ROOT_DATA_DIR = echofilter.raw.loader.ROOT_DATA_DIR
 
 

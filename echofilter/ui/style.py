@@ -22,7 +22,6 @@ import contextlib
 
 import colorama
 
-
 colorama.init()
 
 

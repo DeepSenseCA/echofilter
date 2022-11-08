@@ -34,6 +34,7 @@ if __name__ == "__main__":
         )
 
         import torch.jit
+
         from echofilter.ui.inference_cli import main
 
         torch.jit.script_method = script_method

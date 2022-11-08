@@ -18,22 +18,21 @@ Input/Output handling for raw Echoview files.
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from collections import OrderedDict
 import csv
 import datetime
 import os
 import textwrap
 import warnings
+from collections import OrderedDict
 
 import numpy as np
+import pandas as pd
 import scipy.interpolate
 import scipy.ndimage
 import skimage.measure
-import pandas as pd
 
-from . import utils
 from ..ui import style
-
+from . import utils
 
 ROOT_DATA_DIR = "/data/dsforce/surveyExports"
 

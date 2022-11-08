@@ -26,10 +26,7 @@ import numpy as np
 import scipy.interpolate
 import scipy.ndimage
 
-from . import loader
-from . import metadata
-from . import utils
-
+from . import loader, metadata, utils
 
 ROOT_DATA_DIR = loader.ROOT_DATA_DIR
 

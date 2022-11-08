@@ -18,11 +18,10 @@ Echoview interface management.
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from contextlib import contextmanager
 import os
+from contextlib import contextmanager
 
 from .. import ui
-
 
 __all__ = ["ECHOVIEW_COM_NAME", "maybe_open_echoview", "open_ev_file"]
 

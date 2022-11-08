@@ -30,7 +30,6 @@ import echofilter.ui
 import echofilter.utils
 import echofilter.win
 
-
 # Provide a warning for non-Windows users
 if not echofilter.path.check_if_windows():
     msg = (

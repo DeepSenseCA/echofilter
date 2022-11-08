@@ -29,33 +29,28 @@ import textwrap
 import time
 
 import numpy as np
-from matplotlib import colors as mcolors
 import torch
 import torch.nn
 import torch.utils.data
 import torchvision.transforms
+from matplotlib import colors as mcolors
 from tqdm.auto import tqdm
 
 import echofilter.data.transforms
 import echofilter.nn
-from echofilter.nn.unet import UNet
-from echofilter.nn.utils import count_parameters
-from echofilter.nn.wrapper import Echofilter
 import echofilter.path
 import echofilter.raw
-from echofilter.raw.manipulate import join_transect, pad_transect, split_transect
-from echofilter.raw.utils import fillholes2d
 import echofilter.ui
 import echofilter.ui.checkpoints
 import echofilter.utils
 import echofilter.win
-
-from echofilter.ui.inference_cli import (
-    DEFAULT_VARNAME,
-    cli,
-    main,
-)
-
+from echofilter.nn.unet import UNet
+from echofilter.nn.utils import count_parameters
+from echofilter.nn.wrapper import Echofilter
+from echofilter.raw.manipulate import (join_transect, pad_transect,
+                                       split_transect)
+from echofilter.raw.utils import fillholes2d
+from echofilter.ui.inference_cli import DEFAULT_VARNAME, cli, main
 
 EV_UNDEFINED_DEPTH = -10000.99
 

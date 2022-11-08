@@ -237,9 +237,9 @@ options = [
 
 # this first import is the one that allows the script to talk to the Echoview application.
 
-import win32com.client
 import os
 
+import win32com.client
 
 # Open EV connection
 evApp = win32com.client.Dispatch("EchoviewCom.EvApplication")

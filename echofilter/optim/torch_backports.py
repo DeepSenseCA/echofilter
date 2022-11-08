@@ -76,11 +76,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
-from collections import Counter
-from functools import wraps
 import math
 import warnings
 import weakref
+from collections import Counter
+from functools import wraps
 
 from torch._six import inf
 from torch.optim.optimizer import Optimizer

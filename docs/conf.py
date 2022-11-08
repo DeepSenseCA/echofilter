@@ -22,7 +22,6 @@ sys.path.insert(0, os.path.abspath("../"))
 
 from echofilter import __meta__ as meta  # noqa: E402
 
-
 # -- Project information -----------------------------------------------------
 
 now = datetime.datetime.now()

@@ -28,10 +28,8 @@ import argparse
 import os
 import sys
 
-from .. import __meta__
-from .. import path
+from .. import __meta__, path
 from . import checkpoints, formatters, style
-
 
 DEFAULT_CHECKPOINT = checkpoints.get_default_checkpoint()
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
@@ -39,7 +37,7 @@ DEFAULT_VARNAME = "Fileset1: Sv pings T1"
 
 class ListColors(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
-        from ..inference import hexcolor2rgb8, get_color_palette
+        from ..inference import get_color_palette, hexcolor2rgb8
 
         if values is None:
             include_xkcd = False

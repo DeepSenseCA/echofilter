@@ -8,9 +8,8 @@ under the Apache License Version 2.0.
 import functools
 
 import torch
-from torch import nn
 import torch.nn.functional as F
-
+from torch import nn
 
 __all__ = [
     "str2actfnfactory",

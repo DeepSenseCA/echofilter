@@ -6,10 +6,9 @@ import torch
 from torch import nn
 
 from .activations import str2actfnfactory
-from .conv import Conv2dSame, PointwiseConv2d, DepthwiseConv2d
+from .conv import Conv2dSame, DepthwiseConv2d, PointwiseConv2d
 from .pathing import ResidualConnect
 from .utils import _pair
-
 
 __all__ = ["MBConv", "SqueezeExcite"]
 

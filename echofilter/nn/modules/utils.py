@@ -8,7 +8,6 @@ from itertools import repeat
 import torch
 from torch import nn
 
-
 __all__ = ["same_to_padding", "init_cnn"]
 
 
