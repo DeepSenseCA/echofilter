@@ -57,26 +57,26 @@ from echofilter.raw.loader import get_partition_list
 from echofilter.raw.manipulate import load_decomposed_transect_mask
 from echofilter.ui.train_cli import main
 
-## For mobile dataset,
+# --- For mobile dataset,
 # DATA_CENTER = -81.5
 # DATA_DEVIATION = 21.9
 # CENTER_METHOD = "mean"
 # DEVIATION_METHOD = "stdev"
 
-## For stationary dataset,
+# --- For stationary dataset,
 # DATA_CENTER = -78.7
 # DATA_DEVIATION = 19.2
 # CENTER_METHOD = "mean"
 # DEVIATION_METHOD = "stdev"
 
-## For intermediate values between both datasets
+# --- For intermediate values between both datasets
 # DATA_CENTER = -80.
 # DATA_DEVIATION = 20.
 # CENTER_METHOD = "mean"
 # DEVIATION_METHOD = "stdev"
 # NAN_VALUE = -3
 
-## Overall values to use
+# --- Overall values to use
 # DATA_CENTER = -97.5
 # DATA_DEVIATION = 16.5
 # CENTER_METHOD = "pc10"
@@ -166,7 +166,6 @@ def train(
     """
     Train a model.
     """
-
     if restart and not resume:
         raise ValueError(
             "A checkpoint must be provided to restart from when doing a cold restart"
@@ -198,7 +197,7 @@ def train(
     print("Output will be written to {}/{}".format(dataset_name, log_name))
 
     if use_mixed_precision is None:
-        use_mixed_precision = not "cpu" in device
+        use_mixed_precision = "cpu" not in device
     if use_mixed_precision and apex is None:
         print("NVIDIA apex must be installed to use mixed precision.")
         use_mixed_precision = False
@@ -819,7 +818,7 @@ def build_dataset(
     train_partition=None,
     val_partition=None,
     crop_depth=None,
-    random_crop_args={},
+    random_crop_args=None,
 ):
     """
     Construct a pytorch Dataset.
@@ -858,6 +857,8 @@ def build_dataset(
         Dataset of validation samples, appyling the training augmentation
         stack.
     """
+    if random_crop_args is None:
+        random_crop_args = {}
 
     if "+" in dataset_name:
         # Join multiple datasets together
@@ -1225,7 +1226,7 @@ def train_epoch(
                     elif cond.startswith("down"):
                         mask = metadata["is_upward_facing"] < 0.5
                     else:
-                        raise ValueError("Unsupported condition {}".format(parts[1]))
+                        raise ValueError("Unsupported condition {}".format(cond))
                     if torch.sum(mask).item() == 0:
                         continue
                     output_k = output_k[mask]
@@ -1461,7 +1462,7 @@ def validate(
                     elif cond.startswith("down"):
                         mask = metadata["is_upward_facing"] < 0.5
                     else:
-                        raise ValueError("Unsupported condition {}".format(parts[1]))
+                        raise ValueError("Unsupported condition {}".format(cond))
                     if torch.sum(mask).item() == 0:
                         continue
                     output_k = output_k[mask]
@@ -1527,7 +1528,6 @@ def generate_from_transect(model, transect, sample_shape, device, dtype=torch.fl
     """
     Generate an output for a sample transect, .
     """
-
     # Put model in evaluation mode
     model.eval()
 
@@ -1570,7 +1570,6 @@ def _generate_from_loaded(transect, model, *args, crop_depth=None, **kwargs):
     """
     Generate an output from a loaded transect.
     """
-
     # Crop long input
     for key in (
         echofilter.data.transforms._fields_2d
@@ -1631,8 +1630,7 @@ def generate_from_file(fname, *args, **kwargs):
 
 def generate_from_shards(fname, *args, **kwargs):
     """
-    Generate an output for a sample transect, specified by the path to its
-    sharded data.
+    Generate an output for a sample transect, specified by a path to sharded data.
     """
     # Load the data
     transect = echofilter.raw.shardloader.load_transect_segments_from_shards_abs(fname)
@@ -1698,7 +1696,7 @@ def meters_to_csv(meters, is_best, dirname=".", filename="meters.csv"):
             # Skip conditional model evaluations
             continue
         # For each output plane
-        for criterion_name, meter in meters[chn].items():
+        for _, meter in meters[chn].items():
             # For each criterion
             df[meter.name] = meter.values
     df.to_csv(os.path.join(dirname, filename), index=False)

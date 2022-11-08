@@ -261,7 +261,7 @@ def find_passive_data_v2(
             )
 
     threshold_high_inner = threshold_inner
-    threshold_low_inner = -threshold_inner
+    # threshold_low_inner = -threshold_inner
     threshold_high_init = threshold_init
     threshold_low_init = -threshold_init
     indices_possible_start_init = np.nonzero(md_init < threshold_low_init)[0]
@@ -383,7 +383,7 @@ def find_passive_data_v2(
 
 def make_lines_from_mask(mask, depths=None, max_gap_squash=1.0):
     """
-    Determines turbulence and bottom lines for a mask array.
+    Determine turbulence and bottom lines for a mask array.
 
     Parameters
     ----------
@@ -444,8 +444,7 @@ def make_lines_from_mask(mask, depths=None, max_gap_squash=1.0):
 
 def make_lines_from_masked_csv(fname):
     """
-    Load a masked csv file output from Echoview and generate lines which
-    reproduce the mask.
+    Load a masked csv file and convert its mask to lines.
 
     Parameters
     ----------
@@ -470,8 +469,7 @@ def make_lines_from_masked_csv(fname):
 
 def write_lines_for_masked_csv(fname_mask, fname_turbulence=None, fname_bottom=None):
     """
-    Write new turbulence and bottom lines based on csv containing masked Echoview
-    output.
+    Write turbulence and bottom lines based on masked csv file.
 
     Parameters
     ----------
@@ -525,7 +523,6 @@ def find_nonzero_region_boundaries(v):
     For `i` in `range(len(starts))`, the set of values `v[starts[i]:ends[i]]`
     are nonzero. Values in the range `v[ends[i]:starts[i+1]]` are zero.
     """
-
     v = np.asarray(v)
     v = v != 0
     v = v.astype(np.float)
@@ -537,7 +534,7 @@ def find_nonzero_region_boundaries(v):
         starts = np.r_[0, starts]
 
     if v[-1]:
-        ends = np.r_[ends, len(vector)]
+        ends = np.r_[ends, len(v)]
 
     return starts, ends
 
@@ -663,7 +660,7 @@ def remove_anomalies_1d(
     """
     Remove anomalies from a temporal signal.
 
-    Applies a median filter to the data, and replaces datapoints which
+    Apply a median filter to the data, and replaces datapoints which
     deviate from the median filtered signal by more than some threshold
     with the median filtered data. This process is repeated until no
     datapoints deviate from the filtered line by more than the threshold.
@@ -697,7 +694,7 @@ def remove_anomalies_1d(
     filtered : numpy.ndarray like signal, optional
         The final median filtered signal. Returned if `return_filtered=True`.
 
-    See also
+    See Also
     --------
     `echofilter.raw.utils.medfilt1d`
     """
@@ -803,8 +800,10 @@ def fix_surface_line(timestamps, d_surface, is_passive):
 
 def load_decomposed_transect_mask(sample_path):
     """
-    Loads a raw and masked transect and decomposes the mask into turbulence and bottom
-    lines, and passive and removed regions.
+    Load a raw and masked transect and decompose the mask.
+
+    The mask is decomposed into turbulence and bottom lines, and passive and
+    removed regions.
 
     Parameters
     ----------
@@ -849,7 +848,6 @@ def load_decomposed_transect_mask(sample_path):
                 recording source is at the shallowest depth (i.e. the surface),
                 facing downwards.
     """
-
     # Load raw data
     fname_raw = os.path.join(sample_path + "_Sv_raw.csv")
     fname_masked = os.path.join(sample_path + "_Sv.csv")
@@ -1126,7 +1124,7 @@ def split_transect(
     **transect,
 ):
     """
-    Splits a transect into segments each containing contiguous recordings.
+    Split a transect into segments each containing contiguous recordings.
 
     Parameters
     ----------
@@ -1161,7 +1159,6 @@ def split_transect(
         Containing segmented data, key/value pairs as per given in `**kwargs`
         in addition to `timestamps`.
     """
-
     if timestamps is None:
         raise ValueError("The `timestamps` argument is required.")
 
@@ -1241,7 +1238,7 @@ def split_transect(
 
 def join_transect(transects):
     """
-    Joins segmented transects together into a single dictionary.
+    Join segmented transects together into a single dictionary.
 
     Parameters
     ----------
@@ -1253,7 +1250,6 @@ def join_transect(transects):
     dict
         Transect data.
     """
-
     non_timelike_dims = ["depths"]
     non_output_keys = {"_pad_start", "_pad_end"}
 
@@ -1335,7 +1331,6 @@ def pad_transect(transect, pad=32, pad_mode="reflect", previous_padding="diff"):
         with padding and fields ``"_pad_start"`` and ``"_pad_end"`` changed
         to indicate the total padding (including any pre-existing padding).
     """
-
     pad_shape = [pad, pad]
 
     if previous_padding == "diff":

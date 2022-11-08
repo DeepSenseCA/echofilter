@@ -127,7 +127,6 @@ def run_ev2csv(
     list of str
         Paths to generated CSV files.
     """
-
     if suffix is not None:
         pass
     elif keep_ext:
@@ -254,7 +253,6 @@ def ev2csv(
     destination : str
         Absolute path to `destination`.
     """
-
     if verbose >= 1:
         print("  Opening {} in Echoview".format(input))
 
@@ -298,7 +296,6 @@ def get_parser():
     parser : argparse.ArgumentParser
         CLI argument parser for ev2csv.
     """
-
     import argparse
 
     prog = os.path.split(sys.argv[0])[1]

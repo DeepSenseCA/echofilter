@@ -51,7 +51,7 @@ def plot_indicator_hatch(
     indicator, xx=None, ymin=None, ymax=None, hatch="//", color="k"
 ):
     """
-    Plots a hatch across indicated segments along the x-axis of a plot.
+    Plot a hatch across indicated segments along the x-axis of a plot.
 
     Parameters
     ----------
@@ -72,7 +72,6 @@ def plot_indicator_hatch(
     color : color, optional
         Color of the hatching pattern. Default is black.
     """
-
     if xx is None:
         xx = np.arange(len(indicator))
     if ymin is None or ymax is None:
@@ -210,7 +209,7 @@ def plot_transect(
 
     if removed_color is not None:
         pass
-    elif cmap is "viridis":
+    elif isinstance(cmap, str) and cmap == "viridis":
         removed_color = "r"
     else:
         removed_color = REMOVED_COLOR
@@ -311,13 +310,13 @@ def plot_transect(
 
 
 def plot_transect_predictions(transect, prediction, linewidth=1, cmap=None):
-    """
+    r"""
     Plot the generated output for a transect against its ground truth data.
 
         - Ground truth data is shown in black, predictions in white.
-        - Passive regions are hatched in / direction for ground truth, \\ for
+        - Passive regions are hatched in / direction for ground truth, \ for
           prediciton.
-        - Removed regions are hatched in \\ direction for ground truth, / for
+        - Removed regions are hatched in \ direction for ground truth, / for
           prediction.
 
     Parameters
@@ -332,7 +331,6 @@ def plot_transect_predictions(transect, prediction, linewidth=1, cmap=None):
         Name of a registered matplotlib colormap. If `None` (default), the
         current default colormap is used.
     """
-
     plot_transect(
         transect,
         x_scale="index",

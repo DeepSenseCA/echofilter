@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 """
-Python script to export binned stationary data
+Python script to export binned stationary data.
 
-Run this after the data has been cleaned/processed to export the binned data
+Run this after the data has been cleaned/processed to export the binned data.
 """
 
 # Change this to point to the directory where your survey is.
-# it is assumed there will be a subdirectory called "EV Files", and will run on all .EV files in that directory
-# There should already be a subdirectory called "evExports".  This will export to subdirectory of that, called binnedExports
+# it is assumed there will be a subdirectory called "EV Files", and will run on
+# all .EV files in that directory
+# There should already be a subdirectory called "evExports". This will export to
+# a subdirectory of that, called binnedExports.
 # that is, export to "basedir/binnedExports/
 
 
@@ -33,12 +35,16 @@ belowLine = "Nearfield"
 
 
 # The different types of binning to export
-#  For each export, we need an array of 3 things
-#  The first is the horizontal binning in minutes.  A really big number will give the whole transect, and something like 0.5 will be 30 seconds
-#  The second is the vertical binning in meters.  Put in a large value like 200 for no vertical binning (ie, fullwater column)
-#  The third is the suffix for the filename.  Normally a combination of vertical and horizontal bins in a readable form
+# For each export, we need an array of 3 things:
+# 1. The horizontal binning in minutes.
+#    A really big number will give the whole transect, and something like 0.5 will be 30 seconds
+# 2. The vertical binning in meters.
+#    Put in a large value like 200 for no vertical binning (ie, fullwater column)
+# 3. The suffix for the filename.
+#    Normally a combination of vertical and horizontal bins in a readable form
 
-# Feel free to remove one of these lines if that type of binning is no longer useful (it will speed up the process, if you don't export them all)
+# Feel free to remove one of these lines if that type of binning is no longer useful
+# (it will speed up the process, if you don't export them all)
 binSizes = [
     [0.5, 1, "30secTimeGrid_1mDepthBinsFromBottom"],
     [0.5, 200, "30secTimeGrid_FullWaterColumn"],

@@ -1067,8 +1067,7 @@ def _get_parser_sphinx():
 
 def cli():
     """
-    Run `run_inference` with arguments taken from the command line using
-    argparse.
+    Run :func:`run_inference` with arguments taken from the command line.
     """
     parser = get_parser()
     kwargs = vars(parser.parse_args())
@@ -1104,7 +1103,7 @@ def main():
     """
     try:
         cli()
-    except KeyboardInterrupt as err:
+    except KeyboardInterrupt:
         # Don't show stack traceback when KeyboardInterrupt is given.
         print(
             style.warning_fmt(
@@ -1117,7 +1116,7 @@ def main():
             sys.exit(1)
         except SystemExit:
             os._exit(1)
-    except:
+    except Exception:
         # Ensure all other errors are shown in red.
         with style.error_message():
             raise

@@ -1,5 +1,5 @@
 """
-Model wrapper
+Model wrapper.
 """
 
 # This file is part of Echofilter.
@@ -388,7 +388,6 @@ class EchofilterLoss(_Loss):
             input["logit_is_removed"].dtype,
         )
 
-        batch_size = target["is_upward_facing"].nelement()
         n_conditions_in_loss = 0
         for condition in self.conditions:
             closs = 0

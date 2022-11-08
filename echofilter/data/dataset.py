@@ -1,4 +1,6 @@
 """
+Convert echograms into Pytorch dataset.
+
 Tools for converting a dataset of echograms (transects) into a Pytorch dataset
 and sampling from it.
 """
@@ -122,10 +124,10 @@ class TransectDataset(torch.utils.data.Dataset):
     def initialise_datapoints(self):
         """
         Parse `transect_paths` to generate sampling windows for each transect.
+
         Manually calling this method will resample the transect offsets and
         widths if they were randomly generated.
         """
-
         self.datapoints = []
 
         for transect_path in self.transect_paths:
@@ -272,8 +274,7 @@ class ConcatDataset(torch.utils.data.ConcatDataset):
 
 class StratifiedRandomSampler(torch.utils.data.Sampler):
     """
-    Samples elements randomly without repetition, stratified across datasets in
-    the data_source.
+    Sample elements randomly without repetition, stratified across datasets.
 
     Parameters
     ----------
@@ -370,7 +371,6 @@ def fixup_dataset_sample(
     dict
         Like ``sample``, but contents fixed.
     """
-
     # Rename Sv to signals if necessary
     if "signals" not in sample and "Sv" in sample:
         sample["signals"] = sample.pop("Sv")

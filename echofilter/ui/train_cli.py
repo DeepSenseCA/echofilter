@@ -40,9 +40,6 @@ def get_parser():
     parser : argparse.ArgumentParser
         CLI argument parser for training.
     """
-
-    import argparse
-
     prog = os.path.split(sys.argv[0])[1]
     if prog == "__main__.py" or prog == "__main__":
         prog = os.path.split(__file__)[1]

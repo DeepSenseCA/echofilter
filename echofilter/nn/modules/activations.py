@@ -25,8 +25,7 @@ __all__ = [
 
 def str2actfnfactory(actfn_name):
     """
-    Maps an activation function name to a factory which generates that
-    activation function as a :class:`torch.nn.Module` object.
+    Map an activation function name to a factory which generates that actfun.
 
     Parameters
     ----------
@@ -36,7 +35,7 @@ def str2actfnfactory(actfn_name):
     Returns
     -------
     callable
-        A :class:`torch.nn.Module` subclass generator.
+        A generator which yields a subclass of :class:`torch.nn.Module`.
     """
     if hasattr(nn, actfn_name):
         return getattr(nn, actfn_name)
@@ -140,7 +139,8 @@ class MishJitAutoFn(torch.autograd.Function):
 
 def mish(x):
     """
-    Applies the mish function element-wise:
+    Apply the mish function elementwise.
+
     mish(x) = x * tanh(softplus(x)) = x * tanh(ln(1 + exp(x)))
 
     See https://arxiv.org/abs/1908.08681
@@ -150,7 +150,8 @@ def mish(x):
 
 class Mish(nn.Module):
     """
-    Applies the mish function element-wise:
+    Apply the mish function elementwise.
+
     mish(x) = x * tanh(softplus(x)) = x * tanh(ln(1 + exp(x)))
 
     See https://arxiv.org/abs/1908.08681

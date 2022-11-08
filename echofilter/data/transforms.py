@@ -304,8 +304,7 @@ class RandomGridSampling(Rescale):
 
 class RandomElasticGrid(Rescale):
     """
-    Resample data onto a new grid, which is elastically deformed from the
-    original sampling grid.
+    Resample data onto a new grid, elastically deformed from the original grid.
 
     Parameters
     ----------
@@ -595,7 +594,9 @@ class RandomCropWidth(object):
 
 def optimal_crop_depth(transect):
     """
-    Crop a sample depthwise to contain only the space between highest surface
+    Crop a sample depthwise to surround the water column.
+
+    The crop is to contain only the space between highest surface
     and deepest seafloor.
 
     Parameters
@@ -603,7 +604,6 @@ def optimal_crop_depth(transect):
     transect : dict
         Transect dictionary.
     """
-
     d0 = np.min(transect["depths"])
 
     depth_intv = abs(transect["depths"][1] - transect["depths"][0])
@@ -665,8 +665,10 @@ def optimal_crop_depth(transect):
 
 class OptimalCropDepth(object):
     """
-    A transform which crops a sample depthwise to contain only the space
-    between highest surface and deepest seafloor.
+    A transform which crops a sample depthwise to focus on the water column.
+
+    The output contains only the space between highest surface and deepest
+    seafloor line measurements.
     """
 
     def __call__(self, sample):
@@ -847,7 +849,6 @@ class RandomCropDepth(object):
         # Select whether to do a close or fully random crop
         if p < self.p_crop_is_close:
             # Close crop
-            close_crop = True
             top_shallowest = close_top_shallowest
             top_deepest = close_top_deepest
             bot_shallowest = close_bot_shallowest
@@ -865,7 +866,6 @@ class RandomCropDepth(object):
                 deepest_depth = random.uniform(opt_bot_depth, bot_deepest)
         else:
             # Random crop
-            close_crop = False
             top_shallowest = rand_top_shallowest
             top_deepest = rand_top_deepest
             bot_shallowest = rand_bot_shallowest

@@ -36,7 +36,7 @@ except ImportError:
 
     import warnings
 
-    msg = "The Windows management module is only for Windows operating" " systems."
+    msg = "The Windows management module is only for Windows operating systems."
     with ui.style.warning_message(msg) as msg:
         warnings.warn(msg, category=RuntimeWarning)
 
@@ -61,7 +61,7 @@ class WindowManager:
             self.find_window_regex(title_pattern)
 
     def find_window(self, class_name=None, title=None):
-        """Find a window by its exact title"""
+        """Find a window by its exact title."""
         handle = win32gui.FindWindow(class_name, title)
         if handle == 0:
             raise EnvironmentError(
@@ -73,7 +73,7 @@ class WindowManager:
             self.handle = handle
 
     def _window_enum_callback(self, hwnd, pattern):
-        """Pass to win32gui.EnumWindows() to check all the opened windows"""
+        """Pass to win32gui.EnumWindows() to check all the opened windows."""
         if re.match(pattern, str(win32gui.GetWindowText(hwnd))) is not None:
             self.handle = hwnd
 
@@ -158,7 +158,7 @@ def opencom(
         try:
             app = win32com.client.GetActiveObject(com_name)
             existing_session = True
-        except pywintypes.com_error as err:
+        except pywintypes.com_error:
             # No existing session, make a new session
             make_anew = True
     if make_anew:
@@ -172,7 +172,7 @@ def opencom(
         try:
             app.Minimize()
             was_minimized = True
-        except:
+        except Exception:
             print(ui.style.warning_fmt("Could not minimize {} window".format(com_name)))
 
     was_hidden = False
@@ -187,12 +187,12 @@ def opencom(
         if title is not None:
             try:
                 winman.find_window(title=title)
-            except:
+            except Exception:
                 pass
         if winman.handle is None and title_pattern is not None:
             try:
                 winman.find_window_regex(title_pattern)
-            except:
+            except Exception:
                 pass
         if winman.handle is None:
             print(
@@ -226,7 +226,7 @@ def opencom(
                     # Show the window again
                     command = "unhide"
                     winman.show()
-        except:
+        except Exception:
             # We'll get an error if the application was already closed, etc
             print(
                 ui.style.warning_fmt(

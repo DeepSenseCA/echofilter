@@ -126,8 +126,9 @@ class AsideStyle(_AbstractStyle):
 
 def error_fmt(string):
     """
-    Wrap a string in ANSI codes to render it in the style of an error
-    when printed at the terminal.
+    Wrap a string in ANSI codes to render it in the style of an error.
+
+    The style is applied when printed at the terminal.
 
     Parameters
     ----------
@@ -145,8 +146,9 @@ def error_fmt(string):
 
 def warning_fmt(string):
     """
-    Wrap a string in ANSI codes to render it in the style of a warning
-    when printed at the terminal.
+    Wrap a string in ANSI codes to render it in the style of a warning.
+
+    The style is applied when printed at the terminal.
 
     Parameters
     ----------
@@ -164,8 +166,9 @@ def warning_fmt(string):
 
 def progress_fmt(string):
     """
-    Wrap a string in ANSI codes to render it in the style of progress text
-    when printed at the terminal.
+    Wrap a string in ANSI codes to render it in the style of progress text.
+
+    The style is applied when printed at the terminal.
 
     Parameters
     ----------
@@ -183,8 +186,9 @@ def progress_fmt(string):
 
 def dryrun_fmt(string):
     """
-    Wrap a string in ANSI codes to render it in the style of dry-run text
-    when printed at the terminal.
+    Wrap a string in ANSI codes to render it in the style of dry-run text.
+
+    The style is applied when printed at the terminal.
 
     Parameters
     ----------
@@ -202,8 +206,9 @@ def dryrun_fmt(string):
 
 def skip_fmt(string):
     """
-    Wrap a string in ANSI codes to render it in the style of a skip message
-    when printed at the terminal.
+    Wrap a string in ANSI codes to render it in the style of a skip message.
+
+    The style is applied when printed at the terminal.
 
     Parameters
     ----------
@@ -221,8 +226,9 @@ def skip_fmt(string):
 
 def overwrite_fmt(string):
     """
-    Wrap a string in ANSI codes to render it in the style of an overwrite
-    message when printed at the terminal.
+    Wrap a string in ANSI codes to render it in the style of an overwrite.
+
+    The style is applied when printed at the terminal.
 
     Parameters
     ----------
@@ -240,8 +246,9 @@ def overwrite_fmt(string):
 
 def highlight_fmt(string):
     """
-    Wrap a string in ANSI codes to render it in a highlighted style
-    when printed at the terminal.
+    Wrap a string in ANSI codes to render it in a highlighted style.
+
+    The style is applied when printed at the terminal.
 
     Parameters
     ----------
@@ -259,8 +266,9 @@ def highlight_fmt(string):
 
 def aside_fmt(string):
     """
-    Wrap a string in ANSI codes to render it in an aside (de-emphasised) style
-    when printed at the terminal.
+    Wrap a string in ANSI codes to render it in an aside (de-emphasised) style.
+
+    The style is applied when printed at the terminal.
 
     Parameters
     ----------
@@ -278,9 +286,10 @@ def aside_fmt(string):
 
 class error_message(contextlib.AbstractContextManager):
     """
-    Wrap an error message in ANSI codes to stylise its appearance in the
-    terminal as red and bold (bright). If the context is exited with an error,
-    that error message will be red.
+    Wrap an error message in ANSI codes to stylise its as red and bold.
+
+    The style is applied when printed at the terminal.
+    If the context is exited with an error, that error message will be red.
 
     Parameters
     ----------
@@ -325,9 +334,10 @@ class error_message(contextlib.AbstractContextManager):
 
 class warning_message(contextlib.AbstractContextManager):
     """
-    Wrap a warning message in ANSI codes to stylise its appearance in the
-    terminal as cyan and bold (bright). All statements printed during the
-    context will be in cyan.
+    Wrap a warning message in ANSI codes to stylise it as cyan and bold.
+
+    The style is applied when printed at the terminal.
+    All statements printed during the context will be in cyan.
 
     Parameters
     ----------

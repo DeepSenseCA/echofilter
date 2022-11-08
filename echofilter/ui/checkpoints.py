@@ -105,7 +105,7 @@ def cannonise_checkpoint_name(name):
 class ListCheckpoints(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
         print("Currently available model checkpoints:")
-        for checkpoint, props in get_checkpoint_list().items():
+        for checkpoint in get_checkpoint_list():
             if checkpoint == get_default_checkpoint():
                 print("  * " + style.progress_fmt(checkpoint))
             else:

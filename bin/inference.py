@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
         main()
 
-    except KeyboardInterrupt as err:
+    except KeyboardInterrupt:
         import sys
 
         # Don't show stack traceback when KeyboardInterrupt is given.

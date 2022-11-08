@@ -163,7 +163,6 @@ def get_parser():
     parser : argparse.ArgumentParser
         CLI argument parser for generating shards.
     """
-
     import argparse
 
     # Create parser

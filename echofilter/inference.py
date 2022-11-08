@@ -124,8 +124,9 @@ def run_inference(
     verbose=2,
 ):
     """
-    Perform inference on input files, and write output lines in EVL and regions
-    in EVR file formats.
+    Perform inference on input files, and generate output files.
+
+    Outputs are written as lines in EVL and regions in EVR file formats.
 
     Parameters
     ----------
@@ -450,7 +451,6 @@ def run_inference(
         Verbosity level. Default is `2`. Set to `0` to disable print
         statements, or elevate to a higher number to increase verbosity.
     """
-
     t_start_prog = time.time()
 
     progress_fmt = (
@@ -554,10 +554,10 @@ def run_inference(
     )
 
     if verbose >= 5:
-        print("Loaded checkpoint {}:".format(ckpt_path))
+        print("Loaded checkpoint {}:".format(ckpt_name))
         pprint.pprint(
-            dict(
-                (k, checkpoint[k])
+            {
+                k: checkpoint[k]
                 for k in (
                     "sample_shape",
                     "epoch",
@@ -569,7 +569,7 @@ def run_inference(
                     "nan_value",
                     "training_routine",
                 )
-            )
+            }
         )
 
     if image_height is None:
@@ -749,7 +749,7 @@ def run_inference(
             # Check if any of them exists and if there is any missing
             any_missing = False
             clobbers = []
-            for k, dest_file in dest_files.items():
+            for _, dest_file in dest_files.items():
                 if os.path.isfile(dest_file):
                     clobbers.append(dest_file)
                 else:
@@ -930,7 +930,7 @@ def run_inference(
                 error_msgs.append(err)
                 continue
             if verbose >= 5:
-                s = "\n    ".join([""] + list(str(k) for k in output.keys()))
+                s = "\n    ".join([""] + [str(k) for k in output.keys()])
                 print("  Generated model output with fields:" + s)
 
             if is_conditional_model and not force_unconditioned:
@@ -1477,13 +1477,13 @@ def inference_transect(
 def import_lines_regions_to_ev(
     ev_fname,
     files,
-    target_names={},
+    target_names=None,
     nearfield_depth=None,
     add_nearfield_line=True,
-    lines_cutoff_at_nearfield=[],
-    offsets={},
-    line_colors={},
-    line_thicknesses={},
+    lines_cutoff_at_nearfield=None,
+    offsets=None,
+    line_colors=None,
+    line_thicknesses=None,
     ev_app=None,
     overwrite=False,
     common_notes="",
@@ -1528,6 +1528,17 @@ def import_lines_regions_to_ev(
     verbose : int, optional
         Verbosity level. Default is `1`.
     """
+    if target_names is None:
+        target_names = {}
+    if lines_cutoff_at_nearfield is None:
+        lines_cutoff_at_nearfield = {}
+    if offsets is None:
+        offsets = {}
+    if line_colors is None:
+        line_colors = {}
+    if line_thicknesses is None:
+        line_thicknesses = {}
+
     if verbose >= 2:
         print("Importing {} lines/regions into EV file {}".format(len(files), ev_fname))
 
@@ -1664,7 +1675,7 @@ def import_lines_regions_to_ev(
                     # Line is not editable
                     s = (
                         "Existing line '{}' is not editable and cannot be"
-                        " overwritten.".format(target_name, key)
+                        " overwritten.".format(target_name)
                     )
                     s = echofilter.ui.style.warning_fmt(s)
                     print(s)
@@ -1697,7 +1708,7 @@ def import_lines_regions_to_ev(
                 "{} | Notes =| {}".format(line.Name, notes.replace("\n", "\r\n"))
             )
 
-            ## Handle offset line ---------------------------------------------
+            # Handle offset line ----------------------------------------------
             if key not in offsets:
                 continue
 
@@ -1798,7 +1809,7 @@ def import_lines_regions_to_ev(
                     # Line is not editable
                     s = (
                         "Existing line '{}' is not editable and cannot be"
-                        " overwritten.".format(target_name, key)
+                        " overwritten.".format(target_name)
                     )
                     s = echofilter.ui.style.warning_fmt(s)
                     print(s)
@@ -1852,7 +1863,7 @@ def import_lines_regions_to_ev(
                 if verbose >= 2:
                     print(
                         echofilter.ui.style.overwrite_fmt(
-                            "Deleting existing line '{}'".format(target_name, key)
+                            "Deleting existing line '{}'".format(target_name)
                         )
                     )
                 successful_overwrite = lines.Delete(old_line)
@@ -1861,7 +1872,7 @@ def import_lines_regions_to_ev(
                     print(
                         echofilter.ui.style.warning_fmt(
                             "Existing line '{}' could not be deleted".format(
-                                target_name, key
+                                target_name
                             )
                         )
                     )
@@ -1926,7 +1937,7 @@ def get_color_palette(include_xkcd=True):
 
 def hexcolor2rgb8(color):
     """
-    Utility for mapping hexadecimal colors to uint8 RGB.
+    Map hexadecimal colors to uint8 RGB.
 
     Parameters
     ----------
@@ -1940,7 +1951,7 @@ def hexcolor2rgb8(color):
     tuple
         RGB color tuple, in uint8 format (0--255).
     """
-    if color[0] is "#":
+    if isinstance(color, str) and color[0] == "#":
         color = mcolors.to_rgba(color)[:3]
         color = tuple(max(0, min(255, int(np.round(c * 255)))) for c in color)
     return color

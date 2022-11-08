@@ -30,7 +30,7 @@ def interp1d_preserve_nan(
     """
     Interpolate a 1-D function, preserving NaNs.
 
-    `x` and `y` are arrays of values used to approximate some function f:
+    Inputs `x` and `y` are arrays of values used to approximate some function f:
     ``y = f(x)``.  We exclude NaNs for the interpolation and then mask out
     entries which are adjacent (or close to) a NaN in the input.
 
@@ -103,7 +103,7 @@ def pad1d(array, pad_width, axis=0, **kwargs):
     numpy.ndarary
         Padded array.
 
-    See also
+    See Also
     --------
     numpy.pad
     """
@@ -136,7 +136,7 @@ def medfilt1d(signal, kernel_size, axis=-1, pad_mode="reflect"):
     filtered : array_like
         The filtered signal.
 
-    See also
+    See Also
     --------
     - `scipy.signal.medfilt`
     - `pad1d`

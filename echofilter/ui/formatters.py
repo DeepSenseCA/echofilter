@@ -23,8 +23,10 @@ import argparse
 
 class DedentTextHelpFormatter(argparse.HelpFormatter):
     """
-    Help message formatter which retains formatting of all help text, except
-    from indentation. Leading new lines are also stripped.
+    Help message formatter.
+
+    Retains formatting of all help text, except from indentation.
+    Leading new lines are also stripped.
     """
 
     def _split_lines(self, text, width):
@@ -43,8 +45,7 @@ class DedentTextHelpFormatter(argparse.HelpFormatter):
 
 class FlexibleHelpFormatter(argparse.HelpFormatter):
     """
-    Help message formatter which can handle different formatting
-    specifications.
+    Help message formatter which can handle different formatting specifications.
 
     The following formatters are supported:
 
