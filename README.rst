@@ -19,9 +19,9 @@ Echofilter is an application for segmenting an echogram. It takes as its
 input an Echoview_ .EV file, and produces as its output several lines and
 regions:
 
--  turbulence (entrained air) line
+-  entrained air (turbulence) line
 
--  bottom (seafloor) line
+-  seafloor line
 
 -  surface line
 
@@ -29,10 +29,10 @@ regions:
 
 -  passive data regions
 
--  \*bad data regions for entirely removed periods of time, in the form
+-  (unreliable) bad data regions for entirely removed periods of time, in the form
    of boxes covering the entire vertical depth
 
--  \*bad data regions for localised anomalies, in the form of polygonal
+-  (unreliable) bad data regions for localised anomalies, in the form of polygonal
    contour patches
 
 Echofilter uses a machine learning model to complete this task.
