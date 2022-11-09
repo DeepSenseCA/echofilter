@@ -58,6 +58,17 @@ jobs:
         python -m pip install -r frozen_requirements.txt
         python -m pip install .[test]
 
+    - name: Get appdirs cache dir
+      id: appdirs-cache
+      run: echo "::set-output name=dir::$(python -c 'from echofilter.ui.checkpoints import get_default_cache_dir as c; print(c())')"
+
+    - name: Cache checkpoints
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.appdirs-cache.outputs.dir }}
+        key: checkpoints-${{ hashFiles('**/echofilter/checkpoints.yaml') }}
+        restore-keys: checkpoints-
+
     - name: Sanity check with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
