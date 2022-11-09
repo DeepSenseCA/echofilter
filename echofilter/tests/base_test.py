@@ -52,6 +52,14 @@ else:
     import unittest
 
 
+# Check where the test directory is located, to be used when fetching
+# test resource files
+TEST_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
+RESOURCE_DIRECTORY = os.path.join(
+    os.path.dirname(os.path.dirname(TEST_DIRECTORY)), "test-resources"
+)
+
+
 class BaseTestCase(unittest.TestCase):
     """
     Superclass for test cases, including support for numpy.
@@ -60,7 +68,8 @@ class BaseTestCase(unittest.TestCase):
     # The attribute ``test_directory`` provides the path to the directory
     # containing the file ``base_test.py``, which is useful to obtain
     # test resources - files which are needed to run tests.
-    test_directory = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
+    test_directory = TEST_DIRECTORY
+    resource_directory = RESOURCE_DIRECTORY
 
     def __init__(self, *args, **kw):
         # First to the __init__ associated with parent class
