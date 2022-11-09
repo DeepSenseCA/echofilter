@@ -75,6 +75,12 @@ argument.
 
     echofilter --help
 
+For more details, see the
+`Usage Guide <https://echofilter.readthedocs.io/en/latest/source/usage_guide.html>`__,
+and the
+`command line interface (CLI) reference <https://echofilter.readthedocs.io/en/latest/source/programs/inference.html>`__
+documentation.
+
 
 Installation
 ------------
