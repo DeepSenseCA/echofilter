@@ -130,7 +130,7 @@ def run_inference(
 
     Parameters
     ----------
-    paths : iterable
+    paths : iterable or str
         Files and folders to be processed. These may be full paths or paths
         relative to ``source_dir``. For each folder specified, any files with
         extension ``"csv"`` within the folder and all its tree of subdirectories
@@ -429,6 +429,9 @@ def run_inference(
         to increase verbosity.
     """
     t_start_prog = time.time()
+
+    if isinstance(paths, str):
+        paths = [paths]
 
     progress_fmt = (
         echofilter.ui.style.dryrun_fmt if dry_run else echofilter.ui.style.progress_fmt
