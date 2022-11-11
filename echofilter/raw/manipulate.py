@@ -696,7 +696,7 @@ def remove_anomalies_1d(
 
     See Also
     --------
-    ``echofilter.raw.utils.medfilt1d``
+    echofilter.raw.utils.medfilt1d
     """
     signal = np.copy(signal)
 

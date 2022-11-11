@@ -138,8 +138,8 @@ def medfilt1d(signal, kernel_size, axis=-1, pad_mode="reflect"):
 
     See Also
     --------
-    - ``scipy.signal.medfilt``
-    - ``pad1d``
+    scipy.signal.medfilt
+    pad1d
     """
     offset = kernel_size // 2
     signal = pad1d(signal, offset, axis=axis, mode=pad_mode)
