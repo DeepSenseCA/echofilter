@@ -144,9 +144,8 @@ def run_inference(
         files.
     extensions : iterable or str, default="csv"
         File extensions to detect when running on a directory.
-    skip_existing : bool, optional
-        Skip processing files which already have all outputs present. Default
-        is ``False``.
+    skip_existing : bool, default=False
+        Skip processing files which already have all outputs present.
     skip_incompatible : bool, default=False
         Skip processing CSV files which do not seem to contain an exported
         Echoview transect. If ``False``, an error is raised.
@@ -1198,7 +1197,7 @@ def inference_transect(
         `(len(timestamps), len(depths))`.
     image_height : int
         Height to resize echogram before passing through model.
-    facing : {"downward", "upward", "auto"}, optional
+    facing : {"downward", "upward", "auto"}, default="auto"
         Orientation in which the echosounder is facing. Default is ``"auto"``,
         in which case the orientation is determined from the ordering of the
         depth values in the data (increasing = ``"upward"``,
@@ -1209,37 +1208,36 @@ def inference_transect(
     crop_max_depth : float, optional
         Maxmimum depth to include in input. By default, there is no
         maximum depth.
-    autocrop_threshold : float, optional
+    autocrop_threshold : float, default=0.35
         Minimum fraction of input height which must be found to be removable
         for the model to be re-run with an automatically cropped input.
-        Default is 0.35.
     force_unconditioned : bool, optional
         Whether to always use unconditioned logit outputs when deteriming the
         new depth range for automatic cropping.
-    data_center : float or str, optional
+    data_center : float or str, default="mean"
         Center point to use, which will be subtracted from the Sv signals
         (i.e. the overall sample mean).
         If ``data_center`` is a string, it specifies the method to use to
         determine the center value from the distribution of intensities seen
-        in this sample transect. Default is ``"mean"``.
-    data_deviation : float or str, optional
+        in this sample transect.
+    data_deviation : float or str, default="stdev"
         Deviation to use to normalise the Sv signals in divisive manner
         (i.e. the overall sample standard deviation).
         If ``data_deviation`` is a string, it specifies the method to use to
         determine the center value from the distribution of intensities seen
-        in this sample transect. Default is ``"stdev"``.
+        in this sample transect.
     prenorm_nan_value : float, optional
         If this is set, replace NaN values with a given Sv value before
         the data normalisation (Gaussian standardisation) step.
         By default, NaNs are left as they are until after standardising the
         data.
-    postnorm_nan_value : float, optional
+    postnorm_nan_value : float, default=-3
         Placeholder value to replace NaNs with. Does nothing if
-        ``prenorm_nan_value`` is set. Default is ``-3``.
-    dtype : torch.dtype, optional
-        Datatype to use for model input. Default is :class:`torch.float`.
-    verbose : int, optional
-        Level of verbosity. Default is ``0``.
+        ``prenorm_nan_value`` is set.
+    dtype : torch.dtype, default=torch.float
+        Datatype to use for model input.
+    verbose : int, default=0
+        Level of verbosity.
 
     Returns
     -------
