@@ -243,7 +243,7 @@ def ev2csv(
         all raw data is exported.
     ev_app : win32com.client.Dispatch object or None, optional
         An object which can be used to interface with the Echoview application,
-        as returned by ``win32com.client.Dispatch``. If ``None`` (default), a
+        as returned by :class:`win32com.client.Dispatch`. If ``None`` (default), a
         new instance of the application is opened (and closed on completion).
     verbose : int, optional
         Level of verbosity. Default is ``0``.

@@ -1492,7 +1492,7 @@ def import_lines_regions_to_ev(
         Mapping from output keys to line thicknesses.
     ev_app : win32com.client.Dispatch object, optional
         An object which can be used to interface with the Echoview application,
-        as returned by ``win32com.client.Dispatch``. By default, a
+        as returned by :class:`win32com.client.Dispatch`. By default, a
         new instance of the application is opened (and closed on completion).
     overwrite : bool, default=False
         Whether existing lines with target names should be replaced.
