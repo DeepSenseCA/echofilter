@@ -216,7 +216,7 @@ class RandomGridSampling(Rescale):
         - 3: Cubic
 
         If ``None``, the order is randomly selected from the set
-        {``0``, ``1``, ``3``}.
+        ``{0, 1, 3}``.
     """
 
     def __init__(self, *args, p=0.5, **kwargs):
@@ -330,7 +330,7 @@ class RandomElasticGrid(Rescale):
         - 3: Cubic
 
         If ``None``, the order is randomly selected from the set
-        {``1``, ``2``, ``3``}.
+        ``{1, 2, 3}``.
     """
 
     def __init__(self, output_size, p=0.5, sigma=8.0, alpha=0.05, order=1):
