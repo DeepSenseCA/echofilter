@@ -845,7 +845,7 @@ def build_dataset(
     random_crop_args : dict, optional
         Arguments to control the random crop used during training. Default is
         an empty dict, which uses the default arguments of
-        ``echofilter.data.transforms.RandomCropDepth``.
+        :class`echofilter.data.transforms.RandomCropDepth`.
 
     Returns
     -------

@@ -1266,7 +1266,7 @@ def inference_transect(
     Returns
     -------
     dict
-        Dictionary with fields as output by ``echofilter.wrapper.Echofilter``,
+        Dictionary with fields as output by :class:`echofilter.wrapper.Echofilter`,
         plus ``timestamps`` and ``depths``.
     """
     facing = facing.lower()

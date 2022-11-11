@@ -373,9 +373,9 @@ class EchofilterLoss(_Loss):
         Parameters
         ----------
         input : dict
-            Output from ``echofilter.wrapper.Echofilter`` layer.
+            Output from :class:`echofilter.wrapper.Echofilter` layer.
         target : dict
-            A transect, as provided by ``TransectDataset``.
+            A transect, as provided by :class:`echofilter.data.dataset.TransectDataset`.
         """
         loss = 0
 

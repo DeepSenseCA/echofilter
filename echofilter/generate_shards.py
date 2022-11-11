@@ -115,7 +115,7 @@ def generate_shards(
         continue. If ``False``, the process will halt with an error as soon as
         any single transect hits an error. Default is ``True``.
     **kwargs
-        See ``echofilter.raw.shardloader.segment_and_shard_transect``.
+        See :func:`echofilter.raw.shardloader.segment_and_shard_transect`.
     """
     if verbose:
         print('Getting partition list "{}" for "{}"'.format(partition, dataset))
