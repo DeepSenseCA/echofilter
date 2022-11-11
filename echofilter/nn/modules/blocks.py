@@ -25,11 +25,11 @@ class SqueezeExcite(nn.Module):
         Number of input (and output) channels.
     reduction : int or float, optional
         Compression factor for the number of channels in the squeeze and
-        excitation attention module. Default is `4`.
+        excitation attention module. Default is ``4``.
     actfn : str or callable, optional
         An activation class or similar generator. Default is an inplace
         ReLU activation. If this is a string, it is mapped to a generator with
-        `activations.str2actfnfactory`.
+        ``activations.str2actfnfactory``.
     """
 
     def __init__(
@@ -70,25 +70,25 @@ class MBConv(nn.Module):
     in_channels : int
         Number of input channels.
     out_channels : int, optional
-        Number of output channels. Default is to match `in_channels`.
+        Number of output channels. Default is to match ``in_channels``.
     expansion : int or float, optional
-        Exansion factor for the inverted-residual bottleneck. Default is `6`.
+        Exansion factor for the inverted-residual bottleneck. Default is ``6``.
     se_reduction : int, optional
-        Reduction factor for squeeze-and-excite block. Default is `4`. Set
-        to `None` or `0` to disable squeeze-and-excitation.
+        Reduction factor for squeeze-and-excite block. Default is ``4``. Set
+        to ``None`` or ``0`` to disable squeeze-and-excitation.
     fused : bool, optional
-        If `True`, the pointwise and depthwise convolution are fused together
-        into a single regular convolution. Default is `False` (a depthwise
+        If ``True``, the pointwise and depthwise convolution are fused together
+        into a single regular convolution. Default is ``False`` (a depthwise
         separable convolution).
     residual : bool, optional
-        If `True`, the block is residual with a skip-through connection.
-        Default is `True`.
+        If ``True``, the block is residual with a skip-through connection.
+        Default is ``True``.
     actfn : str or callable, optional
         An activation class or similar generator. Default is an inplace
         ReLU activation. If this is a string, it is mapped to a generator with
-        `activations.str2actfnfactory`.
+        ``activations.str2actfnfactory``.
     bias : bool, optional
-        If `True`, the main convolution has a bias term. Default is `False`.
+        If ``True``, the main convolution has a bias term. Default is ``False``.
         Note that the pointwise convolutions never have bias terms.
     **conv_args
         Additional arguments, such as kernel_size, stride, and padding, which

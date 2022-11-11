@@ -247,7 +247,7 @@ class OneCycleLR(_LRScheduler):
     Very Fast Training of Neural Networks Using Large Learning Rates`_.
 
     The 1cycle learning rate policy changes the learning rate after every batch.
-    `step` should be called after a batch has been used for training.
+    ``step`` should be called after a batch has been used for training.
 
     This scheduler is not chainable.
 
@@ -321,7 +321,7 @@ class OneCycleLR(_LRScheduler):
         Default: 1e4
     last_epoch : int
         The index of the last batch. This parameter is used when
-        resuming a training job. Since `step()` should be invoked after each
+        resuming a training job. Since ``step()`` should be invoked after each
         batch instead of after each epoch, this number represents the total
         number of *batches* computed, not the total number of epochs computed.
         When last_epoch=-1, the schedule is started from the beginning.
@@ -462,12 +462,12 @@ class OneCycleLR(_LRScheduler):
             return [param] * len(optimizer.param_groups)
 
     def _annealing_cos(self, start, end, pct):
-        """Cosine anneal from `start` to `end` as pct goes from 0.0 to 1.0."""
+        """Cosine anneal from ``start`` to ``end`` as pct goes from 0.0 to 1.0."""
         cos_out = math.cos(math.pi * pct) + 1
         return end + (start - end) / 2.0 * cos_out
 
     def _annealing_linear(self, start, end, pct):
-        """Linearly anneal from `start` to `end` as pct goes from 0.0 to 1.0."""
+        """Linearly anneal from ``start`` to ``end`` as pct goes from 0.0 to 1.0."""
         return (end - start) * pct + start
 
     def get_lr(self):

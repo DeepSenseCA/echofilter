@@ -30,7 +30,7 @@ def interp1d_preserve_nan(
     """
     Interpolate a 1-D function, preserving NaNs.
 
-    Inputs `x` and `y` are arrays of values used to approximate some function f:
+    Inputs ``x`` and ``y`` are arrays of values used to approximate some function f:
     ``y = f(x)``.  We exclude NaNs for the interpolation and then mask out
     entries which are adjacent (or close to) a NaN in the input.
 
@@ -39,19 +39,19 @@ def interp1d_preserve_nan(
     x : (N,) array_like
         A 1-D array of real values. Must not contain NaNs.
     y : (...,N,...) array_like
-        A N-D array of real values. The length of `y` along the interpolation
-        axis must be equal to the length of `x`. May contain NaNs.
+        A N-D array of real values. The length of ``y`` along the interpolation
+        axis must be equal to the length of ``x``. May contain NaNs.
     x_samples : array_like
         A 1-D array of real values at which the interpolation function will
         be sampled.
     nan_threshold : float, optional
         Minimum amount of influence a NaN must have on an output sample for it
-        to become a NaN. Default is `0.` i.e. any influence.
+        to become a NaN. Default is ``0.`` i.e. any influence.
     bounds_error : bool, optional
-        If `True`, a ValueError is raised any time interpolation is attempted
-        on a value outside of the range of `x` (where extrapolation is
-        necessary). If `False` (default), out of bounds values are assigned
-        value `fill_value` (whose default is NaN).
+        If ``True``, a ValueError is raised any time interpolation is attempted
+        on a value outside of the range of ``x`` (where extrapolation is
+        necessary). If ``False`` (default), out of bounds values are assigned
+        value ``fill_value`` (whose default is NaN).
     **kwargs
         Additional keyword arguments are as per :meth:`scipy.interpolate.interp1d`.
 
@@ -94,7 +94,7 @@ def pad1d(array, pad_width, axis=0, **kwargs):
         The amount to pad, either a length two tuple of values for each edge,
         or an int if the padding should be the same for each side.
     axis : int, optional
-        The axis to pad. Default is `0`.
+        The axis to pad. Default is ``0``.
     **kwargs
         As per :meth:`numpy.pad`.
 
@@ -126,10 +126,10 @@ def medfilt1d(signal, kernel_size, axis=-1, pad_mode="reflect"):
     kernel_size
         Size of the median kernel to use.
     axis : int, optional
-        Which axis to operate along. Default is `-1`.
+        Which axis to operate along. Default is ``-1``.
     pad_mode : str, optional
         Method with which to pad the vector at the edges.
-        Must be supported by :meth:`numpy.pad`. Default is `"reflect"`.
+        Must be supported by :meth:`numpy.pad`. Default is ``"reflect"``.
 
     Returns
     -------
@@ -138,8 +138,8 @@ def medfilt1d(signal, kernel_size, axis=-1, pad_mode="reflect"):
 
     See Also
     --------
-    - `scipy.signal.medfilt`
-    - `pad1d`
+    - ``scipy.signal.medfilt``
+    - ``pad1d``
     """
     offset = kernel_size // 2
     signal = pad1d(signal, offset, axis=axis, mode=pad_mode)
@@ -159,9 +159,9 @@ def squash_gaps(mask, max_gap_squash, axis=-1, inplace=False):
     max_gap_squash : int
         Maximum length of gap to squash.
     axis : int, optional
-        Axis on which to operate. Default is `-1`.
+        Axis on which to operate. Default is ``-1``.
     inplace : bool, optional
-        Whether to operate on the original array. If `False`, a copy is
+        Whether to operate on the original array. If ``False``, a copy is
         created and returned.
 
     Returns
@@ -205,14 +205,14 @@ def integrate_area_of_contour(x, y, closed=None, preserve_sign=False):
     y : array_like vector
         y co-ordinates of nodes along the contour.
     closed : bool or None, optional
-        Whether the contour is already closed. If `False`, it will be closed
-        before deterimining the area. If `None` (default), it is automatically
+        Whether the contour is already closed. If ``False``, it will be closed
+        before deterimining the area. If ``None`` (default), it is automatically
         determined as to whether the contour is already closed, and is closed
         if necessary.
     preserve_sign : bool, optional
-        Whether to preserve the sign of the area. If `True`, the area is
+        Whether to preserve the sign of the area. If ``True``, the area is
         positive if the contour is anti-clockwise and negative if it is
-        clockwise oriented. Default is `False`, which always returns a positive
+        clockwise oriented. Default is ``False``, which always returns a positive
         area.
 
     Returns

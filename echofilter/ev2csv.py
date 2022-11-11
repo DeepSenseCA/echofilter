@@ -67,60 +67,60 @@ def run_ev2csv(
     ----------
     paths : iterable
         Paths to input EV files to process, or directories containing EV files.
-        These may be full paths or paths relative to `source_dir`. For each
-        folder specified, any files with extension `"csv"` within the folder
+        These may be full paths or paths relative to ``source_dir``. For each
+        folder specified, any files with extension ``"csv"`` within the folder
         and all its tree of subdirectories will be processed.
     variable_name : str, optional
         Name of the Echoview acoustic variable to export. Default is
         `"Fileset1: Sv pings T1"`.
     export_raw : bool, optional
-        If `True` (default), exclusion and threshold settings in the EV file
+        If ``True`` (default), exclusion and threshold settings in the EV file
         are temporarily disabled before exporting the CSV, in order to ensure
-        all raw data is exported. If `False`, thresholds and exclusions are
+        all raw data is exported. If ``False``, thresholds and exclusions are
         used as per the EV file.
     source_dir : str, optional
-        Path to directory where files are found. Default is `"."`.
+        Path to directory where files are found. Default is ``"."``.
     recursive_dir_search : bool, optional
-        How to handle directory inputs in `paths`. If `False`, only files
+        How to handle directory inputs in ``paths``. If ``False``, only files
         (with the correct extension) in the directory will be included.
-        If `True`, subdirectories will also be walked through to find input
-        files. Default is `True`.
+        If ``True``, subdirectories will also be walked through to find input
+        files. Default is ``True``.
     output_dir : str, optional
         Directory where output files will be written. If this is an empty
-        string (`""`, default), outputs are written to the same directory as
-        each input file. Otherwise, they are written to `output_dir`,
-        preserving their path relative to `source_dir` if relative paths were
+        string (``""``, default), outputs are written to the same directory as
+        each input file. Otherwise, they are written to ``output_dir``,
+        preserving their path relative to ``source_dir`` if relative paths were
         used.
     suffix : str, optional
-        Output filename suffix. Default is `"_Sv_raw.csv"` if `keep_ext=False`,
-        or `".Sv_raw.csv"` if `keep_ext=True`. The `"_raw"` component is
-        excluded if `export_raw` is `False`.
+        Output filename suffix. Default is ``"_Sv_raw.csv"`` if ``keep_ext=False``,
+        or ``".Sv_raw.csv"`` if ``keep_ext=True``. The ``"_raw"`` component is
+        excluded if ``export_raw`` is ``False``.
     keep_ext : bool, optional
         Whether to preserve the file extension in the input file name when
-        generating output file name. Default is `False`, removing the
+        generating output file name. Default is ``False``, removing the
         extension.
     skip_existing : bool, optional
         Whether to skip processing files whose destination paths already
-        exist. If `False` (default), an error is raised if the destination file
+        exist. If ``False`` (default), an error is raised if the destination file
         already exists.
     overwrite_existing : bool, optional
-        Whether to overwrite existing output files. If `False` (default), an
+        Whether to overwrite existing output files. If ``False`` (default), an
         error is raised if the destination file already exists.
     minimize_echoview : bool, optional
-        If `True`, the Echoview window being used will be minimized while this
-        function is running. Default is `False`.
+        If ``True``, the Echoview window being used will be minimized while this
+        function is running. Default is ``False``.
     hide_echoview : {"never", "new", "always"}, optional
         Whether to hide the Echoview window entirely while the code runs.
-        If `hide_echoview="new"`, the application is only hidden if it
+        If ``hide_echoview="new"``, the application is only hidden if it
         was created by this function, and not if it was already running.
-        If `hide_echoview="always"`, the application is hidden even if it was
+        If ``hide_echoview="always"``, the application is hidden even if it was
         already running. In the latter case, the window will be revealed again
-        when this function is completed. Default is `"new"`.
+        when this function is completed. Default is ``"new"``.
     verbose : int, optional
-        Level of verbosity. Default is `1`.
+        Level of verbosity. Default is ``1``.
     dry_run : bool, optional
-        If `True`, perform a trial run with no changes made. Default is
-        `False`.
+        If ``True``, perform a trial run with no changes made. Default is
+        ``False``.
 
     Returns
     -------
@@ -238,20 +238,20 @@ def ev2csv(
         Name of the Echoview acoustic variable to export. Default is
         `"Fileset1: Sv pings T1"`.
     export_raw : bool, optional
-        If `True` (default), exclusion and threshold settings in the EV file
+        If ``True`` (default), exclusion and threshold settings in the EV file
         are temporarily disabled before exporting the CSV, in order to ensure
         all raw data is exported.
     ev_app : win32com.client.Dispatch object or None, optional
         An object which can be used to interface with the Echoview application,
-        as returned by `win32com.client.Dispatch`. If `None` (default), a
+        as returned by ``win32com.client.Dispatch``. If ``None`` (default), a
         new instance of the application is opened (and closed on completion).
     verbose : int, optional
-        Level of verbosity. Default is `0`.
+        Level of verbosity. Default is ``0``.
 
     Returns
     -------
     destination : str
-        Absolute path to `destination`.
+        Absolute path to ``destination``.
     """
     if verbose >= 1:
         print("  Opening {} in Echoview".format(input))

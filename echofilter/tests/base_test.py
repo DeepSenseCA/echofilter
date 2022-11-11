@@ -57,8 +57,8 @@ class BaseTestCase(unittest.TestCase):
     Superclass for test cases, including support for numpy.
     """
 
-    # The attribute `test_directory` provides the path to the directory
-    # containing the file `base_test.py`, which is useful to obtain
+    # The attribute ``test_directory`` provides the path to the directory
+    # containing the file ``base_test.py``, which is useful to obtain
     # test resources - files which are needed to run tests.
     test_directory = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 

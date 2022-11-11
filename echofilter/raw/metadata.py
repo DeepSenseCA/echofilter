@@ -38,12 +38,12 @@ def recall_passive_edges(sample_path, timestamps):
     -------
     passive_starts : numpy.ndarray or None
         Indices indicating the onset of passive data collection periods, or
-        `None` if passive metadata is unavailable for this sample.
+        ``None`` if passive metadata is unavailable for this sample.
     passive_ends : numpy.ndarray or None
         Indices indicating the offset of passive data collection periods, or
-        `None` if passive metadata is unavailable for this sample.
+        ``None`` if passive metadata is unavailable for this sample.
     finder_version : absent or str
-        If `passive_starts` and `passive_ends`, this string may be present to
+        If ``passive_starts`` and ``passive_ends``, this string may be present to
         indicate which passive finder algorithm works best for this dataset.
     """
     sample_path = sample_path.lower()

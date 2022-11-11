@@ -41,21 +41,21 @@ def find_passive_data(signals, n_depth_use=38, threshold=25.0, deviation=None):
         Two-dimensional array of Sv values, shaped `[timestamps, depths]`.
     n_depth_use : int, optional
         How many Sv depths to use, starting with the first depths (closest
-        to the sounder device). If `None` all depths are used. Default is `38`.
+        to the sounder device). If ``None`` all depths are used. Default is ``38``.
     threshold : float, optional
-        Threshold for start/end of passive regions. Default is `25`.
+        Threshold for start/end of passive regions. Default is ``25``.
     deviation : float, optional
-        Threshold for start/end of passive regions is `deviation` times the
+        Threshold for start/end of passive regions is ``deviation`` times the
         interquartile-range of the difference between samples at neigbouring
-        timestamps. Default is `None`. Only one of `threshold` and `deviation`
+        timestamps. Default is ``None``. Only one of ``threshold`` and ``deviation``
         should be set.
 
     Returns
     -------
     passive_start : numpy.ndarray
-        Indices of rows of `signals` at which passive segments start.
+        Indices of rows of ``signals`` at which passive segments start.
     passive_end : numpy.ndarray
-        Indices of rows of `signals` at which passive segments end.
+        Indices of rows of ``signals`` at which passive segments end.
 
     Notes
     -----
@@ -177,38 +177,38 @@ def find_passive_data_v2(
         Two-dimensional array of Sv values, shaped `[timestamps, depths]`.
     n_depth_use : int, optional
         How many Sv depths to use, starting with the first depths (closest
-        to the sounder device). If `None` all depths are used. Default is `38`.
+        to the sounder device). If ``None`` all depths are used. Default is ``38``.
         The median is taken across the depths, after taking the temporal
         derivative.
     threshold_inner : float, optional
         Theshold to apply to the temporal derivative of the signal when
         detected fine-tuned start/end of passive regions.
         Default behaviour is to use a threshold automatically determined using
-        `deviation` if it is set, and otherwise use a threshold of `35.0`.
+        ``deviation`` if it is set, and otherwise use a threshold of ``35.0``.
     threshold_init : float, optional
         Theshold to apply during the initial scan of the start/end of passive
         regions, which seeds the fine-tuning search.
         Default behaviour is to use a threshold automatically determined using
-        `deviation` if it is set, and otherwise use a threshold of `12.0`.
+        ``deviation`` if it is set, and otherwise use a threshold of ``12.0``.
     deviation : float, optional
-        Set `threshold_inner` to be `deviation` times the standard deviation of
+        Set ``threshold_inner`` to be ``deviation`` times the standard deviation of
         the temporal derivative of the signal. The standard deviation is
         robustly estimated based on the interquartile range.
-        If this is set, `threshold_inner` must not be `None`.
-        Default is `None`
+        If this is set, ``threshold_inner`` must not be ``None``.
+        Default is ``None``
     sigma_depth : float, optional
         Width of kernel for filtering signals across second dimension (depth).
-        Default is `0` (no filter).
+        Default is ``0`` (no filter).
     sigma_time : float, optional
         Width of kernel for filtering signals across second dimension (time).
-        Default is `1`. Set to `0` to not filter.
+        Default is ``1``. Set to ``0`` to not filter.
 
     Returns
     -------
     passive_start : numpy.ndarray
-        Indices of rows of `signals` at which passive segments start.
+        Indices of rows of ``signals`` at which passive segments start.
     passive_end : numpy.ndarray
-        Indices of rows of `signals` at which passive segments end.
+        Indices of rows of ``signals`` at which passive segments end.
 
     Notes
     -----
@@ -389,25 +389,25 @@ def make_lines_from_mask(mask, depths=None, max_gap_squash=1.0):
     ----------
     mask : array_like
         A two-dimensional logical array, where for each row dimension 1 takes
-        the value `False` for some unknown continuous stretch at the start and
-        end of the column, with `True` values between these two masked-out
+        the value ``False`` for some unknown continuous stretch at the start and
+        end of the column, with ``True`` values between these two masked-out
         regions.
     depths : array_like, optional
-        Depth of each sample point along dim 1 of `mask`. Must be either
+        Depth of each sample point along dim 1 of ``mask``. Must be either
         monotonically increasing or monotonically decreasing. Default is the
-        index of `mask`, `arange(mask.shape[1])`.
+        index of ``mask``, ``arange(mask.shape[1])``.
     max_gap_squash : float, optional
-        Maximum gap to merge together, in metres. Default is `1.`.
+        Maximum gap to merge together, in metres. Default is ``1.``.
 
     Returns
     -------
     d_turbulence : numpy.ndarray
         Depth of turbulence line. This is the line of smaller depth which
-        separates the `False` region of `mask` from the central region of
-        `True` values. (If `depths` is monotonically increasing, this is
-        for the start of the columns of `mask`, otherwise it is at the end.)
+        separates the ``False`` region of ``mask`` from the central region of
+        ``True`` values. (If ``depths`` is monotonically increasing, this is
+        for the start of the columns of ``mask``, otherwise it is at the end.)
     d_bottom : numpy.ndarray
-        Depth of bottom line. As for `d_turbulence`, but for the other end of the
+        Depth of bottom line. As for ``d_turbulence``, but for the other end of the
         array.
     """
     # Ensure input is an array. Make a copy, so we don't modify the input.
@@ -477,13 +477,13 @@ def write_lines_for_masked_csv(fname_mask, fname_turbulence=None, fname_bottom=N
         Path to input file containing masked Echoview output data in csv
         format.
     fname_turbulence : str, optional
-        Destination of generated turbulence line, written in evl format. If `None`
-        (default), the output name is `<fname_base>_mask-turbulence.evl`, where
-        `<fname_base>` is `fname_mask` without extension and without any
-        occurence of the substrings `_Sv_raw` or `_Sv` in the base file name.
+        Destination of generated turbulence line, written in evl format. If ``None``
+        (default), the output name is ``<fname_base>_mask-turbulence.evl``, where
+        ``<fname_base>`` is ``fname_mask`` without extension and without any
+        occurence of the substrings ``_Sv_raw`` or ``_Sv`` in the base file name.
     fname_bottom : str
-        Destination of generated bottom line, written in evl format. If `None`
-        (default), the output name is `<fname_base>_mask-bottom.evl`.
+        Destination of generated bottom line, written in evl format. If ``None``
+        (default), the output name is ``<fname_base>_mask-bottom.evl``.
     """
     if fname_turbulence is None or fname_bottom is None:
         fname_base = os.path.splitext(fname_mask)[0]
@@ -513,15 +513,15 @@ def find_nonzero_region_boundaries(v):
     Returns
     -------
     starts : numpy.ndarray
-        Indices for start of regions of nonzero elements in vector `v`
+        Indices for start of regions of nonzero elements in vector ``v``
     ends : numpy.ndarray
-        Indices for end of regions of nonzero elements in vector `v`
+        Indices for end of regions of nonzero elements in vector ``v``
         (exclusive).
 
     Notes
     -----
-    For `i` in `range(len(starts))`, the set of values `v[starts[i]:ends[i]]`
-    are nonzero. Values in the range `v[ends[i]:starts[i+1]]` are zero.
+    For ``i`` in ``range(len(starts))``, the set of values ``v[starts[i]:ends[i]]``
+    are nonzero. Values in the range ``v[ends[i]:starts[i+1]]`` are zero.
     """
     v = np.asarray(v)
     v = v != 0
@@ -558,7 +558,7 @@ def fixup_lines(
     depths : array_like
         Shaped `(num_depths, )`.
     mask : array_like
-        Boolean array, where `True` denotes kept entries.
+        Boolean array, where ``True`` denotes kept entries.
         Shaped `(num_timestamps, num_depths)`.
     t_turbulence : array_like, optional
         Sampling times for existing turbulence line.
@@ -670,20 +670,20 @@ def remove_anomalies_1d(
     signal : array_like
         The signal to filter.
     thr : float, optional
-        The initial threshold will be `thr` times the standard deviation of the
+        The initial threshold will be ``thr`` times the standard deviation of the
         residuals. The standard deviation is robustly estimated from the
-        interquartile range. Default is `5`.
+        interquartile range. Default is ``5``.
     thr2 : float, optional
-        The threshold for repeated iterations will be `thr2` times the standard
+        The threshold for repeated iterations will be ``thr2`` times the standard
         deviation of the remaining residuals. The standard deviation is
-        robustly estimated from interdecile range. Default is `4`.
+        robustly estimated from interdecile range. Default is ``4``.
     kernel : int, optional
-        The kernel size for the initial median filter. Default is `201`.
+        The kernel size for the initial median filter. Default is ``201``.
     kernel2 : int, optional
-        The kernel size for subsequent median filters. Default is `31`.
+        The kernel size for subsequent median filters. Default is ``31``.
     return_filtered : bool, optional
-        If `True`, the median filtered signal is also returned.
-        Default is `False`.
+        If ``True``, the median filtered signal is also returned.
+        Default is ``False``.
 
     Returns
     -------
@@ -692,11 +692,11 @@ def remove_anomalies_1d(
     is_replaced : bool numpy.ndarray shaped like signal
         Indicator for which datapoints were replaced.
     filtered : numpy.ndarray like signal, optional
-        The final median filtered signal. Returned if `return_filtered=True`.
+        The final median filtered signal. Returned if ``return_filtered=True``.
 
     See Also
     --------
-    `echofilter.raw.utils.medfilt1d`
+    ``echofilter.raw.utils.medfilt1d``
     """
     signal = np.copy(signal)
 
@@ -750,7 +750,7 @@ def fix_surface_line(timestamps, d_surface, is_passive):
     fixed_surface : numpy.ndarray
         Surface line depths, with anomalies replaced with median filtered
         values and passive data replaced with linear interpolation.
-        Has the same size and dtype as `d_surface`.
+        Has the same size and dtype as ``d_surface``.
     is_replaced : boolean numpy.ndarray sized (N, )
         Indicates which datapoints were replaced. Note that passive data is
         always replaced and is marked as such.
@@ -821,12 +821,12 @@ def load_decomposed_transect_mask(sample_path):
                 timepoint.
             - "depths" : numpy.ndarray
                 Depths from the surface (in metres), with each entry
-                corresponding to each column in the `signals` data.
+                corresponding to each column in the ``signals`` data.
             - "Sv" : numpy.ndarray
                 Echogram Sv data, shaped (num_timestamps, num_depths).
             - "mask" : numpy.ndarray
-                Logical array indicating which datapoints were kept (`True`)
-                and which removed (`False`) for the masked Sv output.
+                Logical array indicating which datapoints were kept (``True``)
+                and which removed (``False``) for the masked Sv output.
                 Shaped (num_timestamps, num_depths).
             - "turbulence" : numpy.ndarray
                 For each timepoint, the depth of the shallowest datapoint which
@@ -1134,12 +1134,12 @@ def split_transect(
         occassional gaps.
     threshold : int, optional
         Threshold for splitting timestamps into segments. Any timepoints
-        further apart than `threshold` times the `percentile` percentile of the
+        further apart than ``threshold`` times the ``percentile`` percentile of the
         difference between timepoints will be split apart into new segments.
-        Default is `20`.
+        Default is ``20``.
     percentile : float, optional
         The percentile at which to sample the timestamp intervals to establish
-        a baseline typical interval. Default is `97.5`.
+        a baseline typical interval. Default is ``97.5``.
     max_length : int, default=-1
         Maximum length of each segment.
         Set to ``0`` or ``-1`` to disable (default).
@@ -1151,13 +1151,13 @@ def split_transect(
         threshold (``"thr"``), or both (``"all"``).
     **kwargs
         Arbitrary additional transect variables, which will be split into
-        segments as appropriate in accordance with `timestamps`.
+        segments as appropriate in accordance with ``timestamps``.
 
     Yields
     ------
     dict
-        Containing segmented data, key/value pairs as per given in `**kwargs`
-        in addition to `timestamps`.
+        Containing segmented data, key/value pairs as per given in ``**kwargs``
+        in addition to ``timestamps``.
     """
     if timestamps is None:
         raise ValueError("The `timestamps` argument is required.")

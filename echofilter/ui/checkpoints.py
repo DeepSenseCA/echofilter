@@ -127,10 +127,10 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     checkpoint_name : str
         Name of checkpoint to download.
     cache_dir : str or None, optional
-        Path to local cache directory. If `None` (default), an OS-appropriate
+        Path to local cache directory. If ``None`` (default), an OS-appropriate
         application-specific default cache directory is used.
     verbose : int, optional
-        Verbosity level. Default is `1`. Set to `0` to disable print
+        Verbosity level. Default is ``1``. Set to ``0`` to disable print
         statements.
 
     Returns
@@ -232,21 +232,21 @@ def load_checkpoint(
     ----------
     checkpoint_name : str or None, optional
         Path to checkpoint file, or name of checkpoint to download.
-        Default is `None`.
+        Default is ``None``.
     cache_dir : str or None, optional
-        Path to local cache directory. If `None` (default), an OS-appropriate
+        Path to local cache directory. If ``None`` (default), an OS-appropriate
         application-specific default cache directory is used.
     device : str or torch.device or None, optional
-        Device onto which weight tensors will be mapped. If `None`, no mapping
+        Device onto which weight tensors will be mapped. If ``None``, no mapping
         is performed and tensors will be loaded onto the same device as they
         were on when saved (which will result in an error if the device is not
-        present). Default is `"cpu"`.
+        present). Default is ``"cpu"``.
     return_name : bool, optional
-        If `True`, a tuple is returned indicting the name of the checkpoint
+        If ``True``, a tuple is returned indicting the name of the checkpoint
         which was loaded. This is useful if the default checkpoint was loaded.
-        Default is `False`.
+        Default is ``False``.
     verbose : int, optional
-        Verbosity level. Default is `1`. Set to `0` to disable print
+        Verbosity level. Default is ``1``. Set to ``0`` to disable print
         statements.
 
     Returns
@@ -254,7 +254,7 @@ def load_checkpoint(
     checkpoint : dict
         Loaded checkpoint.
     checkpoint_name : str, optional
-        If `return_name` is `True`, the name of the checkpoint is also
+        If ``return_name`` is ``True``, the name of the checkpoint is also
         returned.
     """
     import torch

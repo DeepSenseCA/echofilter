@@ -36,20 +36,20 @@ def mode(a, axis=None, keepdims=False, **kwargs):
         n-dimensional array of which to find mode(s).
     axis : int or None, optional
         Axis or axes along which the mode is computed. The default,
-        `axis=None`, will sum all of the elements of the input array.
+        ``axis=None``, will sum all of the elements of the input array.
         If axis is negative it counts from the last to the first axis.
     keepdims : bool, optional
-        If this is set to `True`, the axes which are reduced are left
+        If this is set to ``True``, the axes which are reduced are left
         in the result as dimensions with size one. With this option, the result
-        will broadcast correctly against the input array. Default is `False`.
+        will broadcast correctly against the input array. Default is ``False``.
     **kwargs
         Additional arguments as per :meth:`scipy.stats.mode`.
 
     Returns
     -------
     mode_along_axis : numpy.ndarray
-        An array with the same shape as `a`, with the specified axis removed.
-        If `keepdims=True` and either `a` is a 0-d array or `axis` is None,
+        An array with the same shape as ``a``, with the specified axis removed.
+        If ``keepdims=True`` and either ``a`` is a 0-d array or ``axis`` is None,
         a scalar is returned.
 
     See Also
@@ -74,9 +74,9 @@ def first_nonzero(arr, axis=-1, invalid_val=-1):
     arr : numpy.ndarray
         Array to search.
     axis : int, optional
-        Axis along which to search for a non-zero element. Default is `-1`.
+        Axis along which to search for a non-zero element. Default is ``-1``.
     invalid_val : any, optional
-        Value to return if all elements are zero. Default is `-1`.
+        Value to return if all elements are zero. Default is ``-1``.
     """
     mask = arr != 0
     return np.where(mask.any(axis=axis), mask.argmax(axis=axis), invalid_val)
@@ -91,9 +91,9 @@ def last_nonzero(arr, axis=-1, invalid_val=-1):
     arr : numpy.ndarray
         Array to search.
     axis : int, optional
-        Axis along which to search for a non-zero element. Default is `-1`.
+        Axis along which to search for a non-zero element. Default is ``-1``.
     invalid_val : any, optional
-        Value to return if all elements are zero. Default is `-1`.
+        Value to return if all elements are zero. Default is ``-1``.
     """
     mask = arr != 0
     val = arr.shape[axis] - np.flip(mask, axis=axis).argmax(axis=axis) - 1
@@ -113,10 +113,10 @@ def get_indicator_onoffsets(indicator):
     -------
     onsets : list
         Onset indices, where each entry is the start of a sequence of nonzero
-        values in the input `indicator`.
+        values in the input ``indicator``.
     offsets : list
         Offset indices, where each entry is the last in a sequence of nonzero
-        values in the input `indicator`, such that
+        values in the input ``indicator``, such that
         ``indicator[onsets[i] : offsets[i] + 1] != 0``.
     """
     indices = np.nonzero(indicator)[0]

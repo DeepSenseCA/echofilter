@@ -35,7 +35,7 @@ class MesaOneCycleLR(OneCycleLR):
     Very Fast Training of Neural Networks Using Large Learning Rates`_.
 
     The 1cycle learning rate policy changes the learning rate after every batch.
-    `step` should be called after a batch has been used for training.
+    ``step`` should be called after a batch has been used for training.
 
     This scheduler is not chainable.
 
@@ -113,7 +113,7 @@ class MesaOneCycleLR(OneCycleLR):
         Default: 1e4
     last_epoch : int
         The index of the last batch. This parameter is used when
-        resuming a training job. Since `step()` should be invoked after each
+        resuming a training job. Since ``step()`` should be invoked after each
         batch instead of after each epoch, this number represents the total
         number of *batches* computed, not the total number of epochs computed.
         When last_epoch=-1, the schedule is started from the beginning.
@@ -171,7 +171,7 @@ class MesaOneCycleLR(OneCycleLR):
         if not self._get_lr_called_within_step:
             warnings.warn(
                 "To get the last learning rate computed by the scheduler, "
-                "please use `get_last_lr()`.",
+                "please use ``get_last_lr()``.",
                 DeprecationWarning,
             )
 

@@ -50,15 +50,15 @@ class FlexibleConcat2d(nn.Module):
         Parameters
         ----------
         x1 : torch.Tensor
-            Tensor, possibly smaller than `x2`.
+            Tensor, possibly smaller than ``x2``.
         x2 : torch.Tensor
-            Tensor, at least as large as `x1`.
+            Tensor, at least as large as ``x1``.
 
         Returns
         -------
         torch.Tensor
-            Concatenated `x1` (padded if necessary) and `x2`, along
-            dimension `1`.
+            Concatenated ``x1`` (padded if necessary) and ``x2``, along
+            dimension ``1``.
         """
         # input is CHW
         diffY = torch.tensor([x2.shape[-2] - x1.shape[-2]])

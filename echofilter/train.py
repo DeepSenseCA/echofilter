@@ -637,7 +637,7 @@ def train(
             Returns
             -------
             torch.Tensor
-                As `x`, but padded with a green border.
+                As ``x``, but padded with a green border.
             """
             if x.shape[1] == 1:
                 x = torch.cat([x, x, x], dim=1)
@@ -827,25 +827,25 @@ def build_dataset(
     ----------
     dataset_name : str
         Name of the dataset. This can optionally be a list of
-        multiple datasets joined with `"+"`.
+        multiple datasets joined with ``"+"``.
     data_dir : str
         Path to root data directory, containing the dataset.
     sample_shape : iterable of length 2
         The shape which will be used for training.
     train_partition : str, optional
         Name of the partition to use for training. Can optionally be a list of
-        multiple partitions joined with `"+"`. Default is `"train"`
-        (except for `stationary2` where it is mixed).
+        multiple partitions joined with ``"+"``. Default is ``"train"``
+        (except for ``stationary2`` where it is mixed).
     val_partition : str, optional
         Name of the partition to use for validation. Can optionally be a list
-        of multiple partitions joined with `"+"`. Default is `"validate"`
-        (except for `stationary2` where it is mixed).
+        of multiple partitions joined with ``"+"``. Default is ``"validate"``
+        (except for ``stationary2`` where it is mixed).
     crop_depth : float or None, optional
-        Depth at which to crop samples. Default is `None`.
+        Depth at which to crop samples. Default is ``None``.
     random_crop_args : dict, optional
         Arguments to control the random crop used during training. Default is
         an empty dict, which uses the default arguments of
-        `echofilter.data.transforms.RandomCropDepth`.
+        ``echofilter.data.transforms.RandomCropDepth``.
 
     Returns
     -------
@@ -1087,25 +1087,25 @@ def train_epoch(
     dtype : str or torch.dtype
         Datatype which which the data should be loaded.
     print_freq : int, optional
-        Number of batches between reporting progress. Default is `10`.
+        Number of batches between reporting progress. Default is ``10``.
     schedule_data : dict or None
         If a learning rate schedule is being used, this may be passed as a
-        dictionary with the key `"scheduler"` mapping to the learning rate
+        dictionary with the key ``"scheduler"`` mapping to the learning rate
         schedule as a callable.
     use_mixed_precision : bool
         Whether to use :meth:`apex.amp.scale_loss` to automatically scale the
-        loss. Default is `False`.
+        loss. Default is ``False``.
     continue_through_error : bool
         Whether to catch errors within an individual batch, ignore them and
         continue running training on the rest of the batches. If there are
         five or more errors while processing the batch, training will halt
-        regardless of `continue_through_error`. Default is `True`.
+        regardless of ``continue_through_error``. Default is ``True``.
 
     Returns
     -------
     average_loss : float
         Average loss as given by criterion (weighted equally for each sample
-        in `loader`).
+        in ``loader``).
     meters : dict of dict
         Each key is a strata of the model output, each mapping to a their own
         dictionary of evaluation criterions: "Accuracy", "Precision", "Recall",
@@ -1334,17 +1334,17 @@ def validate(
     dtype : str or torch.dtype
         Datatype which which the data should be loaded.
     print_freq : int, optional
-        Number of batches between reporting progress. Default is `10`.
+        Number of batches between reporting progress. Default is ``10``.
     prefix : str, optional
-        Prefix string to prepend to progress meter names. Default is `"Test"`.
+        Prefix string to prepend to progress meter names. Default is ``"Test"``.
     num_examples : int, optional
-        Number of example inputs to return. Default is `32`.
+        Number of example inputs to return. Default is ``32``.
 
     Returns
     -------
     average_loss : float
         Average loss as given by criterion (weighted equally for each sample
-        in `loader`).
+        in ``loader``).
     meters : dict of dict
         Each key is a strata of the model output, each mapping to a their own
         dictionary of evaluation criterions: "Accuracy", "Precision", "Recall",
@@ -1647,19 +1647,19 @@ def save_checkpoint(state, is_best, dirname=".", fname_fmt="checkpoint{}.pt", du
     state : dict
         Model checkpoint state to record.
     is_best : bool
-        Whether this model state is the best so far. If `True`, the best
-        checkpoint (by default named `"checkpoint_best.pt"`) will be overwritten
-        with this `state`.
+        Whether this model state is the best so far. If ``True``, the best
+        checkpoint (by default named ``"checkpoint_best.pt"``) will be overwritten
+        with this ``state``.
     dirname : str, optional
         Path to directory in which the checkpoint will be saved.
-        Default is `"."` (current directory of the executed script).
+        Default is ``"."`` (current directory of the executed script).
     fname_fmt : str, optional
         Format for the file name(s) of the saved checkpoint(s). Must include
-        one string argument output. Default is `"checkpoint{}.pt"`.
+        one string argument output. Default is ``"checkpoint{}.pt"``.
     dup : str or None
-        If this is not `None`, a duplicate copy of the checkpoint is recorded
-        in accordance with `fname_fmt`. By default the duplicate output file
-        name will be styled as `"checkpoint_<dup>.pt"`.
+        If this is not ``None``, a duplicate copy of the checkpoint is recorded
+        in accordance with ``fname_fmt``. By default the duplicate output file
+        name will be styled as ``"checkpoint_<dup>.pt"``.
     """
     os.makedirs(dirname, exist_ok=True)
     fname = os.path.join(dirname, fname_fmt.format(""))
@@ -1681,13 +1681,13 @@ def meters_to_csv(meters, is_best, dirname=".", filename="meters.csv"):
     meters : dict of dict
         Collection of output meters, as a nested dictionary.
     is_best : bool
-        Whether this model state is the best so far. If `True`, the CSV file
-        will be copied to `"model_best.meters.csv"`.
+        Whether this model state is the best so far. If ``True``, the CSV file
+        will be copied to ``"model_best.meters.csv"``.
     dirname : str, optional
         Path to directory in which the checkpoint will be saved.
-        Default is `"."` (current directory of the executed script).
+        Default is ``"."`` (current directory of the executed script).
     filename : str, optional
-        Format for the output file. Default is `"meters.csv"`.
+        Format for the output file. Default is ``"meters.csv"``.
     """
     os.makedirs(dirname, exist_ok=True)
     df = pd.DataFrame()

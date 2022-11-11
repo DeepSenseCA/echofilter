@@ -32,11 +32,11 @@ def logavgexp(
     """
     Take the log-average-exp.
 
-    Returns the log of meaned exponentials of each row of the `input` tensor in
-    the given dimension `dim`. The computation is numerically stabilized.
+    Returns the log of meaned exponentials of each row of the ``input`` tensor in
+    the given dimension ``dim``. The computation is numerically stabilized.
 
-    If `keepdim` is `True`, the output tensor is of the same size as `input`
-    except in the dimension `dim` where it is of size `1`. Otherwise, `dim` is
+    If ``keepdim`` is ``True``, the output tensor is of the same size as ``input``
+    except in the dimension ``dim`` where it is of size ``1``. Otherwise, ``dim`` is
     squeezed (see :meth:`torch.squeeze()`), resulting in the output tensor
     having 1 fewer dimension.
 
@@ -47,22 +47,22 @@ def logavgexp(
     dim : int
         The dimension to reduce.
     keepdim : bool, optional
-        Whether the output tensor has `dim` retained or not.
-        Default is `False`.
+        Whether the output tensor has ``dim`` retained or not.
+        Default is ``False``.
     temperature : float or None, optional
         A temperature which is applied to the logits. Temperatures must be
-        positive. Temperatures greater than `1` make the result closer to the
-        average of `input`, whilst temperatures `0<t<1` make the result closer
-        to the maximum of `input`. If `None` (default) or `1`, no temperature
+        positive. Temperatures greater than ``1`` make the result closer to the
+        average of ``input``, whilst temperatures ``0<t<1`` make the result closer
+        to the maximum of ``input``. If ``None`` (default) or ``1``, no temperature
         is applied.
     internal_dtype : torch.dtype, optional
-        A data type which the `input` will be cast as before computing the
+        A data type which the ``input`` will be cast as before computing the
         log-sum-exp step. Default is :attr:`torch.float32`.
 
     Returns
     -------
     torch.Tensor
-        The log-average-exp of `input`.
+        The log-average-exp of ``input``.
     """
     if isinstance(temperature, numbers.Number) and temperature == 1:
         temperature = None
@@ -95,7 +95,7 @@ class TensorDict(torch.nn.ParameterDict):
     Hold tensors in a dictionary.
 
     TensorDict can be indexed like a regular Python dictionary, but implements
-    methods such as `to` which operate on all elements within it.
+    methods such as ``to`` which operate on all elements within it.
 
     :class:`TensorDict` is an **ordered** dictionary that respects
 
@@ -250,13 +250,13 @@ def seed_all(seed=None, only_current_gpu=False, mirror_gpus=False):
         Get a random seed value.
 
         On Python 3.2 and above, and when system sources of randomness are
-        available, use `os.urandom` to make a new seed. Otherwise, use the
+        available, use ``os.urandom`` to make a new seed. Otherwise, use the
         current time.
         """
         try:
             import os
 
-            # Use system's source of entropy (on Linux, syscall `getrandom()`)
+            # Use system's source of entropy (on Linux, syscall ``getrandom()``)
             s = int.from_bytes(os.urandom(4), byteorder="little")
         except AttributeError:
             from datetime import datetime

@@ -41,52 +41,52 @@ class TransectDataset(torch.utils.data.Dataset):
     transect_paths : list
         Absolute paths to transects.
     window_len : int
-        Width (number of timestamps) to load. Default is `128`.
+        Width (number of timestamps) to load. Default is ``128``.
     p_scale_window : float, optional
-        Probability of rescaling window. Default is `0`, which results in no
+        Probability of rescaling window. Default is ``0``, which results in no
         randomization of the window widths.
     window_sf : float, optional
         Maximum window scale factor. Scale factors will be log-uniformly
-        sampled in the range `1/window_sf` to `window_sf`. Default is `2`.
+        sampled in the range ``1/window_sf`` to ``window_sf``. Default is ``2``.
     num_windows_per_transect : int
         Number of windows to extract for each transect. Start indices for
         the windows will be equally spaced across the total width of the
-        transect. If this is `0`, the number of windows will be inferred
-        automatically based on `window_len` and the total width of the
+        transect. If this is ``0``, the number of windows will be inferred
+        automatically based on ``window_len`` and the total width of the
         transect, resulting in a different number of windows for each
-        transect. Default is `0`.
+        transect. Default is ``0``.
     use_dynamic_offsets : bool
         Whether starting indices for each window should be randomly offset.
-        Set to `True` for training and `False` for testing. Default is
-        `True`.
+        Set to ``True`` for training and ``False`` for testing. Default is
+        ``True``.
     crop_depth : float
         Maximum depth to include, in metres. Deeper data will be cropped
-        away. Default is `None`.
+        away. Default is ``None``.
     transform : callable
         Operations to perform to the dictionary containing a single sample.
         These are performed before generating the turbulence/bottom/overall
-        mask. Default is `None`.
+        mask. Default is ``None``.
     remove_nearfield : bool, optional
         Whether to remove turbulence and bottom lines affected by nearfield
-        removal. If `True` (default), targets for the line near to the
+        removal. If ``True`` (default), targets for the line near to the
         sounder (bottom if upward facing, turbulence otherwise) which are
-        closer than or equal to a distance of `nearfield_distance` become
-        reduced to `nearfield_visible_dist`.
+        closer than or equal to a distance of ``nearfield_distance`` become
+        reduced to ``nearfield_visible_dist``.
     nearfield_distance : float, optional
         Nearfield distance in metres. Regions closer than the nearfield
         may have been masked out from the dataset, but their effect will
-        be removed from the targets if `remove_nearfield=True`.
-        Default is `1.7`.
+        be removed from the targets if ``remove_nearfield=True``.
+        Default is ``1.7``.
     nearfield_visible_dist : float, optional
         The distance at which the effect of being to close to the sounder
         is obvious to the naked eye, and hence the distance which nearfield
-        will be mapped to if `remove_nearfield=True`. Default is `0.0`.
+        will be mapped to if ``remove_nearfield=True``. Default is ``0.0``.
     remove_offset_turbulence : float, optional
         Line offset built in to the turbulence line. If given, this will be
-        removed from the samples within the dataset. Default is `0`.
+        removed from the samples within the dataset. Default is ``0``.
     remove_offset_bottom : float, optional
         Line offset built in to the bottom line. If given, this will be
-        removed from the samples within the dataset. Default is `0`.
+        removed from the samples within the dataset. Default is ``0``.
     """
 
     def __init__(
@@ -123,7 +123,7 @@ class TransectDataset(torch.utils.data.Dataset):
 
     def initialise_datapoints(self):
         """
-        Parse `transect_paths` to generate sampling windows for each transect.
+        Parse ``transect_paths`` to generate sampling windows for each transect.
 
         Manually calling this method will resample the transect offsets and
         widths if they were randomly generated.
@@ -263,8 +263,8 @@ class ConcatDataset(torch.utils.data.ConcatDataset):
 
     Notes
     -----
-    A subclass of `torch.utils.data.ConcatDataset` which supports the
-    `initialise_datapoints` method.
+    A subclass of ``torch.utils.data.ConcatDataset`` which supports the
+    ``initialise_datapoints`` method.
     """
 
     def initialise_datapoints(self):
@@ -279,7 +279,7 @@ class StratifiedRandomSampler(torch.utils.data.Sampler):
     Parameters
     ----------
     data_source : torch.utils.data.ConcatDataset
-        Dataset to sample from. Must possess a `cumulative_sizes` attribute.
+        Dataset to sample from. Must possess a ``cumulative_sizes`` attribute.
     """
 
     def __init__(self, data_source):
@@ -360,7 +360,7 @@ def fixup_dataset_sample(
         removed from the samples within the dataset.
     crop_depth : float
         Maximum depth to include, in metres. Deeper data will be cropped
-        away. Default is `None`.
+        away. Default is ``None``.
     transform : callable, optional
         Operations to perform to the dictionary containing a single sample.
         These are performed before generating the turbulence/bottom/overall
