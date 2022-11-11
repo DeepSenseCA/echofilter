@@ -155,11 +155,11 @@ class GaussianSmoothing(nn.Module):
         Standard deviation of the gaussian kernel.
     padding : int or sequence or "same", optional
         Amount of padding to use, for each side of each dimension. If this is
-        `"same"` (default) the amount of padding will be set automatically
+        ``"same"`` (default) the amount of padding will be set automatically
         to ensure the size of the tensor is unchanged.
     pad_mode : str, optional
         Padding mode. See :meth:`torch.nn.functional.pad` for options. Default
-        is `"replicate"`.
+        is ``"replicate"``.
     ndim : int, optional
         The number of dimensions of the data. Default value is 2 (spatial).
 

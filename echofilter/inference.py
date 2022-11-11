@@ -132,324 +132,301 @@ def run_inference(
     ----------
     paths : iterable
         Files and folders to be processed. These may be full paths or paths
-        relative to `source_dir`. For each folder specified, any files with
-        extension `"csv"` within the folder and all its tree of subdirectories
+        relative to ``source_dir``. For each folder specified, any files with
+        extension ``"csv"`` within the folder and all its tree of subdirectories
         will be processed.
-    source_dir : str, optional
-        Path to directory where files are found. Default is `"."`.
-    recursive_dir_search : bool, optional
-        How to handle directory inputs in `paths`. If `False`, only files
+    source_dir : str, default="."
+        Path to directory where files are found.
+    recursive_dir_search : bool, default=True
+        How to handle directory inputs in ``paths``. If ``False``, only files
         (with the correct extension) in the directory will be included.
-        If `True`, subdirectories will also be walked through to find input
-        files. Default is `True`.
-    extensions : iterable or str, optional
-        File extensions to detect when running on a directory. Default is
-        `"csv"`.
-    skip_existing : bool, optional
-        Skip processing files which already have all outputs present. Default
-        is `False`.
-    skip_incompatible : bool, optional
+        If ``True``, subdirectories will also be walked through to find input
+        files.
+    extensions : iterable or str, default="csv"
+        File extensions to detect when running on a directory.
+    skip_existing : bool, default=False
+        Skip processing files which already have all outputs present.
+    skip_incompatible : bool, default=False
         Skip processing CSV files which do not seem to contain an exported
-        Echoview transect. If `False`, an error is raised. Default is `False`.
-    output_dir : str, optional
+        Echoview transect. If ``False``, an error is raised.
+    output_dir : str, default=""
         Directory where output files will be written. If this is an empty
-        string (`""`, default), outputs are written to the same directory as
-        each input file. Otherwise, they are written to `output_dir`,
-        preserving their path relative to `source_dir` if relative paths were
+        string, outputs are written to the same directory as
+        each input file. Otherwise, they are written to ``output_dir``,
+        preserving their path relative to ``source_dir`` if relative paths were
         used.
-    dry_run : bool, optional
-        If `True`, perform a trial run with no changes made. Default is
-        `False`.
+    dry_run : bool, default=False
+        If ``True``, perform a trial run with no changes made.
     continue_on_error : bool, default=False
         Continue running on remaining files if one file hits an error.
-    overwrite_existing : bool, optional
+    overwrite_existing : bool, default=False
         Overwrite existing outputs without producing a warning message. If
-        `False`, an error is generated if files would be overwritten.
-        Default is `False`.
-    overwrite_ev_lines : bool, optional
+        ``False``, an error is generated if files would be overwritten.
+    overwrite_ev_lines : bool, default=False
         Overwrite existing lines within the Echoview file without warning.
-        If `False` (default), the current datetime will be appended to line
+        If ``False`` (default), the current datetime will be appended to line
         variable names in the event of a collision.
-    import_into_evfile : bool, optional
+    import_into_evfile : bool, default=True
         Whether to import the output lines and regions into the EV file,
-        whenever the file being processed in an EV file. Default is `True`.
-    generate_turbulence_line : bool, optional
+        whenever the file being processed in an EV file.
+    generate_turbulence_line : bool, default=True
         Whether to output an evl file for the turbulence line. If this is
-        `False`, the turbulence line is also never imported into Echoview.
-        Default is `True`.
-    generate_bottom_line : bool, optional
-        Whether to output an evl file for the bottom line. If this is `False`,
+        ``False``, the turbulence line is also never imported into Echoview.
+    generate_bottom_line : bool, default=True
+        Whether to output an evl file for the bottom line. If this is ``False``,
         the bottom line is also never imported into Echoview.
-        Default is `True`.
-    generate_surface_line : bool, optional
-        Whether to output an evl file for the surface line. If this is `False`,
+    generate_surface_line : bool, default=True
+        Whether to output an evl file for the surface line. If this is ``False``,
         the surface line is also never imported into Echoview.
-        Default is `True`.
-    add_nearfield_line : bool, optional
+    add_nearfield_line : bool, default=True
         Whether to add a nearfield line to the EV file in Echoview.
-        Default is `True`.
-    suffix_file : str, optional
+    suffix_file : str, default=""
         Suffix to append to output artifacts (evl and evr files), between
-        the name of the file and the extension. If `suffix_file` begins with
-        an alphanumeric character, `"-"` is prepended. Default is `""`.
-    suffix_var : str or None, optional
+        the name of the file and the extension. If ``suffix_file`` begins with
+        an alphanumeric character, ``"-"`` is prepended.
+    suffix_var : str, optional
         Suffix to append to line and region names when imported back into
-        EV file. If `suffix_var` begins with an alphanumeric character, `"-"`
-        is prepended. If `None` (default), suffix_var will match `suffix_file`
+        EV file. If ``suffix_var`` begins with an alphanumeric character, ``"-"``
+        is prepended. By default, ``suffix_var`` will match ``suffix_file``
         if it is set, and will be "_echofilter" otherwise.
-    color_turbulence : str, optional
+    color_turbulence : str, default="orangered"
         Color to use for the turbulence line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
-        Default is `"orangered"`.
-    color_turbulence_offset : str or None, optional
+    color_turbulence_offset : str, optional
         Color to use for the offset turbulence line when it is imported into
-        Echoview. If `None` (default) `color_turbulence` is used.
-    color_bottom : str, optional
+        Echoview. By default, ``color_turbulence`` is used.
+    color_bottom : str, default="orangered"
         Color to use for the bottom line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
-        Default is `"orangered"`.
-    color_bottom_offset : str or None, optional
+    color_bottom_offset : str, optional
         Color to use for the offset bottom line when it is imported into
-        Echoview. If `None` (default) `color_bottom` is used.
-    color_surface : str, optional
+        Echoview. By default, ``color_bottom`` is used.
+    color_surface : str, default="green"
         Color to use for the surface line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
-        Default is `"green"`.
-    color_surface_offset : str or None, optional
+    color_surface_offset : str, optional
         Color to use for the offset surface line when it is imported into
-        Echoview. If `None` (default) `color_surface` is used.
-    color_nearfield : str, optional
+        Echoview. By default, ``color_surface`` is used.
+    color_nearfield : str, default="mediumseagreen"
         Color to use for the nearfield line when it is created in Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
-        Default is `"mediumseagreen"`.
-    thickness_turbulence : int, optional
+    thickness_turbulence : int, default=2
         Thickness with which the turbulence line will be displayed in Echoview.
-        Default is `2`.
-    thickness_turbulence_offset : str or None, optional
+    thickness_turbulence_offset : str, optional
         Thickness with which the offset turbulence line will be displayed in
-        Echoview. If `None` (default) `thickness_turbulence` is used.
-    thickness_bottom : int, optional
+        Echoview. By default, ``thickness_turbulence`` is used.
+    thickness_bottom : int, default=2
         Thickness with which the bottom line will be displayed in Echoview.
-        Default is `2`.
-    thickness_bottom_offset : str or None, optional
+    thickness_bottom_offset : str, optional
         Thickness with which the offset bottom line will be displayed in
-        Echoview. If `None` (default) `thickness_bottom` is used.
-    thickness_surface : int, optional
+        Echoview. By default, ``thickness_bottom`` is used.
+    thickness_surface : int, default=1
         Thickness with which the surface line will be displayed in Echoview.
-        Default is `1`.
-    thickness_surface_offset : str or None, optional
+    thickness_surface_offset : str, optional
         Thickness with which the offset surface line will be displayed in
-        Echoview. If `None` (default) `thickness_surface` is used.
-    thickness_nearfield : int, optional
+        Echoview. By default, ``thickness_surface`` is used.
+    thickness_nearfield : int, default=1
         Thickness with which the nearfield line will be displayed in Echoview.
-        Default is `1`.
-    cache_dir : str or None, optional
+    cache_dir : str, optional
         Path to directory where downloaded checkpoint files should be cached.
-        If `None` (default), an OS-appropriate application-specific default
+        By default, an OS-appropriate application-specific default
         cache directory is used.
-    cache_csv : str or None, optional
+    cache_csv : str, optional
         Path to directory where CSV files generated from EV inputs should be
-        cached. If `None` (default), EV files which are exported to CSV files
+        cached. By default, EV files which are exported to CSV files
         are temporary files, deleted after this program has completed. If
-        `cache_csv=""`, the CSV files are cached in the same directory as the
+        ``cache_csv=""``, the CSV files are cached in the same directory as the
         input EV files.
-    suffix_csv : str, optional
+    suffix_csv : str, default=""
         Suffix used for cached CSV files which are exported from EV files.
-        If `suffix_file` begins with an alphanumeric character, a delimiter
-        is prepended. The delimiter is `"."` if `keep_ext=True` or `"-"` if
-        `keep_ext=False`. Default is `""`.
-    keep_ext : bool, optional
+        If ``suffix_file`` begins with an alphanumeric character, a delimiter
+        is prepended. The delimiter is ``"."`` if ``keep_ext=True`` or ``"-"`` if
+        ``keep_ext=False``.
+    keep_ext : bool, default=False
         Whether to preserve the file extension in the input file name when
-        generating output file name. Default is `False`, removing the
+        generating output file name. Default is ``False``, removing the
         extension.
-    line_status : int, optional
+    line_status : int, default=3
         Status to use for the lines.
         Must be one of:
 
-        - `0` : none
-        - `1` : unverified
-        - `2` : bad
-        - `3` : good
+        - ``0`` : none
+        - ``1`` : unverified
+        - ``2`` : bad
+        - ``3`` : good
 
-        Default is `3`.
-    offset_turbulence : float, optional
+    offset_turbulence : float, default=1.0
         Offset for turbulence line, which moves the turbulence line deeper.
-        Default is `1.0`.
-    offset_bottom : float, optional
+    offset_bottom : float, default=1.0
         Offset for bottom line, which moves the line to become more shallow.
-        Default is `1.0`.
-    offset_surface : float, optional
+    offset_surface : float, default=1.0
         Offset for surface line, which moves the surface line deeper.
-        Default is `1.0`.
-    nearfield : float, optional
+    nearfield : float, default=1.7
         Nearfield approach distance, in metres.
         If the echogram is downward facing, the nearfield cutoff depth
         will be at a depth equal to the nearfield distance.
         If the echogram is upward facing, the nearfield cutoff will be
-        `nearfield` meters above the deepest depth recorded in the input
+        ``nearfield`` meters above the deepest depth recorded in the input
         data.
         When processing an EV file, by default a nearfield line will be
         added at the nearfield cutoff depth. To prevent this behaviour,
         use the --no-nearfield-line argument.
-        Default is `1.7`.
-    cutoff_at_nearfield : bool or None, optional
+    cutoff_at_nearfield : bool, optional
         Whether to cut-off the turbulence line (for downfacing data) or bottom
         line (for upfacing) when it is closer to the echosounder than the
-        `nearfield` distance.
-        If `None` (default), the bottom line is clipped (for upfacing data),
+        ``nearfield`` distance.
+        By default, the bottom line is clipped (for upfacing data),
         but the turbulence line is not clipped (even with downfacing data).
-    lines_during_passive : str, optional
+    lines_during_passive : str, default="interpolate-time"
         Method used to handle line depths during collection
         periods determined to be passive recording instead of
         active recording.
         Options are:
 
-        `"interpolate-time"`
+        ``"interpolate-time"``
             depths are linearly interpolated from active
             recording periods, using the time at which
             recordings where made.
-        `"interpolate-index"`
+        ``"interpolate-index"``
             depths are linearly interpolated from active
             recording periods, using the index of the
             recording.
-        `"predict"`
+        ``"predict"``
             the model's prediction for the lines during
             passive data collection will be kept; the nature
             of the prediction depends on how the model was
             trained.
-        `"redact"`
+        ``"redact"``
             no depths are provided during periods determined
             to be passive data collection.
-        `"undefined"`
+        ``"undefined"``
             depths are replaced with the placeholder value
             used by Echoview to denote undefined values,
-            which is `-10000.99`.
+            which is ``-10000.99``.
 
-        Default: "interpolate-time".
-    collate_passive_length : int, optional
+    collate_passive_length : int, default=10
         Maximum interval, in ping indices, between detected passive regions
         which will removed to merge consecutive passive regions together
-        into a single, collated, region. Default is 10.
-    collate_passive_length : int, optional
+        into a single, collated, region.
+    collate_passive_length : int, default=10
         Maximum interval, in ping indices, between detected blocks
         (vertical rectangles) marked for removal which will also be removed
         to merge consecutive removed blocks together into a single,
-        collated, region. Default is 10.
-    minimum_passive_length : int, optional
+        collated, region.
+    minimum_passive_length : int, default=10
         Minimum length, in ping indices, which a detected passive region
-        must have to be included in the output. Set to -1 to omit all
-        detected passive regions from the output. Default is 10.
-    minimum_removed_length : int, optional
+        must have to be included in the output. Set to ``-1`` to omit all
+        detected passive regions from the output.
+    minimum_removed_length : int, default=-1
         Minimum length, in ping indices, which a detected removal block
         (vertical rectangle) must have to be included in the output.
         Set to -1 to omit all detected removal blocks from the output
         (default). Recommended minimum length is 10.
-    minimum_patch_area : int, optional
+    minimum_patch_area : int, default=-1
         Minimum area, in pixels, which a detected removal patch
         (contour/polygon) region must have to be included in the output.
         Set to -1 to omit all detected patches from the output (default).
         Recommended minimum length 25.
-    patch_mode : str or None, optional
+    patch_mode : str, optional
         Type of mask patches to use. Must be supported by the
         model checkpoint used. Should be one of:
 
-        `"merged"`
+        ``"merged"``
             Target patches for training were determined
             after merging as much as possible into the
             turbulence and bottom lines.
-        `"original"`
+        ``"original"``
             Target patches for training were determined
             using original lines, before expanding the
             turbulence and bottom lines.
-        `"ntob"`
+        ``"ntob"``
             Target patches for training were determined
             using the original bottom line and the merged
             turbulence line.
 
-        If `None` (default), `"merged"` is used if downfacing and `"ntob"` is
+        By default, ``"merged"`` is used if downfacing and ``"ntob"`` is
         used if upfacing.
-    variable_name : str, optional
-        Name of the Echoview acoustic variable to load from EV files. Default
-        is `"Fileset1: Sv pings T1"`.
-    export_raw_csv : bool, optional
-        If `True` (default), exclusion and threshold settings in the EV file
+    variable_name : str, default="Fileset1: Sv pings T1"
+        Name of the Echoview acoustic variable to load from EV files.
+    export_raw_csv : bool, default=True
+        If ``True`` (default), exclusion and threshold settings in the EV file
         are temporarily disabled before exporting the CSV, in order to ensure
-        all raw data is exported. If `False`, thresholds and exclusions are
+        all raw data is exported. If ``False``, thresholds and exclusions are
         used as per the EV file.
-    row_len_selector : str, optional
+    row_len_selector : str, default="mode"
         Method used to handle input csv files with different number of Sv
-        values across time (i.e. a non-rectangular input). Default is `"mode"`.
+        values across time (i.e. a non-rectangular input).
         See :meth:`echofilter.raw.loader.transect_loader` for options.
-    facing : {"downward", "upward", "auto"}, optional
-        Orientation in which the echosounder is facing. Default is `"auto"`,
+    facing : {"downward", "upward", "auto"}, default="auto"
+        Orientation in which the echosounder is facing. Default is ``"auto"``,
         in which case the orientation is determined from the ordering of the
-        depth values in the data (increasing = `"upward"`,
-        decreasing = `"downward"`).
-    use_training_standardization : bool, optional
+        depth values in the data (increasing = ``"upward"``,
+        decreasing = ``"downward"``).
+    use_training_standardization : bool, default=False
         Whether to use the exact normalization center and deviation values as
-        used during training. If `False` (default), the center and deviation
+        used during training. If ``False`` (default), the center and deviation
         are determined per sample, using the same method methodology as used
         to determine the center and deviation values for training.
-    prenorm_nan_value : float or None, optional
+    prenorm_nan_value : float, optional
         If this is set, replace NaN values with a given Sv value before
-        the data normalisation (Gaussian standardisation) step. If `None`
-        (default), NaNs are left as they are until after standardising the
+        the data normalisation (Gaussian standardisation) step.
+        By default, NaNs are left as they are until after standardising the
         data.
     postnorm_nan_value : float, optional
         Placeholder value to replace NaNs with. Does nothing if
-        `prenorm_nan_value` is set. If `None` (default) this is set to the
+        ``prenorm_nan_value`` is set. By default this is set to the
         value used to train the model.
-    crop_min_depth : float or None, optional
-        Minimum depth to include in input. If `None` (default), there is no
+    crop_min_depth : float, optional
+        Minimum depth to include in input. By default, there is no
         minimum depth.
-    crop_max_depth : float or None, optional
-        Maxmimum depth to include in input. If `None` (default), there is no
+    crop_max_depth : float, optional
+        Maxmimum depth to include in input. By default, there is no
         maximum depth.
-    autocrop_threshold : float, optional
+    autocrop_threshold : float, default=0.35
         Minimum fraction of input height which must be found to be removable
         for the model to be re-run with an automatically cropped input.
-        Default is 0.35.
-    image_height : int or None, optional
+    image_height : int, optional
         Height in pixels of input to model. The data loaded from the csv will
         be resized to this height (the width of the image is unchanged).
-        If `None` (default), the height matches that used when the model was
+        By default, the height matches that used when the model was
         trained.
-    checkpoint : str or None, optional
+    checkpoint : str, optional
         A path to a checkpoint file, or name of a checkpoint known to this
-        package (listed in `echofilter/checkpoints.yaml`). If `None` (default),
-        the first checkpoint in `checkpoints.yaml` is used.
-    force_unconditioned : bool, optional
-        Whether to always use unconditioned logit outputs. If `False`
+        package (listed in ``echofilter/checkpoints.yaml``). By default,
+        the first checkpoint in ``checkpoints.yaml`` is used.
+    force_unconditioned : bool, default=False
+        Whether to always use unconditioned logit outputs. If ``False``
         (default) conditional logits will be used if the checkpoint loaded is
         for a conditional model.
-    logit_smoothing_sigma : float, optional
+    logit_smoothing_sigma : float, default=1
         Standard deviation over which logits will be smoothed before being
-        converted into output. Default is `1`.
-    device : str or torch.device or None, optional
-        Name of device on which the model will be run. If `None`, the first
+        converted into output.
+    device : str or torch.device, optional
+        Name of device on which the model will be run. By default, the first
         available CUDA GPU is used if any are found, and otherwise the CPU is
-        used. Set to `"cpu"` to use the CPU even if a CUDA GPU is available.
-    hide_echoview : {"never", "new", "always"}, optional
+        used. Set to ``"cpu"`` to use the CPU even if a CUDA GPU is available.
+    hide_echoview : {"never", "new", "always"}, default="new"
         Whether to hide the Echoview window entirely while the code runs.
         If ``hide_echoview="new"``, the application is only hidden if it
         was created by this function, and not if it was already running.
         If ``hide_echoview="always"``, the application is hidden even if it was
         already running. In the latter case, the window will be revealed again
-        when this function is completed. Default is `"new"`.
-    minimize_echoview : bool, optional
-        If `True`, the Echoview window being used will be minimized while this
-        function is running. Default is `False`.
-    verbose : int, optional
-        Verbosity level. Default is `2`. Set to `0` to disable print
-        statements, or elevate to a higher number to increase verbosity.
+        when this function is completed.
+    minimize_echoview : bool, default=False
+        If ``True``, the Echoview window being used will be minimized while this
+        function is running.
+    verbose : int, default=2
+        Verbosity level.
+        Set to ``0`` to disable print statements, or elevate to a higher number
+        to increase verbosity.
     """
     t_start_prog = time.time()
 
@@ -1220,54 +1197,53 @@ def inference_transect(
         `(len(timestamps), len(depths))`.
     image_height : int
         Height to resize echogram before passing through model.
-    facing : {"downward", "upward", "auto"}, optional
-        Orientation in which the echosounder is facing. Default is `"auto"`,
+    facing : {"downward", "upward", "auto"}, default="auto"
+        Orientation in which the echosounder is facing. Default is ``"auto"``,
         in which case the orientation is determined from the ordering of the
-        depth values in the data (increasing = `"upward"`,
-        decreasing = `"downward"`).
-    crop_min_depth : float or None, optional
-        Minimum depth to include in input. If `None` (default), there is no
+        depth values in the data (increasing = ``"upward"``,
+        decreasing = ``"downward"``).
+    crop_min_depth : float, optional
+        Minimum depth to include in input. By default, there is no
         minimum depth.
-    crop_max_depth : float or None, optional
-        Maxmimum depth to include in input. If `None` (default), there is no
+    crop_max_depth : float, optional
+        Maxmimum depth to include in input. By default, there is no
         maximum depth.
-    autocrop_threshold : float, optional
+    autocrop_threshold : float, default=0.35
         Minimum fraction of input height which must be found to be removable
         for the model to be re-run with an automatically cropped input.
-        Default is 0.35.
     force_unconditioned : bool, optional
         Whether to always use unconditioned logit outputs when deteriming the
         new depth range for automatic cropping.
-    data_center : float or str, optional
+    data_center : float or str, default="mean"
         Center point to use, which will be subtracted from the Sv signals
         (i.e. the overall sample mean).
-        If `data_center` is a string, it specifies the method to use to
+        If ``data_center`` is a string, it specifies the method to use to
         determine the center value from the distribution of intensities seen
-        in this sample transect. Default is `"mean"`.
-    data_deviation : float or str, optional
+        in this sample transect.
+    data_deviation : float or str, default="stdev"
         Deviation to use to normalise the Sv signals in divisive manner
         (i.e. the overall sample standard deviation).
-        If `data_deviation` is a string, it specifies the method to use to
+        If ``data_deviation`` is a string, it specifies the method to use to
         determine the center value from the distribution of intensities seen
-        in this sample transect. Default is `"stdev"`.
-    prenorm_nan_value : float or None, optional
+        in this sample transect.
+    prenorm_nan_value : float, optional
         If this is set, replace NaN values with a given Sv value before
-        the data normalisation (Gaussian standardisation) step. If `None`
-        (default), NaNs are left as they are until after standardising the
+        the data normalisation (Gaussian standardisation) step.
+        By default, NaNs are left as they are until after standardising the
         data.
-    postnorm_nan_value : float, optional
+    postnorm_nan_value : float, default=-3
         Placeholder value to replace NaNs with. Does nothing if
-        `prenorm_nan_value` is set. Default is `-3`.
-    dtype : torch.dtype, optional
-        Datatype to use for model input. Default is `torch.float`.
-    verbose : int, optional
-        Level of verbosity. Default is `0`.
+        ``prenorm_nan_value`` is set.
+    dtype : torch.dtype, default=torch.float
+        Datatype to use for model input.
+    verbose : int, default=0
+        Level of verbosity.
 
     Returns
     -------
     dict
-        Dictionary with fields as output by `echofilter.wrapper.Echofilter`,
-        plus `timestamps` and `depths`.
+        Dictionary with fields as output by :class:`echofilter.wrapper.Echofilter`,
+        plus ``timestamps`` and ``depths``.
     """
     facing = facing.lower()
     timestamps = np.asarray(timestamps)
@@ -1500,33 +1476,32 @@ def import_lines_regions_to_ev(
         Mapping from output keys to filenames.
     target_names : dict, optional
         Mapping from output keys to output variable names.
-    nearfield_depth : float or None, optional
-        Depth at which nearfield line will be placed. If `None` (default), no
-        nearfield line will be added, irrespective of `add_nearfield_line`.
-    add_nearfield_line : bool, optional
-        Whether to add a nearfield line. Default is `True`.
+    nearfield_depth : float, optional
+        Depth at which nearfield line will be placed. By default, no
+        nearfield line will be added, irrespective of ``add_nearfield_line``.
+    add_nearfield_line : bool, default=True
+        Whether to add a nearfield line.
     lines_cutoff_at_nearfield : list of str, optional
         Which lines (if any) should be clipped at the nearfield depth.
-        Default is `[]`.
+        By default, no lines will be clipped.
     offsets : dict, optional
         Amount of offset for each line.
     line_colors : dict, optional
         Mapping from output keys to line colours.
     line_thicknesses : dict, optional
         Mapping from output keys to line thicknesses.
-    ev_app : win32com.client.Dispatch object or None, optional
+    ev_app : win32com.client.Dispatch object, optional
         An object which can be used to interface with the Echoview application,
-        as returned by `win32com.client.Dispatch`. If `None` (default), a
+        as returned by :class:`win32com.client.Dispatch`. By default, a
         new instance of the application is opened (and closed on completion).
-    overwrite : bool, optional
+    overwrite : bool, default=False
         Whether existing lines with target names should be replaced.
-        If a line with the target name already exists and `overwrite=False`,
+        If a line with the target name already exists and ``overwrite=False``,
         the line is named with the current datetime to prevent collisions.
-        Default is `False`.
-    common_notes : str, optional
-        Notes to include for every region. Default is `""`.
-    verbose : int, optional
-        Verbosity level. Default is `1`.
+    common_notes : str, default=""
+        Notes to include for every region.
+    verbose : int, default=1
+        Verbosity level.
     """
     if target_names is None:
         target_names = {}
@@ -1914,11 +1889,10 @@ def get_color_palette(include_xkcd=True):
 
     Parameters
     ----------
-    include_xkcd : bool, optional
+    include_xkcd : bool, default=True
         Whether to include the XKCD color palette in the output.
-        Note that XKCD colors have `"xkcd:"` prepended to their names to
+        Note that XKCD colors have ``"xkcd:"`` prepended to their names to
         prevent collisions with official named colors from CSS4.
-        Default is `True`.
         See https://xkcd.com/color/rgb/ and
         https://blog.xkcd.com/2010/05/03/color-survey-results/
         for the XKCD colors.
@@ -1942,8 +1916,8 @@ def hexcolor2rgb8(color):
     Parameters
     ----------
     color : str
-        A hexadecimal color string, with leading "#".
-        If the input is not a string beginning with "#", it is returned as-is
+        A hexadecimal color string, with leading ``"#"``.
+        If the input is not a string beginning with ``"#"``, it is returned as-is
         without raising an error.
 
     Returns

@@ -43,19 +43,19 @@ def maybe_open_echoview(
     app : COM object or None, optional
         Existing COM object to interface with Echoview.
     do_open : bool, optional
-        If `False` (dry-run mode), we don't actually need Echoview open and so
-        don't try to open it. In this case, `None` is yielded. Present so a
+        If ``False`` (dry-run mode), we don't actually need Echoview open and so
+        don't try to open it. In this case, ``None`` is yielded. Present so a
         context manager can be used even if the application isn't opened.
-        Default is `True`, do open Echoview.
+        Default is ``True``, do open Echoview.
     minimize : bool, optional
-        If `True`, the Echoview window being used will be minimized while the
-        code runs. Default is `False`.
+        If ``True``, the Echoview window being used will be minimized while the
+        code runs. Default is ``False``.
     hide : {"never", "new", "always"}, optional
-        Whether to hide the Echoview window entirely. If `hide="new"`, the
+        Whether to hide the Echoview window entirely. If ``hide="new"``, the
         application is only hidden if it was created by this context, and not
-        if it was already running. If `hide="always"`, the application is
+        if it was already running. If ``hide="always"``, the application is
         hidden even if it was already running. In the latter case, the window
-        will be revealed again when leaving this context. Default is `"new"`.
+        will be revealed again when leaving this context. Default is ``"new"``.
     """
     if not do_open:
         yield None
@@ -96,7 +96,7 @@ def open_ev_file(filename, app=None):
     filename : str
         Path to file to open.
     app : COM object or None, optional
-        Existing COM object to interface with Echoview. If `None`, a new
+        Existing COM object to interface with Echoview. If ``None``, a new
         COM interface is created. If that requires opening a new instance
         of Echoview, it is hidden while the file is in use.
     """

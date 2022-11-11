@@ -120,24 +120,24 @@ def opencom(
         Name of COM object to dispatch.
     can_make_anew : bool, optional
         Whether arbitrarily many sessions of the COM object can be created, and
-        if so whether they should be. Default is `False`, in which case the
+        if so whether they should be. Default is ``False``, in which case the
         context manager will check to see if the application is already running
         before connecting to it. If it was already running, it will not be
         closed when this context closes.
     title : str, optional
         Exact title of window. If the title can not be determined exactly, use
-        `title_pattern` instead.
+        ``title_pattern`` instead.
     title_pattern : str, optional
         Regular expression for the window title.
     minimize : bool, optional
-        If `True`, the application will be minimized while the code runs.
-        Default is `False`.
+        If ``True``, the application will be minimized while the code runs.
+        Default is ``False``.
     hide : {"never", "new", "always"}, optional
-        Whether to hide the application window entirely. Default is `"never"`.
-        If this is enabled, at least one of `title` and `title_pattern` must
-        be specified.  If `hide="new"`, the application is only hidden if it
+        Whether to hide the application window entirely. Default is ``"never"``.
+        If this is enabled, at least one of ``title`` and ``title_pattern`` must
+        be specified.  If ``hide="new"``, the application is only hidden if it
         was created by this context, and not if it was already running.
-        If `hide="always"`, the application is hidden even if it was already
+        If ``hide="always"``, the application is hidden even if it was already
         running. In the latter case, the window will be revealed again when
         leaving this context.
 

@@ -49,13 +49,13 @@ class FlexibleHelpFormatter(argparse.HelpFormatter):
 
     The following formatters are supported:
 
-    `"R|"`
+    ``"R|"``
         Raw. will be left as is, processed using
-        `argparse.RawTextHelpFormatter`.
-    `"d|"`
+        ``argparse.RawTextHelpFormatter``.
+    ``"d|"``
         Raw except for indentation. Will be dedented and leading
         newlines stripped only, processed using
-        `argparse.RawTextHelpFormatter`.
+        ``argparse.RawTextHelpFormatter``.
 
     The format specifier will be stripped from the text.
 

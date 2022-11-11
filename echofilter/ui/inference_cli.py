@@ -1099,7 +1099,7 @@ def cli():
 
 def main():
     """
-    Run `cli`, with encapsulation for error messages.
+    Run ``cli``, with encapsulation for error messages.
     """
     try:
         cli()

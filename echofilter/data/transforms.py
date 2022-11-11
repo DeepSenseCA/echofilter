@@ -114,7 +114,7 @@ class Rescale(object):
         - 2: Quadratic
         - 3: Cubic
 
-        If `None`, the order is randomly selected as either `0` or `1`.
+        If ``None``, the order is randomly selected as either ``0`` or ``1``.
     """
 
     order2kind = {
@@ -204,7 +204,7 @@ class RandomGridSampling(Rescale):
         Desired output size. If tuple, output is matched to output_size. If
         int, output is square.
     p : float, optional
-        Probability of performing the RandomGrid operation. Default is `0.5`.
+        Probability of performing the RandomGrid operation. Default is ``0.5``.
     order : int or None, optional
         Order of the interpolation, for both image and vector elements.
         For images-like components, the interpolation is 2d.
@@ -215,8 +215,8 @@ class RandomGridSampling(Rescale):
         - 2: Quadratic
         - 3: Cubic
 
-        If `None`, the order is randomly selected from the set
-        {`0`, `1`, `3`}.
+        If ``None``, the order is randomly selected from the set
+        ``{0, 1, 3}``.
     """
 
     def __init__(self, *args, p=0.5, **kwargs):
@@ -310,15 +310,15 @@ class RandomElasticGrid(Rescale):
     ----------
     output_size : tuple or int or None
         Desired output size. If tuple, output is matched to output_size. If
-        int, output is square. If `None`, the size remains unchanged from the
+        int, output is square. If ``None``, the size remains unchanged from the
         input.
     p : float, optional
-        Probability of performing the RandomGrid operation. Default is `0.5`.
+        Probability of performing the RandomGrid operation. Default is ``0.5``.
     sigma : float, optional
-        Gaussian filter kernel size. Default is `8.0`.
+        Gaussian filter kernel size. Default is ``8.0``.
     alpha : float, optional
         Maximum size of image distortions, relative to the length of the side
-        of the image. Default is `0.05`.
+        of the image. Default is ``0.05``.
     order : int or None, optional
         Order of the interpolation, for both image and vector elements.
         For images-like components, the interpolation is 2d.
@@ -329,8 +329,8 @@ class RandomElasticGrid(Rescale):
         - 2: Quadratic
         - 3: Cubic
 
-        If `None`, the order is randomly selected from the set
-        {`1`, `2`, `3`}.
+        If ``None``, the order is randomly selected from the set
+        ``{1, 2, 3}``.
     """
 
     def __init__(self, output_size, p=0.5, sigma=8.0, alpha=0.05, order=1):
@@ -455,7 +455,7 @@ class Normalize(object):
         samples. If a string, a method to use to determine the deviation.
     robust2stdev : bool, optional
         Whether to convert robust measures to estimates of the standard
-        deviation. Default is `True`.
+        deviation. Default is ``True``.
     """
 
     def __init__(self, center, deviation, robust2stdev=True):
@@ -514,7 +514,7 @@ class ReplaceNan(object):
     Parameters
     ----------
     nan_val : float, optional
-        Value to replace NaNs with. Default is `0.0`.
+        Value to replace NaNs with. Default is ``0.0``.
     """
 
     def __init__(self, nan_val=0.0):
@@ -567,8 +567,8 @@ class RandomCropWidth(object):
     ----------
     max_crop_fraction : float
         Maximum amount of material to crop away, as a fraction of the total
-        width. The `crop_fraction` will be sampled uniformly from the range
-        `[0, max_crop_fraction]`. The crop is always centred.
+        width. The ``crop_fraction`` will be sampled uniformly from the range
+        ``[0, max_crop_fraction]``. The crop is always centred.
     """
 
     def __init__(self, max_crop_fraction):
@@ -683,22 +683,22 @@ class RandomCropDepth(object):
     ----------
     p_crop_is_none : float, optional
         Probability of not doing any crop.
-        Default is `0.1`.
+        Default is ``0.1``.
     p_crop_is_optimal : float, optional
-        Probability of doing an "optimal" crop, running `optimal_crop_depth`.
-        Default is `0.1`.
+        Probability of doing an "optimal" crop, running ``optimal_crop_depth``.
+        Default is ``0.1``.
     p_crop_is_close : float, optional
         Probability of doing crop which is zoomed in and close to the "optimal"
-        crop, running `optimal_crop_depth`. Default is `0.4`.
+        crop, running ``optimal_crop_depth``. Default is ``0.4``.
         If neither no crop, optimal, nor close-to-optimal crop is selected,
         the crop is randomly sized over the full extent of the range of depths.
     p_nearfield_side_crop : float, optional
         Probability that the nearfield side is cropped.
-        Default is `0.5`.
+        Default is ``0.5``.
     fraction_close : float, optional
         Fraction by which crop is increased/decreased in either direction when
         doing a close to optimal crop.
-        Default is `0.25`.
+        Default is ``0.25``.
     """
 
     def __init__(
@@ -912,12 +912,12 @@ class ColorJitter(object):
     Parameters
     ----------
     brightness : float or tuple of float (min, max)
-        How much to jitter brightness. `brightness_factor` is chosen uniformly
-        from `[-brightness, brightness]` or the given `[min, max]`.
-        `brightness_factor` is then added to the image.
+        How much to jitter brightness. ``brightness_factor`` is chosen uniformly
+        from ``[-brightness, brightness]`` or the given ``[min, max]``.
+        ``brightness_factor`` is then added to the image.
     contrast : float or tuple of float (min, max)
-        How much to jitter contrast. `contrast_factor` is chosen uniformly from
-        `[max(0, 1 - contrast), 1 + contrast]` or the given `[min, max]`.
+        How much to jitter contrast. ``contrast_factor`` is chosen uniformly from
+        ``[max(0, 1 - contrast), 1 + contrast]`` or the given ``[min, max]``.
         Should be non negative numbers.
     """
 

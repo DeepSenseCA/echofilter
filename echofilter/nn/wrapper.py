@@ -34,31 +34,31 @@ class Echofilter(nn.Module):
 
     Parameters
     ----------
-    model : `torch.nn.Module`
+    model : :class:`torch.nn.Module`
         The model backbone, which converts inputs to logits.
     top : str, optional
-        Type of output for top line and surface line. If `"mask"`, the top
+        Type of output for top line and surface line. If ``"mask"``, the top
         output corresponds to logits, which are converted into probabilities
-        with sigmoid. If `"boundary"` (default), the output corresponds to
+        with sigmoid. If ``"boundary"`` (default), the output corresponds to
         logits for the location of the line, which is converted into a
         probability mask using softmax and cumsum.
     bottom : str, optional
-        As for `top`, but for the bottom line. Default is `"boundary"`.
+        As for ``top``, but for the bottom line. Default is ``"boundary"``.
     mapping : dict or None, optional
-        Mapping from logit names to output channels provided by `model`.
-        If `None`, a default mapping is used. The mapping is stored as
-        `self.mapping`.
+        Mapping from logit names to output channels provided by ``model``.
+        If ``None``, a default mapping is used. The mapping is stored as
+        ``self.mapping``.
     reduction_ispassive : str, default="logavgexp"
-        Method used to reduce the depths dimension for the `"logit_is_passive"`
+        Method used to reduce the depths dimension for the ``"logit_is_passive"``
         output.
     reduction_isremoved : str , default="logavgexp"
-        Method used to reduce the depths dimension for the `"logit_is_removed"`
+        Method used to reduce the depths dimension for the ``"logit_is_removed"``
         output.
     conditional : bool, optional
         Whether to build a conditional model as well as an unconditional model.
-        If `True`, there are additional logits in the call output named
-        `"x|downfacing"` and `"x|upfacing"`, in addition to
-        `"x"`. For instance, `"p_is_above_turbulence|downfacing"`. Default is `False`.
+        If ``True``, there are additional logits in the call output named
+        ``"x|downfacing"`` and ``"x|upfacing"``, in addition to
+        ``"x"``. For instance, ``"p_is_above_turbulence|downfacing"``. Default is ``False``.
     """
 
     aliases = [("top", "turbulence")]
@@ -293,39 +293,39 @@ class EchofilterLoss(_Loss):
 
     Parameters
     ----------
-    reduction : `"mean"` or `"sum"`, optional
+    reduction : ``"mean"`` or ``"sum"``, optional
         The reduction method, which is used to collapse batch and timestamp
-        dimensions. Default is `"mean"`.
+        dimensions. Default is ``"mean"``.
     turbulence_mask : float, optional
-        Weighting for turbulence line/mask loss term. Default is `1.0`.
+        Weighting for turbulence line/mask loss term. Default is ``1.0``.
     bottom_mask : float, optional
-        Weighting for bottom line/mask loss term. Default is `1.0`.
+        Weighting for bottom line/mask loss term. Default is ``1.0``.
     removed_segment : float, optional
-        Weighting for `is_removed` loss term. Default is `1.0`.
+        Weighting for ``is_removed`` loss term. Default is ``1.0``.
     passive : float, optional
-        Weighting for `is_passive` loss term. Default is `1.0`.
+        Weighting for ``is_passive`` loss term. Default is ``1.0``.
     patch : float, optional
-        Weighting for `mask_patch` loss term. Default is `1.0`.
+        Weighting for ``mask_patch`` loss term. Default is ``1.0``.
     overall : float, optional
-        Weighting for overall mask loss term. Default is `0.0`.
+        Weighting for overall mask loss term. Default is ``0.0``.
     surface : float, optional
-        Weighting for surface line/mask loss term. Default is `1.0`.
+        Weighting for surface line/mask loss term. Default is ``1.0``.
     auxiliary : float, optional
-        Weighting for auxiliary loss terms `"turbulence-original"`,
-        `"bottom-original"`, `"mask_patches-original"`, and
-        `"mask_patches-ntob"`. Default is `1.0`.
+        Weighting for auxiliary loss terms ``"turbulence-original"``,
+        ``"bottom-original"``, ``"mask_patches-original"``, and
+        ``"mask_patches-ntob"``. Default is ``1.0``.
     ignore_lines_during_passive : bool, optional
         Whether targets for turbulence and bottom lines should be excluded from
-        the loss during passive data collection. Default is `True`.
+        the loss during passive data collection. Default is ``True``.
     ignore_lines_during_removed : bool, optional
         Whether targets for turbulence and bottom lines should be excluded from
-        the loss during entirely removed sections. Default is `True`.
+        the loss during entirely removed sections. Default is ``True``.
     ignore_surface_during_passive : bool, optional
         Whether target for the surface line should be excluded from the loss
-        during passive data collection. Default is `False`.
+        during passive data collection. Default is ``False``.
     ignore_surface_during_removed : bool, optional
         Whether target for the surface line should be excluded from the loss
-        during entirely removed sections. Default is `True`.
+        during entirely removed sections. Default is ``True``.
     """
 
     __constants__ = ["reduction"]
@@ -373,9 +373,9 @@ class EchofilterLoss(_Loss):
         Parameters
         ----------
         input : dict
-            Output from `echofilter.wrapper.Echofilter` layer.
+            Output from :class:`echofilter.wrapper.Echofilter` layer.
         target : dict
-            A transect, as provided by `TransectDataset`.
+            A transect, as provided by :class:`echofilter.data.dataset.TransectDataset`.
         """
         loss = 0
 
