@@ -185,35 +185,35 @@ def run_inference(
         Suffix to append to output artifacts (evl and evr files), between
         the name of the file and the extension. If ``suffix_file`` begins with
         an alphanumeric character, ``"-"`` is prepended.
-    suffix_var : str or None, optional
+    suffix_var : str, optional
         Suffix to append to line and region names when imported back into
         EV file. If ``suffix_var`` begins with an alphanumeric character, ``"-"``
-        is prepended. If ``None`` (default), suffix_var will match ``suffix_file``
+        is prepended. By default, ``suffix_var`` will match ``suffix_file``
         if it is set, and will be "_echofilter" otherwise.
     color_turbulence : str, default="orangered"
         Color to use for the turbulence line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
-    color_turbulence_offset : str or None, optional
+    color_turbulence_offset : str, optional
         Color to use for the offset turbulence line when it is imported into
-        Echoview. If ``None`` (default) ``color_turbulence`` is used.
+        Echoview. By default, ``color_turbulence`` is used.
     color_bottom : str, default="orangered"
         Color to use for the bottom line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
-    color_bottom_offset : str or None, optional
+    color_bottom_offset : str, optional
         Color to use for the offset bottom line when it is imported into
-        Echoview. If ``None`` (default) ``color_bottom`` is used.
+        Echoview. By default, ``color_bottom`` is used.
     color_surface : str, default="green"
         Color to use for the surface line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
-    color_surface_offset : str or None, optional
+    color_surface_offset : str, optional
         Color to use for the offset surface line when it is imported into
-        Echoview. If ``None`` (default) ``color_surface`` is used.
+        Echoview. By default, ``color_surface`` is used.
     color_nearfield : str, default="mediumseagreen"
         Color to use for the nearfield line when it is created in Echoview.
         This can either be the name of a supported color from
@@ -221,28 +221,28 @@ def run_inference(
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
     thickness_turbulence : int, default=2
         Thickness with which the turbulence line will be displayed in Echoview.
-    thickness_turbulence_offset : str or None, optional
+    thickness_turbulence_offset : str, optional
         Thickness with which the offset turbulence line will be displayed in
-        Echoview. If ``None`` (default) ``thickness_turbulence`` is used.
+        Echoview. By default, ``thickness_turbulence`` is used.
     thickness_bottom : int, default=2
         Thickness with which the bottom line will be displayed in Echoview.
-    thickness_bottom_offset : str or None, optional
+    thickness_bottom_offset : str, optional
         Thickness with which the offset bottom line will be displayed in
-        Echoview. If ``None`` (default) ``thickness_bottom`` is used.
+        Echoview. By default, ``thickness_bottom`` is used.
     thickness_surface : int, default=1
         Thickness with which the surface line will be displayed in Echoview.
-    thickness_surface_offset : str or None, optional
+    thickness_surface_offset : str, optional
         Thickness with which the offset surface line will be displayed in
-        Echoview. If ``None`` (default) ``thickness_surface`` is used.
+        Echoview. By default, ``thickness_surface`` is used.
     thickness_nearfield : int, default=1
         Thickness with which the nearfield line will be displayed in Echoview.
-    cache_dir : str or None, optional
+    cache_dir : str, optional
         Path to directory where downloaded checkpoint files should be cached.
-        If ``None`` (default), an OS-appropriate application-specific default
+        By default, an OS-appropriate application-specific default
         cache directory is used.
-    cache_csv : str or None, optional
+    cache_csv : str, optional
         Path to directory where CSV files generated from EV inputs should be
-        cached. If ``None`` (default), EV files which are exported to CSV files
+        cached. By default, EV files which are exported to CSV files
         are temporary files, deleted after this program has completed. If
         ``cache_csv=""``, the CSV files are cached in the same directory as the
         input EV files.
@@ -280,11 +280,11 @@ def run_inference(
         When processing an EV file, by default a nearfield line will be
         added at the nearfield cutoff depth. To prevent this behaviour,
         use the --no-nearfield-line argument.
-    cutoff_at_nearfield : bool or None, optional
+    cutoff_at_nearfield : bool, optional
         Whether to cut-off the turbulence line (for downfacing data) or bottom
         line (for upfacing) when it is closer to the echosounder than the
         ``nearfield`` distance.
-        If ``None`` (default), the bottom line is clipped (for upfacing data),
+        By default, the bottom line is clipped (for upfacing data),
         but the turbulence line is not clipped (even with downfacing data).
     lines_during_passive : str, default="interpolate-time"
         Method used to handle line depths during collection
@@ -336,7 +336,7 @@ def run_inference(
         (contour/polygon) region must have to be included in the output.
         Set to -1 to omit all detected patches from the output (default).
         Recommended minimum length 25.
-    patch_mode : str or None, optional
+    patch_mode : str, optional
         Type of mask patches to use. Must be supported by the
         model checkpoint used. Should be one of:
 
@@ -353,7 +353,7 @@ def run_inference(
             using the original bottom line and the merged
             turbulence line.
 
-        If ``None`` (default), ``"merged"`` is used if downfacing and ``"ntob"`` is
+        By default, ``"merged"`` is used if downfacing and ``"ntob"`` is
         used if upfacing.
     variable_name : str, default="Fileset1: Sv pings T1"
         Name of the Echoview acoustic variable to load from EV files.
@@ -376,32 +376,32 @@ def run_inference(
         used during training. If ``False`` (default), the center and deviation
         are determined per sample, using the same method methodology as used
         to determine the center and deviation values for training.
-    prenorm_nan_value : float or None, optional
+    prenorm_nan_value : float, optional
         If this is set, replace NaN values with a given Sv value before
-        the data normalisation (Gaussian standardisation) step. If ``None``
-        (default), NaNs are left as they are until after standardising the
+        the data normalisation (Gaussian standardisation) step.
+        By default, NaNs are left as they are until after standardising the
         data.
     postnorm_nan_value : float, optional
         Placeholder value to replace NaNs with. Does nothing if
-        ``prenorm_nan_value`` is set. If ``None`` (default) this is set to the
+        ``prenorm_nan_value`` is set. By default this is set to the
         value used to train the model.
-    crop_min_depth : float or None, optional
-        Minimum depth to include in input. If ``None`` (default), there is no
+    crop_min_depth : float, optional
+        Minimum depth to include in input. By default, there is no
         minimum depth.
-    crop_max_depth : float or None, optional
-        Maxmimum depth to include in input. If ``None`` (default), there is no
+    crop_max_depth : float, optional
+        Maxmimum depth to include in input. By default, there is no
         maximum depth.
     autocrop_threshold : float, default=0.35
         Minimum fraction of input height which must be found to be removable
         for the model to be re-run with an automatically cropped input.
-    image_height : int or None, optional
+    image_height : int, optional
         Height in pixels of input to model. The data loaded from the csv will
         be resized to this height (the width of the image is unchanged).
-        If ``None`` (default), the height matches that used when the model was
+        By default, the height matches that used when the model was
         trained.
-    checkpoint : str or None, optional
+    checkpoint : str, optional
         A path to a checkpoint file, or name of a checkpoint known to this
-        package (listed in ``echofilter/checkpoints.yaml``). If ``None`` (default),
+        package (listed in ``echofilter/checkpoints.yaml``). By default,
         the first checkpoint in ``checkpoints.yaml`` is used.
     force_unconditioned : bool, default=False
         Whether to always use unconditioned logit outputs. If ``False``
@@ -1203,11 +1203,11 @@ def inference_transect(
         in which case the orientation is determined from the ordering of the
         depth values in the data (increasing = ``"upward"``,
         decreasing = ``"downward"``).
-    crop_min_depth : float or None, optional
-        Minimum depth to include in input. If ``None`` (default), there is no
+    crop_min_depth : float, optional
+        Minimum depth to include in input. By default, there is no
         minimum depth.
-    crop_max_depth : float or None, optional
-        Maxmimum depth to include in input. If ``None`` (default), there is no
+    crop_max_depth : float, optional
+        Maxmimum depth to include in input. By default, there is no
         maximum depth.
     autocrop_threshold : float, optional
         Minimum fraction of input height which must be found to be removable
@@ -1228,10 +1228,10 @@ def inference_transect(
         If ``data_deviation`` is a string, it specifies the method to use to
         determine the center value from the distribution of intensities seen
         in this sample transect. Default is ``"stdev"``.
-    prenorm_nan_value : float or None, optional
+    prenorm_nan_value : float, optional
         If this is set, replace NaN values with a given Sv value before
-        the data normalisation (Gaussian standardisation) step. If ``None``
-        (default), NaNs are left as they are until after standardising the
+        the data normalisation (Gaussian standardisation) step.
+        By default, NaNs are left as they are until after standardising the
         data.
     postnorm_nan_value : float, optional
         Placeholder value to replace NaNs with. Does nothing if
@@ -1478,23 +1478,23 @@ def import_lines_regions_to_ev(
         Mapping from output keys to filenames.
     target_names : dict, optional
         Mapping from output keys to output variable names.
-    nearfield_depth : float or None, optional
-        Depth at which nearfield line will be placed. If ``None`` (default), no
+    nearfield_depth : float, optional
+        Depth at which nearfield line will be placed. By default, no
         nearfield line will be added, irrespective of ``add_nearfield_line``.
     add_nearfield_line : bool, default=True
         Whether to add a nearfield line.
     lines_cutoff_at_nearfield : list of str, optional
         Which lines (if any) should be clipped at the nearfield depth.
-        Default is ``[]``.
+        By default, no lines will be clipped.
     offsets : dict, optional
         Amount of offset for each line.
     line_colors : dict, optional
         Mapping from output keys to line colours.
     line_thicknesses : dict, optional
         Mapping from output keys to line thicknesses.
-    ev_app : win32com.client.Dispatch object or None, optional
+    ev_app : win32com.client.Dispatch object, optional
         An object which can be used to interface with the Echoview application,
-        as returned by ``win32com.client.Dispatch``. If ``None`` (default), a
+        as returned by ``win32com.client.Dispatch``. By default, a
         new instance of the application is opened (and closed on completion).
     overwrite : bool, default=False
         Whether existing lines with target names should be replaced.
