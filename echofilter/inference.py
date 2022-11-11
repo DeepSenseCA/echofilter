@@ -1918,8 +1918,8 @@ def hexcolor2rgb8(color):
     Parameters
     ----------
     color : str
-        A hexadecimal color string, with leading "#".
-        If the input is not a string beginning with "#", it is returned as-is
+        A hexadecimal color string, with leading ``"#"``.
+        If the input is not a string beginning with ``"#"``, it is returned as-is
         without raising an error.
 
     Returns
