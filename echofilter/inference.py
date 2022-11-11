@@ -1259,7 +1259,7 @@ def inference_transect(
         Placeholder value to replace NaNs with. Does nothing if
         ``prenorm_nan_value`` is set. Default is ``-3``.
     dtype : torch.dtype, optional
-        Datatype to use for model input. Default is ``torch.float``.
+        Datatype to use for model input. Default is :class:`torch.float`.
     verbose : int, optional
         Level of verbosity. Default is ``0``.
 

@@ -263,7 +263,7 @@ class ConcatDataset(torch.utils.data.ConcatDataset):
 
     Notes
     -----
-    A subclass of ``torch.utils.data.ConcatDataset`` which supports the
+    A subclass of :class:`torch.utils.data.ConcatDataset` which supports the
     ``initialise_datapoints`` method.
     """
 

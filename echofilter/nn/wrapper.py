@@ -34,7 +34,7 @@ class Echofilter(nn.Module):
 
     Parameters
     ----------
-    model : ``torch.nn.Module``
+    model : :class:`torch.nn.Module`
         The model backbone, which converts inputs to logits.
     top : str, optional
         Type of output for top line and surface line. If ``"mask"``, the top
