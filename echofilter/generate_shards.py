@@ -240,13 +240,13 @@ def _get_parser_sphinx():
     return echofilter.ui.formatters.format_parser_for_sphinx(get_parser())
 
 
-def main():
+def main(args=None):
     """
     Command line interface for generating dataset shards from CSV files.
     """
     parser = get_parser()
     # Parse command line arguments
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     # Check the input directory exists
     print("Sharding {} partition of {}".format(args.partition, args.dataset))

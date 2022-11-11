@@ -1065,12 +1065,12 @@ def _get_parser_sphinx():
     return formatters.format_parser_for_sphinx(get_parser())
 
 
-def cli():
+def cli(args=None):
     """
     Run :func:`run_inference` with arguments taken from the command line.
     """
     parser = get_parser()
-    kwargs = vars(parser.parse_args())
+    kwargs = vars(parser.parse_args(args))
 
     kwargs.pop("list_checkpoints")
     kwargs.pop("list_colors")
@@ -1097,12 +1097,12 @@ def cli():
     run_inference(**kwargs)
 
 
-def main():
+def main(args=None):
     """
     Run ``cli``, with encapsulation for error messages.
     """
     try:
-        cli()
+        cli(args)
     except KeyboardInterrupt:
         # Don't show stack traceback when KeyboardInterrupt is given.
         print(

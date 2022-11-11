@@ -595,12 +595,12 @@ def _get_parser_sphinx():
     return echofilter.ui.formatters.format_parser_for_sphinx(get_parser())
 
 
-def main():
+def main(args=None):
     """
     Run ev2csv command line interface.
     """
     parser = get_parser()
-    kwargs = vars(parser.parse_args())
+    kwargs = vars(parser.parse_args(args))
     kwargs["verbose"] -= kwargs.pop("quiet", 0)
 
     if kwargs["hide_echoview"] is None:
