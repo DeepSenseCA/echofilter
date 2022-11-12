@@ -168,3 +168,11 @@ class BaseTestCase(unittest.TestCase):
         Test if two strings are equal.
         """
         return assert_string_equal(*args, **kwargs)
+
+    def assert_file_exists(self, path):
+        if not os.path.isfile(path):
+            raise AssertionError(f"File does not exist: {path}")
+
+    def assert_file_absent(self, path):
+        if os.path.isfile(path):
+            raise AssertionError(f"File exists: {path}")
