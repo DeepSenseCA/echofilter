@@ -70,6 +70,8 @@ class BaseTestCase(unittest.TestCase):
     # test resources - files which are needed to run tests.
     test_directory = TEST_DIRECTORY
     resource_directory = RESOURCE_DIRECTORY
+    testfile_downfacing = "Survey17_GR4_N5W_E_first240_Sv_raw.csv"
+    testfile_upfacing = "mar2018_20180513T015216_first120_Sv_raw.csv"
 
     def __init__(self, *args, **kw):
         # First to the __init__ associated with parent class
