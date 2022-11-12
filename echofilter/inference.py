@@ -117,7 +117,7 @@ def run_inference(
     image_height=None,
     checkpoint=None,
     force_unconditioned=False,
-    logit_smoothing_sigma=1,
+    logit_smoothing_sigma=0,
     device=None,
     hide_echoview="new",
     minimize_echoview=False,
@@ -406,9 +406,9 @@ def run_inference(
         Whether to always use unconditioned logit outputs. If ``False``
         (default) conditional logits will be used if the checkpoint loaded is
         for a conditional model.
-    logit_smoothing_sigma : float, default=1
+    logit_smoothing_sigma : float, optional
         Standard deviation over which logits will be smoothed before being
-        converted into output.
+        converted into output. Disabled by default.
     device : str or torch.device, optional
         Name of device on which the model will be run. By default, the first
         available CUDA GPU is used if any are found, and otherwise the CPU is
