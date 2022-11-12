@@ -1518,7 +1518,7 @@ def import_lines_regions_to_ev(
         line_thicknesses = {}
 
     if verbose >= 2:
-        print("Importing {} lines/regions into EV file {}".format(len(files), ev_fname))
+        print(f"Importing {len(files)} lines/regions into EV file {ev_fname}")
 
     # Assemble the color palette
     colors = get_color_palette()
@@ -1529,9 +1529,7 @@ def import_lines_regions_to_ev(
 
         def change_line_color_thickness(line_name, color, thickness, ev_app=ev_app):
             if color is not None or thickness is not None:
-                ev_app.Exec(
-                    "{} | UseDefaultLineDisplaySettings =| false".format(line_name)
-                )
+                ev_app.Exec(f"{line_name} | UseDefaultLineDisplaySettings =| false")
             if color is not None:
                 if color in colors:
                     color = colors[color]
@@ -1541,17 +1539,15 @@ def import_lines_regions_to_ev(
                     color = colors["xkcd:" + color]
                 color = hexcolor2rgb8(color)
                 color = repr(color).replace(" ", "")
-                ev_app.Exec("{} | CustomGoodLineColor =| {}".format(line_name, color))
+                ev_app.Exec(f"{line_name} | CustomGoodLineColor =| {color}")
             if thickness is not None:
-                ev_app.Exec(
-                    "{} | CustomLineDisplayThickness =| {}".format(line_name, thickness)
-                )
+                ev_app.Exec(f"{line_name} | CustomLineDisplayThickness =| {thickness}")
 
         for key, fname in files.items():
             # Check the file exists
             fname_full = os.path.abspath(fname)
             if not os.path.isfile(fname_full):
-                s = "  Warning: File '{}' could not be found".format(fname_full)
+                s = f"  Warning: File '{fname_full}' could not be found"
                 s = echofilter.ui.style.warning_fmt(s)
                 print(s)
                 continue
@@ -1561,10 +1557,8 @@ def import_lines_regions_to_ev(
                 is_imported = ev_file.Import(fname_full)
                 if not is_imported:
                     s = (
-                        "  Warning: Unable to import file '{}'"
-                        "Please consult Echoview for the Import error message.".format(
-                            fname
-                        )
+                        f"  Warning: Unable to import file '{fname}'"
+                        "\n  Please consult Echoview for the Import error message."
                     )
                     s = echofilter.ui.style.warning_fmt(s)
                     print(s)
@@ -1600,10 +1594,8 @@ def import_lines_regions_to_ev(
 
             if not is_imported:
                 s = (
-                    "  Warning: Unable to import file '{}'"
-                    "Please consult Echoview for the Import error message.".format(
-                        fname_loaded
-                    )
+                    f"  Warning: Unable to import file '{fname_loaded}'"
+                    "\n  Please consult Echoview for the Import error message."
                 )
                 s = echofilter.ui.style.warning_fmt(s)
                 print(s)
@@ -1616,8 +1608,8 @@ def import_lines_regions_to_ev(
             if not line:
                 s = (
                     "  Warning: Could not find line which was just imported with"
-                    " name '{}'"
-                    "\n  Ignoring and continuing processing.".format(variable.Name)
+                    f" name '{variable.Name}'"
+                    "\n  Ignoring and continuing processing."
                 )
                 s = echofilter.ui.style.warning_fmt(s)
                 print(s)
@@ -1636,8 +1628,8 @@ def import_lines_regions_to_ev(
                 if verbose >= 2:
                     print(
                         echofilter.ui.style.overwrite_fmt(
-                            "Overwriting existing line '{}' with new {} line"
-                            " output".format(target_name, key)
+                            f"Overwriting existing line '{target_name}' with new"
+                            f" {key} line output"
                         )
                     )
                 old_line_edit = old_line.AsLineEditable
@@ -1652,8 +1644,8 @@ def import_lines_regions_to_ev(
                 elif verbose >= 0:
                     # Line is not editable
                     s = (
-                        "Existing line '{}' is not editable and cannot be"
-                        " overwritten.".format(target_name)
+                        f"Existing line '{target_name}' is not editable and"
+                        " cannot be overwritten."
                     )
                     s = echofilter.ui.style.warning_fmt(s)
                     print(s)
@@ -1663,10 +1655,8 @@ def import_lines_regions_to_ev(
                 target_name += "_{}".format(dtstr)
                 if verbose >= 1:
                     print(
-                        "Target line name '{}' already exists. Will save"
-                        " new {} line with name '{}' instead.".format(
-                            target_names[key], key, target_name
-                        )
+                        f"Target line name '{target_names[key]}' already exists."
+                        f" Will save new {key} line with name '{target_name}' instead."
                     )
 
             if target_name and not successful_overwrite:
@@ -1725,10 +1715,8 @@ def import_lines_regions_to_ev(
 
             if not is_imported:
                 s = (
-                    "  Warning: Unable to import file '{}'"
-                    "Please consult Echoview for the Import error message.".format(
-                        temp_fname
-                    )
+                    f"  Warning: Unable to import file '{temp_fname}'"
+                    "\n  Please consult Echoview for the Import error message."
                 )
                 s = echofilter.ui.style.warning_fmt(s)
                 print(s)
@@ -1740,8 +1728,8 @@ def import_lines_regions_to_ev(
             if not line:
                 s = (
                     "  Warning: Could not find line which was just imported with"
-                    " name '{}'"
-                    "\n  Ignoring and continuing processing.".format(variable.Name)
+                    f" name '{variable.Name}'"
+                    "\n  Ignoring and continuing processing."
                 )
                 s = echofilter.ui.style.warning_fmt(s)
                 print(s)
@@ -1770,8 +1758,8 @@ def import_lines_regions_to_ev(
                 if verbose >= 2:
                     print(
                         echofilter.ui.style.overwrite_fmt(
-                            "Overwriting existing line '{}' with new {} line"
-                            " output".format(target_name, key)
+                            f"Overwriting existing line '{target_name}' with new"
+                            f" {key} line output"
                         )
                     )
                 old_line_edit = old_line.AsLineEditable
@@ -1786,8 +1774,8 @@ def import_lines_regions_to_ev(
                 elif verbose >= 0:
                     # Line is not editable
                     s = (
-                        "Existing line '{}' is not editable and cannot be"
-                        " overwritten.".format(target_name)
+                        f"Existing line '{target_name}' is not editable and"
+                        " cannot be overwritten."
                     )
                     s = echofilter.ui.style.warning_fmt(s)
                     print(s)
@@ -1797,10 +1785,8 @@ def import_lines_regions_to_ev(
                 target_name += "_{}".format(dtstr)
                 if verbose >= 1:
                     print(
-                        "Target line name '{}' already exists. Will save"
-                        " new {} line with name '{}' instead.".format(
-                            target_names[key], key, target_name
-                        )
+                        f"Target line name '{target_names[key]}' already exists."
+                        f" Will save new {key} line with name '{target_name}' instead."
                     )
 
             if target_name and not successful_overwrite:
@@ -1841,7 +1827,7 @@ def import_lines_regions_to_ev(
                 if verbose >= 2:
                     print(
                         echofilter.ui.style.overwrite_fmt(
-                            "Deleting existing line '{}'".format(target_name)
+                            f"Deleting existing line '{target_name}'"
                         )
                     )
                 successful_overwrite = lines.Delete(old_line)
@@ -1849,9 +1835,7 @@ def import_lines_regions_to_ev(
                     # Line could not be deleted
                     print(
                         echofilter.ui.style.warning_fmt(
-                            "Existing line '{}' could not be deleted".format(
-                                target_name
-                            )
+                            f"Existing line '{target_name}' could not be deleted"
                         )
                     )
 
@@ -1860,10 +1844,8 @@ def import_lines_regions_to_ev(
                 target_name += "_{}".format(dtstr)
                 if verbose >= 1:
                     print(
-                        "Target line name '{}' already exists. Will save"
-                        " new {} line with name '{}' instead.".format(
-                            target_names[key], key, target_name
-                        )
+                        f"Target line name '{target_names[key]}' already exists."
+                        f" Will save new {key} line with name '{target_name}' instead."
                     )
 
             if target_name:
