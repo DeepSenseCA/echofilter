@@ -422,13 +422,13 @@ def _get_parser_sphinx():
     return formatters.format_parser_for_sphinx(get_parser())
 
 
-def main():
+def main(args=None):
     """
     Run command line interface for model training.
     """
     parser = get_parser()
 
-    kwargs = vars(parser.parse_args())
+    kwargs = vars(parser.parse_args(args))
 
     for k in ["blocks_per_downsample", "blocks_before_first_downsample"]:
         if len(kwargs[k]) == 1:

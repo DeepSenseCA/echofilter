@@ -52,6 +52,14 @@ else:
     import unittest
 
 
+# Check where the test directory is located, to be used when fetching
+# test resource files
+TEST_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
+RESOURCE_DIRECTORY = os.path.join(
+    os.path.dirname(os.path.dirname(TEST_DIRECTORY)), "test-resources"
+)
+
+
 class BaseTestCase(unittest.TestCase):
     """
     Superclass for test cases, including support for numpy.
@@ -60,7 +68,10 @@ class BaseTestCase(unittest.TestCase):
     # The attribute ``test_directory`` provides the path to the directory
     # containing the file ``base_test.py``, which is useful to obtain
     # test resources - files which are needed to run tests.
-    test_directory = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
+    test_directory = TEST_DIRECTORY
+    resource_directory = RESOURCE_DIRECTORY
+    testfile_downfacing = "Survey17_GR4_N5W_E_first240_Sv_raw.csv"
+    testfile_upfacing = "mar2018_20180513T015216_first120_Sv_raw.csv"
 
     def __init__(self, *args, **kw):
         # First to the __init__ associated with parent class
@@ -157,3 +168,11 @@ class BaseTestCase(unittest.TestCase):
         Test if two strings are equal.
         """
         return assert_string_equal(*args, **kwargs)
+
+    def assert_file_exists(self, path):
+        if not os.path.isfile(path):
+            raise AssertionError(f"File does not exist: {path}")
+
+    def assert_file_absent(self, path):
+        if os.path.isfile(path):
+            raise AssertionError(f"File exists: {path}")

@@ -81,7 +81,8 @@ jobs:
 
     - name: Test with pytest
       run: |
-        python -m pytest --cov=package_name --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
+        python -m pytest --cov=echofilter --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
@@ -103,12 +104,3 @@ jobs:
 
     - name: Test dry-run
       run: echofilter test-resources -n
-
-    - name: Test run
-      run: echofilter test-resources --output-dir test-output
-
-    - name: Test run skip
-      run: echofilter test-resources --output-dir test-output --skip
-
-    - name: Test run again
-      run: echofilter test-resources --output-dir test-output -f
