@@ -28,6 +28,8 @@ import argparse
 import os
 import sys
 
+import configargparse
+
 from .. import __meta__, path
 from . import checkpoints, formatters, style
 
@@ -66,11 +68,12 @@ def get_parser():
     prog = os.path.split(sys.argv[0])[1]
     if prog == "__main__.py":
         prog = "echofilter"
-    parser = argparse.ArgumentParser(
+    parser = configargparse.ArgParser(
         prog=prog,
         description=__meta__.description,
         formatter_class=formatters.FlexibleHelpFormatter,
         add_help=False,
+        default_config_files=["~/.echofilter"],
     )
 
     # Actions
@@ -115,6 +118,23 @@ def get_parser():
             To show the just main palette, run as ``--list-colors``
             without argument, or ``--list-colors css4``. To show the
             full palette, run as ``--list-colors full``.
+        """,
+    )
+
+    # Input files
+    group_config = parser.add_argument_group("Configuration")
+    group_config.add(
+        "-c",
+        "--config",
+        metavar="CONFIG_FILE",
+        is_config_file=True,
+        help="""
+            Path to a configuration file. The settings in the configuration file
+            will override the default values described in the rest of the help
+            documentation, but will themselves be overridden by any arguments
+            provided at the command prompt. Config file syntax allows:
+            key=value, flag=true, stuff=[a,b,c] (for details, see syntax at
+            https://goo.gl/R74nmi).
         """,
     )
 
@@ -1074,8 +1094,12 @@ def cli(args=None):
 
     kwargs.pop("list_checkpoints")
     kwargs.pop("list_colors")
+    kwargs.pop("config")
 
     kwargs["verbose"] -= kwargs.pop("quiet", 0)
+
+    if kwargs["verbose"] >= 2:
+        parser.print_values()
 
     if kwargs.pop("force"):
         kwargs["overwrite_existing"] = True
