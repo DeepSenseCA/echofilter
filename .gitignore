@@ -14,6 +14,18 @@ echofilter/checkpoints
 # Auto-generated rST root file for exporting docs to PDF
 docs/index_pdf.rst
 
+# Ignore all built documentation (including Guide and PDF)
+docs/_build*
+
+# Ignore extra directories
+image_samples/
+models/
+notes/
+processed/
+results/
+test-output/
+test-resources-source/
+
 
 ##---------------------------------------------------
 # Automated documentation .gitignore files
