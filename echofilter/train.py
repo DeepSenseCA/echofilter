@@ -4,7 +4,22 @@
 Model training routine.
 """
 
-from collections import OrderedDict
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import copy
 import datetime
 import os
@@ -13,6 +28,7 @@ import shutil
 import sys
 import time
 import traceback
+from collections import OrderedDict
 
 try:
     import apex
@@ -22,49 +38,45 @@ except ImportError:
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import ranger
 import torch
 import torch.nn
 import torch.optim
 import torch.utils.data
-from torch.utils.tensorboard import SummaryWriter
 import torchvision.transforms
-from torchutils.random import seed_all
-from torchutils.utils import count_parameters
 
 import echofilter.data
+import echofilter.optim.utils
+import echofilter.raw.shardloader
 from echofilter.nn.unet import UNet
+from echofilter.nn.utils import count_parameters, seed_all
 from echofilter.nn.wrapper import Echofilter, EchofilterLoss
 from echofilter.optim import criterions, schedulers
 from echofilter.optim.meters import AverageMeter, ProgressMeter
-import echofilter.optim.utils
 from echofilter.plotting import plot_transect_predictions
 from echofilter.raw.loader import get_partition_list
 from echofilter.raw.manipulate import load_decomposed_transect_mask
-import echofilter.raw.shardloader
-import echofilter.ui
+from echofilter.ui.train_cli import main
 
-
-## For mobile dataset,
+# --- For mobile dataset,
 # DATA_CENTER = -81.5
 # DATA_DEVIATION = 21.9
 # CENTER_METHOD = "mean"
 # DEVIATION_METHOD = "stdev"
 
-## For stationary dataset,
+# --- For stationary dataset,
 # DATA_CENTER = -78.7
 # DATA_DEVIATION = 19.2
 # CENTER_METHOD = "mean"
 # DEVIATION_METHOD = "stdev"
 
-## For intermediate values between both datasets
+# --- For intermediate values between both datasets
 # DATA_CENTER = -80.
 # DATA_DEVIATION = 20.
 # CENTER_METHOD = "mean"
 # DEVIATION_METHOD = "stdev"
 # NAN_VALUE = -3
 
-## Overall values to use
+# --- Overall values to use
 # DATA_CENTER = -97.5
 # DATA_DEVIATION = 16.5
 # CENTER_METHOD = "pc10"
@@ -140,7 +152,7 @@ def train(
     n_epoch=20,
     seed=None,
     print_freq=50,
-    optimizer="rangerva",
+    optimizer="adam",
     schedule="constant",
     lr=0.1,
     momentum=0.9,
@@ -154,11 +166,14 @@ def train(
     """
     Train a model.
     """
-
     if restart and not resume:
         raise ValueError(
             "A checkpoint must be provided to restart from when doing a cold restart"
         )
+
+    # Lazy import of tensorboard, so training-only requirements are not needed
+    # for automated documentation building.
+    from torch.utils.tensorboard import SummaryWriter
 
     seed_all(seed)
     # Can't get this to be deterministic anyway, so may as well keep the
@@ -182,7 +197,7 @@ def train(
     print("Output will be written to {}/{}".format(dataset_name, log_name))
 
     if use_mixed_precision is None:
-        use_mixed_precision = not "cpu" in device
+        use_mixed_precision = "cpu" not in device
     if use_mixed_precision and apex is None:
         print("NVIDIA apex must be installed to use mixed precision.")
         use_mixed_precision = False
@@ -294,10 +309,16 @@ def train(
     elif optimizer_name == "adamw":
         optimizer_class = torch.optim.AdamW
     elif optimizer_name == "ranger":
+        import ranger
+
         optimizer_class = ranger.Ranger
     elif optimizer_name == "rangerva":
+        import ranger
+
         optimizer_class = ranger.RangerVA
     elif optimizer_name == "rangerqh":
+        import ranger
+
         optimizer_class = ranger.RangerQH
     else:
         # We don't support arbitrary optimizers from torch.optim because they
@@ -305,7 +326,10 @@ def train(
         raise ValueError("Unrecognised optimizer: {}".format(optimizer))
 
     optimizer = optimizer_class(
-        unet.parameters(), lr, betas=(momentum, 0.999), weight_decay=weight_decay,
+        unet.parameters(),
+        lr,
+        betas=(momentum, 0.999),
+        weight_decay=weight_decay,
     )
 
     schedule_data = {"name": schedule}
@@ -358,7 +382,10 @@ def train(
 
     # Add UI wrapper around model
     model = Echofilter(
-        model_inner, top="boundary", bottom="boundary", conditional=conditional,
+        model_inner,
+        top="boundary",
+        bottom="boundary",
+        conditional=conditional,
     )
 
     if schedule == "lrfinder":
@@ -610,7 +637,7 @@ def train(
             Returns
             -------
             torch.Tensor
-                As `x`, but padded with a green border.
+                As ``x``, but padded with a green border.
             """
             if x.shape[1] == 1:
                 x = torch.cat([x, x, x], dim=1)
@@ -651,7 +678,10 @@ def train(
             if not generate_sample_images:
                 continue
             writer.add_images(
-                "Input/" + partition, ex_input, epoch, dataformats="NCWH",
+                "Input/" + partition,
+                ex_input,
+                epoch,
+                dataformats="NCWH",
             )
             writer.add_images(
                 "Overall/" + partition + "/Target",
@@ -788,7 +818,7 @@ def build_dataset(
     train_partition=None,
     val_partition=None,
     crop_depth=None,
-    random_crop_args={},
+    random_crop_args=None,
 ):
     """
     Construct a pytorch Dataset.
@@ -797,25 +827,25 @@ def build_dataset(
     ----------
     dataset_name : str
         Name of the dataset. This can optionally be a list of
-        multiple datasets joined with `"+"`.
+        multiple datasets joined with ``"+"``.
     data_dir : str
         Path to root data directory, containing the dataset.
     sample_shape : iterable of length 2
         The shape which will be used for training.
     train_partition : str, optional
         Name of the partition to use for training. Can optionally be a list of
-        multiple partitions joined with `"+"`. Default is `"train"`
-        (except for `stationary2` where it is mixed).
+        multiple partitions joined with ``"+"``. Default is ``"train"``
+        (except for ``stationary2`` where it is mixed).
     val_partition : str, optional
         Name of the partition to use for validation. Can optionally be a list
-        of multiple partitions joined with `"+"`. Default is `"validate"`
-        (except for `stationary2` where it is mixed).
+        of multiple partitions joined with ``"+"``. Default is ``"validate"``
+        (except for ``stationary2`` where it is mixed).
     crop_depth : float or None, optional
-        Depth at which to crop samples. Default is `None`.
+        Depth at which to crop samples. Default is ``None``.
     random_crop_args : dict, optional
         Arguments to control the random crop used during training. Default is
         an empty dict, which uses the default arguments of
-        `echofilter.data.transforms.RandomCropDepth`.
+        :class`echofilter.data.transforms.RandomCropDepth`.
 
     Returns
     -------
@@ -827,6 +857,8 @@ def build_dataset(
         Dataset of validation samples, appyling the training augmentation
         stack.
     """
+    if random_crop_args is None:
+        random_crop_args = {}
 
     if "+" in dataset_name:
         # Join multiple datasets together
@@ -916,7 +948,11 @@ def build_dataset(
             echofilter.data.transforms.ColorJitter(0.5, 0.3),
             echofilter.data.transforms.ReplaceNan(NAN_VALUE),
             echofilter.data.transforms.RandomElasticGrid(
-                sample_shape, order=None, p=0.5, sigma=[8, 16], alpha=0.1,
+                sample_shape,
+                order=None,
+                p=0.5,
+                sigma=[8, 16],
+                alpha=0.1,
             ),
             echofilter.data.transforms.Rescale(sample_shape, order=None),
         ]
@@ -995,7 +1031,7 @@ def build_dataset(
         use_dynamic_offsets=True,
         crop_depth=crop_depth,
         transform=train_transform,
-        **dataset_args
+        **dataset_args,
     )
     dataset_val = echofilter.data.dataset.TransectDataset(
         val_paths,
@@ -1005,7 +1041,7 @@ def build_dataset(
         use_dynamic_offsets=False,
         crop_depth=crop_depth,
         transform=val_transform,
-        **dataset_args
+        **dataset_args,
     )
     dataset_augval = echofilter.data.dataset.TransectDataset(
         val_paths,
@@ -1015,7 +1051,7 @@ def build_dataset(
         use_dynamic_offsets=False,
         crop_depth=crop_depth,
         transform=train_transform,
-        **dataset_args
+        **dataset_args,
     )
     return dataset_train, dataset_val, dataset_augval
 
@@ -1051,25 +1087,25 @@ def train_epoch(
     dtype : str or torch.dtype
         Datatype which which the data should be loaded.
     print_freq : int, optional
-        Number of batches between reporting progress. Default is `10`.
+        Number of batches between reporting progress. Default is ``10``.
     schedule_data : dict or None
         If a learning rate schedule is being used, this may be passed as a
-        dictionary with the key `"scheduler"` mapping to the learning rate
+        dictionary with the key ``"scheduler"`` mapping to the learning rate
         schedule as a callable.
     use_mixed_precision : bool
         Whether to use :meth:`apex.amp.scale_loss` to automatically scale the
-        loss. Default is `False`.
+        loss. Default is ``False``.
     continue_through_error : bool
         Whether to catch errors within an individual batch, ignore them and
         continue running training on the rest of the batches. If there are
         five or more errors while processing the batch, training will halt
-        regardless of `continue_through_error`. Default is `True`.
+        regardless of ``continue_through_error``. Default is ``True``.
 
     Returns
     -------
     average_loss : float
         Average loss as given by criterion (weighted equally for each sample
-        in `loader`).
+        in ``loader``).
     meters : dict of dict
         Each key is a strata of the model output, each mapping to a their own
         dictionary of evaluation criterions: "Accuracy", "Precision", "Recall",
@@ -1190,7 +1226,7 @@ def train_epoch(
                     elif cond.startswith("down"):
                         mask = metadata["is_upward_facing"] < 0.5
                     else:
-                        raise ValueError("Unsupported condition {}".format(parts[1]))
+                        raise ValueError("Unsupported condition {}".format(cond))
                     if torch.sum(mask).item() == 0:
                         continue
                     output_k = output_k[mask]
@@ -1298,17 +1334,17 @@ def validate(
     dtype : str or torch.dtype
         Datatype which which the data should be loaded.
     print_freq : int, optional
-        Number of batches between reporting progress. Default is `10`.
+        Number of batches between reporting progress. Default is ``10``.
     prefix : str, optional
-        Prefix string to prepend to progress meter names. Default is `"Test"`.
+        Prefix string to prepend to progress meter names. Default is ``"Test"``.
     num_examples : int, optional
-        Number of example inputs to return. Default is `32`.
+        Number of example inputs to return. Default is ``32``.
 
     Returns
     -------
     average_loss : float
         Average loss as given by criterion (weighted equally for each sample
-        in `loader`).
+        in ``loader``).
     meters : dict of dict
         Each key is a strata of the model output, each mapping to a their own
         dictionary of evaluation criterions: "Accuracy", "Precision", "Recall",
@@ -1426,7 +1462,7 @@ def validate(
                     elif cond.startswith("down"):
                         mask = metadata["is_upward_facing"] < 0.5
                     else:
-                        raise ValueError("Unsupported condition {}".format(parts[1]))
+                        raise ValueError("Unsupported condition {}".format(cond))
                     if torch.sum(mask).item() == 0:
                         continue
                     output_k = output_k[mask]
@@ -1492,7 +1528,6 @@ def generate_from_transect(model, transect, sample_shape, device, dtype=torch.fl
     """
     Generate an output for a sample transect, .
     """
-
     # Put model in evaluation mode
     model.eval()
 
@@ -1535,7 +1570,6 @@ def _generate_from_loaded(transect, model, *args, crop_depth=None, **kwargs):
     """
     Generate an output from a loaded transect.
     """
-
     # Crop long input
     for key in (
         echofilter.data.transforms._fields_2d
@@ -1596,8 +1630,7 @@ def generate_from_file(fname, *args, **kwargs):
 
 def generate_from_shards(fname, *args, **kwargs):
     """
-    Generate an output for a sample transect, specified by the path to its
-    sharded data.
+    Generate an output for a sample transect, specified by a path to sharded data.
     """
     # Load the data
     transect = echofilter.raw.shardloader.load_transect_segments_from_shards_abs(fname)
@@ -1614,19 +1647,19 @@ def save_checkpoint(state, is_best, dirname=".", fname_fmt="checkpoint{}.pt", du
     state : dict
         Model checkpoint state to record.
     is_best : bool
-        Whether this model state is the best so far. If `True`, the best
-        checkpoint (by default named `"checkpoint_best.pt"`) will be overwritten
-        with this `state`.
+        Whether this model state is the best so far. If ``True``, the best
+        checkpoint (by default named ``"checkpoint_best.pt"``) will be overwritten
+        with this ``state``.
     dirname : str, optional
         Path to directory in which the checkpoint will be saved.
-        Default is `"."` (current directory of the executed script).
+        Default is ``"."`` (current directory of the executed script).
     fname_fmt : str, optional
         Format for the file name(s) of the saved checkpoint(s). Must include
-        one string argument output. Default is `"checkpoint{}.pt"`.
+        one string argument output. Default is ``"checkpoint{}.pt"``.
     dup : str or None
-        If this is not `None`, a duplicate copy of the checkpoint is recorded
-        in accordance with `fname_fmt`. By default the duplicate output file
-        name will be styled as `"checkpoint_<dup>.pt"`.
+        If this is not ``None``, a duplicate copy of the checkpoint is recorded
+        in accordance with ``fname_fmt``. By default the duplicate output file
+        name will be styled as ``"checkpoint_<dup>.pt"``.
     """
     os.makedirs(dirname, exist_ok=True)
     fname = os.path.join(dirname, fname_fmt.format(""))
@@ -1648,13 +1681,13 @@ def meters_to_csv(meters, is_best, dirname=".", filename="meters.csv"):
     meters : dict of dict
         Collection of output meters, as a nested dictionary.
     is_best : bool
-        Whether this model state is the best so far. If `True`, the CSV file
-        will be copied to `"model_best.meters.csv"`.
+        Whether this model state is the best so far. If ``True``, the CSV file
+        will be copied to ``"model_best.meters.csv"``.
     dirname : str, optional
         Path to directory in which the checkpoint will be saved.
-        Default is `"."` (current directory of the executed script).
+        Default is ``"."`` (current directory of the executed script).
     filename : str, optional
-        Format for the output file. Default is `"meters.csv"`.
+        Format for the output file. Default is ``"meters.csv"``.
     """
     os.makedirs(dirname, exist_ok=True)
     df = pd.DataFrame()
@@ -1663,7 +1696,7 @@ def meters_to_csv(meters, is_best, dirname=".", filename="meters.csv"):
             # Skip conditional model evaluations
             continue
         # For each output plane
-        for criterion_name, meter in meters[chn].items():
+        for _, meter in meters[chn].items():
             # For each criterion
             df[meter.name] = meter.values
     df.to_csv(os.path.join(dirname, filename), index=False)
@@ -1672,408 +1705,6 @@ def meters_to_csv(meters, is_best, dirname=".", filename="meters.csv"):
             os.path.join(dirname, filename),
             os.path.join(dirname, "model_best.meters.csv"),
         )
-
-
-def get_parser():
-    """
-    Build parser for training command line interface.
-
-    Returns
-    -------
-    parser : argparse.ArgumentParser
-        CLI argument parser for training.
-    """
-
-    import argparse
-
-    prog = os.path.split(sys.argv[0])[1]
-    if prog == "__main__.py" or prog == "__main__":
-        prog = os.path.split(__file__)[1]
-    parser = argparse.ArgumentParser(
-        prog=prog, description="Echofilter model training", add_help=False,
-    )
-
-    # Actions
-    group_action = parser.add_argument_group(
-        "Actions",
-        "These arguments specify special actions to perform. The main action"
-        " of this program is supressed if any of these are given.",
-    )
-    group_action.add_argument(
-        "-h", "--help", action="help", help="Show this help message and exit.",
-    )
-    group_action.add_argument(
-        "--version",
-        "-V",
-        action="version",
-        version="%(prog)s {version}".format(version=echofilter.__version__),
-        help="Show program's version number and exit.",
-    )
-
-    # Data parameters
-    group_data = parser.add_argument_group("Data parameters")
-    group_data.add_argument(
-        "--data-dir",
-        type=str,
-        default="/data/dsforce/surveyExports",
-        metavar="DIR",
-        help="path to root data directory",
-    )
-    group_data.add_argument(
-        "--dataset",
-        dest="dataset_name",
-        type=str,
-        default="mobile",
-        help="which dataset to use",
-    )
-    group_data.add_argument(
-        "--train-partition",
-        type=str,
-        default=None,
-        help="which partition to train on (default depends on dataset)",
-    )
-    group_data.add_argument(
-        "--val-partition",
-        type=str,
-        default=None,
-        help="which partition to validate on (default depends on dataset)",
-    )
-    group_data.add_argument(
-        "--shape",
-        dest="sample_shape",
-        nargs=2,
-        type=int,
-        default=(128, 512),
-        help="input shape [W, H] (default: %(default)s)",
-    )
-    group_data.add_argument(
-        "--crop-depth",
-        type=float,
-        default=None,
-        help="depth, in metres, at which data should be truncated (default: %(default)s)",
-    )
-    group_data.add_argument(
-        "--resume",
-        default="",
-        type=str,
-        metavar="PATH",
-        help='path to latest checkpoint (default: "%(default)s")',
-    )
-    group_data.add_argument(
-        "--cold-restart",
-        dest="restart",
-        action="store_const",
-        const="cold",
-        default="",
-        help="when resuming from a checkpoint, use this only for initial weights",
-    )
-    group_data.add_argument(
-        "--warm-restart",
-        dest="restart",
-        action="store_const",
-        const="warm",
-        help="""
-            when resuming from a checkpoint, use the existing weights and
-            optimizer state but start a new LR schedule
-        """,
-    )
-    group_data.add_argument(
-        "--log",
-        dest="log_name",
-        default=None,
-        type=str,
-        help="output directory name (default: DATE_TIME)",
-    )
-    group_data.add_argument(
-        "--log-append",
-        dest="log_name_append",
-        default=None,
-        type=str,
-        help="string to append to output directory name (default: HOSTNAME)",
-    )
-
-    # Model parameters
-    group_model = parser.add_argument_group("Model parameters")
-    group_model.add_argument(
-        "--conditional",
-        action="store_true",
-        help=(
-            "train a model conditioned on the direction the sounder is facing"
-            " (in addition to an unconditional model)"
-        ),
-    )
-    group_model.add_argument(
-        "--nblock",
-        "--num-blocks",
-        dest="n_block",
-        type=int,
-        default=6,
-        help="number of blocks down and up in the UNet (default: %(default)s)",
-    )
-    group_model.add_argument(
-        "--latent-channels",
-        type=int,
-        default=32,
-        help="number of initial/final latent channels to use in the model (default: %(default)s)",
-    )
-    group_model.add_argument(
-        "--expansion-factor",
-        type=float,
-        default=1.0,
-        help="expansion for number of channels as model becomes deeper"
-        " (default: %(default)s, constant number of channels)",
-    )
-    group_model.add_argument(
-        "--expand-only-on-down",
-        action="store_true",
-        help="only expand channels on dowsampling blocks",
-    )
-    group_model.add_argument(
-        "--blocks-per-downsample",
-        nargs="+",
-        type=int,
-        default=(2, 1),
-        help="for each dim (time, depth), number of blocks between downsample"
-        " steps (default: %(default)s)",
-    )
-    group_model.add_argument(
-        "--blocks-before-first-downsample",
-        nargs="+",
-        type=int,
-        default=(2, 1),
-        help="for each dim (time, depth), number of blocks before first"
-        " downsample step (default: %(default)s)",
-    )
-    group_model.add_argument(
-        "--only-skip-connection-on-downsample",
-        dest="always_include_skip_connection",
-        action="store_false",
-        help="only include skip connections when downsampling",
-    )
-    group_model.add_argument(
-        "--deepest-inner",
-        type=str,
-        default="horizontal_block",
-        help="layer to include at the deepest point of the UNet"
-        ' (default: "horizontal_block"). Set to "identity" to disable.',
-    )
-    group_model.add_argument(
-        "--intrablock-expansion",
-        type=float,
-        default=6.0,
-        help="expansion within inverse residual blocks (default: %(default)s)",
-    )
-    group_model.add_argument(
-        "--se-reduction",
-        "--se",
-        dest="se_reduction",
-        type=float,
-        default=4.0,
-        help="reduction within squeeze-and-excite blocks (default: %(default)s)",
-    )
-    group_model.add_argument(
-        "--downsampling-modes",
-        nargs="+",
-        type=str,
-        default="max",
-        help='for each downsampling step, the method to use (default: "%(default)s")',
-    )
-    group_model.add_argument(
-        "--upsampling-modes",
-        nargs="+",
-        type=str,
-        default="bilinear",
-        help='for each upsampling step, the method to use (default: "%(default)s")',
-    )
-    group_model.add_argument(
-        "--fused-conv",
-        dest="depthwise_separable_conv",
-        action="store_false",
-        help="use fused instead of depthwise separable convolutions",
-    )
-    group_model.add_argument(
-        "--no-residual",
-        dest="residual",
-        action="store_false",
-        help="don't use residual blocks",
-    )
-    group_model.add_argument(
-        "--actfn", type=str, default="InplaceReLU", help="activation function to use",
-    )
-    group_model.add_argument(
-        "--kernel",
-        dest="kernel_size",
-        type=int,
-        default=5,
-        help="convolution kernel size (default: %(default)s)",
-    )
-
-    # Training methodology parameters
-    group_training = parser.add_argument_group("Training parameters")
-    group_training.add_argument(
-        "--device",
-        type=str,
-        default="cuda",
-        help='device to use (default: "%(default)s", using first gpu)',
-    )
-    group_training.add_argument(
-        "--multigpu", action="store_true", help="train on multiple GPUs",
-    )
-    group_training.add_argument(
-        "--no-amp",
-        dest="use_mixed_precision",
-        action="store_false",
-        default=None,
-        help="use fp32 instead of mixed precision (default: use mixed precision on gpu)",
-    )
-    group_training.add_argument(
-        "--amp-opt",
-        type=str,
-        default="O1",
-        help='optimizer level for apex automatic mixed precision (default: "%(default)s")',
-    )
-    group_training.add_argument(
-        "-j",
-        "--workers",
-        dest="n_worker",
-        type=int,
-        default=8,
-        metavar="N",
-        help="number of data loading workers (default: %(default)s)",
-    )
-    group_training.add_argument(
-        "-p",
-        "--print-freq",
-        type=int,
-        default=50,
-        help="print frequency (default: %(default)s)",
-    )
-    group_training.add_argument(
-        "-b",
-        "--batch-size",
-        type=int,
-        default=16,
-        help="mini-batch size (default: %(default)s)",
-    )
-    group_training.add_argument(
-        "--no-stratify",
-        dest="stratify",
-        action="store_false",
-        help="disable stratified sampling; use fully random sampling instead",
-    )
-    group_training.add_argument(
-        "--epochs",
-        dest="n_epoch",
-        type=int,
-        default=20,
-        help="number of total epochs to run (default: %(default)s)",
-    )
-    group_training.add_argument(
-        "--seed", default=None, type=int, help="seed for initializing training.",
-    )
-
-    # Optimiser parameters
-    group_optim = parser.add_argument_group("Optimizer parameters")
-    group_optim.add_argument(
-        "--optim",
-        "--optimiser",
-        "--optimizer",
-        dest="optimizer",
-        type=str,
-        default="rangerva",
-        help='optimizer name (default: "%(default)s")',
-    )
-    group_optim.add_argument(
-        "--schedule",
-        type=str,
-        default="constant",
-        help='LR schedule (default: "%(default)s")',
-    )
-    group_optim.add_argument(
-        "--lr",
-        "--learning-rate",
-        dest="lr",
-        type=float,
-        default=0.1,
-        metavar="LR",
-        help="initial learning rate (default: %(default)s)",
-    )
-    group_optim.add_argument(
-        "--momentum", type=float, default=0.9, help="momentum (default: %(default)s)",
-    )
-    group_optim.add_argument(
-        "--base-momentum",
-        type=float,
-        default=None,
-        help="base momentum; only used for OneCycle schedule (default: same as momentum)",
-    )
-    group_optim.add_argument(
-        "--wd",
-        "--weight-decay",
-        dest="weight_decay",
-        type=float,
-        default=1e-5,
-        help="weight decay (default: %(default)s)",
-    )
-    group_optim.add_argument(
-        "--warmup-pct",
-        type=float,
-        default=0.2,
-        help="fraction of training to spend warming up LR; only used for"
-        " OneCycle MesaOneCycle schedules (default: %(default)s)",
-    )
-    group_optim.add_argument(
-        "--warmdown-pct",
-        type=float,
-        default=0.7,
-        help="fraction of training before warming down LR; only used for"
-        " MesaOneCycle schedule (default: %(default)s)",
-    )
-    group_optim.add_argument(
-        "--anneal-strategy",
-        type=str,
-        default="cos",
-        help='annealing strategy; only used for OneCycle schedule (default: "%(default)s")',
-    )
-    group_optim.add_argument(
-        "--overall-loss-weight",
-        type=float,
-        default=0.0,
-        help="weighting for overall loss term (default: %(default)s)",
-    )
-
-    return parser
-
-
-def _get_parser_sphinx():
-    """
-    Pre-format parser help for sphinx-argparse processing.
-    """
-    return echofilter.ui.formatters.format_parser_for_sphinx(get_parser())
-
-
-def main():
-    """
-    Run command line interface for model training.
-    """
-    parser = get_parser()
-
-    # Use seaborn to set matplotlib plotting defaults
-    import seaborn as sns
-
-    sns.set()
-
-    kwargs = vars(parser.parse_args())
-
-    for k in ["blocks_per_downsample", "blocks_before_first_downsample"]:
-        if len(kwargs[k]) == 1:
-            kwargs[k] = kwargs[k][0]
-
-    print("CLI arguments:")
-    print(kwargs)
-    print()
-
-    train(**kwargs)
 
 
 if __name__ == "__main__":

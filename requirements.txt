@@ -1,6 +1,8 @@
+appdirs
 colorama
-numpy
+configargparse
 matplotlib
+numpy
 pandas
 pywin32; platform_system=="Windows"
 pyyaml
@@ -8,5 +10,4 @@ scikit-image
 scipy
 torch
 torchvision
-torchutils @ git+https://github.com/scottclowe/pytorch-utils#egg=torchutils
 tqdm

@@ -3,6 +3,22 @@
 Export raw EV files in CSV format.
 """
 
+# ev2csv is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import os
 import sys
 import warnings
@@ -14,7 +30,6 @@ import echofilter.ui
 import echofilter.utils
 import echofilter.win
 
-
 # Provide a warning for non-Windows users
 if not echofilter.path.check_if_windows():
     msg = (
@@ -23,9 +38,7 @@ if not echofilter.path.check_if_windows():
     )
     with echofilter.ui.style.warning_message(msg) as msg:
         print("")
-        warnings.warn(
-            msg, category=RuntimeWarning,
-        )
+        warnings.warn(msg, category=RuntimeWarning)
 
 
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
@@ -34,6 +47,7 @@ DEFAULT_VARNAME = "Fileset1: Sv pings T1"
 def run_ev2csv(
     paths,
     variable_name=DEFAULT_VARNAME,
+    export_raw=True,
     source_dir=".",
     recursive_dir_search=True,
     output_dir="",
@@ -53,67 +67,72 @@ def run_ev2csv(
     ----------
     paths : iterable
         Paths to input EV files to process, or directories containing EV files.
-        These may be full paths or paths relative to `source_dir`. For each
-        folder specified, any files with extension `"csv"` within the folder
+        These may be full paths or paths relative to ``source_dir``. For each
+        folder specified, any files with extension ``"csv"`` within the folder
         and all its tree of subdirectories will be processed.
     variable_name : str, optional
         Name of the Echoview acoustic variable to export. Default is
         `"Fileset1: Sv pings T1"`.
+    export_raw : bool, optional
+        If ``True`` (default), exclusion and threshold settings in the EV file
+        are temporarily disabled before exporting the CSV, in order to ensure
+        all raw data is exported. If ``False``, thresholds and exclusions are
+        used as per the EV file.
     source_dir : str, optional
-        Path to directory where files are found. Default is `"."`.
+        Path to directory where files are found. Default is ``"."``.
     recursive_dir_search : bool, optional
-        How to handle directory inputs in `paths`. If `False`, only files
+        How to handle directory inputs in ``paths``. If ``False``, only files
         (with the correct extension) in the directory will be included.
-        If `True`, subdirectories will also be walked through to find input
-        files. Default is `True`.
+        If ``True``, subdirectories will also be walked through to find input
+        files. Default is ``True``.
     output_dir : str, optional
         Directory where output files will be written. If this is an empty
-        string (`""`, default), outputs are written to the same directory as
-        each input file. Otherwise, they are written to `output_dir`,
-        preserving their path relative to `source_dir` if relative paths were
+        string (``""``, default), outputs are written to the same directory as
+        each input file. Otherwise, they are written to ``output_dir``,
+        preserving their path relative to ``source_dir`` if relative paths were
         used.
     suffix : str, optional
-        Output filename suffix. Default is `"_Sv_raw.csv"` if `keep_ext=False`,
-        or `".Sv_raw.csv"` if `keep_ext=True`.
+        Output filename suffix. Default is ``"_Sv_raw.csv"`` if ``keep_ext=False``,
+        or ``".Sv_raw.csv"`` if ``keep_ext=True``. The ``"_raw"`` component is
+        excluded if ``export_raw`` is ``False``.
     keep_ext : bool, optional
         Whether to preserve the file extension in the input file name when
-        generating output file name. Default is `False`, removing the
+        generating output file name. Default is ``False``, removing the
         extension.
     skip_existing : bool, optional
         Whether to skip processing files whose destination paths already
-        exist. If `False` (default), an error is raised if the destination file
+        exist. If ``False`` (default), an error is raised if the destination file
         already exists.
     overwrite_existing : bool, optional
-        Whether to overwrite existing output files. If `False` (default), an
+        Whether to overwrite existing output files. If ``False`` (default), an
         error is raised if the destination file already exists.
     minimize_echoview : bool, optional
-        If `True`, the Echoview window being used will be minimized while this
-        function is running. Default is `False`.
+        If ``True``, the Echoview window being used will be minimized while this
+        function is running. Default is ``False``.
     hide_echoview : {"never", "new", "always"}, optional
         Whether to hide the Echoview window entirely while the code runs.
-        If `hide_echoview="new"`, the application is only hidden if it
+        If ``hide_echoview="new"``, the application is only hidden if it
         was created by this function, and not if it was already running.
-        If `hide_echoview="always"`, the application is hidden even if it was
+        If ``hide_echoview="always"``, the application is hidden even if it was
         already running. In the latter case, the window will be revealed again
-        when this function is completed. Default is `"new"`.
+        when this function is completed. Default is ``"new"``.
     verbose : int, optional
-        Level of verbosity. Default is `1`.
+        Level of verbosity. Default is ``1``.
     dry_run : bool, optional
-        If `True`, perform a trial run with no changes made. Default is
-        `False`.
+        If ``True``, perform a trial run with no changes made. Default is
+        ``False``.
 
     Returns
     -------
     list of str
         Paths to generated CSV files.
     """
-
     if suffix is not None:
         pass
     elif keep_ext:
-        suffix = ".Sv_raw.csv"
+        suffix = ".Sv{}.csv".format("_raw" if export_raw else "")
     else:
-        suffix = "_Sv_raw.csv"
+        suffix = "_Sv{}.csv".format("_raw" if export_raw else "")
 
     files = list(
         echofilter.path.parse_files_in_folders(
@@ -123,19 +142,17 @@ def run_ev2csv(
     if verbose >= 1:
         print("Processing {} file{}".format(len(files), "" if len(files) == 1 else "s"))
 
-    if len(files) == 1 or verbose <= 0:
-        maybe_tqdm = lambda x: x
-    else:
-        maybe_tqdm = lambda x: tqdm(x, desc="ev2csv")
-
+    disable_tqdm = len(files) == 1 or verbose <= 0
     skip_count = 0
     output_files = []
 
     # Open Echoview connection
     with echofilter.win.maybe_open_echoview(
-        do_open=not dry_run, minimize=minimize_echoview, hide=hide_echoview,
+        do_open=not dry_run,
+        minimize=minimize_echoview,
+        hide=hide_echoview,
     ) as ev_app:
-        for fname in maybe_tqdm(files):
+        for fname in tqdm(files, desc="ev2csv", disable=disable_tqdm):
             if verbose >= 2:
                 print("Exporting {} to raw CSV".format(fname))
 
@@ -178,6 +195,7 @@ def run_ev2csv(
                 fname_full,
                 destination,
                 variable_name=variable_name,
+                export_raw=export_raw,
                 ev_app=ev_app,
                 verbose=verbose - 1,
             )
@@ -191,7 +209,8 @@ def run_ev2csv(
         )
         if skip_count > 0:
             s += " Of these, {} file{} skipped.".format(
-                skip_count, " was" if skip_count == 1 else "s were",
+                skip_count,
+                " was" if skip_count == 1 else "s were",
             )
         print(s)
 
@@ -199,7 +218,12 @@ def run_ev2csv(
 
 
 def ev2csv(
-    input, destination, variable_name=DEFAULT_VARNAME, ev_app=None, verbose=0,
+    input,
+    destination,
+    variable_name=DEFAULT_VARNAME,
+    export_raw=True,
+    ev_app=None,
+    verbose=0,
 ):
     """
     Export a single EV file to CSV.
@@ -213,19 +237,22 @@ def ev2csv(
     variable_name : str, optional
         Name of the Echoview acoustic variable to export. Default is
         `"Fileset1: Sv pings T1"`.
+    export_raw : bool, optional
+        If ``True`` (default), exclusion and threshold settings in the EV file
+        are temporarily disabled before exporting the CSV, in order to ensure
+        all raw data is exported.
     ev_app : win32com.client.Dispatch object or None, optional
         An object which can be used to interface with the Echoview application,
-        as returned by `win32com.client.Dispatch`. If `None` (default), a
+        as returned by :class:`win32com.client.Dispatch`. If ``None`` (default), a
         new instance of the application is opened (and closed on completion).
     verbose : int, optional
-        Level of verbosity. Default is `0`.
+        Level of verbosity. Default is ``0``.
 
     Returns
     -------
     destination : str
-        Absolute path to `destination`.
+        Absolute path to ``destination``.
     """
-
     if verbose >= 1:
         print("  Opening {} in Echoview".format(input))
 
@@ -239,15 +266,16 @@ def ev2csv(
         # Find the right variable
         av = ev_file.Variables.FindByName(variable_name).AsVariableAcoustic()
 
-        # Make sure we don't exclude anything, i.e. export "raw" data
-        av.Properties.Analysis.ExcludeAbove = "None"
-        av.Properties.Analysis.ExcludeBelow = "None"
-        av.Properties.Analysis.ExcludeBadDataRegions = False
-        av.Properties.Analysis.ExcludeBadLineStatusPings = False
-        av.Properties.Data.ApplyMinimumThreshold = False
-        av.Properties.Data.ApplyMaximumThreshold = False
-        av.Properties.Data.ApplyMinimumTsThreshold = False
-        av.Properties.Data.ApplyTimeVariedThreshold = False
+        if export_raw:
+            # Make sure we don't exclude anything, i.e. export "raw" data
+            av.Properties.Analysis.ExcludeAbove = "None"
+            av.Properties.Analysis.ExcludeBelow = "None"
+            av.Properties.Analysis.ExcludeBadDataRegions = False
+            av.Properties.Analysis.ExcludeBadLineStatusPings = False
+            av.Properties.Data.ApplyMinimumThreshold = False
+            av.Properties.Data.ApplyMaximumThreshold = False
+            av.Properties.Data.ApplyMinimumTsThreshold = False
+            av.Properties.Data.ApplyTimeVariedThreshold = False
 
         # Export the raw file
         if verbose >= 1:
@@ -268,7 +296,6 @@ def get_parser():
     parser : argparse.ArgumentParser
         CLI argument parser for ev2csv.
     """
-
     import argparse
 
     prog = os.path.split(sys.argv[0])[1]
@@ -288,7 +315,10 @@ def get_parser():
         " of this program is supressed if any of these are given.",
     )
     group_action.add_argument(
-        "-h", "--help", action="help", help="Show this help message and exit.",
+        "-h",
+        "--help",
+        action="help",
+        help="Show this help message and exit.",
     )
     group_action.add_argument(
         "--version",
@@ -376,6 +406,23 @@ def get_parser():
         """,
     )
 
+    # Processing arguments
+    group_inproc = parser.add_argument_group(
+        "Processing arguments",
+        "Optional parameters specifying how to process files.",
+    )
+    group_inproc.add_argument(
+        "--keep-exclusions",
+        "--keep-thresholds",
+        dest="export_raw",
+        action="store_false",
+        help="""
+            Export CSV with all thresholds, exclusion regions, and bad data
+            exclusions set as per the EV file. Default behavior is to
+            ignore these settings and export the underlying raw data.
+        """,
+    )
+
     # Output files
     group_outfile = parser.add_argument_group(
         "Destination file arguments",
@@ -416,6 +463,16 @@ def get_parser():
         """,
     )
     group_outfile.add_argument(
+        "--keep-ext",
+        action="store_true",
+        help="""
+            If provided, the output file names (evl, evr, csv) maintain the
+            input file extension before their suffix (including a new file
+            extension). Default behaviour is to strip the input file name
+            extension before constructing the output paths.
+        """,
+    )
+    group_outfile.add_argument(
         "--output-suffix",
         "--suffix",
         dest="suffix",
@@ -424,6 +481,8 @@ def get_parser():
         help="""
             Output filename suffix. Default is ``"_Sv_raw.csv"``, or
             ``".Sv_raw.csv"`` if the ``--keep_ext`` argument is supplied.
+            if ``--keep-exclusions`` is given, the ``"_raw"`` component is
+            dropped.
         """,
     )
 
@@ -536,12 +595,12 @@ def _get_parser_sphinx():
     return echofilter.ui.formatters.format_parser_for_sphinx(get_parser())
 
 
-def main():
+def main(args=None):
     """
     Run ev2csv command line interface.
     """
     parser = get_parser()
-    kwargs = vars(parser.parse_args())
+    kwargs = vars(parser.parse_args(args))
     kwargs["verbose"] -= kwargs.pop("quiet", 0)
 
     if kwargs["hide_echoview"] is None:

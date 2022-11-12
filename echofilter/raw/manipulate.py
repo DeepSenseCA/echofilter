@@ -2,6 +2,22 @@
 Manipulating lines and masks contained in Echoview files.
 """
 
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import copy
 import os
 import warnings
@@ -10,10 +26,7 @@ import numpy as np
 import scipy.interpolate
 import scipy.ndimage
 
-from . import loader
-from . import metadata
-from . import utils
-
+from . import loader, metadata, utils
 
 ROOT_DATA_DIR = loader.ROOT_DATA_DIR
 
@@ -28,21 +41,21 @@ def find_passive_data(signals, n_depth_use=38, threshold=25.0, deviation=None):
         Two-dimensional array of Sv values, shaped `[timestamps, depths]`.
     n_depth_use : int, optional
         How many Sv depths to use, starting with the first depths (closest
-        to the sounder device). If `None` all depths are used. Default is `26`.
+        to the sounder device). If ``None`` all depths are used. Default is ``38``.
     threshold : float, optional
-        Threshold for start/end of passive regions. Default is `10`.
+        Threshold for start/end of passive regions. Default is ``25``.
     deviation : float, optional
-        Threshold for start/end of passive regions is `deviation` times the
+        Threshold for start/end of passive regions is ``deviation`` times the
         interquartile-range of the difference between samples at neigbouring
-        timestamps. Default is `None`. Only one of `threshold` and `deviation`
+        timestamps. Default is ``None``. Only one of ``threshold`` and ``deviation``
         should be set.
 
     Returns
     -------
     passive_start : numpy.ndarray
-        Indices of rows of `signals` at which passive segments start.
+        Indices of rows of ``signals`` at which passive segments start.
     passive_end : numpy.ndarray
-        Indices of rows of `signals` at which passive segments end.
+        Indices of rows of ``signals`` at which passive segments end.
 
     Notes
     -----
@@ -131,7 +144,8 @@ def find_passive_data(signals, n_depth_use=38, threshold=25.0, deviation=None):
                 indices_passive_start[-1] = 0
             else:
                 indices_passive_start[-1] = min(
-                    indices_passive_start[-1], nonpassives[-1] + 1,
+                    indices_passive_start[-1],
+                    nonpassives[-1] + 1,
                 )
 
         # Combine with preceding passive segments if they overlap
@@ -163,38 +177,38 @@ def find_passive_data_v2(
         Two-dimensional array of Sv values, shaped `[timestamps, depths]`.
     n_depth_use : int, optional
         How many Sv depths to use, starting with the first depths (closest
-        to the sounder device). If `None` all depths are used. Default is `38`.
+        to the sounder device). If ``None`` all depths are used. Default is ``38``.
         The median is taken across the depths, after taking the temporal
         derivative.
     threshold_inner : float, optional
         Theshold to apply to the temporal derivative of the signal when
         detected fine-tuned start/end of passive regions.
         Default behaviour is to use a threshold automatically determined using
-        `deviation` if it is set, and otherwise use a threshold of `35.0`.
+        ``deviation`` if it is set, and otherwise use a threshold of ``35.0``.
     threshold_init : float, optional
         Theshold to apply during the initial scan of the start/end of passive
         regions, which seeds the fine-tuning search.
         Default behaviour is to use a threshold automatically determined using
-        `deviation` if it is set, and otherwise use a threshold of `12.0`.
+        ``deviation`` if it is set, and otherwise use a threshold of ``12.0``.
     deviation : float, optional
-        Set `threshold_inner` to be `deviation` times the standard deviation of
+        Set ``threshold_inner`` to be ``deviation`` times the standard deviation of
         the temporal derivative of the signal. The standard deviation is
         robustly estimated based on the interquartile range.
-        If this is set, `threshold_inner` must not be `None`.
-        Default is `None`
+        If this is set, ``threshold_inner`` must not be ``None``.
+        Default is ``None``
     sigma_depth : float, optional
         Width of kernel for filtering signals across second dimension (depth).
-        Default is `0` (no filter).
+        Default is ``0`` (no filter).
     sigma_time : float, optional
         Width of kernel for filtering signals across second dimension (time).
-        Default is `1`. Set to `0` to not filter.
+        Default is ``1``. Set to ``0`` to not filter.
 
     Returns
     -------
     passive_start : numpy.ndarray
-        Indices of rows of `signals` at which passive segments start.
+        Indices of rows of ``signals`` at which passive segments start.
     passive_end : numpy.ndarray
-        Indices of rows of `signals` at which passive segments end.
+        Indices of rows of ``signals`` at which passive segments end.
 
     Notes
     -----
@@ -247,7 +261,7 @@ def find_passive_data_v2(
             )
 
     threshold_high_inner = threshold_inner
-    threshold_low_inner = -threshold_inner
+    # threshold_low_inner = -threshold_inner
     threshold_high_init = threshold_init
     threshold_low_init = -threshold_init
     indices_possible_start_init = np.nonzero(md_init < threshold_low_init)[0]
@@ -352,7 +366,8 @@ def find_passive_data_v2(
                 indices_passive_start[-1] = 0
             else:
                 indices_passive_start[-1] = min(
-                    indices_passive_start[-1], nonpassives[-1] + 1,
+                    indices_passive_start[-1],
+                    nonpassives[-1] + 1,
                 )
 
         # Combine with preceding passive segments if they overlap
@@ -368,31 +383,31 @@ def find_passive_data_v2(
 
 def make_lines_from_mask(mask, depths=None, max_gap_squash=1.0):
     """
-    Determines turbulence and bottom lines for a mask array.
+    Determine turbulence and bottom lines for a mask array.
 
     Parameters
     ----------
     mask : array_like
         A two-dimensional logical array, where for each row dimension 1 takes
-        the value `False` for some unknown continuous stretch at the start and
-        end of the column, with `True` values between these two masked-out
+        the value ``False`` for some unknown continuous stretch at the start and
+        end of the column, with ``True`` values between these two masked-out
         regions.
     depths : array_like, optional
-        Depth of each sample point along dim 1 of `mask`. Must be either
+        Depth of each sample point along dim 1 of ``mask``. Must be either
         monotonically increasing or monotonically decreasing. Default is the
-        index of `mask`, `arange(mask.shape[1])`.
+        index of ``mask``, ``arange(mask.shape[1])``.
     max_gap_squash : float, optional
-        Maximum gap to merge together, in metres. Default is `1.`.
+        Maximum gap to merge together, in metres. Default is ``1.``.
 
     Returns
     -------
     d_turbulence : numpy.ndarray
         Depth of turbulence line. This is the line of smaller depth which
-        separates the `False` region of `mask` from the central region of
-        `True` values. (If `depths` is monotonically increasing, this is
-        for the start of the columns of `mask`, otherwise it is at the end.)
+        separates the ``False`` region of ``mask`` from the central region of
+        ``True`` values. (If ``depths`` is monotonically increasing, this is
+        for the start of the columns of ``mask``, otherwise it is at the end.)
     d_bottom : numpy.ndarray
-        Depth of bottom line. As for `d_turbulence`, but for the other end of the
+        Depth of bottom line. As for ``d_turbulence``, but for the other end of the
         array.
     """
     # Ensure input is an array. Make a copy, so we don't modify the input.
@@ -429,8 +444,7 @@ def make_lines_from_mask(mask, depths=None, max_gap_squash=1.0):
 
 def make_lines_from_masked_csv(fname):
     """
-    Load a masked csv file output from Echoview and generate lines which
-    reproduce the mask.
+    Load a masked csv file and convert its mask to lines.
 
     Parameters
     ----------
@@ -455,8 +469,7 @@ def make_lines_from_masked_csv(fname):
 
 def write_lines_for_masked_csv(fname_mask, fname_turbulence=None, fname_bottom=None):
     """
-    Write new turbulence and bottom lines based on csv containing masked Echoview
-    output.
+    Write turbulence and bottom lines based on masked csv file.
 
     Parameters
     ----------
@@ -464,13 +477,13 @@ def write_lines_for_masked_csv(fname_mask, fname_turbulence=None, fname_bottom=N
         Path to input file containing masked Echoview output data in csv
         format.
     fname_turbulence : str, optional
-        Destination of generated turbulence line, written in evl format. If `None`
-        (default), the output name is `<fname_base>_mask-turbulence.evl`, where
-        `<fname_base>` is `fname_mask` without extension and without any
-        occurence of the substrings `_Sv_raw` or `_Sv` in the base file name.
+        Destination of generated turbulence line, written in evl format. If ``None``
+        (default), the output name is ``<fname_base>_mask-turbulence.evl``, where
+        ``<fname_base>`` is ``fname_mask`` without extension and without any
+        occurence of the substrings ``_Sv_raw`` or ``_Sv`` in the base file name.
     fname_bottom : str
-        Destination of generated bottom line, written in evl format. If `None`
-        (default), the output name is `<fname_base>_mask-bottom.evl`.
+        Destination of generated bottom line, written in evl format. If ``None``
+        (default), the output name is ``<fname_base>_mask-bottom.evl``.
     """
     if fname_turbulence is None or fname_bottom is None:
         fname_base = os.path.splitext(fname_mask)[0]
@@ -500,17 +513,16 @@ def find_nonzero_region_boundaries(v):
     Returns
     -------
     starts : numpy.ndarray
-        Indices for start of regions of nonzero elements in vector `v`
+        Indices for start of regions of nonzero elements in vector ``v``
     ends : numpy.ndarray
-        Indices for end of regions of nonzero elements in vector `v`
+        Indices for end of regions of nonzero elements in vector ``v``
         (exclusive).
 
     Notes
     -----
-    For `i` in `range(len(starts))`, the set of values `v[starts[i]:ends[i]]`
-    are nonzero. Values in the range `v[ends[i]:starts[i+1]]` are zero.
+    For ``i`` in ``range(len(starts))``, the set of values ``v[starts[i]:ends[i]]``
+    are nonzero. Values in the range ``v[ends[i]:starts[i+1]]`` are zero.
     """
-
     v = np.asarray(v)
     v = v != 0
     v = v.astype(np.float)
@@ -522,7 +534,7 @@ def find_nonzero_region_boundaries(v):
         starts = np.r_[0, starts]
 
     if v[-1]:
-        ends = np.r_[ends, len(vector)]
+        ends = np.r_[ends, len(v)]
 
     return starts, ends
 
@@ -546,7 +558,7 @@ def fixup_lines(
     depths : array_like
         Shaped `(num_depths, )`.
     mask : array_like
-        Boolean array, where `True` denotes kept entries.
+        Boolean array, where ``True`` denotes kept entries.
         Shaped `(num_timestamps, num_depths)`.
     t_turbulence : array_like, optional
         Sampling times for existing turbulence line.
@@ -586,14 +598,18 @@ def fixup_lines(
         d_turbulence_new[li] = d_turbulence[li]
     elif np.any(~li):
         d_turbulence_new[li] = np.interp(
-            timestamps[li], timestamps[~li], d_turbulence_new[~li],
+            timestamps[li],
+            timestamps[~li],
+            d_turbulence_new[~li],
         )
     li = np.isnan(d_bottom_new)
     if d_bottom is not None:
         d_bottom_new[li] = d_bottom[li]
     elif np.any(~li):
         d_bottom_new[li] = np.interp(
-            timestamps[li], timestamps[~li], d_bottom_new[~li],
+            timestamps[li],
+            timestamps[~li],
+            d_bottom_new[~li],
         )
 
     # Ensure that the lines cover at least as much material as they did before
@@ -644,7 +660,7 @@ def remove_anomalies_1d(
     """
     Remove anomalies from a temporal signal.
 
-    Applies a median filter to the data, and replaces datapoints which
+    Apply a median filter to the data, and replaces datapoints which
     deviate from the median filtered signal by more than some threshold
     with the median filtered data. This process is repeated until no
     datapoints deviate from the filtered line by more than the threshold.
@@ -654,20 +670,20 @@ def remove_anomalies_1d(
     signal : array_like
         The signal to filter.
     thr : float, optional
-        The initial threshold will be `thr` times the standard deviation of the
+        The initial threshold will be ``thr`` times the standard deviation of the
         residuals. The standard deviation is robustly estimated from the
-        interquartile range. Default is `5`.
+        interquartile range. Default is ``5``.
     thr2 : float, optional
-        The threshold for repeated iterations will be `thr2` times the standard
+        The threshold for repeated iterations will be ``thr2`` times the standard
         deviation of the remaining residuals. The standard deviation is
-        robustly estimated from interdecile range. Default is `4`.
+        robustly estimated from interdecile range. Default is ``4``.
     kernel : int, optional
-        The kernel size for the initial median filter. Default is `201`.
+        The kernel size for the initial median filter. Default is ``201``.
     kernel2 : int, optional
-        The kernel size for subsequent median filters. Default is `31`.
+        The kernel size for subsequent median filters. Default is ``31``.
     return_filtered : bool, optional
-        If `True`, the median filtered signal is also returned.
-        Default is `False`.
+        If ``True``, the median filtered signal is also returned.
+        Default is ``False``.
 
     Returns
     -------
@@ -676,11 +692,11 @@ def remove_anomalies_1d(
     is_replaced : bool numpy.ndarray shaped like signal
         Indicator for which datapoints were replaced.
     filtered : numpy.ndarray like signal, optional
-        The final median filtered signal. Returned if `return_filtered=True`.
+        The final median filtered signal. Returned if ``return_filtered=True``.
 
-    See also
+    See Also
     --------
-    `echofilter.raw.utils.medfilt1d`
+    echofilter.raw.utils.medfilt1d
     """
     signal = np.copy(signal)
 
@@ -734,7 +750,7 @@ def fix_surface_line(timestamps, d_surface, is_passive):
     fixed_surface : numpy.ndarray
         Surface line depths, with anomalies replaced with median filtered
         values and passive data replaced with linear interpolation.
-        Has the same size and dtype as `d_surface`.
+        Has the same size and dtype as ``d_surface``.
     is_replaced : boolean numpy.ndarray sized (N, )
         Indicates which datapoints were replaced. Note that passive data is
         always replaced and is marked as such.
@@ -784,8 +800,10 @@ def fix_surface_line(timestamps, d_surface, is_passive):
 
 def load_decomposed_transect_mask(sample_path):
     """
-    Loads a raw and masked transect and decomposes the mask into turbulence and bottom
-    lines, and passive and removed regions.
+    Load a raw and masked transect and decompose the mask.
+
+    The mask is decomposed into turbulence and bottom lines, and passive and
+    removed regions.
 
     Parameters
     ----------
@@ -803,12 +821,12 @@ def load_decomposed_transect_mask(sample_path):
                 timepoint.
             - "depths" : numpy.ndarray
                 Depths from the surface (in metres), with each entry
-                corresponding to each column in the `signals` data.
+                corresponding to each column in the ``signals`` data.
             - "Sv" : numpy.ndarray
                 Echogram Sv data, shaped (num_timestamps, num_depths).
             - "mask" : numpy.ndarray
-                Logical array indicating which datapoints were kept (`True`)
-                and which removed (`False`) for the masked Sv output.
+                Logical array indicating which datapoints were kept (``True``)
+                and which removed (``False``) for the masked Sv output.
                 Shaped (num_timestamps, num_depths).
             - "turbulence" : numpy.ndarray
                 For each timepoint, the depth of the shallowest datapoint which
@@ -830,7 +848,6 @@ def load_decomposed_transect_mask(sample_path):
                 recording source is at the shallowest depth (i.e. the surface),
                 facing downwards.
     """
-
     # Load raw data
     fname_raw = os.path.join(sample_path + "_Sv_raw.csv")
     fname_masked = os.path.join(sample_path + "_Sv.csv")
@@ -920,11 +937,15 @@ def load_decomposed_transect_mask(sample_path):
         # Interpolate mask
         if is_upward_facing:
             mask = scipy.interpolate.RectBivariateSpline(
-                ts_mskd, depths_mskd[::-1], mask[:, ::-1].astype(np.float),
+                ts_mskd,
+                depths_mskd[::-1],
+                mask[:, ::-1].astype(np.float),
             )(ts_raw, depths_raw[::-1])[:, ::-1]
         else:
             mask = scipy.interpolate.RectBivariateSpline(
-                ts_mskd, depths_mskd, mask.astype(np.float),
+                ts_mskd,
+                depths_mskd,
+                mask.astype(np.float),
             )(ts_raw, depths_raw)
         # Binarise
         mask = mask > 0.5
@@ -1093,9 +1114,17 @@ def load_decomposed_transect_mask(sample_path):
     return transect
 
 
-def split_transect(timestamps=None, threshold=20, percentile=97.5, **transect):
+def split_transect(
+    timestamps=None,
+    threshold=20,
+    percentile=97.5,
+    max_length=-1,
+    pad_length=32,
+    pad_on="max",
+    **transect,
+):
     """
-    Splits a transect into segments each containing contiguous recordings.
+    Split a transect into segments each containing contiguous recordings.
 
     Parameters
     ----------
@@ -1105,35 +1134,99 @@ def split_transect(timestamps=None, threshold=20, percentile=97.5, **transect):
         occassional gaps.
     threshold : int, optional
         Threshold for splitting timestamps into segments. Any timepoints
-        further apart than `threshold` times the `percentile` percentile of the
+        further apart than ``threshold`` times the ``percentile`` percentile of the
         difference between timepoints will be split apart into new segments.
-        Default is `20`.
+        Default is ``20``.
     percentile : float, optional
         The percentile at which to sample the timestamp intervals to establish
-        a baseline typical interval. Default is `97.5`.
+        a baseline typical interval. Default is ``97.5``.
+    max_length : int, default=-1
+        Maximum length of each segment.
+        Set to ``0`` or ``-1`` to disable (default).
+    pad_length : int, default=32
+        Amount of overlap between the segments. Set to ``0`` to disable.
+    pad_on : {"max", "thr", "all", "none"}, default="max"
+        Apply overlap padding when the transect is split due to either the total
+        length exceeding the maximum (``"max"``), the time delta exceeding the
+        threshold (``"thr"``), or both (``"all"``).
     **kwargs
         Arbitrary additional transect variables, which will be split into
-        segments as appropriate in accordance with `timestamps`.
+        segments as appropriate in accordance with ``timestamps``.
 
     Yields
     ------
     dict
-        Containing segmented data, key/value pairs as per given in `**kwargs`
-        in addition to `timestamps`.
+        Containing segmented data, key/value pairs as per given in ``**kwargs``
+        in addition to ``timestamps``.
     """
-
     if timestamps is None:
         raise ValueError("The `timestamps` argument is required.")
 
+    if pad_on not in {"max", "thr", "all", "none"}:
+        raise ValueError("Unsupported pad_on values: {}".format(pad_on))
+
+    if max_length is None or max_length < 0:
+        max_length = 0
+
+    # Fix break points due to time delta threshold
     dt = np.diff(timestamps)
     break_indices = np.where(dt > np.percentile(dt, percentile) * threshold)[0]
     if len(break_indices) > 0:
         break_indices += 1
 
-    for seg_start, seg_end in zip(
-        np.r_[0, break_indices], np.r_[break_indices, len(timestamps)],
+    # Add the start and end indices
+    break_indices = np.r_[0, break_indices, len(timestamps)]
+
+    # Check for breaks needed due to max length
+    break_indices2 = []
+    break_from_max_pre = []
+    break_from_max_post = []
+    for i in range(len(break_indices) - 1):
+        segment_len = break_indices[i + 1] - break_indices[i]
+        if not max_length or segment_len <= max_length:
+            break_indices2.append(break_indices[i])
+            break_from_max_pre.append(False)
+            break_from_max_post.append(False)
+            continue
+        subseg = np.linspace(
+            break_indices[i],
+            break_indices[i + 1],
+            1 + int(np.ceil(segment_len / max_length)),
+        )
+        subseg = np.round(subseg).astype(int)
+        for j, subseg_idx in enumerate(subseg[:-1]):
+            break_indices2.append(subseg_idx)
+            break_from_max_pre.append(j > 0)
+            break_from_max_post.append(j < len(subseg) - 2)
+
+    break_indices2.append(len(timestamps))
+
+    for seg_start, seg_end, seg_max_pre, seg_max_post in zip(
+        break_indices2[:-1], break_indices2[1:], break_from_max_pre, break_from_max_post
     ):
         segment = {}
+        # Determine whether to pad the start/end, and record this
+        segment["_pad_start"] = 0
+        segment["_pad_end"] = 0
+        if (
+            pad_on == "all"
+            or (pad_on == "max" and seg_max_pre)
+            or (pad_on == "thr" and not seg_max_pre)
+        ):
+            segment["_pad_start"] = pad_length
+        if (
+            pad_on == "all"
+            or (pad_on == "max" and seg_max_post)
+            or (pad_on == "thr" and not seg_max_post)
+        ):
+            segment["_pad_end"] = pad_length
+        if seg_start == 0:
+            segment["_pad_start"] = 0
+        if seg_end == len(timestamps):
+            segment["_pad_end"] = 0
+        # The padding effects the start and end of the extracted indices
+        seg_start -= segment["_pad_start"]
+        seg_end += segment["_pad_end"]
         segment["timestamps"] = timestamps[seg_start:seg_end]
         for key in transect:
             if key in ("depths",) or np.asarray(transect[key]).size <= 1:
@@ -1145,7 +1238,7 @@ def split_transect(timestamps=None, threshold=20, percentile=97.5, **transect):
 
 def join_transect(transects):
     """
-    Joins segmented transects together into a single dictionary.
+    Join segmented transects together into a single dictionary.
 
     Parameters
     ----------
@@ -1157,8 +1250,8 @@ def join_transect(transects):
     dict
         Transect data.
     """
-
     non_timelike_dims = ["depths"]
+    non_output_keys = {"_pad_start", "_pad_end"}
 
     for i, transect in enumerate(transects):
         if "depths" not in transect:
@@ -1166,20 +1259,35 @@ def join_transect(transects):
                 "'depths' is a required field, not found in transect {}".format(i)
             )
         if i == 0:
-            output = {k: [] for k in transect}
+            output = {k: [] for k in transect if k not in non_output_keys}
             output["depths"] = transect["depths"]
             for key in transect:
+                if key in non_output_keys:
+                    continue
                 if np.asarray(transect[key]).size <= 1:
                     output[key] = transect[key]
                     non_timelike_dims.append(key)
         if not np.allclose(output["depths"], transect["depths"]):
             raise ValueError("'depths' must be the same for all segments.")
+
+        scan_start = 0
+        scan_end = 0
+        if "_pad_start" in transect:
+            scan_start += transect.pop("_pad_start")
+        if "_pad_end" in transect:
+            scan_end -= transect.pop("_pad_end")
+        if scan_end == 0:
+            scan_end = None
+
         if transect.keys() != output.keys():
             raise ValueError("Keys mismatch.")
+
         for key in output:
+            if key in non_output_keys:
+                continue
             if key in non_timelike_dims:
                 continue
-            output[key].append(transect[key])
+            output[key].append(transect[key][scan_start:scan_end])
 
     for key in output:
         if key in non_timelike_dims:
@@ -1187,3 +1295,82 @@ def join_transect(transects):
         output[key] = np.concatenate(output[key], axis=0)
 
     return output
+
+
+def pad_transect(transect, pad=32, pad_mode="reflect", previous_padding="diff"):
+    """
+    Pad a transect in the timestamps dimension (axis 0).
+
+    Parameters
+    ----------
+    transect : dict
+        A dictionary of transect data.
+
+    pad : int, default=32
+        Amount of padding to add.
+
+    pad_mode : str, default="reflect"
+        Padding method for out-of-bounds inputs. Must be supported by
+        :meth:`numpy.pad`, such as ``"contast"``, ``"reflect"``, or ``"edge"``.
+        If the mode is ``"contast"``, the array will be padded with zeros.
+
+    previous_padding : {"diff", "add", "noop"}, default="diff"
+        How to handle this padding if the transect has already been padded.
+
+            ``"diff"``
+                Extend the padding up to the target ``pad`` value.
+            ``"add"``
+                Add this padding irrespective of pre-existing padding.
+            ``"noop"``
+                Don't add any new padding if previously padded.
+
+    Returns
+    -------
+    transect : dict
+        Like input ``transect``, but with all time-like dimensions extended
+        with padding and fields ``"_pad_start"`` and ``"_pad_end"`` changed
+        to indicate the total padding (including any pre-existing padding).
+    """
+    pad_shape = [pad, pad]
+
+    if previous_padding == "diff":
+        # Only extend existing padding up to target amount of padding
+        pad_shape[0] -= transect.get("_pad_start", 0)
+        pad_shape[1] -= transect.get("_pad_end", 0)
+        pad_shape[0] = max(0, pad_shape[0])
+        pad_shape[1] = max(0, pad_shape[1])
+    elif previous_padding == "noop":
+        # Don't do anything to edges already padded
+        if transect.get("_pad_start", 0) != 0:
+            pad_shape[0] = 0
+        if transect.get("_pad_end", 0) != 0:
+            pad_shape[1] = 0
+    elif previous_padding == "add":
+        # Add new padding in addition to previous padding
+        pass
+    else:
+        raise ValueError(
+            "Unfamiliar previous_padding handling mode: {}".format(previous_padding)
+        )
+
+    if pad_shape[0] == pad_shape[1] == 0:
+        # Nothing to do
+        return transect
+
+    if "_pad_start" in transect:
+        transect["_pad_start"] += pad_shape[0]
+    else:
+        transect["_pad_start"] = pad_shape[0]
+    if "_pad_end" in transect:
+        transect["_pad_end"] += pad_shape[1]
+    else:
+        transect["_pad_end"] = pad_shape[1]
+
+    for key in transect.keys():
+        if key in ("depths", "is_upward_facing") or not hasattr(
+            transect[key], "__len__"
+        ):
+            continue
+        transect[key] = utils.pad1d(transect[key], pad_shape, axis=0, mode=pad_mode)
+
+    return transect

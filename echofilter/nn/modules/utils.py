@@ -6,16 +6,14 @@ import collections
 from itertools import repeat
 
 import torch
-from torch._six import container_abcs
 from torch import nn
-
 
 __all__ = ["same_to_padding", "init_cnn"]
 
 
 def _ntuple(n):
     def parse(x):
-        if isinstance(x, container_abcs.Iterable):
+        if isinstance(x, collections.abc.Iterable):
             x = tuple(x)
             if len(x) == 0:
                 raise ValueError("Input {} is an empty iterable".format(x))
@@ -35,24 +33,24 @@ _quadruple = _ntuple(4)
 
 def same_to_padding(kernel_size, stride=1, dilation=1, ndim=None):
     """
-    Determines the amount of padding to use for a convolutional layer.
+    Determine the amount of padding to use for a convolutional layer.
 
     Parameters
     ----------
     kernel_size : int or sequence
         Size of kernel for each dimension.
     stride : int or sequence, optional
-        Amount of stride to apply in each dimension of the kernel. If `stride`
+        Amount of stride to apply in each dimension of the kernel. If ``stride``
         is an int, the same value is applied for each dimension.
-        Default is `1`.
+        Default is ``1``.
     dilation : int or sequence, optional
         Amount of dilation to apply in each dimension of the kernel.
-        If `dilation` is an int, the same value is applied for each dimension.
-        Default is `1`.
+        If ``dilation`` is an int, the same value is applied for each dimension.
+        Default is ``1``.
     ndim : int or None, optional
-        Number of dimensions of kernel to pad. If `None` (default), the number
+        Number of dimensions of kernel to pad. If ``None`` (default), the number
         of dimensions is inferred from the number of dimensions to
-        `kernel_size`.
+        ``kernel_size``.
 
     Returns
     -------
@@ -60,7 +58,6 @@ def same_to_padding(kernel_size, stride=1, dilation=1, ndim=None):
         Amount of padding to apply to each dimension before convolving with
         the kernel in order to preserve the size of input.
     """
-
     if isinstance(kernel_size, int):
         if kernel_size % 2 == 0:
             raise ValueError("Same padding is not implemented for even kernels sizes.")
@@ -94,21 +91,21 @@ def same_to_padding(kernel_size, stride=1, dilation=1, ndim=None):
 
 def rint(x, minval=None):
     """
-    Rounds and casts as an int, optionally with a floor value.
+    Round and cast as an int, optionally with a floor value.
 
     Parameters
     ----------
     x : float
         Number to round.
     minval : bool, optional
-        A floor value for the output. If `None`, no floor is applied. Default
-        is `None`.
+        A floor value for the output. If ``None``, no floor is applied. Default
+        is ``None``.
 
     Returns
     -------
     int
-        The number rounded to the nearest int, and cast as an int. If `minval`
-        is set, the max with `minval` is taken.
+        The number rounded to the nearest int, and cast as an int. If ``minval``
+        is set, the max with ``minval`` is taken.
     """
     x = int(round(x))
     if minval is not None:
@@ -118,8 +115,9 @@ def rint(x, minval=None):
 
 def init_cnn(m):
     """
-    Initialise biases and weights for a CNN layer, using a Kaiming normal
-    distribution for the weight and 0 for biases.
+    Initialize biases and weights for a CNN layer.
+
+    Uses a Kaiming normal distribution for the weight and 0 for biases.
 
     Function is applied recursively within the module.
 
@@ -132,5 +130,5 @@ def init_cnn(m):
         nn.init.constant_(m.bias, 0)
     if isinstance(m, (nn._ConvNd, nn.Linear)):
         nn.init.kaiming_normal_(m.weight)
-    for l in m.children():
-        init_cnn(l)
+    for layer in m.children():
+        init_cnn(layer)

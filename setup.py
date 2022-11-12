@@ -4,7 +4,7 @@ import os
 import sys
 from shutil import rmtree
 
-from setuptools import find_packages, setup, Command
+from setuptools import Command, find_packages, setup
 from setuptools.command.test import test as TestCommand
 
 
@@ -14,7 +14,7 @@ def read(fname):
 
 
 def process_requirements(requirements):
-    """Parse requirements, handling git repositories"""
+    """Parse requirements, handling git repositories."""
     EGG_MARK = "#egg="
     required = []
     dependency_links = []
@@ -25,7 +25,7 @@ def process_requirements(requirements):
             or req.startswith("git:")
             or req.startswith("git+")
         ):
-            if not EGG_MARK in req:
+            if EGG_MARK not in req:
                 raise ValueError(
                     "Dependency to a git repository should have the format:\n"
                     "git+ssh://git@github.com/org/repo@ref#egg=package\n"
@@ -113,52 +113,15 @@ class PyTest(TestCommand):
         pytest.main(self.test_args)
 
 
-class UploadCommand(Command):
-    """Support setup.py upload."""
-
-    description = "Build and publish the package."
-    user_options = []
-
-    @staticmethod
-    def status(s):
-        """Prints things in bold."""
-        print("\033[1m{0}\033[0m".format(s))
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        try:
-            self.status("Removing previous builds...")
-            here = os.path.abspath(os.path.dirname(__file__))
-            rmtree(here, "dist")
-        except OSError:
-            pass
-
-        self.status("Building Source and Wheel (universal) distribution...")
-        os.system("{0} setup.py sdist bdist_wheel --universal".format(sys.executable))
-
-        self.status("Uploading the package to PyPI via Twine...")
-        os.system("twine upload dist/*")
-
-        self.status("Pushing git tags...")
-        os.system("git tag v{0}".format(meta["__version__"]))
-        os.system("git push --tags")
-
-        sys.exit()
-
-
 setup(
     # Essential details on the package and its dependencies
     name=meta["name"],
+    python_requires=">=3.6",
     version=meta["version"],
     packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
     package_dir={meta["name"]: os.path.join(".", meta["path"])},
     # If any package contains *.txt or *.rst files, include them:
-    # package_data={'': ['*.txt', '*.rst'],}
+    package_data={"echofilter": ["checkpoints.yaml"]},
     install_requires=install_requires,
     extras_require=extras_require,
     dependency_links=dependency_links,
@@ -173,7 +136,7 @@ setup(
     classifiers=[
         # Trove classifiers
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: GNU Affero General Public License v3",
         "Natural Language :: English",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
@@ -182,11 +145,11 @@ setup(
     entry_points={
         "console_scripts": [
             "echofilter=echofilter.__main__:main",
-            "echofilter-train=echofilter.train:main",
+            "echofilter-train=echofilter.ui.train_cli:main",
             "echofilter-generate-shards=echofilter.generate_shards:main",
             "ev2csv=echofilter.ev2csv:main",
         ],
     },
     # Custom commands
-    cmdclass={"test": PyTest, "upload": UploadCommand,},
+    cmdclass={"test": PyTest},
 )

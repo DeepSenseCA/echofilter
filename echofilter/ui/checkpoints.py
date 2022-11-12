@@ -2,19 +2,36 @@
 Interacting with the list of available checkpoints.
 """
 
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import argparse
-from collections import OrderedDict
 import os
 import pickle
+from collections import OrderedDict
 
 import appdirs
 import yaml
 
 from . import style
 
-
 PACKAGE_DIR = os.path.dirname(os.path.dirname(__file__))
+REPO_DIR = os.path.dirname(PACKAGE_DIR)
 CHECKPOINT_FILE = os.path.join(PACKAGE_DIR, "checkpoints.yaml")
+CHECKPOINT_FILE_ALT = os.path.join(REPO_DIR, "checkpoints.yaml")
 CHECKPOINT_EXT = ".pt"
 
 
@@ -28,7 +45,14 @@ def get_checkpoint_list():
         Dictionary with a key for each checkpoint. Each key maps to a dictionary
         whose elements describe the checkpoint.
     """
-    with open(CHECKPOINT_FILE, "r") as hf:
+    checkpoint_file_use = None
+    if os.path.isfile(CHECKPOINT_FILE):
+        checkpoint_file_use = CHECKPOINT_FILE
+    elif os.path.isfile(CHECKPOINT_FILE_ALT):
+        checkpoint_file_use = CHECKPOINT_FILE_ALT
+    else:
+        raise EnvironmentError(f"No such file: '{CHECKPOINT_FILE}'")
+    with open(checkpoint_file_use, "r") as hf:
         checkpoints = OrderedDict(yaml.safe_load(hf)["checkpoints"])
     return checkpoints
 
@@ -81,7 +105,7 @@ def cannonise_checkpoint_name(name):
 class ListCheckpoints(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
         print("Currently available model checkpoints:")
-        for checkpoint, props in get_checkpoint_list().items():
+        for checkpoint in get_checkpoint_list():
             if checkpoint == get_default_checkpoint():
                 print("  * " + style.progress_fmt(checkpoint))
             else:
@@ -103,10 +127,10 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     checkpoint_name : str
         Name of checkpoint to download.
     cache_dir : str or None, optional
-        Path to local cache directory. If `None` (default), an OS-appropriate
+        Path to local cache directory. If ``None`` (default), an OS-appropriate
         application-specific default cache directory is used.
     verbose : int, optional
-        Verbosity level. Default is `1`. Set to `0` to disable print
+        Verbosity level. Default is ``1``. Set to ``0`` to disable print
         statements.
 
     Returns
@@ -118,14 +142,16 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
         cache_dir = get_default_cache_dir()
 
     checkpoint_name = cannonise_checkpoint_name(checkpoint_name)
-    destination = os.path.join(cache_dir, checkpoint_name + CHECKPOINT_EXT,)
+    destination = os.path.join(cache_dir, checkpoint_name + CHECKPOINT_EXT)
 
     if os.path.exists(destination):
         return destination
 
     # Import packages needed for downloading files
-    import requests, urllib
-    from torchvision.datasets.utils import download_url, download_file_from_google_drive
+    import urllib
+
+    import requests
+    from torchvision.datasets.utils import download_file_from_google_drive, download_url
 
     os.makedirs(cache_dir, exist_ok=True)
 
@@ -206,21 +232,21 @@ def load_checkpoint(
     ----------
     checkpoint_name : str or None, optional
         Path to checkpoint file, or name of checkpoint to download.
-        Default is `None`.
+        Default is ``None``.
     cache_dir : str or None, optional
-        Path to local cache directory. If `None` (default), an OS-appropriate
+        Path to local cache directory. If ``None`` (default), an OS-appropriate
         application-specific default cache directory is used.
     device : str or torch.device or None, optional
-        Device onto which weight tensors will be mapped. If `None`, no mapping
+        Device onto which weight tensors will be mapped. If ``None``, no mapping
         is performed and tensors will be loaded onto the same device as they
         were on when saved (which will result in an error if the device is not
-        present). Default is `"cpu"`.
+        present). Default is ``"cpu"``.
     return_name : bool, optional
-        If `True`, a tuple is returned indicting the name of the checkpoint
+        If ``True``, a tuple is returned indicting the name of the checkpoint
         which was loaded. This is useful if the default checkpoint was loaded.
-        Default is `False`.
+        Default is ``False``.
     verbose : int, optional
-        Verbosity level. Default is `1`. Set to `0` to disable print
+        Verbosity level. Default is ``1``. Set to ``0`` to disable print
         statements.
 
     Returns
@@ -228,7 +254,7 @@ def load_checkpoint(
     checkpoint : dict
         Loaded checkpoint.
     checkpoint_name : str, optional
-        If `return_name` is `True`, the name of the checkpoint is also
+        If ``return_name`` is ``True``, the name of the checkpoint is also
         returned.
     """
     import torch
@@ -242,10 +268,14 @@ def load_checkpoint(
     ckpt_name_cannon = cannonise_checkpoint_name(ckpt_name)
     checkpoint_resources = get_checkpoint_list()
     builtin_ckpt_path_a = os.path.join(
-        PACKAGE_DIR, "checkpoints", os.path.split(ckpt_name)[1],
+        PACKAGE_DIR,
+        "checkpoints",
+        os.path.split(ckpt_name)[1],
     )
     builtin_ckpt_path_b = os.path.join(
-        PACKAGE_DIR, "checkpoints", ckpt_name_cannon + CHECKPOINT_EXT,
+        PACKAGE_DIR,
+        "checkpoints",
+        ckpt_name_cannon + CHECKPOINT_EXT,
     )
 
     using_cache = False
@@ -263,7 +293,9 @@ def load_checkpoint(
         ckpt_dscr = "builtin"
     elif ckpt_name_cannon in checkpoint_resources:
         using_cache = True
-        ckpt_path = download_checkpoint(ckpt_name_cannon, cache_dir=cache_dir)
+        ckpt_path = download_checkpoint(
+            ckpt_name_cannon, cache_dir=cache_dir, verbose=verbose
+        )
         ckpt_dscr = "cached"
     else:
         msg = style.error_fmt(
@@ -301,7 +333,9 @@ def load_checkpoint(
             # Delete the checkpoint and try again, in case it is just a
             # malformed download (interrupted download, etc)
             os.remove(ckpt_path)
-            ckpt_path = download_checkpoint(ckpt_name, cache_dir=cache_dir)
+            ckpt_path = download_checkpoint(
+                ckpt_name, cache_dir=cache_dir, verbose=verbose
+            )
             try:
                 checkpoint = torch.load(ckpt_path, **load_args)
 
@@ -334,7 +368,7 @@ def load_checkpoint(
                 import shutil
 
                 _, _, free_B = shutil.disk_usage("/")
-                free_MiB = free_B // 10 ** 6
+                free_MiB = free_B // 10**6
 
                 if free_MiB < 64:
                     msg = (

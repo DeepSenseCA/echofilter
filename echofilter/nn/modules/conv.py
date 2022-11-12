@@ -30,9 +30,9 @@ class Conv2dSame(nn.Conv2d):
         stride=1,
         padding="same",
         dilation=1,
-        **kwargs
+        **kwargs,
     ):
-        if padding is "same":
+        if isinstance(padding, str) and padding == "same":
             padding = same_to_padding(kernel_size, stride, dilation, ndim=2)
 
         super(Conv2dSame, self).__init__(
@@ -42,7 +42,7 @@ class Conv2dSame(nn.Conv2d):
             stride=stride,
             padding=padding,
             dilation=dilation,
-            **kwargs
+            **kwargs,
         )
 
 
@@ -73,7 +73,7 @@ class DepthwiseConv2d(nn.Conv2d):
                 "Number of groups must equal number of input channels for a depthwise convolution."
             )
 
-        if padding is "same":
+        if isinstance(padding, str) and padding == "same":
             padding = same_to_padding(kernel_size, stride, dilation, ndim=2)
 
         super(DepthwiseConv2d, self).__init__(
@@ -84,7 +84,7 @@ class DepthwiseConv2d(nn.Conv2d):
             padding=padding,
             dilation=dilation,
             groups=in_channels,
-            **kwargs
+            **kwargs,
         )
 
 
@@ -102,11 +102,11 @@ class SeparableConv2d(nn.Module):
         padding="same",
         dilation=1,
         groups=1,
-        **kwargs
+        **kwargs,
     ):
         super(SeparableConv2d, self).__init__()
 
-        if padding is "same":
+        if isinstance(padding, str) and padding == "same":
             padding = same_to_padding(kernel_size, stride, dilation, ndim=2)
 
         self.depthwise = nn.Conv2d(
@@ -117,7 +117,7 @@ class SeparableConv2d(nn.Module):
             padding=padding,
             dilation=dilation,
             groups=in_channels,
-            **kwargs
+            **kwargs,
         )
 
         self.pointwise = nn.Conv2d(
@@ -128,7 +128,7 @@ class SeparableConv2d(nn.Module):
             padding=0,
             dilation=1,
             groups=groups,
-            **kwargs
+            **kwargs,
         )
 
     def foward(self, x):
@@ -139,8 +139,10 @@ class SeparableConv2d(nn.Module):
 
 class GaussianSmoothing(nn.Module):
     """
-    Apply gaussian smoothing on a 1d, 2d or 3d tensor. Filtering is performed
-    seperately for each channel in the input using a depthwise convolution.
+    Apply gaussian smoothing on a 1d, 2d or 3d tensor.
+
+    Filtering is performed seperately for each channel in the input using a
+    depthwise convolution.
 
     Parameters
     ----------
@@ -153,17 +155,18 @@ class GaussianSmoothing(nn.Module):
         Standard deviation of the gaussian kernel.
     padding : int or sequence or "same", optional
         Amount of padding to use, for each side of each dimension. If this is
-        `"same"` (default) the amount of padding will be set automatically
+        ``"same"`` (default) the amount of padding will be set automatically
         to ensure the size of the tensor is unchanged.
     pad_mode : str, optional
         Padding mode. See :meth:`torch.nn.functional.pad` for options. Default
-        is `"replicate"`.
+        is ``"replicate"``.
     ndim : int, optional
         The number of dimensions of the data. Default value is 2 (spatial).
 
     Notes
     -----
-    Based on https://discuss.pytorch.org/t/is-there-anyway-to-do-gaussian-filtering-for-an-image-2d-3d-in-pytorch/12351/10
+    Based on
+    https://discuss.pytorch.org/t/is-there-anyway-to-do-gaussian-filtering-for-an-image-2d-3d-in-pytorch/12351/10
     """
 
     def __init__(
@@ -181,7 +184,7 @@ class GaussianSmoothing(nn.Module):
             return
 
         # Handle padding arguments
-        if padding is "same":
+        if isinstance(padding, str) and padding == "same":
             padding = same_to_padding(kernel_size, ndim=ndim)
             padding = tuple(
                 itertools.chain.from_iterable(itertools.repeat(p, 2) for p in padding)

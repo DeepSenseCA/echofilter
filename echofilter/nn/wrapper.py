@@ -1,6 +1,22 @@
 """
-Model wrapper
+Model wrapper.
 """
+
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import warnings
 
@@ -18,31 +34,31 @@ class Echofilter(nn.Module):
 
     Parameters
     ----------
-    model : `torch.nn.Module`
+    model : :class:`torch.nn.Module`
         The model backbone, which converts inputs to logits.
     top : str, optional
-        Type of output for top line and surface line. If `"mask"`, the top
+        Type of output for top line and surface line. If ``"mask"``, the top
         output corresponds to logits, which are converted into probabilities
-        with sigmoid. If `"boundary"` (default), the output corresponds to
+        with sigmoid. If ``"boundary"`` (default), the output corresponds to
         logits for the location of the line, which is converted into a
         probability mask using softmax and cumsum.
     bottom : str, optional
-        As for `top`, but for the bottom line. Default is `"boundary"`.
+        As for ``top``, but for the bottom line. Default is ``"boundary"``.
     mapping : dict or None, optional
-        Mapping from logit names to output channels provided by `model`.
-        If `None`, a default mapping is used. The mapping is stored as
-        `self.mapping`.
-    reduction_ispassive : str, optional
-        Method used to reduce the depths dimension for the `"logit_is_passive"`
-        output. Default is `"mean"`.
-    reduction_isremoved : str, optional
-        Method used to reduce the depths dimension for the `"logit_is_removed"`
-        output. Default is `"mean"`.
+        Mapping from logit names to output channels provided by ``model``.
+        If ``None``, a default mapping is used. The mapping is stored as
+        ``self.mapping``.
+    reduction_ispassive : str, default="logavgexp"
+        Method used to reduce the depths dimension for the ``"logit_is_passive"``
+        output.
+    reduction_isremoved : str , default="logavgexp"
+        Method used to reduce the depths dimension for the ``"logit_is_removed"``
+        output.
     conditional : bool, optional
         Whether to build a conditional model as well as an unconditional model.
-        If `True`, there are additional logits in the call output named
-        `"x|downfacing"` and `"x|upfacing"`, in addition to
-        `"x"`. For instance, `"p_is_above_turbulence|downfacing"`. Default is `False`.
+        If ``True``, there are additional logits in the call output named
+        ``"x|downfacing"`` and ``"x|upfacing"``, in addition to
+        ``"x"``. For instance, ``"p_is_above_turbulence|downfacing"``. Default is ``False``.
     """
 
     aliases = [("top", "turbulence")]
@@ -116,8 +132,7 @@ class Echofilter(nn.Module):
             self.conditions += ["downfacing", "upfacing"]
         self.n_outputs_per_condition = max(self.mapping.values())
 
-    def forward(self, x):
-        ""
+    def forward(self, x, output_device=None):
         logits = self.model(x)
         outputs = TensorDict()
 
@@ -137,11 +152,11 @@ class Echofilter(nn.Module):
             if self.params["reduction_isremoved"] == "mean":
                 outputs["logit_is_removed" + cs] = torch.mean(
                     outputs["logit_is_removed" + cs], dim=-1
-                )
+                ).to(device=output_device)
             elif self.params["reduction_isremoved"] in {"logavgexp", "lae"}:
                 outputs["logit_is_removed" + cs] = logavgexp(
                     outputs["logit_is_removed" + cs], dim=-1
-                )
+                ).to(device=output_device)
             else:
                 raise ValueError(
                     "Unsupported reduction_isremoved value: {}".format(
@@ -152,11 +167,11 @@ class Echofilter(nn.Module):
             if self.params["reduction_ispassive"] == "mean":
                 outputs["logit_is_passive" + cs] = torch.mean(
                     outputs["logit_is_passive" + cs], dim=-1
-                )
+                ).to(device=output_device)
             elif self.params["reduction_ispassive"] in {"logavgexp", "lae"}:
                 outputs["logit_is_passive" + cs] = logavgexp(
                     outputs["logit_is_passive" + cs], dim=-1
-                )
+                ).to(device=output_device)
             else:
                 raise ValueError(
                     "Unsupported reduction_ispassive value: {}".format(
@@ -167,23 +182,23 @@ class Echofilter(nn.Module):
             # Convert logits to probabilities
             outputs["p_is_removed" + cs] = torch.sigmoid(
                 outputs["logit_is_removed" + cs]
-            )
+            ).to(device=output_device)
             outputs["p_is_passive" + cs] = torch.sigmoid(
                 outputs["logit_is_passive" + cs]
-            )
+            ).to(device=output_device)
 
             for sfx in ("turbulence", "turbulence-original", "surface"):
                 if self.params["top"] == "mask":
                     outputs["p_is_above_" + sfx + cs] = torch.sigmoid(
                         outputs["logit_is_above_" + sfx + cs]
-                    )
+                    ).to(device=output_device)
                     outputs["p_is_below_" + sfx + cs] = (
                         1 - outputs["p_is_above_" + sfx + cs]
-                    )
+                    ).to(device=output_device)
                 elif self.params["top"] == "boundary":
                     outputs["p_is_boundary_" + sfx + cs] = F.softmax(
                         outputs["logit_is_boundary_" + sfx + cs], dim=-1
-                    )
+                    ).to(device=output_device)
                     outputs["p_is_above_" + sfx + cs] = torch.flip(
                         torch.cumsum(
                             torch.flip(
@@ -192,10 +207,10 @@ class Echofilter(nn.Module):
                             dim=-1,
                         ),
                         dims=(-1,),
-                    )
+                    ).to(device=output_device)
                     outputs["p_is_below_" + sfx + cs] = torch.cumsum(
                         outputs["p_is_boundary_" + sfx + cs], dim=-1
-                    )
+                    ).to(device=output_device)
                     # Due to floating point precision, max value can exceed 1.
                     # Fix this by clipping the values to the appropriate range.
                     outputs["p_is_above_" + sfx + cs].clamp_(0, 1)
@@ -209,17 +224,17 @@ class Echofilter(nn.Module):
                 if self.params["bottom"] == "mask":
                     outputs["p_is_below_" + sfx + cs] = torch.sigmoid(
                         outputs["logit_is_below_" + sfx + cs]
-                    )
+                    ).to(device=output_device)
                     outputs["p_is_above_" + sfx + cs] = (
                         1 - outputs["p_is_below_" + sfx + cs]
-                    )
+                    ).to(device=output_device)
                 elif self.params["bottom"] == "boundary":
                     outputs["p_is_boundary_" + sfx + cs] = F.softmax(
                         outputs["logit_is_boundary_" + sfx + cs], dim=-1
-                    )
+                    ).to(device=output_device)
                     outputs["p_is_below_" + sfx + cs] = torch.cumsum(
                         outputs["p_is_boundary_" + sfx + cs], dim=-1
-                    )
+                    ).to(device=output_device)
                     outputs["p_is_above_" + sfx + cs] = torch.flip(
                         torch.cumsum(
                             torch.flip(
@@ -228,7 +243,7 @@ class Echofilter(nn.Module):
                             dim=-1,
                         ),
                         dims=(-1,),
-                    )
+                    ).to(device=output_device)
                     # Due to floating point precision, max value can exceed 1.
                     # Fix this by clipping the values to the appropriate range.
                     outputs["p_is_below_" + sfx + cs].clamp_(0, 1)
@@ -243,7 +258,7 @@ class Echofilter(nn.Module):
             for sfx in ("", "-original", "-ntob"):
                 outputs["p_is_patch" + sfx + cs] = torch.sigmoid(
                     outputs["logit_is_patch" + sfx + cs]
-                )
+                ).to(device=output_device)
 
             outputs["p_keep_pixel" + cs] = (
                 1.0
@@ -278,39 +293,39 @@ class EchofilterLoss(_Loss):
 
     Parameters
     ----------
-    reduction : `"mean"` or `"sum"`, optional
+    reduction : ``"mean"`` or ``"sum"``, optional
         The reduction method, which is used to collapse batch and timestamp
-        dimensions. Default is `"mean"`.
+        dimensions. Default is ``"mean"``.
     turbulence_mask : float, optional
-        Weighting for turbulence line/mask loss term. Default is `1.0`.
+        Weighting for turbulence line/mask loss term. Default is ``1.0``.
     bottom_mask : float, optional
-        Weighting for bottom line/mask loss term. Default is `1.0`.
+        Weighting for bottom line/mask loss term. Default is ``1.0``.
     removed_segment : float, optional
-        Weighting for `is_removed` loss term. Default is `1.0`.
+        Weighting for ``is_removed`` loss term. Default is ``1.0``.
     passive : float, optional
-        Weighting for `is_passive` loss term. Default is `1.0`.
+        Weighting for ``is_passive`` loss term. Default is ``1.0``.
     patch : float, optional
-        Weighting for `mask_patch` loss term. Default is `1.0`.
+        Weighting for ``mask_patch`` loss term. Default is ``1.0``.
     overall : float, optional
-        Weighting for overall mask loss term. Default is `0.0`.
+        Weighting for overall mask loss term. Default is ``0.0``.
     surface : float, optional
-        Weighting for surface line/mask loss term. Default is `1.0`.
+        Weighting for surface line/mask loss term. Default is ``1.0``.
     auxiliary : float, optional
-        Weighting for auxiliary loss terms `"turbulence-original"`,
-        `"bottom-original"`, `"mask_patches-original"`, and
-        `"mask_patches-ntob"`. Default is `1.0`.
+        Weighting for auxiliary loss terms ``"turbulence-original"``,
+        ``"bottom-original"``, ``"mask_patches-original"``, and
+        ``"mask_patches-ntob"``. Default is ``1.0``.
     ignore_lines_during_passive : bool, optional
         Whether targets for turbulence and bottom lines should be excluded from
-        the loss during passive data collection. Default is `True`.
+        the loss during passive data collection. Default is ``True``.
     ignore_lines_during_removed : bool, optional
         Whether targets for turbulence and bottom lines should be excluded from
-        the loss during entirely removed sections. Default is `True`.
+        the loss during entirely removed sections. Default is ``True``.
     ignore_surface_during_passive : bool, optional
         Whether target for the surface line should be excluded from the loss
-        during passive data collection. Default is `False`.
+        during passive data collection. Default is ``False``.
     ignore_surface_during_removed : bool, optional
         Whether target for the surface line should be excluded from the loss
-        during entirely removed sections. Default is `True`.
+        during entirely removed sections. Default is ``True``.
     """
 
     __constants__ = ["reduction"]
@@ -358,20 +373,21 @@ class EchofilterLoss(_Loss):
         Parameters
         ----------
         input : dict
-            Output from `echofilter.wrapper.Echofilter` layer.
+            Output from :class:`echofilter.wrapper.Echofilter` layer.
         target : dict
-            A transect, as provided by `TransectDataset`.
+            A transect, as provided by :class:`echofilter.data.dataset.TransectDataset`.
         """
         loss = 0
 
         target["is_passive"] = target["is_passive"].to(
-            input["logit_is_passive"].device, input["logit_is_passive"].dtype,
+            input["logit_is_passive"].device,
+            input["logit_is_passive"].dtype,
         )
         target["is_removed"] = target["is_removed"].to(
-            input["logit_is_removed"].device, input["logit_is_removed"].dtype,
+            input["logit_is_removed"].device,
+            input["logit_is_removed"].dtype,
         )
 
-        batch_size = target["is_upward_facing"].nelement()
         n_conditions_in_loss = 0
         for condition in self.conditions:
             closs = 0
@@ -454,7 +470,7 @@ class EchofilterLoss(_Loss):
                         ' The "boundary" is recommended instead.'
                         " The loss component for this line will be"
                         " F.binary_cross_entropy_with_logits(input[{}], target[{}])"
-                        "".format("logit_is_above_" + sfx + cs, target_key,)
+                        "".format("logit_is_above_" + sfx + cs, target_key)
                     )
                     loss_term = F.binary_cross_entropy_with_logits(
                         input["logit_is_above_" + sfx + cs],
@@ -479,7 +495,8 @@ class EchofilterLoss(_Loss):
                         "The input does not contain either {} or {} fields."
                         " At least one of these is required if the loss term weighting"
                         " is non-zero.".format(
-                            "logit_is_boundary_" + sfx, "logit_is_above_" + sfx,
+                            "logit_is_boundary_" + sfx,
+                            "logit_is_above_" + sfx,
                         )
                     )
                 if torch.isnan(loss_term).any():
@@ -531,7 +548,7 @@ class EchofilterLoss(_Loss):
                         ' The "boundary" is recommended instead.'
                         " The loss component for this line will be"
                         " F.binary_cross_entropy_with_logits(input[{}], target[{}])"
-                        "".format("logit_is_below_bottom" + sfx + cs, target_key,)
+                        "".format("logit_is_below_bottom" + sfx + cs, target_key)
                     )
                     loss_term = F.binary_cross_entropy_with_logits(
                         input["logit_is_below_bottom" + sfx + cs],

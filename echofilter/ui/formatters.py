@@ -2,13 +2,31 @@
 Provides extensions to argparse.
 """
 
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import argparse
 
 
 class DedentTextHelpFormatter(argparse.HelpFormatter):
     """
-    Help message formatter which retains formatting of all help text, except
-    from indentation. Leading new lines are also stripped.
+    Help message formatter.
+
+    Retains formatting of all help text, except from indentation.
+    Leading new lines are also stripped.
     """
 
     def _split_lines(self, text, width):
@@ -27,18 +45,17 @@ class DedentTextHelpFormatter(argparse.HelpFormatter):
 
 class FlexibleHelpFormatter(argparse.HelpFormatter):
     """
-    Help message formatter which can handle different formatting
-    specifications.
+    Help message formatter which can handle different formatting specifications.
 
     The following formatters are supported:
 
-    `"R|"`
+    ``"R|"``
         Raw. will be left as is, processed using
-        `argparse.RawTextHelpFormatter`.
-    `"d|"`
+        ``argparse.RawTextHelpFormatter``.
+    ``"d|"``
         Raw except for indentation. Will be dedented and leading
         newlines stripped only, processed using
-        `argparse.RawTextHelpFormatter`.
+        ``argparse.RawTextHelpFormatter``.
 
     The format specifier will be stripped from the text.
 

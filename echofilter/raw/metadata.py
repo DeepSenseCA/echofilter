@@ -2,6 +2,22 @@
 Dataset metadata, relevant for loading correct data.
 """
 
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import os
 
 import numpy as np
@@ -9,7 +25,7 @@ import numpy as np
 
 def recall_passive_edges(sample_path, timestamps):
     """
-    Defines passive data edges for samples within known datasets.
+    Define passive data edges for samples within known datasets.
 
     Parameters
     ----------
@@ -22,15 +38,14 @@ def recall_passive_edges(sample_path, timestamps):
     -------
     passive_starts : numpy.ndarray or None
         Indices indicating the onset of passive data collection periods, or
-        `None` if passive metadata is unavailable for this sample.
+        ``None`` if passive metadata is unavailable for this sample.
     passive_ends : numpy.ndarray or None
         Indices indicating the offset of passive data collection periods, or
-        `None` if passive metadata is unavailable for this sample.
+        ``None`` if passive metadata is unavailable for this sample.
     finder_version : absent or str
-        If `passive_starts` and `passive_ends`, this string may be present to
+        If ``passive_starts`` and ``passive_ends``, this string may be present to
         indicate which passive finder algorithm works best for this dataset.
     """
-
     sample_path = sample_path.lower()
     sample_parts = os.path.normpath(sample_path).split(os.path.sep)
 

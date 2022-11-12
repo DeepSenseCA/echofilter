@@ -2,6 +2,22 @@
 Path utilities.
 """
 
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import os
 import sys
 
@@ -27,22 +43,22 @@ def parse_files_in_folders(files_or_folders, source_dir, extension, recursive=Tr
     files_or_folders : iterable
         List of files and folders.
     source_dir : str
-        Root directory within which elements of `files_or_folders` may
+        Root directory within which elements of ``files_or_folders`` may
         be found.
     extension : str or Collection
         Extension (or list of extensions) which files within directories must
-        bear to be included, without leading `'.'`, for instance `'.csv'`.
+        bear to be included, without leading ``'.'``, for instance ``'.csv'``.
         Note that explicitly given files are always used.
     recursive : bool, optional
         Whether to walk through the tree of files in a subfolders of a
-        directory input. If `False`, only files in the folder itself and
+        directory input. If ``False``, only files in the folder itself and
         not its child folders will be included.
 
     Yields
     ------
     str
         Paths to explicitly given files and files within directories with
-        extension `extension`.
+        extension ``extension``.
     """
     if extension is None or not isinstance(extension, str):
         extensions = extension
@@ -68,7 +84,7 @@ def parse_files_in_folders(files_or_folders, source_dir, extension, recursive=Tr
 
         if recursive:
             full_filenames = []
-            for dirpath, dirnames, fnames in os.walk(folder):
+            for dirpath, _dirnames, fnames in os.walk(folder):
                 for fname in fnames:
                     full_filenames.append(os.path.join(dirpath, fname))
         else:
@@ -92,9 +108,9 @@ def determine_file_path(fname, source_dir):
     ----------
     fname : str
         Path to an input file. Either an absolute path, or a path relative to
-        to `source_dir`, or a path relative to the working directory.
+        to ``source_dir``, or a path relative to the working directory.
     source_dir : str
-        Path to a directory where the file bearing name `fname` is expected to
+        Path to a directory where the file bearing name ``fname`` is expected to
         be located.
 
     Returns
@@ -117,8 +133,7 @@ def determine_file_path(fname, source_dir):
 
 def determine_destination(fname, fname_full, source_dir, output_dir):
     """
-    Determine where destination should be placed for a file, preserving subtree
-    paths.
+    Determine where destination should be placed for a file, preserving subtree paths.
 
     Parameters
     ----------
@@ -126,9 +141,9 @@ def determine_destination(fname, fname_full, source_dir, output_dir):
         Original input path.
     fname_full : str
         Path to file, either absolute or relative; possibly containing
-        `source_dir`.
+        ``source_dir``.
     source_dir : str
-        Path to a directory where the file bearing name `fname` is expected to
+        Path to a directory where the file bearing name ``fname`` is expected to
         be located.
     output_dir : str
         Path to root output directory.

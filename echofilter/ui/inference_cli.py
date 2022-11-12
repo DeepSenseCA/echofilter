@@ -8,14 +8,30 @@ commands like ``--help`` and ``--version`` is faster, not needing to import
 the full dependency stack.
 """
 
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import argparse
 import os
 import sys
 
-from .. import __meta__
-from .. import path
-from . import checkpoints, formatters, style
+import configargparse
 
+from .. import __meta__, path
+from . import checkpoints, formatters, style
 
 DEFAULT_CHECKPOINT = checkpoints.get_default_checkpoint()
 DEFAULT_VARNAME = "Fileset1: Sv pings T1"
@@ -23,7 +39,7 @@ DEFAULT_VARNAME = "Fileset1: Sv pings T1"
 
 class ListColors(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
-        from ..inference import hexcolor2rgb8, get_color_palette
+        from ..inference import get_color_palette, hexcolor2rgb8
 
         if values is None:
             include_xkcd = False
@@ -52,11 +68,12 @@ def get_parser():
     prog = os.path.split(sys.argv[0])[1]
     if prog == "__main__.py":
         prog = "echofilter"
-    parser = argparse.ArgumentParser(
+    parser = configargparse.ArgParser(
         prog=prog,
         description=__meta__.description,
         formatter_class=formatters.FlexibleHelpFormatter,
         add_help=False,
+        default_config_files=["~/.echofilter"],
     )
 
     # Actions
@@ -66,7 +83,10 @@ def get_parser():
         " of this program is supressed if any of these are given.",
     )
     group_action.add_argument(
-        "-h", "--help", action="help", help="Show this help message and exit.",
+        "-h",
+        "--help",
+        action="help",
+        help="Show this help message and exit.",
     )
     group_action.add_argument(
         "--version",
@@ -98,6 +118,23 @@ def get_parser():
             To show the just main palette, run as ``--list-colors``
             without argument, or ``--list-colors css4``. To show the
             full palette, run as ``--list-colors full``.
+        """,
+    )
+
+    # Input files
+    group_config = parser.add_argument_group("Configuration")
+    group_config.add(
+        "-c",
+        "--config",
+        metavar="CONFIG_FILE",
+        is_config_file=True,
+        help="""
+            Path to a configuration file. The settings in the configuration file
+            will override the default values described in the rest of the help
+            documentation, but will themselves be overridden by any arguments
+            provided at the command prompt. Config file syntax allows:
+            key=value, flag=true, stuff=[a,b,c] (for details, see syntax at
+            https://goo.gl/R74nmi).
         """,
     )
 
@@ -215,6 +252,13 @@ def get_parser():
             exported from EV files and others are not.
         """,
     )
+    group_infile.add_argument(
+        "--continue-on-error",
+        action="store_true",
+        help="""
+            Continue running on remaining files if one file hits an error.
+        """,
+    )
 
     # Output files
     group_outfile = parser.add_argument_group(
@@ -230,7 +274,7 @@ def get_parser():
         help="""
             Path to output directory. If empty (default), each output is placed
             in the same directory as its input file. If OUTPUT_DIR is
-            specified, the full output path for each file all contains the
+            specified, the full output path for each file contains the
             subtree of the input file relative to the base directory given by
             SOURCE_DIR.
         """,
@@ -669,7 +713,7 @@ def get_parser():
               undefined:
                   depths are replaced with the placeholder value
                   used by Echoview to denote undefined values,
-                  which is {}.
+                  which is -10000.99.
             Default: "%(default)s".
         """,
     )
@@ -771,6 +815,17 @@ def get_parser():
         """,
     )
     group_inproc.add_argument(
+        "--keep-exclusions",
+        "--keep-thresholds",
+        dest="export_raw_csv",
+        action="store_false",
+        help="""
+            Export CSV with all thresholds, exclusion regions, and bad data
+            exclusions set as per the EV file. Default behavior is to
+            ignore these settings and export the underlying raw data.
+        """,
+    )
+    group_inproc.add_argument(
         "--row-len-selector",
         type=str,
         choices=["init", "min", "max", "median", "mode"],
@@ -807,6 +862,25 @@ def get_parser():
             when the model was trained before being given to the model for
             inference. The default behaviour is to derive the standardization
             values from the Sv statistics of the input instead.
+        """,
+    )
+    group_inproc.add_argument(
+        "--prenorm-nan-value",
+        type=float,
+        default=None,
+        help="""
+            If set, NaN values in the imported CSV data will be replaced with
+            this Sv intensity value.
+        """,
+    )
+    group_inproc.add_argument(
+        "--postnorm-nan-value",
+        type=float,
+        default=None,
+        help="""
+            If set, NaN values in the imported CSV data will be replaced with
+            this Sv intensity value after the input distribution has been
+            standardized to have zero mean and unit variance.
         """,
     )
     group_inproc.add_argument(
@@ -894,7 +968,7 @@ def get_parser():
         type=float,
         nargs="+",
         metavar="SIGMA",
-        default=[1],
+        default=[0],
         help="""
             Standard deviation of Gaussian smoothing kernel applied to the
             logits provided as the model's output. The smoothing regularises
@@ -904,8 +978,7 @@ def get_parser():
             dimension and the second value is for the depth dimension. If a
             single value is given, the kernel is symmetric. Values are relative
             to the pixel space returned by the UNet model.
-            Set to 0 to disable.
-            Default: %(default)s.
+            Disabled by default.
         """,
     )
     group_model.add_argument(
@@ -1011,18 +1084,21 @@ def _get_parser_sphinx():
     return formatters.format_parser_for_sphinx(get_parser())
 
 
-def cli():
+def cli(args=None):
     """
-    Run `run_inference` with arguments taken from the command line using
-    argparse.
+    Run :func:`run_inference` with arguments taken from the command line.
     """
     parser = get_parser()
-    kwargs = vars(parser.parse_args())
+    kwargs = vars(parser.parse_args(args))
 
     kwargs.pop("list_checkpoints")
     kwargs.pop("list_colors")
+    kwargs.pop("config")
 
     kwargs["verbose"] -= kwargs.pop("quiet", 0)
+
+    if kwargs["verbose"] >= 2:
+        parser.print_values()
 
     if kwargs.pop("force"):
         kwargs["overwrite_existing"] = True
@@ -1044,13 +1120,13 @@ def cli():
     run_inference(**kwargs)
 
 
-def main():
+def main(args=None):
     """
-    Run `cli`, with encapsulation for error messages.
+    Run ``cli``, with encapsulation for error messages.
     """
     try:
-        cli()
-    except KeyboardInterrupt as err:
+        cli(args)
+    except KeyboardInterrupt:
         # Don't show stack traceback when KeyboardInterrupt is given.
         print(
             style.warning_fmt(
@@ -1063,7 +1139,7 @@ def main():
             sys.exit(1)
         except SystemExit:
             os._exit(1)
-    except:
+    except Exception:
         # Ensure all other errors are shown in red.
         with style.error_message():
             raise

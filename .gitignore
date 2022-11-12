@@ -14,6 +14,30 @@ echofilter/checkpoints
 # Auto-generated rST root file for exporting docs to PDF
 docs/index_pdf.rst
 
+# Ignore all built documentation (including Guide and PDF)
+docs/_build*
+
+# Ignore extra directories
+image_samples/
+models/
+notes/
+processed/
+results/
+test-output/
+test-resources-source/
+
+
+##---------------------------------------------------
+# Automated documentation .gitignore files
+##---------------------------------------------------
+
+# Automatically generated API documentation stubs from sphinx-apidoc
+docs/source/packages
+
+# Automatically converting README from markdown to rST
+docs/bin
+docs/source/readme.rst
+
 
 ##---------------------------------------------------
 # Continuous Integration .gitignore files
@@ -21,6 +45,7 @@ docs/index_pdf.rst
 
 # Ignore test result XML files
 testresults.xml
+coverage.xml
 
 
 ##---------------------------------------------------
@@ -97,9 +122,6 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-docs/_build*
-# sphinx-apidoc automatically generated documentation
-docs/source/packages
 
 # PyBuilder
 target/
@@ -153,6 +175,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# pytype static type analyzer
+.pytype/
 
 
 ##---------------------------------------------------

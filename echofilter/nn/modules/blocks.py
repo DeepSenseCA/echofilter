@@ -6,10 +6,9 @@ import torch
 from torch import nn
 
 from .activations import str2actfnfactory
-from .conv import Conv2dSame, PointwiseConv2d, DepthwiseConv2d
+from .conv import Conv2dSame, DepthwiseConv2d, PointwiseConv2d
 from .pathing import ResidualConnect
 from .utils import _pair
-
 
 __all__ = ["MBConv", "SqueezeExcite"]
 
@@ -26,15 +25,18 @@ class SqueezeExcite(nn.Module):
         Number of input (and output) channels.
     reduction : int or float, optional
         Compression factor for the number of channels in the squeeze and
-        excitation attention module. Default is `4`.
+        excitation attention module. Default is ``4``.
     actfn : str or callable, optional
         An activation class or similar generator. Default is an inplace
         ReLU activation. If this is a string, it is mapped to a generator with
-        `activations.str2actfnfactory`.
+        ``activations.str2actfnfactory``.
     """
 
     def __init__(
-        self, in_channels, reduction=4, actfn="InplaceReLU",
+        self,
+        in_channels,
+        reduction=4,
+        actfn="InplaceReLU",
     ):
         super(SqueezeExcite, self).__init__()
 
@@ -54,7 +56,6 @@ class SqueezeExcite(nn.Module):
         self.layers = nn.Sequential(*layers)
 
     def forward(self, input):
-        ""
         return input * self.layers(input)
 
 
@@ -69,25 +70,25 @@ class MBConv(nn.Module):
     in_channels : int
         Number of input channels.
     out_channels : int, optional
-        Number of output channels. Default is to match `in_channels`.
+        Number of output channels. Default is to match ``in_channels``.
     expansion : int or float, optional
-        Exansion factor for the inverted-residual bottleneck. Default is `6`.
+        Exansion factor for the inverted-residual bottleneck. Default is ``6``.
     se_reduction : int, optional
-        Reduction factor for squeeze-and-excite block. Default is `4`. Set
-        to `None` or `0` to disable squeeze-and-excitation.
+        Reduction factor for squeeze-and-excite block. Default is ``4``. Set
+        to ``None`` or ``0`` to disable squeeze-and-excitation.
     fused : bool, optional
-        If `True`, the pointwise and depthwise convolution are fused together
-        into a single regular convolution. Default is `False` (a depthwise
+        If ``True``, the pointwise and depthwise convolution are fused together
+        into a single regular convolution. Default is ``False`` (a depthwise
         separable convolution).
     residual : bool, optional
-        If `True`, the block is residual with a skip-through connection.
-        Default is `True`.
+        If ``True``, the block is residual with a skip-through connection.
+        Default is ``True``.
     actfn : str or callable, optional
         An activation class or similar generator. Default is an inplace
         ReLU activation. If this is a string, it is mapped to a generator with
-        `activations.str2actfnfactory`.
+        ``activations.str2actfnfactory``.
     bias : bool, optional
-        If `True`, the main convolution has a bias term. Default is `False`.
+        If ``True``, the main convolution has a bias term. Default is ``False``.
         Note that the pointwise convolutions never have bias terms.
     **conv_args
         Additional arguments, such as kernel_size, stride, and padding, which
@@ -104,7 +105,7 @@ class MBConv(nn.Module):
         residual=True,
         actfn="InplaceReLU",
         bias=False,
-        **conv_args
+        **conv_args,
     ):
         super(MBConv, self).__init__()
 
@@ -132,7 +133,7 @@ class MBConv(nn.Module):
             conv = Conv2dSame(in_channels, expanded_chns, bias=bias, **conv_args)
         else:
             conv = DepthwiseConv2d(expanded_chns, bias=bias, **conv_args)
-        self.conv = nn.Sequential(conv, nn.BatchNorm2d(expanded_chns), actfn_factory(),)
+        self.conv = nn.Sequential(conv, nn.BatchNorm2d(expanded_chns), actfn_factory())
 
         if se_reduction:
             self.se = SqueezeExcite(expanded_chns, reduction=se_reduction)
@@ -152,7 +153,6 @@ class MBConv(nn.Module):
             self.connector = ResidualConnect(in_channels, out_channels)
 
     def forward(self, input):
-        ""
         x = self.expansion_conv(input)
         x = self.conv(x)
         x = self.se(x)
@@ -163,5 +163,6 @@ class MBConv(nn.Module):
 
     def extra_repr(self):
         return "residual={residual}, fused={fused}".format(
-            residual=self.residual, fused=self.fused,
+            residual=self.residual,
+            fused=self.fused,
         )

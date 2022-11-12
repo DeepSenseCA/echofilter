@@ -3,16 +3,15 @@ Connectors and pathing modules.
 """
 
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
 
 from .conv import PointwiseConv2d
 
 
 class ResidualConnect(nn.Module):
     """
-    Joins up a residual connection, with smart mapping for changes in the
-    number of channels.
+    Joins up a residual connection, correcting for changes in number of channels.
     """
 
     def __init__(self, in_channels, out_channels):
@@ -34,7 +33,6 @@ class ResidualConnect(nn.Module):
             self.op = PointwiseConv2d(in_channels, out_channels)
 
     def forward(self, residual, passed_thru):
-        ""
         if self.in_channels < self.out_channels:
             return residual + torch.cat([passed_thru, self.op(passed_thru)], dim=1)
         return residual + self.op(passed_thru)
@@ -47,18 +45,20 @@ class FlexibleConcat2d(nn.Module):
 
     def forward(self, x1, x2):
         """
+        Forward step.
+
         Parameters
         ----------
         x1 : torch.Tensor
-            Tensor, possibly smaller than `x2`.
+            Tensor, possibly smaller than ``x2``.
         x2 : torch.Tensor
-            Tensor, at least as large as `x1`.
+            Tensor, at least as large as ``x1``.
 
         Returns
         -------
         torch.Tensor
-            Concatenated `x1` (padded if necessary) and `x2`, along
-            dimension `1`.
+            Concatenated ``x1`` (padded if necessary) and ``x2``, along
+            dimension ``1``.
         """
         # input is CHW
         diffY = torch.tensor([x2.shape[-2] - x1.shape[-2]])

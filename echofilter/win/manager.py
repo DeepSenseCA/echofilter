@@ -2,8 +2,24 @@
 Window management for Windows.
 """
 
-from contextlib import contextmanager
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import re
+from contextlib import contextmanager
 
 from .. import ui
 
@@ -20,11 +36,9 @@ except ImportError:
 
     import warnings
 
-    msg = "The Windows management module is only for Windows operating" " systems."
+    msg = "The Windows management module is only for Windows operating systems."
     with ui.style.warning_message(msg) as msg:
-        warnings.warn(
-            msg, category=RuntimeWarning,
-        )
+        warnings.warn(msg, category=RuntimeWarning)
 
 
 __all__ = ["opencom", "WindowManager"]
@@ -47,7 +61,7 @@ class WindowManager:
             self.find_window_regex(title_pattern)
 
     def find_window(self, class_name=None, title=None):
-        """Find a window by its exact title"""
+        """Find a window by its exact title."""
         handle = win32gui.FindWindow(class_name, title)
         if handle == 0:
             raise EnvironmentError(
@@ -59,7 +73,7 @@ class WindowManager:
             self.handle = handle
 
     def _window_enum_callback(self, hwnd, pattern):
-        """Pass to win32gui.EnumWindows() to check all the opened windows"""
+        """Pass to win32gui.EnumWindows() to check all the opened windows."""
         if re.match(pattern, str(win32gui.GetWindowText(hwnd))) is not None:
             self.handle = hwnd
 
@@ -106,24 +120,24 @@ def opencom(
         Name of COM object to dispatch.
     can_make_anew : bool, optional
         Whether arbitrarily many sessions of the COM object can be created, and
-        if so whether they should be. Default is `False`, in which case the
+        if so whether they should be. Default is ``False``, in which case the
         context manager will check to see if the application is already running
         before connecting to it. If it was already running, it will not be
         closed when this context closes.
     title : str, optional
         Exact title of window. If the title can not be determined exactly, use
-        `title_pattern` instead.
+        ``title_pattern`` instead.
     title_pattern : str, optional
         Regular expression for the window title.
     minimize : bool, optional
-        If `True`, the application will be minimized while the code runs.
-        Default is `False`.
+        If ``True``, the application will be minimized while the code runs.
+        Default is ``False``.
     hide : {"never", "new", "always"}, optional
-        Whether to hide the application window entirely. Default is `"never"`.
-        If this is enabled, at least one of `title` and `title_pattern` must
-        be specified.  If `hide="new"`, the application is only hidden if it
+        Whether to hide the application window entirely. Default is ``"never"``.
+        If this is enabled, at least one of ``title`` and ``title_pattern`` must
+        be specified.  If ``hide="new"``, the application is only hidden if it
         was created by this context, and not if it was already running.
-        If `hide="always"`, the application is hidden even if it was already
+        If ``hide="always"``, the application is hidden even if it was already
         running. In the latter case, the window will be revealed again when
         leaving this context.
 
@@ -144,7 +158,7 @@ def opencom(
         try:
             app = win32com.client.GetActiveObject(com_name)
             existing_session = True
-        except pywintypes.com_error as err:
+        except pywintypes.com_error:
             # No existing session, make a new session
             make_anew = True
     if make_anew:
@@ -158,7 +172,7 @@ def opencom(
         try:
             app.Minimize()
             was_minimized = True
-        except:
+        except Exception:
             print(ui.style.warning_fmt("Could not minimize {} window".format(com_name)))
 
     was_hidden = False
@@ -173,12 +187,12 @@ def opencom(
         if title is not None:
             try:
                 winman.find_window(title=title)
-            except:
+            except Exception:
                 pass
         if winman.handle is None and title_pattern is not None:
             try:
                 winman.find_window_regex(title_pattern)
-            except:
+            except Exception:
                 pass
         if winman.handle is None:
             print(
@@ -212,7 +226,7 @@ def opencom(
                     # Show the window again
                     command = "unhide"
                     winman.show()
-        except:
+        except Exception:
             # We'll get an error if the application was already closed, etc
             print(
                 ui.style.warning_fmt(

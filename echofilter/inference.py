@@ -4,6 +4,22 @@
 Inference routine.
 """
 
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import datetime
 import os
 import pprint
@@ -13,33 +29,27 @@ import textwrap
 import time
 
 import numpy as np
-from matplotlib import colors as mcolors
 import torch
 import torch.nn
 import torch.utils.data
 import torchvision.transforms
-from torchutils.utils import count_parameters
-from torchutils.device import cuda_is_really_available
+from matplotlib import colors as mcolors
 from tqdm.auto import tqdm
 
 import echofilter.data.transforms
 import echofilter.nn
-from echofilter.nn.unet import UNet
-from echofilter.nn.wrapper import Echofilter
 import echofilter.path
 import echofilter.raw
-from echofilter.raw.manipulate import join_transect, split_transect
 import echofilter.ui
 import echofilter.ui.checkpoints
 import echofilter.utils
 import echofilter.win
-
-from echofilter.ui.inference_cli import (
-    DEFAULT_VARNAME,
-    cli,
-    main,
-)
-
+from echofilter.nn.unet import UNet
+from echofilter.nn.utils import count_parameters
+from echofilter.nn.wrapper import Echofilter
+from echofilter.raw.manipulate import join_transect, pad_transect, split_transect
+from echofilter.raw.utils import fillholes2d
+from echofilter.ui.inference_cli import DEFAULT_VARNAME, cli, main
 
 EV_UNDEFINED_DEPTH = -10000.99
 
@@ -53,6 +63,7 @@ def run_inference(
     skip_incompatible=False,
     output_dir="",
     dry_run=False,
+    continue_on_error=False,
     overwrite_existing=False,
     overwrite_ev_lines=False,
     import_into_evfile=True,
@@ -94,334 +105,333 @@ def run_inference(
     minimum_patch_area=-1,
     patch_mode=None,
     variable_name=DEFAULT_VARNAME,
+    export_raw_csv=True,
     row_len_selector="mode",
     facing="auto",
     use_training_standardization=False,
+    prenorm_nan_value=None,
+    postnorm_nan_value=None,
     crop_min_depth=None,
     crop_max_depth=None,
     autocrop_threshold=0.35,
     image_height=None,
     checkpoint=None,
     force_unconditioned=False,
-    logit_smoothing_sigma=1,
+    logit_smoothing_sigma=0,
     device=None,
     hide_echoview="new",
     minimize_echoview=False,
     verbose=2,
 ):
     """
-    Perform inference on input files, and write output lines in EVL and regions
-    in EVR file formats.
+    Perform inference on input files, and generate output files.
+
+    Outputs are written as lines in EVL and regions in EVR file formats.
 
     Parameters
     ----------
-    paths : iterable
+    paths : iterable or str
         Files and folders to be processed. These may be full paths or paths
-        relative to `source_dir`. For each folder specified, any files with
-        extension `"csv"` within the folder and all its tree of subdirectories
+        relative to ``source_dir``. For each folder specified, any files with
+        extension ``"csv"`` within the folder and all its tree of subdirectories
         will be processed.
-    source_dir : str, optional
-        Path to directory where files are found. Default is `"."`.
-    recursive_dir_search : bool, optional
-        How to handle directory inputs in `paths`. If `False`, only files
+    source_dir : str, default="."
+        Path to directory where files are found.
+    recursive_dir_search : bool, default=True
+        How to handle directory inputs in ``paths``. If ``False``, only files
         (with the correct extension) in the directory will be included.
-        If `True`, subdirectories will also be walked through to find input
-        files. Default is `True`.
-    extensions : iterable or str, optional
-        File extensions to detect when running on a directory. Default is
-        `"csv"`.
-    skip_existing : bool, optional
-        Skip processing files which already have all outputs present. Default
-        is `False`.
-    skip_incompatible : bool, optional
+        If ``True``, subdirectories will also be walked through to find input
+        files.
+    extensions : iterable or str, default="csv"
+        File extensions to detect when running on a directory.
+    skip_existing : bool, default=False
+        Skip processing files which already have all outputs present.
+    skip_incompatible : bool, default=False
         Skip processing CSV files which do not seem to contain an exported
-        Echoview transect. If `False`, an error is raised. Default is `False`.
-    output_dir : str, optional
+        Echoview transect. If ``False``, an error is raised.
+    output_dir : str, default=""
         Directory where output files will be written. If this is an empty
-        string (`""`, default), outputs are written to the same directory as
-        each input file. Otherwise, they are written to `output_dir`,
-        preserving their path relative to `source_dir` if relative paths were
+        string, outputs are written to the same directory as
+        each input file. Otherwise, they are written to ``output_dir``,
+        preserving their path relative to ``source_dir`` if relative paths were
         used.
-    dry_run : bool, optional
-        If `True`, perform a trial run with no changes made. Default is
-        `False`.
-    overwrite_existing : bool, optional
+    dry_run : bool, default=False
+        If ``True``, perform a trial run with no changes made.
+    continue_on_error : bool, default=False
+        Continue running on remaining files if one file hits an error.
+    overwrite_existing : bool, default=False
         Overwrite existing outputs without producing a warning message. If
-        `False`, an error is generated if files would be overwritten.
-        Default is `False`.
-    overwrite_ev_lines : bool, optional
+        ``False``, an error is generated if files would be overwritten.
+    overwrite_ev_lines : bool, default=False
         Overwrite existing lines within the Echoview file without warning.
-        If `False` (default), the current datetime will be appended to line
+        If ``False`` (default), the current datetime will be appended to line
         variable names in the event of a collision.
-    import_into_evfile : bool, optional
+    import_into_evfile : bool, default=True
         Whether to import the output lines and regions into the EV file,
-        whenever the file being processed in an EV file. Default is `True`.
-    generate_turbulence_line : bool, optional
+        whenever the file being processed in an EV file.
+    generate_turbulence_line : bool, default=True
         Whether to output an evl file for the turbulence line. If this is
-        `False`, the turbulence line is also never imported into Echoview.
-        Default is `True`.
-    generate_bottom_line : bool, optional
-        Whether to output an evl file for the bottom line. If this is `False`,
+        ``False``, the turbulence line is also never imported into Echoview.
+    generate_bottom_line : bool, default=True
+        Whether to output an evl file for the bottom line. If this is ``False``,
         the bottom line is also never imported into Echoview.
-        Default is `True`.
-    generate_surface_line : bool, optional
-        Whether to output an evl file for the surface line. If this is `False`,
+    generate_surface_line : bool, default=True
+        Whether to output an evl file for the surface line. If this is ``False``,
         the surface line is also never imported into Echoview.
-        Default is `True`.
-    add_nearfield_line : bool, optional
+    add_nearfield_line : bool, default=True
         Whether to add a nearfield line to the EV file in Echoview.
-        Default is `True`.
-    suffix_file : str, optional
+    suffix_file : str, default=""
         Suffix to append to output artifacts (evl and evr files), between
-        the name of the file and the extension. If `suffix_file` begins with
-        an alphanumeric character, `"-"` is prepended. Default is `""`.
-    suffix_var : str or None, optional
+        the name of the file and the extension. If ``suffix_file`` begins with
+        an alphanumeric character, ``"-"`` is prepended.
+    suffix_var : str, optional
         Suffix to append to line and region names when imported back into
-        EV file. If `suffix_var` begins with an alphanumeric character, `"-"`
-        is prepended. If `None` (default), suffix_var will match `suffix_file`
+        EV file. If ``suffix_var`` begins with an alphanumeric character, ``"-"``
+        is prepended. By default, ``suffix_var`` will match ``suffix_file``
         if it is set, and will be "_echofilter" otherwise.
-    color_turbulence : str, optional
+    color_turbulence : str, default="orangered"
         Color to use for the turbulence line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
-        Default is `"orangered"`.
-    color_turbulence_offset : str or None, optional
+    color_turbulence_offset : str, optional
         Color to use for the offset turbulence line when it is imported into
-        Echoview. If `None` (default) `color_turbulence` is used.
-    color_bottom : str, optional
+        Echoview. By default, ``color_turbulence`` is used.
+    color_bottom : str, default="orangered"
         Color to use for the bottom line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
-        Default is `"orangered"`.
-    color_bottom_offset : str or None, optional
+    color_bottom_offset : str, optional
         Color to use for the offset bottom line when it is imported into
-        Echoview. If `None` (default) `color_bottom` is used.
-    color_surface : str, optional
+        Echoview. By default, ``color_bottom`` is used.
+    color_surface : str, default="green"
         Color to use for the surface line when it is imported into Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
-        Default is `"green"`.
-    color_surface_offset : str or None, optional
+    color_surface_offset : str, optional
         Color to use for the offset surface line when it is imported into
-        Echoview. If `None` (default) `color_surface` is used.
-    color_nearfield : str, optional
+        Echoview. By default, ``color_surface`` is used.
+    color_nearfield : str, default="mediumseagreen"
         Color to use for the nearfield line when it is created in Echoview.
         This can either be the name of a supported color from
         matplotlib.colors, or a hexadecimal color, or a string representation
         of an RGB color to supply directly to Echoview (such as "(0,255,0)").
-        Default is `"mediumseagreen"`.
-    thickness_turbulence : int, optional
+    thickness_turbulence : int, default=2
         Thickness with which the turbulence line will be displayed in Echoview.
-        Default is `2`.
-    thickness_turbulence_offset : str or None, optional
+    thickness_turbulence_offset : str, optional
         Thickness with which the offset turbulence line will be displayed in
-        Echoview. If `None` (default) `thickness_turbulence` is used.
-    thickness_bottom : int, optional
+        Echoview. By default, ``thickness_turbulence`` is used.
+    thickness_bottom : int, default=2
         Thickness with which the bottom line will be displayed in Echoview.
-        Default is `2`.
-    thickness_bottom_offset : str or None, optional
+    thickness_bottom_offset : str, optional
         Thickness with which the offset bottom line will be displayed in
-        Echoview. If `None` (default) `thickness_bottom` is used.
-    thickness_surface : int, optional
+        Echoview. By default, ``thickness_bottom`` is used.
+    thickness_surface : int, default=1
         Thickness with which the surface line will be displayed in Echoview.
-        Default is `1`.
-    thickness_surface_offset : str or None, optional
+    thickness_surface_offset : str, optional
         Thickness with which the offset surface line will be displayed in
-        Echoview. If `None` (default) `thickness_surface` is used.
-    thickness_nearfield : int, optional
+        Echoview. By default, ``thickness_surface`` is used.
+    thickness_nearfield : int, default=1
         Thickness with which the nearfield line will be displayed in Echoview.
-        Default is `1`.
-    cache_dir : str or None, optional
+    cache_dir : str, optional
         Path to directory where downloaded checkpoint files should be cached.
-        If `None` (default), an OS-appropriate application-specific default
+        By default, an OS-appropriate application-specific default
         cache directory is used.
-    cache_csv : str or None, optional
+    cache_csv : str, optional
         Path to directory where CSV files generated from EV inputs should be
-        cached. If `None` (default), EV files which are exported to CSV files
+        cached. By default, EV files which are exported to CSV files
         are temporary files, deleted after this program has completed. If
-        `cache_csv=""`, the CSV files are cached in the same directory as the
+        ``cache_csv=""``, the CSV files are cached in the same directory as the
         input EV files.
-    suffix_csv : str, optional
+    suffix_csv : str, default=""
         Suffix used for cached CSV files which are exported from EV files.
-        If `suffix_file` begins with an alphanumeric character, a delimiter
-        is prepended. The delimiter is `"."` if `keep_ext=True` or `"-"` if
-        `keep_ext=False`. Default is `""`.
-    keep_ext : bool, optional
+        If ``suffix_file`` begins with an alphanumeric character, a delimiter
+        is prepended. The delimiter is ``"."`` if ``keep_ext=True`` or ``"-"`` if
+        ``keep_ext=False``.
+    keep_ext : bool, default=False
         Whether to preserve the file extension in the input file name when
-        generating output file name. Default is `False`, removing the
+        generating output file name. Default is ``False``, removing the
         extension.
-    line_status : int, optional
+    line_status : int, default=3
         Status to use for the lines.
         Must be one of:
 
-        - `0` : none
-        - `1` : unverified
-        - `2` : bad
-        - `3` : good
+        - ``0`` : none
+        - ``1`` : unverified
+        - ``2`` : bad
+        - ``3`` : good
 
-        Default is `3`.
-    offset_turbulence : float, optional
+    offset_turbulence : float, default=1.0
         Offset for turbulence line, which moves the turbulence line deeper.
-        Default is `1.0`.
-    offset_bottom : float, optional
+    offset_bottom : float, default=1.0
         Offset for bottom line, which moves the line to become more shallow.
-        Default is `1.0`.
-    offset_surface : float, optional
+    offset_surface : float, default=1.0
         Offset for surface line, which moves the surface line deeper.
-        Default is `1.0`.
-    nearfield : float, optional
+    nearfield : float, default=1.7
         Nearfield approach distance, in metres.
         If the echogram is downward facing, the nearfield cutoff depth
         will be at a depth equal to the nearfield distance.
         If the echogram is upward facing, the nearfield cutoff will be
-        `nearfield` meters above the deepest depth recorded in the input
+        ``nearfield`` meters above the deepest depth recorded in the input
         data.
         When processing an EV file, by default a nearfield line will be
         added at the nearfield cutoff depth. To prevent this behaviour,
         use the --no-nearfield-line argument.
-        Default is `1.7`.
-    cutoff_at_nearfield : bool or None, optional
+    cutoff_at_nearfield : bool, optional
         Whether to cut-off the turbulence line (for downfacing data) or bottom
         line (for upfacing) when it is closer to the echosounder than the
-        `nearfield` distance.
-        If `None` (default), the bottom line is clipped (for upfacing data),
+        ``nearfield`` distance.
+        By default, the bottom line is clipped (for upfacing data),
         but the turbulence line is not clipped (even with downfacing data).
-    lines_during_passive : str, optional
+    lines_during_passive : str, default="interpolate-time"
         Method used to handle line depths during collection
         periods determined to be passive recording instead of
         active recording.
         Options are:
 
-        `"interpolate-time"`
+        ``"interpolate-time"``
             depths are linearly interpolated from active
             recording periods, using the time at which
             recordings where made.
-        `"interpolate-index"`
+        ``"interpolate-index"``
             depths are linearly interpolated from active
             recording periods, using the index of the
             recording.
-        `"predict"`
+        ``"predict"``
             the model's prediction for the lines during
             passive data collection will be kept; the nature
             of the prediction depends on how the model was
             trained.
-        `"redact"`
+        ``"redact"``
             no depths are provided during periods determined
             to be passive data collection.
-        `"undefined"`
+        ``"undefined"``
             depths are replaced with the placeholder value
             used by Echoview to denote undefined values,
-            which is `-10000.99`.
+            which is ``-10000.99``.
 
-        Default: "interpolate-time".
-    collate_passive_length : int, optional
+    collate_passive_length : int, default=10
         Maximum interval, in ping indices, between detected passive regions
         which will removed to merge consecutive passive regions together
-        into a single, collated, region. Default is 10.
-    collate_passive_length : int, optional
+        into a single, collated, region.
+    collate_passive_length : int, default=10
         Maximum interval, in ping indices, between detected blocks
         (vertical rectangles) marked for removal which will also be removed
         to merge consecutive removed blocks together into a single,
-        collated, region. Default is 10.
-    minimum_passive_length : int, optional
+        collated, region.
+    minimum_passive_length : int, default=10
         Minimum length, in ping indices, which a detected passive region
-        must have to be included in the output. Set to -1 to omit all
-        detected passive regions from the output. Default is 10.
-    minimum_removed_length : int, optional
+        must have to be included in the output. Set to ``-1`` to omit all
+        detected passive regions from the output.
+    minimum_removed_length : int, default=-1
         Minimum length, in ping indices, which a detected removal block
         (vertical rectangle) must have to be included in the output.
         Set to -1 to omit all detected removal blocks from the output
         (default). Recommended minimum length is 10.
-    minimum_patch_area : int, optional
+    minimum_patch_area : int, default=-1
         Minimum area, in pixels, which a detected removal patch
         (contour/polygon) region must have to be included in the output.
         Set to -1 to omit all detected patches from the output (default).
         Recommended minimum length 25.
-    patch_mode : str or None, optional
+    patch_mode : str, optional
         Type of mask patches to use. Must be supported by the
         model checkpoint used. Should be one of:
 
-        `"merged"`
+        ``"merged"``
             Target patches for training were determined
             after merging as much as possible into the
             turbulence and bottom lines.
-        `"original"`
+        ``"original"``
             Target patches for training were determined
             using original lines, before expanding the
             turbulence and bottom lines.
-        `"ntob"`
+        ``"ntob"``
             Target patches for training were determined
             using the original bottom line and the merged
             turbulence line.
 
-        If `None` (default), `"merged"` is used if downfacing and `"ntob"` is
+        By default, ``"merged"`` is used if downfacing and ``"ntob"`` is
         used if upfacing.
-    variable_name : str, optional
-        Name of the Echoview acoustic variable to load from EV files. Default
-        is `"Fileset1: Sv pings T1"`.
-    row_len_selector : str, optional
+    variable_name : str, default="Fileset1: Sv pings T1"
+        Name of the Echoview acoustic variable to load from EV files.
+    export_raw_csv : bool, default=True
+        If ``True`` (default), exclusion and threshold settings in the EV file
+        are temporarily disabled before exporting the CSV, in order to ensure
+        all raw data is exported. If ``False``, thresholds and exclusions are
+        used as per the EV file.
+    row_len_selector : str, default="mode"
         Method used to handle input csv files with different number of Sv
-        values across time (i.e. a non-rectangular input). Default is `"mode"`.
+        values across time (i.e. a non-rectangular input).
         See :meth:`echofilter.raw.loader.transect_loader` for options.
-    facing : {"downward", "upward", "auto"}, optional
-        Orientation in which the echosounder is facing. Default is `"auto"`,
+    facing : {"downward", "upward", "auto"}, default="auto"
+        Orientation in which the echosounder is facing. Default is ``"auto"``,
         in which case the orientation is determined from the ordering of the
-        depth values in the data (increasing = `"upward"`,
-        decreasing = `"downward"`).
-    use_training_standardization : bool, optional
+        depth values in the data (increasing = ``"upward"``,
+        decreasing = ``"downward"``).
+    use_training_standardization : bool, default=False
         Whether to use the exact normalization center and deviation values as
-        used during training. If `False` (default), the center and deviation
+        used during training. If ``False`` (default), the center and deviation
         are determined per sample, using the same method methodology as used
         to determine the center and deviation values for training.
-    crop_min_depth : float or None, optional
-        Minimum depth to include in input. If `None` (default), there is no
+    prenorm_nan_value : float, optional
+        If this is set, replace NaN values with a given Sv value before
+        the data normalisation (Gaussian standardisation) step.
+        By default, NaNs are left as they are until after standardising the
+        data.
+    postnorm_nan_value : float, optional
+        Placeholder value to replace NaNs with. Does nothing if
+        ``prenorm_nan_value`` is set. By default this is set to the
+        value used to train the model.
+    crop_min_depth : float, optional
+        Minimum depth to include in input. By default, there is no
         minimum depth.
-    crop_max_depth : float or None, optional
-        Maxmimum depth to include in input. If `None` (default), there is no
+    crop_max_depth : float, optional
+        Maxmimum depth to include in input. By default, there is no
         maximum depth.
-    autocrop_threshold : float, optional
+    autocrop_threshold : float, default=0.35
         Minimum fraction of input height which must be found to be removable
         for the model to be re-run with an automatically cropped input.
-        Default is 0.35.
-    image_height : int or None, optional
+    image_height : int, optional
         Height in pixels of input to model. The data loaded from the csv will
         be resized to this height (the width of the image is unchanged).
-        If `None` (default), the height matches that used when the model was
+        By default, the height matches that used when the model was
         trained.
-    checkpoint : str or None, optional
+    checkpoint : str, optional
         A path to a checkpoint file, or name of a checkpoint known to this
-        package (listed in `echofilter/checkpoints.yaml`). If `None` (default),
-        the first checkpoint in `checkpoints.yaml` is used.
-    force_unconditioned : bool, optional
-        Whether to always use unconditioned logit outputs. If `False`
+        package (listed in ``echofilter/checkpoints.yaml``). By default,
+        the first checkpoint in ``checkpoints.yaml`` is used.
+    force_unconditioned : bool, default=False
+        Whether to always use unconditioned logit outputs. If ``False``
         (default) conditional logits will be used if the checkpoint loaded is
         for a conditional model.
     logit_smoothing_sigma : float, optional
         Standard deviation over which logits will be smoothed before being
-        converted into output. Default is `1`.
-    device : str or torch.device or None, optional
-        Name of device on which the model will be run. If `None`, the first
+        converted into output. Disabled by default.
+    device : str or torch.device, optional
+        Name of device on which the model will be run. By default, the first
         available CUDA GPU is used if any are found, and otherwise the CPU is
-        used. Set to `"cpu"` to use the CPU even if a CUDA GPU is available.
-    hide_echoview : {"never", "new", "always"}, optional
+        used. Set to ``"cpu"`` to use the CPU even if a CUDA GPU is available.
+    hide_echoview : {"never", "new", "always"}, default="new"
         Whether to hide the Echoview window entirely while the code runs.
         If ``hide_echoview="new"``, the application is only hidden if it
         was created by this function, and not if it was already running.
         If ``hide_echoview="always"``, the application is hidden even if it was
         already running. In the latter case, the window will be revealed again
-        when this function is completed. Default is `"new"`.
-    minimize_echoview : bool, optional
-        If `True`, the Echoview window being used will be minimized while this
-        function is running. Default is `False`.
-    verbose : int, optional
-        Verbosity level. Default is `2`. Set to `0` to disable print
-        statements, or elevate to a higher number to increase verbosity.
+        when this function is completed.
+    minimize_echoview : bool, default=False
+        If ``True``, the Echoview window being used will be minimized while this
+        function is running.
+    verbose : int, default=2
+        Verbosity level.
+        Set to ``0`` to disable print statements, or elevate to a higher number
+        to increase verbosity.
     """
-
     t_start_prog = time.time()
+
+    if isinstance(paths, str):
+        paths = [paths]
 
     progress_fmt = (
         echofilter.ui.style.dryrun_fmt if dry_run else echofilter.ui.style.progress_fmt
@@ -446,7 +456,17 @@ def run_inference(
         )
 
     if device is None:
-        device = "cuda" if cuda_is_really_available() else "cpu"
+        if verbose >= 2:
+            print("Checking for available GPU device with CUDA capability...")
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        if verbose >= 2:
+            print(
+                "Will run on {}{}{}".format(
+                    echofilter.ui.style.HighlightStyle.start,
+                    device,
+                    echofilter.ui.style.HighlightStyle.reset,
+                )
+            )
     device = torch.device(device)
 
     if facing is None:
@@ -501,6 +521,9 @@ def run_inference(
         if line_thicknesses[key_dest] is None:
             line_thicknesses[key_dest] = line_thicknesses[key_source]
 
+    if verbose >= 2:
+        print("Fetching checkpoint...")
+
     # Load checkpoint
     checkpoint, ckpt_name = echofilter.ui.checkpoints.load_checkpoint(
         checkpoint,
@@ -509,6 +532,25 @@ def run_inference(
         return_name=True,
         verbose=verbose,
     )
+
+    if verbose >= 5:
+        print("Loaded checkpoint {}:".format(ckpt_name))
+        pprint.pprint(
+            {
+                k: checkpoint[k]
+                for k in (
+                    "sample_shape",
+                    "epoch",
+                    "best_loss",
+                    "data_center",
+                    "data_deviation",
+                    "center_method",
+                    "deviation_method",
+                    "nan_value",
+                    "training_routine",
+                )
+            }
+        )
 
     if image_height is None:
         image_height = checkpoint.get("sample_shape", (128, 512))[1]
@@ -519,11 +561,14 @@ def run_inference(
     else:
         center_param = checkpoint.get("center_method", "mean")
         deviation_param = checkpoint.get("deviation_method", "stdev")
-    nan_value = checkpoint.get("nan_value", -3)
+    if postnorm_nan_value is None:
+        postnorm_nan_value = checkpoint.get("nan_value", -3)
 
     if verbose >= 4:
         print("Constructing U-Net model, with arguments:")
         pprint.pprint(checkpoint["model_parameters"])
+    elif verbose >= 2:
+        print("Constructing U-Net model...")
     unet = UNet(**checkpoint["model_parameters"])
     if hasattr(logit_smoothing_sigma, "__len__"):
         max_logit_smoothing_sigma = max(logit_smoothing_sigma)
@@ -545,7 +590,7 @@ def run_inference(
     model = Echofilter(
         model,
         mapping=checkpoint.get("wrapper_mapping", None),
-        **checkpoint.get("wrapper_params", {})
+        **checkpoint.get("wrapper_params", {}),
     )
     is_conditional_model = model.params.get("conditional", False)
     if verbose >= 3:
@@ -635,20 +680,18 @@ def run_inference(
         )
     )
 
-    if len(files) == 1 or verbose <= 0:
-        maybe_tqdm = lambda x: x
-    else:
-        maybe_tqdm = lambda x: tqdm(x, desc="Files", ascii=True)
-
+    disable_tqdm = len(files) == 1 or verbose <= 0
     skip_count = 0
     incompatible_count = 0
     error_msgs = []
 
     # Open Echoview connection
     with echofilter.win.maybe_open_echoview(
-        do_open=do_open, minimize=minimize_echoview, hide=hide_echoview,
+        do_open=do_open,
+        minimize=minimize_echoview,
+        hide=hide_echoview,
     ) as ev_app:
-        for fname in maybe_tqdm(files):
+        for fname in tqdm(files, desc="Files", ascii=True, disable=disable_tqdm):
             if verbose >= 2:
                 print(
                     "\n"
@@ -686,7 +729,7 @@ def run_inference(
             # Check if any of them exists and if there is any missing
             any_missing = False
             clobbers = []
-            for k, dest_file in dest_files.items():
+            for _, dest_file in dest_files.items():
                 if os.path.isfile(dest_file):
                     clobbers.append(dest_file)
                 else:
@@ -706,7 +749,8 @@ def run_inference(
                 elif len(clobbers) > 1:
                     msg += "  and {} others ".format(len(clobbers) - 1)
                 msg += "already exist{} for file {}".format(
-                    "s" if len(clobbers) == 1 else "", fname,
+                    "s" if len(clobbers) == 1 else "",
+                    fname,
                 )
                 with echofilter.ui.style.error_message(msg) as msg:
                     if dry_run:
@@ -793,6 +837,7 @@ def run_inference(
                         fname_full,
                         csv_fname,
                         variable_name=variable_name,
+                        export_raw=export_raw_csv,
                         ev_app=ev_app,
                         verbose=verbose - 1,
                     )
@@ -810,7 +855,7 @@ def run_inference(
                         tp = "line" if os.path.splitext(fname)[1] == ".evl" else "file"
                         print(
                             "    {} export {} {} to: {}{}".format(
-                                ww, key, tp, fname, over_txt,
+                                ww, key, tp, fname, over_txt
                             )
                         )
                 if dry_run:
@@ -838,25 +883,34 @@ def run_inference(
                         print(msg)
                         raise
 
-            output = inference_transect(
-                model,
-                timestamps,
-                depths,
-                signals,
-                device,
-                image_height,
-                facing=facing,
-                crop_min_depth=crop_min_depth,
-                crop_max_depth=crop_max_depth,
-                autocrop_threshold=autocrop_threshold,
-                force_unconditioned=force_unconditioned,
-                data_center=center_param,
-                data_deviation=deviation_param,
-                nan_value=nan_value,
-                verbose=verbose - 1,
-            )
+            try:
+                output = inference_transect(
+                    model,
+                    timestamps,
+                    depths,
+                    signals,
+                    device,
+                    image_height,
+                    facing=facing,
+                    crop_min_depth=crop_min_depth,
+                    crop_max_depth=crop_max_depth,
+                    autocrop_threshold=autocrop_threshold,
+                    force_unconditioned=force_unconditioned,
+                    data_center=center_param,
+                    data_deviation=deviation_param,
+                    prenorm_nan_value=prenorm_nan_value,
+                    postnorm_nan_value=postnorm_nan_value,
+                    verbose=verbose - 1,
+                )
+            except BaseException as err:
+                if not continue_on_error:
+                    raise
+                print(echofilter.ui.style.error_fmt("An error has occurred:"))
+                print(echofilter.ui.style.error_fmt(str(err)))
+                error_msgs.append(err)
+                continue
             if verbose >= 5:
-                s = "\n    ".join([""] + list(str(k) for k in output.keys()))
+                s = "\n    ".join([""] + [str(k) for k in output.keys()])
                 print("  Generated model output with fields:" + s)
 
             if is_conditional_model and not force_unconditioned:
@@ -1102,7 +1156,7 @@ def run_inference(
                 )
             )
             for error_msg in error_msgs:
-                print(echofilter.ui.style.error_fmt(error_msg))
+                print(echofilter.ui.style.error_fmt(str(error_msg)))
         print(
             "Total runtime: {}".format(
                 datetime.timedelta(seconds=time.time() - t_start_prog)
@@ -1124,7 +1178,8 @@ def inference_transect(
     force_unconditioned=False,
     data_center="mean",
     data_deviation="stdev",
-    nan_value=-3,
+    prenorm_nan_value=None,
+    postnorm_nan_value=-3,
     dtype=torch.float,
     verbose=0,
 ):
@@ -1145,48 +1200,53 @@ def inference_transect(
         `(len(timestamps), len(depths))`.
     image_height : int
         Height to resize echogram before passing through model.
-    facing : {"downward", "upward", "auto"}, optional
-        Orientation in which the echosounder is facing. Default is `"auto"`,
+    facing : {"downward", "upward", "auto"}, default="auto"
+        Orientation in which the echosounder is facing. Default is ``"auto"``,
         in which case the orientation is determined from the ordering of the
-        depth values in the data (increasing = `"upward"`,
-        decreasing = `"downward"`).
-    crop_min_depth : float or None, optional
-        Minimum depth to include in input. If `None` (default), there is no
+        depth values in the data (increasing = ``"upward"``,
+        decreasing = ``"downward"``).
+    crop_min_depth : float, optional
+        Minimum depth to include in input. By default, there is no
         minimum depth.
-    crop_max_depth : float or None, optional
-        Maxmimum depth to include in input. If `None` (default), there is no
+    crop_max_depth : float, optional
+        Maxmimum depth to include in input. By default, there is no
         maximum depth.
-    autocrop_threshold : float, optional
+    autocrop_threshold : float, default=0.35
         Minimum fraction of input height which must be found to be removable
         for the model to be re-run with an automatically cropped input.
-        Default is 0.35.
     force_unconditioned : bool, optional
         Whether to always use unconditioned logit outputs when deteriming the
         new depth range for automatic cropping.
-    data_center : float or str, optional
+    data_center : float or str, default="mean"
         Center point to use, which will be subtracted from the Sv signals
         (i.e. the overall sample mean).
-        If `data_center` is a string, it specifies the method to use to
+        If ``data_center`` is a string, it specifies the method to use to
         determine the center value from the distribution of intensities seen
-        in this sample transect. Default is `"mean"`.
-    data_deviation : float or str, optional
+        in this sample transect.
+    data_deviation : float or str, default="stdev"
         Deviation to use to normalise the Sv signals in divisive manner
         (i.e. the overall sample standard deviation).
-        If `data_deviation` is a string, it specifies the method to use to
+        If ``data_deviation`` is a string, it specifies the method to use to
         determine the center value from the distribution of intensities seen
-        in this sample transect. Default is `"stdev"`.
-    nan_value : float, optional
-        Placeholder value to replace NaNs with. Default is `-3`.
-    dtype : torch.dtype, optional
-        Datatype to use for model input. Default is `torch.float`.
-    verbose : int, optional
-        Level of verbosity. Default is `0`.
+        in this sample transect.
+    prenorm_nan_value : float, optional
+        If this is set, replace NaN values with a given Sv value before
+        the data normalisation (Gaussian standardisation) step.
+        By default, NaNs are left as they are until after standardising the
+        data.
+    postnorm_nan_value : float, default=-3
+        Placeholder value to replace NaNs with. Does nothing if
+        ``prenorm_nan_value`` is set.
+    dtype : torch.dtype, default=torch.float
+        Datatype to use for model input.
+    verbose : int, default=0
+        Level of verbosity.
 
     Returns
     -------
     dict
-        Dictionary with fields as output by `echofilter.wrapper.Echofilter`,
-        plus `timestamps` and `depths`.
+        Dictionary with fields as output by :class:`echofilter.wrapper.Echofilter`,
+        plus ``timestamps`` and ``depths``.
     """
     facing = facing.lower()
     timestamps = np.asarray(timestamps)
@@ -1208,6 +1268,9 @@ def inference_transect(
         transect["depths"] = transect["depths"][depth_crop_mask]
         transect["signals"] = transect["signals"][:, depth_crop_mask]
 
+    if prenorm_nan_value is not None:
+        # Replace NaNs before transforming the data
+        transect = echofilter.data.transforms.ReplaceNan(prenorm_nan_value)(transect)
     # Standardize data distribution
     transect = echofilter.data.transforms.Normalize(data_center, data_deviation)(
         transect
@@ -1257,31 +1320,43 @@ def inference_transect(
 
     # To reduce memory consumption, split into segments whenever the recording
     # interval is longer than normal
-    segments = split_transect(**transect)
-    if verbose >= 1:
-        maybe_tqdm = lambda x: tqdm(list(x), desc="  Segments", position=0, ascii=True)
-    else:
-        maybe_tqdm = lambda x: x
+    segments = split_transect(max_length=1280, **transect)
+    disable_tqdm = verbose < 1
     outputs = []
-    for segment in maybe_tqdm(segments):
+    for segment in tqdm(
+        list(segments), desc="  Segments", position=0, ascii=True, disable=disable_tqdm
+    ):
+        # Try to remove any NaNs in the raw input with using 2d interpolation
+        n_nans = np.isnan(segment["signals"]).sum()
+        if n_nans > 0:
+            if verbose >= 1:
+                print("  Interpolating to fill in {} missing Sv values".format(n_nans))
+            segment["signals"] = fillholes2d(segment["signals"])
+
         # Preprocessing transform
         transform = torchvision.transforms.Compose(
             [
-                echofilter.data.transforms.ReplaceNan(nan_value),
+                echofilter.data.transforms.ReplaceNan(postnorm_nan_value),
                 echofilter.data.transforms.Rescale(
-                    (segment["signals"].shape[0], image_height), order=1,
+                    (segment["signals"].shape[0], image_height),
+                    order=1,
                 ),
             ]
         )
         segment = transform(segment)
+        # Pad the edges of the segment with extra data. Any padding we add
+        # now will be stripped away from the output by join_transect later.
+        segment = pad_transect(segment)
         input = torch.tensor(segment["signals"]).unsqueeze(0).unsqueeze(0)
         input = input.to(device, dtype).contiguous()
         # Put data through model
         with torch.no_grad():
-            output = model(input)
+            output = model(input, output_device="cpu")
             output = {k: v.squeeze(0).cpu().numpy() for k, v in output.items()}
         output["timestamps"] = segment["timestamps"]
         output["depths"] = segment["depths"]
+        output["_pad_start"] = segment["_pad_start"]
+        output["_pad_end"] = segment["_pad_end"]
         outputs.append(output)
 
     output = join_transect(outputs)
@@ -1371,7 +1446,8 @@ def inference_transect(
         force_unconditioned=force_unconditioned,
         data_center=data_center,
         data_deviation=data_deviation,
-        nan_value=nan_value,
+        prenorm_nan_value=prenorm_nan_value,
+        postnorm_nan_value=postnorm_nan_value,
         dtype=dtype,
         verbose=verbose,
     )
@@ -1380,13 +1456,13 @@ def inference_transect(
 def import_lines_regions_to_ev(
     ev_fname,
     files,
-    target_names={},
+    target_names=None,
     nearfield_depth=None,
     add_nearfield_line=True,
-    lines_cutoff_at_nearfield=[],
-    offsets={},
-    line_colors={},
-    line_thicknesses={},
+    lines_cutoff_at_nearfield=None,
+    offsets=None,
+    line_colors=None,
+    line_thicknesses=None,
     ev_app=None,
     overwrite=False,
     common_notes="",
@@ -1403,36 +1479,46 @@ def import_lines_regions_to_ev(
         Mapping from output keys to filenames.
     target_names : dict, optional
         Mapping from output keys to output variable names.
-    nearfield_depth : float or None, optional
-        Depth at which nearfield line will be placed. If `None` (default), no
-        nearfield line will be added, irrespective of `add_nearfield_line`.
-    add_nearfield_line : bool, optional
-        Whether to add a nearfield line. Default is `True`.
+    nearfield_depth : float, optional
+        Depth at which nearfield line will be placed. By default, no
+        nearfield line will be added, irrespective of ``add_nearfield_line``.
+    add_nearfield_line : bool, default=True
+        Whether to add a nearfield line.
     lines_cutoff_at_nearfield : list of str, optional
         Which lines (if any) should be clipped at the nearfield depth.
-        Default is `[]`.
+        By default, no lines will be clipped.
     offsets : dict, optional
         Amount of offset for each line.
     line_colors : dict, optional
         Mapping from output keys to line colours.
     line_thicknesses : dict, optional
         Mapping from output keys to line thicknesses.
-    ev_app : win32com.client.Dispatch object or None, optional
+    ev_app : win32com.client.Dispatch object, optional
         An object which can be used to interface with the Echoview application,
-        as returned by `win32com.client.Dispatch`. If `None` (default), a
+        as returned by :class:`win32com.client.Dispatch`. By default, a
         new instance of the application is opened (and closed on completion).
-    overwrite : bool, optional
+    overwrite : bool, default=False
         Whether existing lines with target names should be replaced.
-        If a line with the target name already exists and `overwrite=False`,
+        If a line with the target name already exists and ``overwrite=False``,
         the line is named with the current datetime to prevent collisions.
-        Default is `False`.
-    common_notes : str, optional
-        Notes to include for every region. Default is `""`.
-    verbose : int, optional
-        Verbosity level. Default is `1`.
+    common_notes : str, default=""
+        Notes to include for every region.
+    verbose : int, default=1
+        Verbosity level.
     """
+    if target_names is None:
+        target_names = {}
+    if lines_cutoff_at_nearfield is None:
+        lines_cutoff_at_nearfield = {}
+    if offsets is None:
+        offsets = {}
+    if line_colors is None:
+        line_colors = {}
+    if line_thicknesses is None:
+        line_thicknesses = {}
+
     if verbose >= 2:
-        print("Importing {} lines/regions into EV file {}".format(len(files), ev_fname))
+        print(f"Importing {len(files)} lines/regions into EV file {ev_fname}")
 
     # Assemble the color palette
     colors = get_color_palette()
@@ -1443,9 +1529,7 @@ def import_lines_regions_to_ev(
 
         def change_line_color_thickness(line_name, color, thickness, ev_app=ev_app):
             if color is not None or thickness is not None:
-                ev_app.Exec(
-                    "{} | UseDefaultLineDisplaySettings =| false".format(line_name)
-                )
+                ev_app.Exec(f"{line_name} | UseDefaultLineDisplaySettings =| false")
             if color is not None:
                 if color in colors:
                     color = colors[color]
@@ -1455,34 +1539,45 @@ def import_lines_regions_to_ev(
                     color = colors["xkcd:" + color]
                 color = hexcolor2rgb8(color)
                 color = repr(color).replace(" ", "")
-                ev_app.Exec("{} | CustomGoodLineColor =| {}".format(line_name, color))
+                if verbose >= 4:
+                    print(
+                        f"    Setting color of EV line {line_name} to {color}"
+                        " (color active when line has Good status)"
+                    )
+                ev_app.Exec(f"{line_name} | CustomGoodLineColor =| {color}")
             if thickness is not None:
-                ev_app.Exec(
-                    "{} | CustomLineDisplayThickness =| {}".format(line_name, thickness)
-                )
+                if verbose >= 4:
+                    print(
+                        f"    Setting thickness of EV line {line_name} to {thickness}"
+                    )
+                ev_app.Exec(f"{line_name} | CustomLineDisplayThickness =| {thickness}")
 
         for key, fname in files.items():
             # Check the file exists
             fname_full = os.path.abspath(fname)
             if not os.path.isfile(fname_full):
-                s = "  Warning: File '{}' could not be found".format(fname_full)
+                s = f"  Warning: File '{fname_full}' could not be found"
                 s = echofilter.ui.style.warning_fmt(s)
                 print(s)
                 continue
 
             if os.path.splitext(fname)[1].lower() != ".evl":
+                if verbose >= 3:
+                    print(f"  Adding {key} to {ev_fname} from {fname}")
+
                 # Import regions from the EVR file
                 is_imported = ev_file.Import(fname_full)
                 if not is_imported:
                     s = (
-                        "  Warning: Unable to import file '{}'"
-                        "Please consult Echoview for the Import error message.".format(
-                            fname
-                        )
+                        f"  Warning: Unable to import file '{fname_full}'"
+                        "\n  Please consult Echoview for the Import error message."
                     )
                     s = echofilter.ui.style.warning_fmt(s)
                     print(s)
                 continue
+
+            if verbose >= 3:
+                print(f"  Adding {key} line to {ev_fname}")
 
             # Import the line into Python now. We might need it now for
             # clipping, or later on for offsetting.
@@ -1496,6 +1591,10 @@ def import_lines_regions_to_ev(
                 fname_loaded = fname_full
                 is_imported = ev_file.Import(fname_loaded)
             else:
+                if verbose >= 3:
+                    print(
+                        f"  Clipping {key} line at nearfield depth {nearfield_depth}m"
+                    )
                 # Edit the line, clipping as necessary
                 if key == "bottom":
                     depths_clipped = np.minimum(depths, nearfield_depth)
@@ -1506,7 +1605,7 @@ def import_lines_regions_to_ev(
                 with tempfile.TemporaryDirectory() as tmpdirname:
                     temp_fname = os.path.join(tmpdirname, os.path.split(fname)[1])
                     echofilter.raw.loader.evl_writer(
-                        temp_fname, ts, depths_clipped, status=line_status,
+                        temp_fname, ts, depths_clipped, status=line_status
                     )
                     # Import the edited line into the EV file
                     fname_loaded = temp_fname
@@ -1514,10 +1613,8 @@ def import_lines_regions_to_ev(
 
             if not is_imported:
                 s = (
-                    "  Warning: Unable to import file '{}'"
-                    "Please consult Echoview for the Import error message.".format(
-                        fname_loaded
-                    )
+                    f"  Warning: Unable to import file '{fname_loaded}'"
+                    "\n  Please consult Echoview for the Import error message."
                 )
                 s = echofilter.ui.style.warning_fmt(s)
                 print(s)
@@ -1530,8 +1627,8 @@ def import_lines_regions_to_ev(
             if not line:
                 s = (
                     "  Warning: Could not find line which was just imported with"
-                    " name '{}'"
-                    "\n  Ignoring and continuing processing.".format(variable.Name)
+                    f" name '{variable.Name}'"
+                    "\n  Ignoring and continuing processing."
                 )
                 s = echofilter.ui.style.warning_fmt(s)
                 print(s)
@@ -1550,8 +1647,8 @@ def import_lines_regions_to_ev(
                 if verbose >= 2:
                     print(
                         echofilter.ui.style.overwrite_fmt(
-                            "Overwriting existing line '{}' with new {} line"
-                            " output".format(target_name, key)
+                            f"Overwriting existing line '{target_name}' with new"
+                            f" {key} line output"
                         )
                     )
                 old_line_edit = old_line.AsLineEditable
@@ -1566,8 +1663,8 @@ def import_lines_regions_to_ev(
                 elif verbose >= 0:
                     # Line is not editable
                     s = (
-                        "Existing line '{}' is not editable and cannot be"
-                        " overwritten.".format(target_name, key)
+                        f"Existing line '{target_name}' is not editable and"
+                        " cannot be overwritten."
                     )
                     s = echofilter.ui.style.warning_fmt(s)
                     print(s)
@@ -1577,16 +1674,17 @@ def import_lines_regions_to_ev(
                 target_name += "_{}".format(dtstr)
                 if verbose >= 1:
                     print(
-                        "Target line name '{}' already exists. Will save"
-                        " new {} line with name '{}' instead.".format(
-                            target_names[key], key, target_name
-                        )
+                        f"Target line name '{target_names[key]}' already exists."
+                        f" Will save new {key} line with name '{target_name}' instead."
                     )
 
             if target_name and not successful_overwrite:
                 # Rename the line
                 variable.ShortName = target_name
                 line.Name = target_name
+
+            if verbose >= 2:
+                print(f"  Added offset {key} line '{line.Name}'")
 
             # Change the color and thickness of the line
             change_line_color_thickness(
@@ -1600,7 +1698,7 @@ def import_lines_regions_to_ev(
                 "{} | Notes =| {}".format(line.Name, notes.replace("\n", "\r\n"))
             )
 
-            ## Handle offset line ---------------------------------------------
+            # Handle offset line ----------------------------------------------
             if key not in offsets:
                 continue
 
@@ -1610,6 +1708,10 @@ def import_lines_regions_to_ev(
 
             # Generate an offset line
             offset = offsets[key]
+
+            if verbose >= 3:
+                print(f"  Adding {offset}m offset {key} line to {ev_fname}")
+
             if key == "bottom":
                 # Offset is upward for bottom line, downward otherwise
                 offset = -offset
@@ -1625,20 +1727,22 @@ def import_lines_regions_to_ev(
             with tempfile.TemporaryDirectory() as tmpdirname:
                 fname_noext, ext = os.path.splitext(fname)
                 temp_fname = os.path.join(
-                    tmpdirname, os.path.split(fname_noext)[1] + "_offset" + ext,
+                    tmpdirname,
+                    os.path.split(fname_noext)[1] + "_offset" + ext,
                 )
                 echofilter.raw.loader.evl_writer(
-                    temp_fname, ts, depths_offset, status=line_status,
+                    temp_fname,
+                    ts,
+                    depths_offset,
+                    status=line_status,
                 )
                 # Import the edited line into the EV file
                 is_imported = ev_file.Import(temp_fname)
 
             if not is_imported:
                 s = (
-                    "  Warning: Unable to import file '{}'"
-                    "Please consult Echoview for the Import error message.".format(
-                        temp_fname
-                    )
+                    f"  Warning: Unable to import file '{temp_fname}'"
+                    "\n  Please consult Echoview for the Import error message."
                 )
                 s = echofilter.ui.style.warning_fmt(s)
                 print(s)
@@ -1650,8 +1754,8 @@ def import_lines_regions_to_ev(
             if not line:
                 s = (
                     "  Warning: Could not find line which was just imported with"
-                    " name '{}'"
-                    "\n  Ignoring and continuing processing.".format(variable.Name)
+                    f" name '{variable.Name}'"
+                    "\n  Ignoring and continuing processing."
                 )
                 s = echofilter.ui.style.warning_fmt(s)
                 print(s)
@@ -1680,8 +1784,8 @@ def import_lines_regions_to_ev(
                 if verbose >= 2:
                     print(
                         echofilter.ui.style.overwrite_fmt(
-                            "Overwriting existing line '{}' with new {} line"
-                            " output".format(target_name, key)
+                            f"Overwriting existing line '{target_name}' with new"
+                            f" {key} line output"
                         )
                     )
                 old_line_edit = old_line.AsLineEditable
@@ -1696,8 +1800,8 @@ def import_lines_regions_to_ev(
                 elif verbose >= 0:
                     # Line is not editable
                     s = (
-                        "Existing line '{}' is not editable and cannot be"
-                        " overwritten.".format(target_name, key)
+                        f"Existing line '{target_name}' is not editable and"
+                        " cannot be overwritten."
                     )
                     s = echofilter.ui.style.warning_fmt(s)
                     print(s)
@@ -1707,16 +1811,17 @@ def import_lines_regions_to_ev(
                 target_name += "_{}".format(dtstr)
                 if verbose >= 1:
                     print(
-                        "Target line name '{}' already exists. Will save"
-                        " new {} line with name '{}' instead.".format(
-                            target_names[key], key, target_name
-                        )
+                        f"Target line name '{target_names[key]}' already exists."
+                        f" Will save new {key} line with name '{target_name}' instead."
                     )
 
             if target_name and not successful_overwrite:
                 # Rename the line
                 variable.ShortName = target_name
                 line.Name = target_name
+
+            if verbose >= 2:
+                print(f"  Added offset {key} line '{line.Name}'")
 
             # Change the color and thickness of the line
             change_line_color_thickness(
@@ -1735,6 +1840,8 @@ def import_lines_regions_to_ev(
         # Add nearfield line
         if nearfield_depth is not None and add_nearfield_line:
             key = "nearfield"
+            if verbose >= 3:
+                print(f"  Adding nearfield line at fixed depth {nearfield_depth}")
             lines = ev_file.Lines
             line = lines.CreateFixedDepth(nearfield_depth)
 
@@ -1751,7 +1858,7 @@ def import_lines_regions_to_ev(
                 if verbose >= 2:
                     print(
                         echofilter.ui.style.overwrite_fmt(
-                            "Deleting existing line '{}'".format(target_name, key)
+                            f"Deleting existing line '{target_name}'"
                         )
                     )
                 successful_overwrite = lines.Delete(old_line)
@@ -1759,9 +1866,7 @@ def import_lines_regions_to_ev(
                     # Line could not be deleted
                     print(
                         echofilter.ui.style.warning_fmt(
-                            "Existing line '{}' could not be deleted".format(
-                                target_name, key
-                            )
+                            f"Existing line '{target_name}' could not be deleted"
                         )
                     )
 
@@ -1770,15 +1875,18 @@ def import_lines_regions_to_ev(
                 target_name += "_{}".format(dtstr)
                 if verbose >= 1:
                     print(
-                        "Target line name '{}' already exists. Will save"
-                        " new {} line with name '{}' instead.".format(
-                            target_names[key], key, target_name
-                        )
+                        f"Target line name '{target_names[key]}' already exists."
+                        f" Will save new {key} line with name '{target_name}' instead."
                     )
 
             if target_name:
                 # Rename the line
                 line.Name = target_name
+
+            if verbose >= 2:
+                print(
+                    f"  Added nearfield line '{line.Name}' at fixed depth {nearfield_depth}m"
+                )
 
             # Change the color and thickness of the line
             change_line_color_thickness(
@@ -1802,11 +1910,10 @@ def get_color_palette(include_xkcd=True):
 
     Parameters
     ----------
-    include_xkcd : bool, optional
+    include_xkcd : bool, default=True
         Whether to include the XKCD color palette in the output.
-        Note that XKCD colors have `"xkcd:"` prepended to their names to
+        Note that XKCD colors have ``"xkcd:"`` prepended to their names to
         prevent collisions with official named colors from CSS4.
-        Default is `True`.
         See https://xkcd.com/color/rgb/ and
         https://blog.xkcd.com/2010/05/03/color-survey-results/
         for the XKCD colors.
@@ -1825,13 +1932,13 @@ def get_color_palette(include_xkcd=True):
 
 def hexcolor2rgb8(color):
     """
-    Utility for mapping hexadecimal colors to uint8 RGB.
+    Map hexadecimal colors to uint8 RGB.
 
     Parameters
     ----------
     color : str
-        A hexadecimal color string, with leading "#".
-        If the input is not a string beginning with "#", it is returned as-is
+        A hexadecimal color string, with leading ``"#"``.
+        If the input is not a string beginning with ``"#"``, it is returned as-is
         without raising an error.
 
     Returns
@@ -1839,7 +1946,7 @@ def hexcolor2rgb8(color):
     tuple
         RGB color tuple, in uint8 format (0--255).
     """
-    if color[0] is "#":
+    if isinstance(color, str) and color[0] == "#":
         color = mcolors.to_rgba(color)[:3]
         color = tuple(max(0, min(255, int(np.round(c * 255)))) for c in color)
     return color

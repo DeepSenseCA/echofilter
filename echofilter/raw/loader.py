@@ -2,22 +2,37 @@
 Input/Output handling for raw Echoview files.
 """
 
-from collections import OrderedDict
+# This file is part of Echofilter.
+#
+# Copyright (C) 2020-2022  Scott C. Lowe and Offshore Energy Research Association (OERA)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import csv
 import datetime
 import os
 import textwrap
 import warnings
+from collections import OrderedDict
 
 import numpy as np
+import pandas as pd
 import scipy.interpolate
 import scipy.ndimage
 import skimage.measure
-import pandas as pd
 
-from . import utils
 from ..ui import style
-
+from . import utils
 
 ROOT_DATA_DIR = "/data/dsforce/surveyExports"
 
@@ -40,7 +55,7 @@ TRANSECT_FIELD_TYPES = {
 
 def transect_reader(fname):
     """
-    Creates a generator which iterates through a survey csv file.
+    Create a generator which iterates through a survey csv file.
 
     Parameters
     ----------
@@ -59,12 +74,12 @@ def transect_reader(fname):
         for i_row, row in enumerate(hf):
             try:
                 row = row.decode("utf-8-sig" if i_row == 0 else "utf-8")
-            except:
+            except Exception:
                 if i_row == 0:
                     raise
                 print(
                     "Row {} of {} contained a byte which is not in UTF-8"
-                    " and will be skipped.".format(i_row, fname,)
+                    " and will be skipped.".format(i_row, fname)
                 )
                 continue
             row = row.split(",")
@@ -98,16 +113,19 @@ def count_lines(filename):
         Number of lines in file.
     """
     with open(filename, "rb") as f:
-        for i, _ in enumerate(f):
+        for _i, _ in enumerate(f):
             pass
-    return i + 1
+    return _i + 1
 
 
 def transect_loader(
-    fname, skip_lines=0, warn_row_overflow=None, row_len_selector="mode",
+    fname,
+    skip_lines=0,
+    warn_row_overflow=None,
+    row_len_selector="mode",
 ):
     """
-    Loads an entire survey transect CSV.
+    Load an entire survey transect CSV.
 
     Parameters
     ----------
@@ -119,14 +137,14 @@ def transect_loader(
         Whether to print a warning message if the number of elements in a
         row exceeds the expected number. If this is an int, this is the number
         of times to display the warnings before they are supressed. If this
-        is `True`, the number of outputs is unlimited. If `None`, the
+        is ``True``, the number of outputs is unlimited. If ``None``, the
         maximum number of underflow and overflow warnings differ: if
-        `row_len_selector` is `"init"` or `"min"`, underflow always produces a
+        ``row_len_selector`` is ``"init"`` or ``"min"``, underflow always produces a
         message and the overflow messages stop at 2; otherwise the values are
-        reversed. Default is `None`.
+        reversed. Default is ``None``.
     row_len_selector : {"init", "min", "max", "median", "mode"}, optional
         The method used to determine which row length (number of depth samples)
-        to use. Default is `"mode"`, the most common row length across all
+        to use. Default is ``"mode"``, the most common row length across all
         the measurement timepoints.
 
     Returns
@@ -139,7 +157,6 @@ def transect_loader(
     numpy.ndarray
         Survey signal (Sv, for instance). Units match that of the file.
     """
-
     row_len_selector = row_len_selector.lower()
     if row_len_selector in {"init", "min"}:
         expand_for_overflow = False
@@ -161,15 +178,12 @@ def transect_loader(
     # We remove one from the line count because of the header
     # which is excluded from output
     n_lines = count_lines(fname) - 1
-    n_distances = 0
 
     # Initialise output array
-    for i_line, (meta, row) in enumerate(transect_reader(fname)):
+    for i_line, (_, row) in enumerate(transect_reader(fname)):
         if i_line < min(n_lines, max(1, skip_lines)):
             continue
         n_depths_init = len(row)
-        depth_start_init = meta["Depth_start"]
-        depth_stop_init = meta["Depth_stop"]
         break
 
     n_depth_exp = n_depths_init
@@ -293,7 +307,10 @@ def transect_loader(
     ):
         if d0 < d1:
             data[i_entry, :n_depth_use] = utils.interp1d_preserve_nan(
-                np.linspace(d0, d1, nd), data[i_entry, :nd], depths, **interp_kwargs,
+                np.linspace(d0, d1, nd),
+                data[i_entry, :nd],
+                depths,
+                **interp_kwargs,
             )
         else:
             data[i_entry, :n_depth_use] = utils.interp1d_preserve_nan(
@@ -311,7 +328,7 @@ def transect_loader(
 
 def evl_reader(fname):
     """
-    EVL file reader
+    EVL file reader.
 
     Parameters
     ----------
@@ -337,9 +354,7 @@ def evl_reader(fname):
                 continue
             continuance = False
 
-            timestamp = datetime.datetime.strptime(
-                row[0] + "T" + row[1], "%Y%m%dT%H%M%S%f",
-            ).timestamp()
+            timestamp = evdtstr2timestamp(row[0], row[1])
 
             if len(row[2]) > 0:
                 raise ValueError("row[2] was non-empty: {}".format(row[2]))
@@ -349,14 +364,14 @@ def evl_reader(fname):
 
 def evl_loader(fname, special_to_nan=True, return_status=False):
     """
-    EVL file loader
+    EVL file loader.
 
     Parameters
     ----------
     fname : str
         Path to .evl file.
     special_to_nan : bool, optional
-        Whether to replace the special value, `-10000.99`, which indicates no
+        Whether to replace the special value, ``-10000.99``, which indicates no
         depth value, with NaN.
         https://support.echoview.com/WebHelp/Reference/File_formats/Export_file_formats/Special_Export_Values.htm
 
@@ -390,8 +405,9 @@ def evl_loader(fname, special_to_nan=True, return_status=False):
 
 def timestamp2evdtstr(timestamp):
     """
-    Converts a timestamp into an Echoview-compatible datetime string, in the
-    format "CCYYMMDD HHmmSSssss", where:
+    Convert a timestamp into an Echoview-compatible datetime string.
+
+    The output is in the format "CCYYMMDD HHmmSSssss", where:
 
     | CC: century
     | YY: year
@@ -418,12 +434,281 @@ def timestamp2evdtstr(timestamp):
     # We have to manually determine the number of "0.1 milliseconds"
     # from the microsecond component.
     dt = datetime.datetime.fromtimestamp(timestamp)
-    return "{}{:04d}".format(dt.strftime("%Y%m%d %H%M%S"), round(dt.microsecond / 100),)
+    return "{}{:04d}".format(dt.strftime("%Y%m%d %H%M%S"), round(dt.microsecond / 100))
+
+
+def evdtstr2timestamp(datestr, timestr=None):
+    """
+    Convert an Echoview-compatible datetime string into a Unix epoch timestamp.
+
+    Parameters
+    ----------
+    datestr : str
+        Datetime string in the Echoview-compatible format
+        ``"CCYYMMDD HHmmSSssss"``, or (if timestr is also provided) just
+        the date part, ``"CCYYMMDD"``.
+    timestr : str, optional
+        Time string in the Echoview-compatible format "HHmmSSssss".
+
+    Returns
+    -------
+    timestamp : float
+        Number of seconds since Unix epoch.
+    """
+    if timestr:
+        datestr = datestr + " " + timestr
+    return datetime.datetime.strptime(datestr, "%Y%m%d %H%M%S%f").timestamp()
+
+
+def evr_reader(fname, parse_echofilter_regions=True):
+    """
+    Echoview region file (EVR) reader.
+
+    Parameters
+    ----------
+    fname : str
+        Path to .evr file.
+    parse_echofilter_regions : bool, default=True
+        Whether to separate out echofilter generated regions
+        (passive, removed vbands, and removed patches)
+        from other regions.
+
+    Returns
+    -------
+    regions_passive : list of tuples, optional
+        Start and end timestamps for passive regions.
+    regions_removed : list of tuples, optional
+        Start and end timestamps for removed vertical bands.
+    regions_patch : list of lists, optional
+        Start and end timestamps for bad data patches.
+    regions_other : list of dicts
+        Dictionary mapping creation type to points defining each region.
+    """
+    regions_passive = []
+    regions_removed = []
+    regions_patch = []
+    regions_other = []
+
+    # Line 1: EVRG file version header
+    with open(fname, "r") as hf:
+        line = hf.readline()
+        if "EVRG" not in line:
+            raise EnvironmentError("This is not an EVR/EVRG file")
+
+        # Line 2: Number of regions
+        line = hf.readline().strip("\n\r")
+        n_regions = int(line)
+
+        for _ in range(n_regions):
+            # Line 3: Intentionally left blank
+            line = hf.readline().strip("\n\r")
+            if len(line):
+                print(
+                    "Badly formatted EVRG file. Separating line is not blank: {}".format(
+                        line
+                    )
+                )
+
+            # Individual region
+            region_is_passive = False
+            region_is_removed = False
+            region_is_patch = False
+
+            # Region header
+            line = hf.readline().strip("\n\r")
+            line = line.replace("  ", " ")
+            lparts = line.split(" ")
+            if lparts[0] != "13":
+                raise EnvironmentError(
+                    "Only Region structure version 13 is supported ({} given).".format(
+                        lparts[0]
+                    )
+                )
+            n_points = int(lparts[1])
+            _region_id = int(lparts[2])  # noqa: F841
+            # Selected indicator: lparts[3] == 0
+            region_ctype = int(lparts[4])
+            # Dummy: lparts[5] == -1
+            _has_bbox = bool(int(lparts[6]))  # noqa: F841
+            _left = evdtstr2timestamp(lparts[7], lparts[8])  # noqa: F841
+            _top = float(lparts[9])  # noqa: F841
+            _right = evdtstr2timestamp(lparts[10], lparts[11])  # noqa: F841
+            _bottom = float(lparts[12])  # noqa: F841
+
+            # Notes
+            line = hf.readline().strip("\n\r")
+            n_notes = int(line)
+            notes = "\n".join(hf.readline() for _ in range(n_notes))
+            if notes.startswith("Passive data"):
+                region_is_passive = True
+            if notes.startswith("Removed data block"):
+                region_is_removed = True
+            if notes.startswith("Removed patch"):
+                region_is_patch = True
+
+            # Detection settings
+            line = hf.readline().strip("\n\r")
+            n_detset = int(line)
+            for _ in range(n_detset):
+                hf.readline()
+
+            # Region classification
+            _region_classification = hf.readline().strip("\n\r")  # noqa: F841
+            # Points
+            points = hf.readline().strip().replace("  ", " ").split(" ")
+            _region_status = int(points.pop())  # noqa: F841
+            if len(points) % 3 != 0:
+                print("Points not composed correctly")
+            if len(points) // 3 != n_points:
+                print(
+                    "Different number of points to expected: {} vs {}".format(
+                        len(points), n_points
+                    )
+                )
+            points = [
+                (
+                    evdtstr2timestamp(points[i * 3], points[i * 3 + 1]),
+                    float(points[i * 3 + 2]),
+                )
+                for i in range(n_points)
+            ]
+            _region_name = hf.readline().strip("\n\r")  # noqa: F841
+
+            # Add region to list
+            if not parse_echofilter_regions:
+                regions_other.append({region_ctype: points})
+                continue
+
+            if region_is_passive:
+                if region_ctype != 4:
+                    print(
+                        "Warning: Region creation type is {} not 4".format(region_ctype)
+                    )
+                regions_passive.append((points[0][0], points[-1][0]))
+            elif region_is_removed:
+                if region_ctype != 4:
+                    print(
+                        "Warning: Region creation type is {} not 4".format(region_ctype)
+                    )
+                regions_removed.append((points[0][0], points[-1][0]))
+            elif region_is_patch:
+                if region_ctype != 2:
+                    print(
+                        "Warning: Region creation type is {} not 2".format(region_ctype)
+                    )
+                regions_patch.append(points)
+            else:
+                regions_other.append({region_ctype: points})
+
+    if not parse_echofilter_regions:
+        return regions_other
+
+    return regions_passive, regions_removed, regions_patch, regions_other
+
+
+def regions2mask(
+    timestamps,
+    depths,
+    regions_passive=None,
+    regions_removed=None,
+    regions_patch=None,
+    regions_other=None,
+):
+    """
+    Convert regions to mask.
+
+    Takes the output from :func:evr_reader` and returns a set of masks.
+
+    Parameters
+    ----------
+    timestamps : array_like
+        Timestamps for each node in the line.
+    depths : array_like
+        Depths (in meters) for each node in the line.
+    regions_passive : list of tuples, optional
+        Start and end timestamps for passive regions.
+    regions_removed : list of tuples, optional
+        Start and end timestamps for removed vertical bands.
+    regions_patch : list of lists, optional
+        Start and end timestamps for bad data patches.
+    regions_other : list of dicts
+        Dictionary mapping creation type to points defining each region.
+
+    Returns
+    -------
+    transect : dict
+        A dictionary with keys:
+
+            - "is_passive" : numpy.ndarray
+                Logical array showing whether a timepoint is of passive data.
+                Shaped ``(num_timestamps, )``. All passive recording data should
+                be excluded by the mask.
+            - "is_removed" : numpy.ndarray
+                Logical array showing whether a timepoint is entirely removed
+                by the mask. Shaped ``(num_timestamps, )``.
+            - "mask_patches" : numpy.ndarray
+                Logical array indicating which datapoints are inside a patch
+                from regions_patch (``True``) and should be excluded by the
+                mask.
+                Shaped ``(num_timestamps, num_depths)``.
+            - "mask" : numpy.ndarray
+                Logical array indicating which datapoints should be kept
+                (``True``) and which are marked as removed
+                (``False``) by one of the other three outputs.
+                Shaped ``(num_timestamps, num_depths)``.
+    """
+    if regions_other is not None:
+        raise NotImplementedError("Other regions are not yet supported.")
+
+    is_passive = np.zeros(timestamps.shape, dtype=bool)
+    is_removed = np.zeros(timestamps.shape, dtype=bool)
+
+    for ts_start, ts_end in regions_passive:
+        is_passive[(ts_start <= timestamps) & (timestamps <= ts_end)] = 1
+
+    for ts_start, ts_end in regions_removed:
+        is_removed[(ts_start <= timestamps) & (timestamps <= ts_end)] = 1
+
+    # Create an empty image to store the masked array
+    mask_patches = np.zeros((len(timestamps), len(depths)), dtype=bool)
+
+    dt = np.abs(timestamps[-1] - timestamps[-2])
+    dd = np.abs(depths[-1] - depths[-2])
+
+    for patch in regions_patch:
+        patch = np.asarray(patch)
+        # Find closest indices to the contour coordinates given
+        x = np.searchsorted(timestamps + dt / 2, patch[:, 0], side="left")
+        y = np.searchsorted(depths + dd / 2, patch[:, 1], side="left")
+
+        # Make a mask for this patch
+        mask_i = np.zeros_like(mask_patches, dtype="bool")
+
+        # Create a contour image by using the contour coordinates rounded to their nearest integer value
+        mask_i[x, y] = 1
+
+        # Fill in the hole created by the contour boundary
+        mask_i = scipy.ndimage.binary_fill_holes(mask_i)
+
+        # Add this patch to the overall mask for all patches
+        mask_patches |= mask_i
+
+    # mask_patches shows where bad patches are; mask shows where good data is
+    mask = ~mask_patches
+    mask[is_passive | is_removed] = 0
+
+    transect = {
+        "is_passive": is_passive,
+        "is_removed": is_removed,
+        "mask": mask,
+        "mask_patches": mask_patches,
+    }
+    return transect
 
 
 def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n", pad=False):
     r"""
-    EVL file writer
+    EVL file writer.
 
     Parameters
     ----------
@@ -436,21 +721,21 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n", pad=Fals
     status : 0, 1, 2, or 3; optional
         Status for the line.
 
-        - `0` : none
-        - `1` : unverified
-        - `2` : bad
-        - `3` : good
+        - ``0`` : none
+        - ``1`` : unverified
+        - ``2`` : bad
+        - ``3`` : good
 
-        Default is `1` (unverified). For more details on line status, see
+        Default is ``1`` (unverified). For more details on line status, see
         https://support.echoview.com/WebHelp/Using_Echoview/Echogram/Lines/About_Line_Status.htm
     pad : bool, optional
         Whether to pad the line with an extra datapoint half a pixel before the
-        first and after the last given timestamp. Default is `False`.
+        first and after the last given timestamp. Default is ``False``.
     line_ending : str, optional
-        Line ending. Default is `"\r\n"` the standard line ending on Windows/DOS,
+        Line ending. Default is ``"\r\n"`` the standard line ending on Windows/DOS,
         as per the specification for the file format.
         https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm
-        Set to `"\n"` to get Unix-style line endings instead.
+        Set to ``"\n"`` to get Unix-style line endings instead.
 
     Notes
     -----
@@ -474,23 +759,22 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n", pad=Fals
     # The file object will automatically replace \n with our chosen line ending
     with open(fname, "w+", encoding="utf-8-sig", newline=line_ending) as hf:
         # Write header
-        hf.write("EVBD 3 10.0.270.37090" + "\n")
+        hf.write("EVBD 3 10.0.270.37090\n")
         n_row = len(depths)
         hf.write(str(n_row) + "\n")
         # Write each row
-        for i_row, (timestamp, depth) in enumerate(zip(timestamps, depths)):
+        for timestamp, depth in zip(timestamps, depths):
             # Datetime must be in the format CCYYMMDD HHmmSSssss
             # where ssss = 0.1 milliseconds.
             # We have to manually determine the number of "0.1 milliseconds"
             # from the microsecond component.
-            dt = datetime.datetime.fromtimestamp(timestamp)
             hf.write("{}  {} {} \n".format(timestamp2evdtstr(timestamp), depth, status))
 
 
 def evr_writer(
     fname,
-    rectangles=[],
-    contours=[],
+    rectangles=None,
+    contours=None,
     common_notes="",
     default_region_type=0,
     line_ending="\r\n",
@@ -506,43 +790,47 @@ def evr_writer(
         Destination of output file.
     rectangles : list of dictionaries, optional
         Rectangle region definitions. Default is an empty list. Each rectangle
-        region must implement fields `"depths"` and `"timestamps"`, which
-        indicate the extent of the rectangle. Optionally, `"creation_type"`,
-        `"region_name"`, `"region_type"`, and `"notes"` may be set.
+        region must implement fields ``"depths"`` and ``"timestamps"``, which
+        indicate the extent of the rectangle. Optionally, ``"creation_type"``,
+        ``"region_name"``, ``"region_type"``, and ``"notes"`` may be set.
         If these are not given, the default creation_type is 4 and region_type
-        is set by `default_region_type`.
+        is set by ``default_region_type``.
     contours : list of dictionaries
         Contour region definitions. Default is an empty list. Each contour
-        region must implement a `"points"` field containing a :class:`numpy.ndarray`
+        region must implement a ``"points"`` field containing a :class:`numpy.ndarray`
         shaped `(n, 2)` defining the co-ordinates of nodes along the (open)
-        contour in units of timestamp and depth. Optionally, `"creation_type"`,
-        `"region_name"`, `"region_type"`, and `"notes"` may be set.
+        contour in units of timestamp and depth. Optionally, ``"creation_type"``,
+        ``"region_name"``, ``"region_type"``, and ``"notes"`` may be set.
         If these are not given, the default creation_type is 2 and region_type
-        is set by `default_region_type`.
+        is set by ``default_region_type``.
     common_notes : str, optional
-        Notes to include for every region. Default is `""`, an empty string.
+        Notes to include for every region. Default is ``""``, an empty string.
     default_region_type : int, optional
         The region type to use for rectangles and contours which do not define
-        a `"region_type"` field. Possible region types are
+        a ``"region_type"`` field. Possible region types are
 
-        - `0` : bad (no data)
-        - `1` : analysis
-        - `2` : marker
-        - `3` : fishtracks
-        - `4` : bad (empty water)
+        - ``0`` : bad (no data)
+        - ``1`` : analysis
+        - ``2`` : marker
+        - ``3`` : fishtracks
+        - ``4`` : bad (empty water)
 
-        Default is `0`.
+        Default is ``0``.
     line_ending : str, optional
-        Line ending. Default is `"\r\n"` the standard line ending on Windows/DOS,
+        Line ending. Default is ``"\r\n"`` the standard line ending on Windows/DOS,
         as per the specification for the file format.
         https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm
-        Set to `"\n"` to get Unix-style line endings instead.
+        Set to ``"\n"`` to get Unix-style line endings instead.
 
     Notes
     -----
     For more details on the format specification, see:
     https://support.echoview.com/WebHelp/Reference/File_formats/Export_file_formats/2D_Region_definition_file_format.htm
     """
+    if rectangles is None:
+        rectangles = []
+    if contours is None:
+        contours = []
     # Remove leading/trailing new lines, since we will join with our own line ending
     common_notes = common_notes.strip("\r\n")
     # Standardize line endings to be \n, regardless of input
@@ -556,7 +844,7 @@ def evr_writer(
     # The file object will automatically replace \n with our chosen line ending
     with open(fname, "w+", encoding="utf-8-sig", newline=line_ending) as hf:
         # Write header
-        hf.write("EVRG 7 10.0.283.37689" + "\n")
+        hf.write("EVRG 7 10.0.283.37689\n")
         hf.write(str(n_regions) + "\n")
 
         # Write each rectangle
@@ -595,13 +883,16 @@ def evr_writer(
             if len(notes) > 0:
                 hf.write(notes + "\n")
             # Detection settings
-            hf.write("0" + "\n")  # Number of lines of detection settings
+            hf.write("0\n")  # Number of lines of detection settings
             # Region classification string
-            hf.write("Unclassified regions" + "\n")
+            hf.write("Unclassified regions\n")
             # The points defining the region itself
             hf.write(
                 "{left} {top} {left} {bottom} {right} {bottom} {right} {top} ".format(
-                    left=left, right=right, top=top, bottom=bottom,
+                    left=left,
+                    right=right,
+                    top=top,
+                    bottom=bottom,
                 )  # Terminates with a space, not a new line
             )
             # Region type
@@ -643,9 +934,9 @@ def evr_writer(
             if len(notes) > 0:
                 hf.write(notes + "\n")
             # Detection settings
-            hf.write("0" + "\n")  # Number of lines of detection settings
+            hf.write("0\n")  # Number of lines of detection settings
             # Region classification string
-            hf.write("Unclassified regions" + "\n")
+            hf.write("Unclassified regions\n")
             # The region itself
             for point in region["points"]:
                 hf.write("{} {} ".format(timestamp2evdtstr(point[0]), point[1]))
@@ -686,56 +977,55 @@ def write_transect_regions(
         Transect dictionary.
     depth_range : array_like or None, optional
         The minimum and maximum depth extents (in any order) of the passive and
-        removed block regions. If this is `None` (default), the minimum and
-        maximum of `transect["depths"]` is used.
+        removed block regions. If this is ``None`` (default), the minimum and
+        maximum of ``transect["depths"]`` is used.
     passive_key : str, optional
         Field name to use for passive data identification. Default is
-        `"is_passive"`.
+        ``"is_passive"``.
     removed_key : str, optional
-        Field name to use for removed blocks. Default is `"is_removed"`.
+        Field name to use for removed blocks. Default is ``"is_removed"``.
     patches_key : str, optional
         Field name to use for the mask of patch regions. Default is
-        `"mask_patches"`.
+        ``"mask_patches"``.
     collate_passive_length : int, optional
         Maximum distance (in indices) over which passive regions should be
-        merged together, closing small gaps between them. Default is `0`.
+        merged together, closing small gaps between them. Default is ``0``.
     collate_removed_length : int, optional
         Maximum distance (in indices) over which removed blocks should be
-        merged together, closing small gaps between them. Default is `0`.
+        merged together, closing small gaps between them. Default is ``0``.
     minimum_passive_length : int, optional
         Minimum length (in indices) a passive region must have to be included
         in the output. Set to -1 to omit all passive regions from the output.
-        Default is `0`.
+        Default is ``0``.
     minimum_removed_length : int, optional
         Minimum length (in indices) a removed block must have to be included in
         the output. Set to -1 to omit all removed regions from the output.
-        Default is `0`.
+        Default is ``0``.
     minimum_patch_area : float, optional
         Minimum amount of area (in input pixel space) that a patch must occupy
-        in order to be included in the output. Set to `0` to include all
-        patches, no matter their area. Set to `-1` to omit all patches.
-        Default is `0`.
+        in order to be included in the output. Set to ``0`` to include all
+        patches, no matter their area. Set to ``-1`` to omit all patches.
+        Default is ``0``.
     name_suffix : str, optional
-        Suffix to append to variable names. Default is `""`, an empty string.
+        Suffix to append to variable names. Default is ``""``, an empty string.
     common_notes : str, optional
-        Notes to include for every region. Default is `""`, an empty string.
+        Notes to include for every region. Default is ``""``, an empty string.
     line_ending : str, optional
-        Line ending. Default is `"\r\n"` the standard line ending on Windows/DOS,
+        Line ending. Default is ``"\r\n"`` the standard line ending on Windows/DOS,
         as per the specification for the file format,
         https://support.echoview.com/WebHelp/Using_Echoview/Exporting/Exporting_data/Exporting_line_data.htm
-        Set to `"\n"` to get Unix-style line endings instead.
+        Set to ``"\n"`` to get Unix-style line endings instead.
     verbose : int, optional
-        Verbosity level. Default is `0`.
+        Verbosity level. Default is ``0``.
     verbose_indent : int, optional
         Level of indentation (number of preceding spaces) before verbosity
-        messages. Default is `0`.
+        messages. Default is ``0``.
     """
     if depth_range is None:
         depth_range = transect["depths"]
     depth_range = [np.min(depth_range), np.max(depth_range)]
 
     rectangles = []
-    contours = []
     # Regions around each period of passive data
     key = passive_key
     if key not in transect:
@@ -910,9 +1200,9 @@ def load_transect_data(transect_pth, dataset="mobile", root_data_dir=ROOT_DATA_D
     Parameters
     ----------
     transect_pth : str
-        Relative path to transect, excluding `"_Sv_raw.csv"`.
+        Relative path to transect, excluding ``"_Sv_raw.csv"``.
     dataset : str, optional
-        Name of dataset. Default is `"mobile"`.
+        Name of dataset. Default is ``"mobile"``.
     root_data_dir : str
         Path to root directory where data is located.
 
@@ -920,10 +1210,10 @@ def load_transect_data(transect_pth, dataset="mobile", root_data_dir=ROOT_DATA_D
     -------
     timestamps : numpy.ndarray
         Timestamps (in seconds since Unix epoch), with each entry
-        corresponding to each row in the `signals` data.
+        corresponding to each row in the ``signals`` data.
     depths : numpy.ndarray
         Depths from the surface (in metres), with each entry corresponding
-        to each column in the `signals` data.
+        to each column in the ``signals`` data.
     signals : numpy.ndarray
         Echogram Sv data, shaped (num_timestamps, num_depths).
     turbulence : numpy.ndarray
@@ -956,14 +1246,14 @@ def get_partition_data(
     root_data_dir=ROOT_DATA_DIR,
 ):
     """
-    Loads partition metadata.
+    Load partition metadata.
 
     Parameters
     ----------
     transect_pth : str
-        Relative path to transect, excluding `"_Sv_raw.csv"`.
+        Relative path to transect, excluding ``"_Sv_raw.csv"``.
     dataset : str, optional
-        Name of dataset. Default is `"mobile"`.
+        Name of dataset. Default is ``"mobile"``.
     partitioning_version : str, optional
         Name of partitioning method.
     root_data_dir : str
@@ -977,7 +1267,7 @@ def get_partition_data(
     """
     dirname = os.path.join(root_data_dir, dataset, "sets", partitioning_version)
     fname_partition = os.path.join(dirname, partition + ".txt")
-    fname_header = os.path.join(dirname, "header" + ".txt")
+    fname_header = os.path.join(dirname, "header.txt")
 
     with open(fname_header, "r") as hf:
         for row in csv.reader(hf):
@@ -1000,7 +1290,7 @@ def remove_trailing_slash(s):
     Returns
     -------
     str
-        Same as `s`, but without trailing forward slashes.
+        Same as ``s``, but without trailing forward slashes.
     """
     while s[-1] == "/" or s[-1] == os.path.sep:
         s = s[:-1]
@@ -1042,19 +1332,19 @@ def get_partition_list(
     Parameters
     ----------
     transect_pth : str
-        Relative path to transect, excluding `"_Sv_raw.csv"`.
+        Relative path to transect, excluding ``"_Sv_raw.csv"``.
     dataset : str, optional
-        Name of dataset. Default is `"mobile"`.
+        Name of dataset. Default is ``"mobile"``.
     full_path : bool, optional
-        Whether to return the full path to the sample. If `False`, only the
+        Whether to return the full path to the sample. If ``False``, only the
         relative path (from the dataset directory) is returned.
-        Default is `False`.
+        Default is ``False``.
     partitioning_version : str, optional
         Name of partitioning method.
     root_data_dir : str, optional
         Path to root directory where data is located.
     sharded : bool, optional
-        Whether to return path to sharded version of data. Default is `False`.
+        Whether to return path to sharded version of data. Default is ``False``.
 
     Returns
     -------
@@ -1072,7 +1362,11 @@ def get_partition_list(
         fnames = [os.path.join(f.split("_")[0], f.strip()) for f in fnames]
     else:
         partition_file = os.path.join(
-            root_data_dir, dataset, "sets", partitioning_version, partition + ".txt",
+            root_data_dir,
+            dataset,
+            "sets",
+            partitioning_version,
+            partition + ".txt",
         )
         fnames = list_from_file(partition_file)
 
