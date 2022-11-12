@@ -1539,8 +1539,17 @@ def import_lines_regions_to_ev(
                     color = colors["xkcd:" + color]
                 color = hexcolor2rgb8(color)
                 color = repr(color).replace(" ", "")
+                if verbose >= 4:
+                    print(
+                        f"    Setting color of EV line {line_name} to {color}"
+                        " (color active when line has Good status)"
+                    )
                 ev_app.Exec(f"{line_name} | CustomGoodLineColor =| {color}")
             if thickness is not None:
+                if verbose >= 4:
+                    print(
+                        f"    Setting thickness of EV line {line_name} to {thickness}"
+                    )
                 ev_app.Exec(f"{line_name} | CustomLineDisplayThickness =| {thickness}")
 
         for key, fname in files.items():
@@ -1553,16 +1562,22 @@ def import_lines_regions_to_ev(
                 continue
 
             if os.path.splitext(fname)[1].lower() != ".evl":
+                if verbose >= 3:
+                    print(f"  Adding {key} to {ev_fname} from {fname}")
+
                 # Import regions from the EVR file
                 is_imported = ev_file.Import(fname_full)
                 if not is_imported:
                     s = (
-                        f"  Warning: Unable to import file '{fname}'"
+                        f"  Warning: Unable to import file '{fname_full}'"
                         "\n  Please consult Echoview for the Import error message."
                     )
                     s = echofilter.ui.style.warning_fmt(s)
                     print(s)
                 continue
+
+            if verbose >= 3:
+                print(f"  Adding {key} line to {ev_fname}")
 
             # Import the line into Python now. We might need it now for
             # clipping, or later on for offsetting.
@@ -1576,6 +1591,10 @@ def import_lines_regions_to_ev(
                 fname_loaded = fname_full
                 is_imported = ev_file.Import(fname_loaded)
             else:
+                if verbose >= 3:
+                    print(
+                        f"  Clipping {key} line at nearfield depth {nearfield_depth}m"
+                    )
                 # Edit the line, clipping as necessary
                 if key == "bottom":
                     depths_clipped = np.minimum(depths, nearfield_depth)
@@ -1664,6 +1683,9 @@ def import_lines_regions_to_ev(
                 variable.ShortName = target_name
                 line.Name = target_name
 
+            if verbose >= 2:
+                print(f"  Added offset {key} line '{line.Name}'")
+
             # Change the color and thickness of the line
             change_line_color_thickness(
                 line.Name, line_colors.get(key), line_thicknesses.get(key)
@@ -1686,6 +1708,10 @@ def import_lines_regions_to_ev(
 
             # Generate an offset line
             offset = offsets[key]
+
+            if verbose >= 3:
+                print(f"  Adding {offset}m offset {key} line to {ev_fname}")
+
             if key == "bottom":
                 # Offset is upward for bottom line, downward otherwise
                 offset = -offset
@@ -1794,6 +1820,9 @@ def import_lines_regions_to_ev(
                 variable.ShortName = target_name
                 line.Name = target_name
 
+            if verbose >= 2:
+                print(f"  Added offset {key} line '{line.Name}'")
+
             # Change the color and thickness of the line
             change_line_color_thickness(
                 line.Name,
@@ -1811,6 +1840,8 @@ def import_lines_regions_to_ev(
         # Add nearfield line
         if nearfield_depth is not None and add_nearfield_line:
             key = "nearfield"
+            if verbose >= 3:
+                print(f"  Adding nearfield line at fixed depth {nearfield_depth}")
             lines = ev_file.Lines
             line = lines.CreateFixedDepth(nearfield_depth)
 
@@ -1851,6 +1882,11 @@ def import_lines_regions_to_ev(
             if target_name:
                 # Rename the line
                 line.Name = target_name
+
+            if verbose >= 2:
+                print(
+                    f"  Added nearfield line '{line.Name}' at fixed depth {nearfield_depth}m"
+                )
 
             # Change the color and thickness of the line
             change_line_color_thickness(
