@@ -948,7 +948,7 @@ def get_parser():
         type=float,
         nargs="+",
         metavar="SIGMA",
-        default=[1],
+        default=[0],
         help="""
             Standard deviation of Gaussian smoothing kernel applied to the
             logits provided as the model's output. The smoothing regularises
@@ -958,8 +958,7 @@ def get_parser():
             dimension and the second value is for the depth dimension. If a
             single value is given, the kernel is symmetric. Values are relative
             to the pixel space returned by the UNet model.
-            Set to 0 to disable.
-            Default: %(default)s.
+            Disabled by default.
         """,
     )
     group_model.add_argument(
