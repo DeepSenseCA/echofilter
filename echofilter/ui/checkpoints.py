@@ -105,8 +105,10 @@ def cannonise_checkpoint_name(name):
 class ListCheckpoints(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
         print("Currently available model checkpoints:")
-        for checkpoint in get_checkpoint_list():
-            if checkpoint == get_default_checkpoint():
+        default_checkpoint = get_default_checkpoint()
+        checkpoints = get_checkpoint_list()
+        for checkpoint in checkpoints:
+            if checkpoint == default_checkpoint:
                 print("  * " + style.progress_fmt(checkpoint))
             else:
                 print("    " + checkpoint)
