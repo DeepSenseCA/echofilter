@@ -164,7 +164,22 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
 
     os.makedirs(cache_dir, exist_ok=True)
 
-    sources = get_checkpoint_list()[checkpoint_name]
+    checkpoints_dict = get_checkpoint_list()
+    if checkpoint_name in checkpoints_dict:
+        sources = checkpoints_dict[checkpoint_name]
+    else:
+        for key, sources in checkpoints_dict.items():
+            if checkpoint_name in sources.get("aliases", []):
+                checkpoint_name = key
+                break
+        else:
+            raise ValueError(
+                f"No checkpoint named {checkpoint_name} found checkpoints.yaml"
+            )
+
+    if "aliases" in sources:
+        sources.pop("aliases")
+
     success = False
     for key, url_or_id in sources.items():
         if key == "gdrive":
