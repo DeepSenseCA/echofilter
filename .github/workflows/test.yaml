@@ -27,7 +27,7 @@ jobs:
         include:
           - os: ubuntu-latest
             python-version: "3.7"
-            frozen: True
+            frozen: "frozen"
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
