@@ -7,6 +7,6 @@ pywin32; platform_system=="Windows"
 pyyaml
 scikit-image
 scipy
-torch
-torchvision
+torch<1.12.0
+torchvision<0.13.0
 tqdm
