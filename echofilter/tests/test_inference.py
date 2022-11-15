@@ -141,81 +141,87 @@ class test_run_inference(BaseTestCase):
 
     def test_run_downfacing(self):
         with tempfile.TemporaryDirectory() as outdirname:
+            test_fname = self.testfile_downfacing
             inference.run_inference(
                 self.testfile_downfacing,
                 source_dir=self.resource_directory,
                 output_dir=outdirname,
             )
-            basefile = os.path.splitext(self.testfile_downfacing)[0]
+            basefile = os.path.splitext(test_fname)[0]
             self.assert_file_exists(os.path.join(outdirname, basefile + ".bottom.evl"))
             self.assert_file_exists(os.path.join(outdirname, basefile + ".surface.evl"))
             self.assert_file_exists(
                 os.path.join(outdirname, basefile + ".turbulence.evl")
             )
             self.assert_file_exists(os.path.join(outdirname, basefile + ".regions.evr"))
-            self.check_lines(self.testfile_downfacing, outdirname)
+            self.check_lines(test_fname, outdirname)
 
     def test_run_upfacing(self):
         with tempfile.TemporaryDirectory() as outdirname:
+            test_fname = self.testfile_upfacing
             inference.run_inference(
-                self.testfile_upfacing,
+                test_fname,
                 source_dir=self.resource_directory,
                 output_dir=outdirname,
             )
-            basefile = os.path.splitext(self.testfile_upfacing)[0]
+            basefile = os.path.splitext(test_fname)[0]
             self.assert_file_exists(os.path.join(outdirname, basefile + ".bottom.evl"))
             self.assert_file_exists(os.path.join(outdirname, basefile + ".surface.evl"))
             self.assert_file_exists(
                 os.path.join(outdirname, basefile + ".turbulence.evl")
             )
             self.assert_file_exists(os.path.join(outdirname, basefile + ".regions.evr"))
-            self.check_lines(self.testfile_upfacing, outdirname)
+            self.check_lines(test_fname, outdirname)
 
     def test_noclobber_bottom(self):
         with tempfile.TemporaryDirectory() as outdirname:
-            basefile = os.path.splitext(self.testfile_upfacing)[0]
+            test_fname = self.testfile_upfacing
+            basefile = os.path.splitext(test_fname)[0]
             fname = os.path.join(outdirname, basefile + ".bottom.evl")
             pathlib.Path(fname).touch()
             with pytest.raises(EnvironmentError):
                 inference.run_inference(
-                    self.testfile_upfacing,
+                    test_fname,
                     source_dir=self.resource_directory,
                     output_dir=outdirname,
                 )
 
     def test_noclobber_surface(self):
         with tempfile.TemporaryDirectory() as outdirname:
-            basefile = os.path.splitext(self.testfile_upfacing)[0]
+            test_fname = self.testfile_upfacing
+            basefile = os.path.splitext(test_fname)[0]
             fname = os.path.join(outdirname, basefile + ".surface.evl")
             pathlib.Path(fname).touch()
             with pytest.raises(EnvironmentError):
                 inference.run_inference(
-                    self.testfile_upfacing,
+                    test_fname,
                     source_dir=self.resource_directory,
                     output_dir=outdirname,
                 )
 
     def test_noclobber_turbulence(self):
         with tempfile.TemporaryDirectory() as outdirname:
-            basefile = os.path.splitext(self.testfile_upfacing)[0]
+            test_fname = self.testfile_upfacing
+            basefile = os.path.splitext(test_fname)[0]
             fname = os.path.join(outdirname, basefile + ".turbulence.evl")
             pathlib.Path(fname).touch()
             with pytest.raises(EnvironmentError):
                 inference.run_inference(
-                    self.testfile_upfacing,
+                    test_fname,
                     source_dir=self.resource_directory,
                     output_dir=outdirname,
                 )
 
     def test_rerun_skip(self):
         with tempfile.TemporaryDirectory() as outdirname:
-            basefile = os.path.splitext(self.testfile_upfacing)[0]
+            test_fname = self.testfile_upfacing
+            basefile = os.path.splitext(test_fname)[0]
             pathlib.Path(os.path.join(outdirname, basefile + ".bottom.evl")).touch()
             pathlib.Path(os.path.join(outdirname, basefile + ".surface.evl")).touch()
             pathlib.Path(os.path.join(outdirname, basefile + ".turbulence.evl")).touch()
             pathlib.Path(os.path.join(outdirname, basefile + ".regions.evr")).touch()
             inference.run_inference(
-                self.testfile_upfacing,
+                test_fname,
                 source_dir=self.resource_directory,
                 output_dir=outdirname,
                 skip_existing=True,
@@ -223,28 +229,30 @@ class test_run_inference(BaseTestCase):
 
     def test_rerun_overwrite(self):
         with tempfile.TemporaryDirectory() as outdirname:
-            basefile = os.path.splitext(self.testfile_upfacing)[0]
+            test_fname = self.testfile_upfacing
+            basefile = os.path.splitext(test_fname)[0]
             pathlib.Path(os.path.join(outdirname, basefile + ".bottom.evl")).touch()
             pathlib.Path(os.path.join(outdirname, basefile + ".surface.evl")).touch()
             pathlib.Path(os.path.join(outdirname, basefile + ".turbulence.evl")).touch()
             pathlib.Path(os.path.join(outdirname, basefile + ".regions.evr")).touch()
             inference.run_inference(
-                self.testfile_upfacing,
+                test_fname,
                 source_dir=self.resource_directory,
                 output_dir=outdirname,
                 overwrite_existing=True,
             )
-            self.check_lines(self.testfile_upfacing, outdirname)
+            self.check_lines(test_fname, outdirname)
 
     def test_no_bottom(self):
         with tempfile.TemporaryDirectory() as outdirname:
+            test_fname = self.testfile_upfacing
             inference.run_inference(
-                self.testfile_upfacing,
+                test_fname,
                 source_dir=self.resource_directory,
                 output_dir=outdirname,
                 generate_bottom_line=False,
             )
-            basefile = os.path.splitext(self.testfile_upfacing)[0]
+            basefile = os.path.splitext(test_fname)[0]
             self.assert_file_absent(os.path.join(outdirname, basefile + ".bottom.evl"))
             self.assert_file_exists(os.path.join(outdirname, basefile + ".surface.evl"))
             self.assert_file_exists(
@@ -254,13 +262,14 @@ class test_run_inference(BaseTestCase):
 
     def test_no_surface(self):
         with tempfile.TemporaryDirectory() as outdirname:
+            test_fname = self.testfile_upfacing
             inference.run_inference(
-                self.testfile_upfacing,
+                test_fname,
                 source_dir=self.resource_directory,
                 output_dir=outdirname,
                 generate_surface_line=False,
             )
-            basefile = os.path.splitext(self.testfile_upfacing)[0]
+            basefile = os.path.splitext(test_fname)[0]
             self.assert_file_exists(os.path.join(outdirname, basefile + ".bottom.evl"))
             self.assert_file_absent(os.path.join(outdirname, basefile + ".surface.evl"))
             self.assert_file_exists(
@@ -270,13 +279,14 @@ class test_run_inference(BaseTestCase):
 
     def test_no_turbulence(self):
         with tempfile.TemporaryDirectory() as outdirname:
+            test_fname = self.testfile_upfacing
             inference.run_inference(
-                self.testfile_upfacing,
+                test_fname,
                 source_dir=self.resource_directory,
                 output_dir=outdirname,
                 generate_turbulence_line=False,
             )
-            basefile = os.path.splitext(self.testfile_upfacing)[0]
+            basefile = os.path.splitext(test_fname)[0]
             self.assert_file_exists(os.path.join(outdirname, basefile + ".bottom.evl"))
             self.assert_file_exists(os.path.join(outdirname, basefile + ".surface.evl"))
             self.assert_file_absent(
@@ -286,13 +296,14 @@ class test_run_inference(BaseTestCase):
 
     def test_with_patches(self):
         with tempfile.TemporaryDirectory() as outdirname:
+            test_fname = self.testfile_upfacing
             inference.run_inference(
-                self.testfile_upfacing,
+                test_fname,
                 source_dir=self.resource_directory,
                 output_dir=outdirname,
                 minimum_patch_area=25,
             )
-            basefile = os.path.splitext(self.testfile_upfacing)[0]
+            basefile = os.path.splitext(test_fname)[0]
             self.assert_file_exists(os.path.join(outdirname, basefile + ".bottom.evl"))
             self.assert_file_exists(os.path.join(outdirname, basefile + ".surface.evl"))
             self.assert_file_exists(
@@ -302,13 +313,14 @@ class test_run_inference(BaseTestCase):
 
     def test_with_logitsmoothing(self):
         with tempfile.TemporaryDirectory() as outdirname:
+            test_fname = self.testfile_upfacing
             inference.run_inference(
-                self.testfile_upfacing,
+                test_fname,
                 source_dir=self.resource_directory,
                 output_dir=outdirname,
                 logit_smoothing_sigma=2,
             )
-            basefile = os.path.splitext(self.testfile_upfacing)[0]
+            basefile = os.path.splitext(test_fname)[0]
             self.assert_file_exists(os.path.join(outdirname, basefile + ".bottom.evl"))
             self.assert_file_exists(os.path.join(outdirname, basefile + ".surface.evl"))
             self.assert_file_exists(
@@ -318,13 +330,14 @@ class test_run_inference(BaseTestCase):
 
     def test_run_verbose(self):
         with tempfile.TemporaryDirectory() as outdirname:
+            test_fname = self.testfile_upfacing
             inference.run_inference(
-                self.testfile_upfacing,
+                test_fname,
                 source_dir=self.resource_directory,
                 output_dir=outdirname,
                 verbose=10,
             )
-            basefile = os.path.splitext(self.testfile_upfacing)[0]
+            basefile = os.path.splitext(test_fname)[0]
             self.assert_file_exists(os.path.join(outdirname, basefile + ".bottom.evl"))
             self.assert_file_exists(os.path.join(outdirname, basefile + ".surface.evl"))
             self.assert_file_exists(
@@ -334,13 +347,14 @@ class test_run_inference(BaseTestCase):
 
     def test_run_quiet(self):
         with tempfile.TemporaryDirectory() as outdirname:
+            test_fname = self.testfile_upfacing
             inference.run_inference(
-                self.testfile_upfacing,
+                test_fname,
                 source_dir=self.resource_directory,
                 output_dir=outdirname,
                 verbose=0,
             )
-            basefile = os.path.splitext(self.testfile_upfacing)[0]
+            basefile = os.path.splitext(test_fname)[0]
             self.assert_file_exists(os.path.join(outdirname, basefile + ".bottom.evl"))
             self.assert_file_exists(os.path.join(outdirname, basefile + ".surface.evl"))
             self.assert_file_exists(
