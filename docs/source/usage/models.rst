@@ -81,9 +81,10 @@ Details for notable model checkpoints are provided below.
    -  Trained on both :term:`upfacing` :term:`stationary` and
       :term:`downfacing` :term:`mobile` data.
 
-   -  Jaccard Index of **96.84%** on :term:`downfacing` :term:`mobile` and
-      **94.51%** on :term:`upfacing` :term:`stationary`
-      :term:`validation<Validation set>` data.
+   -  Overall IoU performance of
+      **99.15%** on :term:`downfacing` :term:`mobile` and
+      94.91% on :term:`upfacing` :term:`stationary`
+      :term:`test<Test set>` data.
 
    -  Default model checkpoint.
 
@@ -92,18 +93,20 @@ Details for notable model checkpoints are provided below.
    -  Trained on both :term:`upfacing` :term:`stationary` and
       :term:`downfacing` :term:`mobile` data.
 
-   -  Jaccard Index of 96.8% on :term:`downfacing` :term:`mobile` and
-      94.4% on :term:`upfacing` :term:`stationary`
-      :term:`validation<Validation set>` data.
+   -  Overall IoU performance of
+      99.02% on :term:`downfacing` :term:`mobile` and
+      94.97% on :term:`upfacing` :term:`stationary`
+      :term:`test<Test set>` data.
 
 :echofilter-v1_bifacing_100ep:
 
    -  Trained on both :term:`upfacing` :term:`stationary` and
       :term:`downfacing` :term:`mobile` data.
 
-   -  Jaccard Index of 96.62% on :term:`downfacing` :term:`mobile` and
-      94.29% on :term:`upfacing` :term:`stationary`
-      :term:`validation<Validation set>` data.
+   -  Overall IoU performance of
+      98.93% on :term:`downfacing` :term:`mobile` and
+      94.93% on :term:`upfacing` :term:`stationary`
+      :term:`test<Test set>` data.
 
    -  :term:`Sample<Sample (model input)>` outputs on :term:`upfacing`
       :term:`stationary` data were thoroughly verified via manual inspection
@@ -113,15 +116,17 @@ Details for notable model checkpoints are provided below.
 
    -  Trained on :term:`upfacing` :term:`stationary` data only.
 
-   -  Jaccard Index of 94.4% on :term:`upfacing` :term:`stationary`
-      :term:`validation<Validation set>` data.
+   -  Overall IoU performance of
+      **95.08%** on :term:`upfacing` :term:`stationary`
+      :term:`test<Test set>` data.
 
 :echofilter-v1_upfacing_200ep:
 
    -  Trained on :term:`upfacing` :term:`stationary` data only.
 
-   -  Jaccard Index of 94.41% on :term:`upfacing` :term:`stationary`
-      :term:`validation<Validation set>` data.
+   -  Overall IoU performance of
+      95.05% on :term:`upfacing` :term:`stationary`
+      :term:`test<Test set>` data.
 
    -  :term:`Sample<Sample (model input)>` outputs thoroughly were thoroughly
       verified via manual inspection by trained analysts.
