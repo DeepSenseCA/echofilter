@@ -188,6 +188,12 @@ setup(
             "ev2csv=echofilter.ev2csv:main",
         ],
     },
+    project_urls={
+        "Documentation": "https://echofilter.readthedocs.io",
+        "Source Code": "https://github.com/DeepSenseCA/echofilter",
+        "Bug Tracker": "https://github.com/DeepSenseCA/echofilter/issues",
+        "Citation": "https://www.doi.org/10.3389/fmars.2022.867857",
+    },
     # Custom commands
     cmdclass={"test": PyTest, "upload": UploadCommand},
 )
