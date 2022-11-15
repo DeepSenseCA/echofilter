@@ -219,6 +219,8 @@ def seed_all(seed=None, only_current_gpu=False, mirror_gpus=False):
         :attr:`seed` is not ``None``, each device receives a different but
         deterministically determined seed. Default is ``False``.
 
+    Notes
+    -----
     Note that we override the settings for the cudnn backend whenever this function is
     called. If :attr:`seed` is not ``None``, we set::
 
