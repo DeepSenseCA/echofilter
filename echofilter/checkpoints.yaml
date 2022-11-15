@@ -7,6 +7,10 @@ checkpoints:
         aliases: ["conditional_mobile-stationary2_effunet6x2-1_lc32_v2.2", "echofilter-v1_bifacing"],
         gdrive: "1mlzjIu5hHQI2UbMDYe7WB9jjpzAOwlMp",
     }
+    echofilter-v1_bifacing_612ep: {
+        aliases: ["conditional_mobile-stationary2_effunet6x2-1_lc32_v2.2b"],
+        gdrive: "1urPv3Vah7UX_dVCouo4znKAV2RtxqkK4",
+    }
 
     # 2020-07-08_08.31.04_conditional_effunet6x.2-1_lc32-se2_bs12-lr0.006_mesa_mom.92-.98_w.1-.5_ep200_v2.1_warm-restart-from-2020-06-30_21.24.07
     echofilter-v1_bifacing_300ep: {
