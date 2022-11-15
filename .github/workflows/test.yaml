@@ -84,8 +84,9 @@ jobs:
         python -m pytest --cov=echofilter --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v3
       with:
+        token: ${{ secrets.CODECOV_TOKEN }}
         flags: unittests
         env_vars: OS,PYTHON
         name: Python ${{ matrix.python-version }} on ${{ runner.os }}
