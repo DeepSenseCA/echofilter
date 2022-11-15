@@ -4,7 +4,7 @@ Usage Guide
 Authors
     Scott C. Lowe, Louise McGarry
 
-.. highlight:: powershell
+.. highlight:: winbatch
 
 .. raw:: latex
 
@@ -780,7 +780,7 @@ help
 Show :ref:`echofilter<echofilter CLI>` documentation and all possible
 arguments.
 
-.. code-block:: powershell
+.. code-block:: winbatch
 
     echofilter --help
 
@@ -789,7 +789,7 @@ version
 
 Show program's version number.
 
-.. code-block:: powershell
+.. code-block:: winbatch
 
     echofilter --version
 
@@ -799,7 +799,7 @@ list checkpoints
 
 Show the available model checkpoints and exit.
 
-.. code-block:: powershell
+.. code-block:: winbatch
 
     echofilter --list-checkpoints
 
@@ -809,7 +809,7 @@ list colours
 List the available (main) colour options for lines. The palette can be
 viewed at https://matplotlib.org/gallery/color/named_colors.html
 
-.. code-block:: powershell
+.. code-block:: winbatch
 
     echofilter --list-colors
 
@@ -817,7 +817,7 @@ List all available colour options (very long list) including the XKCD
 colour palette of 954 colours, which can be viewed at
 https://xkcd.com/color/rgb/
 
-.. code-block:: powershell
+.. code-block:: winbatch
 
     echofilter --list-colors full
 

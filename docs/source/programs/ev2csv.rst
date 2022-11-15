@@ -1,4 +1,4 @@
-.. highlight:: powershell
+.. highlight:: winbatch
 
 .. _ev2csv CLI:
 
