@@ -61,12 +61,6 @@ EXPECTED_STATS = {
         "turbulence_depths": [7, 16],
         "bottom_depths": [49, 50],
     },
-    "mar2018_20180513T015216_first720_Sv_raw.csv": {
-        "timestamps": 722,
-        "surface_depths": [6, 8],
-        "turbulence_depths": [7, 16],
-        "bottom_depths": [49, 50],
-    },
     "sep2018_20181027T022221_first720_Sv_raw.csv": {
         "timestamps": 722,
         "surface_depths": [11, 14],
@@ -347,11 +341,27 @@ class test_run_inference(BaseTestCase):
             self.assert_file_exists(os.path.join(outdirname, basefile + ".regions.evr"))
 
     def test_run_directory(self):
-        with tempfile.TemporaryDirectory() as outdirname:
-            inference.run_inference(
-                self.resource_directory,
-                output_dir=outdirname,
-            )
+        with tempfile.TemporaryDirectory() as tempdir:
+            fnames = [self.testfile_upfacing, self.testfile_downfacing]
+            for fname in fnames:
+                os.symlink(
+                    os.path.join(self.resource_directory, fname),
+                    os.path.join(tempdir, fname),
+                )
+            inference.run_inference(tempdir)
+            for test_fname in fnames:
+                basefile = os.path.splitext(test_fname)[0]
+                self.assert_file_exists(os.path.join(tempdir, basefile + ".bottom.evl"))
+                self.assert_file_exists(
+                    os.path.join(tempdir, basefile + ".surface.evl")
+                )
+                self.assert_file_exists(
+                    os.path.join(tempdir, basefile + ".turbulence.evl")
+                )
+                self.assert_file_exists(
+                    os.path.join(tempdir, basefile + ".regions.evr")
+                )
+                self.check_lines(test_fname, tempdir)
 
 
 class test_cli(BaseTestCase):
