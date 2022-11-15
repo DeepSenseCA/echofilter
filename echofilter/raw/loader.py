@@ -753,7 +753,7 @@ def evl_writer(fname, timestamps, depths, status=1, line_ending="\r\n", pad=Fals
         timestamps = np.r_[
             timestamps[0] - (timestamps[1] - timestamps[0]) / 2,
             timestamps,
-            timestamps[-1] + (timestamps[-2] - timestamps[-1]) / 2,
+            timestamps[-1] + (timestamps[-1] - timestamps[-2]) / 2,
         ]
         depths = np.r_[depths[0], depths, depths[-1]]
     # The file object will automatically replace \n with our chosen line ending
