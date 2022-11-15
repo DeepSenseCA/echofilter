@@ -76,64 +76,70 @@ throughout the network. The depth dimension of the input is halved
 
 Details for notable model checkpoints are provided below.
 
-:echofilter-v1_bifacing_700ep:
+echofilter-v1_bifacing_700ep
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   -  Trained on both :term:`upfacing` :term:`stationary` and
-      :term:`downfacing` :term:`mobile` data.
+-   Trained on both :term:`upfacing` :term:`stationary` and
+    :term:`downfacing` :term:`mobile` data.
 
-   -  Overall IoU performance of
-      **99.15%** on :term:`downfacing` :term:`mobile` and
-      93.0%--94.9% on :term:`upfacing` :term:`stationary`
-      :term:`test<Test set>` data.
+-   Overall IoU performance of
+    **99.15%** on :term:`downfacing` :term:`mobile` and
+    93.0%--94.9% on :term:`upfacing` :term:`stationary`
+    :term:`test<Test set>` data.
 
-   -  Default model checkpoint.
+-   Default model checkpoint.
 
-:echofilter-v1_bifacing_300ep:
+echofilter-v1_bifacing_300ep
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   -  Trained on both :term:`upfacing` :term:`stationary` and
-      :term:`downfacing` :term:`mobile` data.
+-   Trained on both :term:`upfacing` :term:`stationary` and
+    :term:`downfacing` :term:`mobile` data.
 
-   -  Overall IoU performance of
-      99.02% on :term:`downfacing` :term:`mobile` and
-      93.2%--95.0% on :term:`upfacing` :term:`stationary`
-      :term:`test<Test set>` data.
+-   Overall IoU performance of
+    99.02% on :term:`downfacing` :term:`mobile` and
+    93.2%--95.0% on :term:`upfacing` :term:`stationary`
+    :term:`test<Test set>` data.
 
-:echofilter-v1_bifacing_100ep:
+echofilter-v1_bifacing_100ep
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   -  Trained on both :term:`upfacing` :term:`stationary` and
-      :term:`downfacing` :term:`mobile` data.
+-   Trained on both :term:`upfacing` :term:`stationary` and
+    :term:`downfacing` :term:`mobile` data.
 
-   -  Overall IoU performance of
-      98.93% on :term:`downfacing` :term:`mobile` and
-      **93.5%**--94.9% on :term:`upfacing` :term:`stationary`
-      :term:`test<Test set>` data.
+-   Overall IoU performance of
+    98.93% on :term:`downfacing` :term:`mobile` and
+    **93.5%**--94.9% on :term:`upfacing` :term:`stationary`
+    :term:`test<Test set>` data.
 
-   -  :term:`Sample<Sample (model input)>` outputs on :term:`upfacing`
-      :term:`stationary` data were thoroughly verified via manual inspection
-      by trained analysts.
+-   :term:`Sample<Sample (model input)>` outputs on :term:`upfacing`
+    :term:`stationary` data were thoroughly verified via manual inspection
+    by trained analysts.
 
-:echofilter-v1_upfacing_600ep:
+echofilter-v1_upfacing_600ep
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   -  Trained on :term:`upfacing` :term:`stationary` data only.
+-   Trained on :term:`upfacing` :term:`stationary` data only.
 
-   -  Overall IoU performance of
-      92.1%--**95.1%** on :term:`upfacing` :term:`stationary`
-      :term:`test<Test set>` data.
+-   Overall IoU performance of
+    92.1%--**95.1%** on :term:`upfacing` :term:`stationary`
+    :term:`test<Test set>` data.
 
-:echofilter-v1_upfacing_200ep:
+echofilter-v1_upfacing_200ep
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   -  Trained on :term:`upfacing` :term:`stationary` data only.
+-   Trained on :term:`upfacing` :term:`stationary` data only.
 
-   -  Overall IoU performance of
-      93.3%--95.1% on :term:`upfacing` :term:`stationary`
-      :term:`test<Test set>` data.
+-   Overall IoU performance of
+    93.3%--95.1% on :term:`upfacing` :term:`stationary`
+    :term:`test<Test set>` data.
 
-   -  :term:`Sample<Sample (model input)>` outputs thoroughly were thoroughly
-      verified via manual inspection by trained analysts.
+-   :term:`Sample<Sample (model input)>` outputs thoroughly were thoroughly
+    verified via manual inspection by trained analysts.
 
-:echofilter-v0.5_downfacing_300ep:
+echofilter-v0.5_downfacing_300ep
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   -  Trained on :term:`downfacing` :term:`mobile` data only.
+-   Trained on :term:`downfacing` :term:`mobile` data only.
 
 .. raw:: latex
 
