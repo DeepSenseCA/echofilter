@@ -23,6 +23,7 @@ import pathlib
 import tempfile
 
 import pytest
+from parametrize import parametrize
 
 from .. import inference
 from ..raw.loader import evl_loader
@@ -139,26 +140,9 @@ class test_run_inference(BaseTestCase):
             dry_run=True,
         )
 
-    def test_run_downfacing(self):
+    @parametrize("test_fname", EXPECTED_STATS.keys())
+    def test_run_files(self, test_fname):
         with tempfile.TemporaryDirectory() as outdirname:
-            test_fname = self.testfile_downfacing
-            inference.run_inference(
-                self.testfile_downfacing,
-                source_dir=self.resource_directory,
-                output_dir=outdirname,
-            )
-            basefile = os.path.splitext(test_fname)[0]
-            self.assert_file_exists(os.path.join(outdirname, basefile + ".bottom.evl"))
-            self.assert_file_exists(os.path.join(outdirname, basefile + ".surface.evl"))
-            self.assert_file_exists(
-                os.path.join(outdirname, basefile + ".turbulence.evl")
-            )
-            self.assert_file_exists(os.path.join(outdirname, basefile + ".regions.evr"))
-            self.check_lines(test_fname, outdirname)
-
-    def test_run_upfacing(self):
-        with tempfile.TemporaryDirectory() as outdirname:
-            test_fname = self.testfile_upfacing
             inference.run_inference(
                 test_fname,
                 source_dir=self.resource_directory,
