@@ -25,8 +25,54 @@ import tempfile
 import pytest
 
 from .. import inference
+from ..raw.loader import evl_loader
 from ..ui import inference_cli
 from .base_test import BaseTestCase
+
+EXPECTED_STATS = {
+    "GP_20200125T160020_first240_Sv_raw.csv": {
+        "timestamps": 242,
+        "surface_depths": [31, 32],
+        "turbulence_depths": [35, 41],
+        "bottom_depths": [49, 50],
+    },
+    "Survey17_GR4_N5W_E_first240_Sv_raw.csv": {
+        "timestamps": 242,
+        "surface_depths": [0, 1],
+        "turbulence_depths": [0, 19],
+        "bottom_depths": [49, 57],
+    },
+    "Survey17_GR4_N5W_E_first50-redact_Sv_raw.csv": {
+        "timestamps": 52,
+        "surface_depths": [0, 1],
+        "turbulence_depths": [0, 19],
+        "bottom_depths": [49, 57],
+    },
+    "dec2017_20180108T045216_first600_Sv_raw.csv": {
+        "timestamps": 602,
+        "surface_depths": [15, 17],
+        "turbulence_depths": [22, 47],
+        "bottom_depths": [49, 50],
+    },
+    "mar2018_20180513T015216_first120_Sv_raw.csv": {
+        "timestamps": 122,
+        "surface_depths": [6, 8],
+        "turbulence_depths": [7, 16],
+        "bottom_depths": [49, 50],
+    },
+    "mar2018_20180513T015216_first720_Sv_raw.csv": {
+        "timestamps": 722,
+        "surface_depths": [6, 8],
+        "turbulence_depths": [7, 16],
+        "bottom_depths": [49, 50],
+    },
+    "sep2018_20181027T022221_first720_Sv_raw.csv": {
+        "timestamps": 722,
+        "surface_depths": [11, 14],
+        "turbulence_depths": [20, 48],
+        "bottom_depths": [49, 50],
+    },
+}
 
 
 class test_get_color_palette(BaseTestCase):
@@ -72,6 +118,21 @@ class test_run_inference(BaseTestCase):
     Tests for run_inference.
     """
 
+    def check_lines(self, input_fname, output_dirname, lines=None):
+        stats = EXPECTED_STATS[input_fname]
+        if lines is None:
+            lines = [
+                k.replace("_depths", "") for k in stats.keys() if k != "timestamps"
+            ]
+        basefile = os.path.splitext(input_fname)[0]
+        for line_name in lines:
+            fname = os.path.join(output_dirname, f"{basefile}.{line_name}.evl")
+            ts, depths = evl_loader(fname)
+            self.assertEqual(len(ts), len(depths))
+            self.assertEqual(len(ts), stats["timestamps"])
+            self.assertGreaterEqual(min(depths), stats[f"{line_name}_depths"][0])
+            self.assertLessEqual(max(depths), stats[f"{line_name}_depths"][1])
+
     def test_dryrun(self):
         inference.run_inference(
             self.resource_directory,
@@ -92,6 +153,7 @@ class test_run_inference(BaseTestCase):
                 os.path.join(outdirname, basefile + ".turbulence.evl")
             )
             self.assert_file_exists(os.path.join(outdirname, basefile + ".regions.evr"))
+            self.check_lines(self.testfile_downfacing, outdirname)
 
     def test_run_upfacing(self):
         with tempfile.TemporaryDirectory() as outdirname:
@@ -107,6 +169,7 @@ class test_run_inference(BaseTestCase):
                 os.path.join(outdirname, basefile + ".turbulence.evl")
             )
             self.assert_file_exists(os.path.join(outdirname, basefile + ".regions.evr"))
+            self.check_lines(self.testfile_upfacing, outdirname)
 
     def test_noclobber_bottom(self):
         with tempfile.TemporaryDirectory() as outdirname:
@@ -171,6 +234,7 @@ class test_run_inference(BaseTestCase):
                 output_dir=outdirname,
                 overwrite_existing=True,
             )
+            self.check_lines(self.testfile_upfacing, outdirname)
 
     def test_no_bottom(self):
         with tempfile.TemporaryDirectory() as outdirname:
