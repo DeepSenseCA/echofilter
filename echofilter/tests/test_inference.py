@@ -61,12 +61,6 @@ EXPECTED_STATS = {
         "turbulence_depths": [7, 16],
         "bottom_depths": [49, 50],
     },
-    "mar2018_20180513T015216_first720_Sv_raw.csv": {
-        "timestamps": 722,
-        "surface_depths": [6, 8],
-        "turbulence_depths": [7, 16],
-        "bottom_depths": [49, 50],
-    },
     "sep2018_20181027T022221_first720_Sv_raw.csv": {
         "timestamps": 722,
         "surface_depths": [11, 14],
