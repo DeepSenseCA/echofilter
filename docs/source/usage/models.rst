@@ -76,7 +76,7 @@ throughout the network. The depth dimension of the input is halved
 
 Details for notable model checkpoints are provided below.
 
-:conditional_mobile-stationary2_effunet6x2-1_lc32_v2.2:
+:echofilter-v1_bifacing_700ep:
 
    -  Trained on both :term:`upfacing` :term:`stationary` and
       :term:`downfacing` :term:`mobile` data.
@@ -87,7 +87,7 @@ Details for notable model checkpoints are provided below.
 
    -  Default model checkpoint.
 
-:conditional_mobile-stationary2_effunet6x2-1_lc32_v2.1:
+:echofilter-v1_bifacing_300ep:
 
    -  Trained on both :term:`upfacing` :term:`stationary` and
       :term:`downfacing` :term:`mobile` data.
@@ -96,7 +96,7 @@ Details for notable model checkpoints are provided below.
       94.4% on :term:`upfacing` :term:`stationary`
       :term:`validation<Validation set>` data.
 
-:conditional_mobile-stationary2_effunet6x2-1_lc32_v2.0:
+:echofilter-v1_bifacing_100ep:
 
    -  Trained on both :term:`upfacing` :term:`stationary` and
       :term:`downfacing` :term:`mobile` data.
@@ -109,14 +109,14 @@ Details for notable model checkpoints are provided below.
       :term:`stationary` data were thoroughly verified via manual inspection
       by trained analysts.
 
-:stationary2_effunet6x2-1_lc32_v2.1:
+:echofilter-v1_upfacing_600ep:
 
    -  Trained on :term:`upfacing` :term:`stationary` data only.
 
    -  Jaccard Index of 94.4% on :term:`upfacing` :term:`stationary`
       :term:`validation<Validation set>` data.
 
-:stationary2_effunet6x2-1_lc32_v2.0:
+:echofilter-v1_upfacing_200ep:
 
    -  Trained on :term:`upfacing` :term:`stationary` data only.
 
@@ -126,7 +126,7 @@ Details for notable model checkpoints are provided below.
    -  :term:`Sample<Sample (model input)>` outputs thoroughly were thoroughly
       verified via manual inspection by trained analysts.
 
-:mobile_effunet6x2-1_lc32_v1.0:
+:echofilter-v0.5_downfacing_300ep:
 
    -  Trained on :term:`downfacing` :term:`mobile` data only.
 
