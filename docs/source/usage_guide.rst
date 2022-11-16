@@ -743,7 +743,7 @@ is to linearly interpolate lines during passive data collection)::
 Specifying file and variable suffix, and line colours and thickness::
 
     echofilter "path/to/file_or_directory" ^
-        --suffix "_echofilter_stationary-model" ^
+        --suffix "_echofilter-model" ^
         --color-surface "green" --thickness-surface 4 ^
         --color-nearfield "red" --thickness-nearfield 3
 
@@ -755,6 +755,65 @@ Processing a file and sending the output to a log file instead of the
 terminal::
 
     echofilter "path/to/file_or_directory" -v > path/to/log_file.txt 2>&1
+
+
+Config file
+~~~~~~~~~~~
+
+You may find that you are setting some parameters every time you call
+echofilter, to consistently tweak the input or output processing settings in the
+same way.
+If this is the case, you can save these arguments to a configuration file,
+and pass the configuration file to echofilter instead.
+
+For example, if you have a file named ``"echofilter_params.cfg"`` with the following contents::
+
+    --suffix "_echofilter-model"
+    --color-surface "green"
+    --thickness-surface 4
+    --color-nearfield "red"
+    --thickness-nearfield 3
+
+then you can call echofilter with this configuration file as follows::
+
+    echofilter "file_or_dir" --config "path/to/echofilter_params.cfg"
+
+and it will use the parameters specified in your config file.
+
+The parameters in the config file also can be added to, or even overridden, at
+the command prompt.
+For example::
+
+    echofilter "file_or_dir" --config "path/to/echofilter_params.cfg" --suffix "_test"
+
+will use the ``--suffix "_test"`` argument from the command prompt instead of
+the value set in the file ``"echofilter_params.cfg"``, but will still use the
+other parameters as per the config file.
+
+If you have several different workflows or protocols which you need to use,
+you can create multiple config files corresponding to each of these workflows
+and choose which one to use with the ``--config`` argument.
+
+Common configuration options which you want to always be enabled can be set in
+a special default config file in your home directory named ``".echofilter"``.
+The path to your homedirectory, and hence to the default config file,
+depends on your operating system.
+On Windows it is typically ``"C:\Users\USERNAME\.echofilter"``, whilst on Linux
+it is typically ``"/home/USERNAME/.echofilter"``, where USERNAME is replaced
+with your username.
+If it exists, the the default config file is always loaded everytime you run
+echofilter.
+
+If a config file is manually provided with the ``--config`` argument, any
+parameters set in the manually provided config file override those in the
+default config file ("~/.echofilter).
+
+With the default verbosity settings, at the start of the inference routine
+echofilter outputs the set of parameters it is using, and the source for each
+of these parameters (command line, manual config file, default config file, or
+program defaults).
+
+You can read more about the `syntax for the configuration files here <https://goo.gl/R74nmi>`__.
 
 
 Argument documentation
