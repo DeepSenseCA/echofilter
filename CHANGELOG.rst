@@ -211,6 +211,7 @@ Training
 ^^^^^^^^
 
 -   Default optimizer changed from ``"rangerva"`` to ``"adam"``.
+    If you have manually installed `ranger <https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer>`__ you can still use the ``"rangerva"`` optimizer if you specify it.
     (`#261 <https://github.com/DeepSenseCA/echofilter/pull/261>`__)
 
 
