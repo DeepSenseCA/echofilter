@@ -23,6 +23,8 @@ models/
 notes/
 processed/
 results/
+test-resources/*.evl
+test-resources/*.evr
 test-output/
 test-resources-source/
 
