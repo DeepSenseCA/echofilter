@@ -175,7 +175,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
    :target: https://github.com/DeepSenseCA/echofilter/actions?query=workflow%3Atest
    :alt: GHA Status
 .. |readthedocs| image:: https://img.shields.io/badge/docs-readthedocs-blue
-   :target: https://echofilter.readthedocs.io/
+   :target: https://echofilter.readthedocs.io/en/latest/usage/
    :alt: Documentation
 .. |Documentation| image:: https://readthedocs.org/projects/echofilter/badge/
    :target: https://echofilter.readthedocs.io/
