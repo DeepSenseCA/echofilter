@@ -66,7 +66,7 @@ overwriting files already processed::
     echofilter "C:\Users\Bob\Documents\MobileSurveyData\Survey11" --no-surface --force
 
 Ignoring all :term:`bad data regions` (default),
-using ``^`` to break up the long command into multiple lines::
+using ``^`` to break up the long command into multiple lines for Windows cmd::
 
     echofilter "path/to/file_or_directory" ^
         --minimum-removed-length -1 ^

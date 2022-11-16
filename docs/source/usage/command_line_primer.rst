@@ -88,12 +88,56 @@ are shown such as ``--extension SEARCH_EXTENSION [SEARCH_EXTENSION ...]``.
 Arguments whose value can only take one of a set number of options are
 shown in curly brackets, such as ``--facing {downward,upward,auto}``.
 
-Long lines for commands at the command prompt can be broken up into
-multiple lines by using a continuation character. On Windows, the line
-continuation character is ``^``, the caret symbol. When specifying optional
-arguments requires that the command be continued on the next line,
-finish the current line with ``^`` and begin the subsequent line at the
-start of the next line.
+
+Breaking up long lines
+~~~~~~~~~~~~~~~~~~~~~~
+
+To increase readability, long lines for commands at the command prompt (or in
+scripts) can be broken up into multiple lines by using a continuation character.
+Writing the continuation character at the very end of a line indicates that the
+new line character which follows it should be ignored, and both lines should
+be treated together as if they were one line.
+
+On Linux, the line continuation character is ``\`` (backslash).
+
+.. code-block:: bash
+
+    cp "path/to/source/file_with_a_very_very_long_name" \
+        "path/to/destination/location"
+
+On Windows, the line continuation character depends on the command prompt being used.
+
+In the `Windows command prompt (cmd.exe) application <cmd>`_, which is used to
+run Windows batch (.bat) files, the line continuation character is ``^`` (caret).
+
+.. code-block:: winbatch
+
+    copy "C:\path\to\source\file_with_a_very_very_long_name" ^
+        "path\to\destination\location"
+
+In the Windows command prompt, when you are separating out arguments you must
+make sure you include at least one space at the start of the second line.
+There must be spaces between arguments for them to be registered as distinct
+arguments, and for some reason only having a space before the ``^`` on the
+preceding line does not work.
+
+In the Windows `PowerShell application <PowerShell>`_, the line continuation
+character is  ````` (backtick).
+
+.. code-block:: powershell
+
+    copy "C:\path\to\source\file_with_a_very_very_long_name" `
+        "path\to\destination\location"
+
+Please note that, in all cases, the line continuation character must be the very
+final character on the line. If there is whitespace after the continuation
+character, that will stop the line continuation character from actually merging
+the lines together. In that case, the two lines will be executed as separate
+commands (which may result in an error, or if not will not result in the
+expected behaviour).
+
+.. _cmd: https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/windows-commands
+.. _PowerShell: https://learn.microsoft.com/en-us/powershell/
 
 .. highlight:: python
 
