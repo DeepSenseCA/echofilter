@@ -5,7 +5,7 @@ Echofilter documentation
     :maxdepth: 2
     :caption: Contents:
 
-    source/usage_guide
+    source/usage/index
     source/programs/programs
     source/packages/modules
     source/changelog

@@ -63,13 +63,13 @@ provided by Fundy Ocean Research Centre for Energy
     :maxdepth: 3
     :caption: Contents:
 
-    guide/installation
-    guide/command_line_primer
-    guide/quick_start
-    guide/inference_steps
-    guide/models
-    guide/issues
-    guide/glossary
+    installation
+    command_line_primer
+    quick_start
+    inference_steps
+    models
+    issues
+    glossary
 
 
 .. raw:: latex
