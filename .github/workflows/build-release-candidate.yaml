@@ -84,7 +84,7 @@ jobs:
 
     - name: Compile echofilter inference exe
       run: |
-        pyinstaller bin\inference.py echofilter\ev2csv.py ^
+        pyinstaller bin\inference.py ^
             --name echofilter ^
             --add-data echofilter\checkpoints.yaml;. ^
             --icon images/deepsense.ico ^
@@ -110,10 +110,23 @@ jobs:
             -y --clean ^
             --distpath executable
 
-    - name: Test show help
-      run: executable\echofilter\echofilter.exe -h
+    - name: Compile ev2csv exe
+      run: |
+        pyinstaller echofilter\ev2csv.py ^
+            --icon images/deepsense.ico ^
+            --hidden-import pkg_resources.py2_warn ^
+            --hidden-import echofilter.path ^
+            --hidden-import echofilter.win ^
+            --hidden-import tqdm ^
+            -y --clean ^
+            --distpath executable
+        move executable\ev2csv\ev2csv.exe executable\echofilter\
+        rd /s /q executable\ev2csv
 
-    - name: Test show version
+    - name: Test show inference help
+      run: executable\echofilter\echofilter.exe --help
+
+    - name: Test show inference version
       run: executable\echofilter\echofilter.exe --version
 
     - name: Test list-checkpoints
@@ -131,7 +144,13 @@ jobs:
     - name: Test skip after already ran
       run: executable\echofilter\echofilter.exe test-resources -s
 
-    - name: Store wheel artifacts
+    - name: Test show ev2csv help
+      run: executable\echofilter\ev2csv.exe --help
+
+    - name: Test show ev2csv version
+      run: executable\echofilter\ev2csv.exe --version
+
+    - name: Store executable artifacts
       uses: actions/upload-artifact@v3
       with:
         name: executable-windows-py3.7
