@@ -39,6 +39,8 @@ DEFAULT_VARNAME = "Fileset1: Sv pings T1"
 
 class ListColors(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
+        import matplotlib.colors as mcolors
+
         from ..inference import get_color_palette, hexcolor2rgb8
 
         if values is None:
@@ -47,12 +49,14 @@ class ListColors(argparse.Action):
             include_xkcd = values.lower() != "css4"
         colors = get_color_palette(include_xkcd)
         for key, value in colors.items():
-            extra = hexcolor2rgb8(value)
-            if extra == value:
-                extra = ""
+            if isinstance(value, str):
+                hex = value
+                rgb8 = hexcolor2rgb8(hex)
             else:
-                extra = "  (" + ", ".join(["{:3d}".format(x) for x in extra]) + ")"
-            print("{:>31s}: {}{}".format(key, value, extra))
+                rgb8 = hexcolor2rgb8(value)
+                hex = mcolors.to_hex(value)
+            extra = "  (" + ", ".join(["{:3d}".format(x) for x in rgb8]) + ")"
+            print("{:>31s}: {}{}".format(key, hex, extra))
         parser.exit()  # exits the program with no more arg parsing and checking
 
 
