@@ -743,7 +743,7 @@ is to linearly interpolate lines during passive data collection)::
 Specifying file and variable suffix, and line colours and thickness::
 
     echofilter "path/to/file_or_directory" ^
-        --suffix "_echofilter_stationary-model" ^
+        --suffix "_echofilter-model" ^
         --color-surface "green" --thickness-surface 4 ^
         --color-nearfield "red" --thickness-nearfield 3
 
