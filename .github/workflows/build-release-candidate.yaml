@@ -159,5 +159,5 @@ jobs:
     - name: Store executable artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: executable-windows-py3.7
+        name: executable-windows-py${{ matrix.python-version }}
         path: executable/*
