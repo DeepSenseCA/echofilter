@@ -8,7 +8,7 @@ echofilter
 +------------------+----------------------------------------------------------------------+
 | Documentation    | |readthedocs|                                                        |
 +------------------+----------------------------------------------------------------------+
-| Build Status     | |Documentation| |GHA tests| |pre-commit-status|                      |
+| Build Status     | |Documentation| |GHA tests| |Codecov| |pre-commit-status|            |
 +------------------+----------------------------------------------------------------------+
 | Code style       | |black| |pre-commit|                                                 |
 +------------------+----------------------------------------------------------------------+
@@ -180,6 +180,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .. |Documentation| image:: https://readthedocs.org/projects/echofilter/badge/
    :target: https://echofilter.readthedocs.io/
    :alt: Documentation Status
+.. |Codecov| image:: https://codecov.io/gh/DeepSenseCA/echofilter/branch/master/graph/badge.svg?token=BGX2EJ0SSI
+   :target: https://codecov.io/gh/DeepSenseCA/echofilter
+   :alt: Coverage
 .. |DOI badge| image:: https://img.shields.io/badge/DOI-10.3389/fmars.2022.867857-blue.svg
    :target: doi_
    :alt: DOI
