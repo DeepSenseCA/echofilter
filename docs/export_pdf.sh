@@ -27,6 +27,7 @@ make -C _build_guide
 sed -i 's/master_doc = "guide"/master_doc = "index"/' source/conf.py
 sed -i 's/" Usage Guide"/" Documentation"/' source/conf.py
 rm source/guide.rst
+mv _build_guide/Echofilter.pdf _build_guide/Echofilter_Usage-Guide.pdf
 
 # Build full documentation
 #-------------------------
@@ -48,3 +49,4 @@ sed -in 's+^\\item\s*\[{[Rd]|}\]+\\item\[\]+' _build_pdf/Echofilter.tex
 make -C _build_pdf
 # Restore conf.py to processing index.rst instead of index_pdf.rst
 sed -i 's/master_doc = "index_pdf"/master_doc = "index"/' source/conf.py
+rm source/index_pdf.rst
