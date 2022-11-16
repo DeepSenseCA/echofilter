@@ -5,9 +5,9 @@ Echofilter documentation
     :maxdepth: 2
     :caption: Contents:
 
-    source/usage/index
-    source/programs/programs
-    source/packages/modules
-    source/changelog
+    usage/index
+    programs/programs
+    packages/modules
+    changelog
     py-modindex
     genindex

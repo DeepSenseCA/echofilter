@@ -5,5 +5,5 @@ Echofilter Usage Guide
     :maxdepth: 3
     :caption: Contents:
 
-    source/usage/index
-    source/programs/programs2
+    usage/index
+    programs/programs2

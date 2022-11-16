@@ -76,9 +76,9 @@ argument.
     echofilter --help
 
 For more details, see the
-`Usage Guide <https://echofilter.readthedocs.io/en/latest/source/usage/>`__,
+`Usage Guide <https://echofilter.readthedocs.io/en/latest/usage/>`__,
 and the
-`command line interface (CLI) reference <https://echofilter.readthedocs.io/en/latest/source/programs/inference.html>`__
+`command line interface (CLI) reference <https://echofilter.readthedocs.io/en/latest/programs/inference.html>`__
 documentation.
 
 
@@ -97,7 +97,7 @@ For example:
 `echofilter-executable-1.1.0.zip <https://github.com/DeepSenseCA/echofilter/releases/download/1.1.0/echofilter-executable-1.1.0.zip>`__
 
 For more details, see the step-by-step instructions in the
-`Usage Guide <https://echofilter.readthedocs.io/en/latest/source/usage/installation.html#installing-as-an-executable-file>`__.
+`Usage Guide <https://echofilter.readthedocs.io/en/latest/usage/installation.html#installing-as-an-executable-file>`__.
 
 Note: The precompiled executable has only CPU support, and does not support
 running on GPU.
