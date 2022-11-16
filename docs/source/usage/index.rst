@@ -6,11 +6,6 @@ Authors
 
 .. highlight:: winbatch
 
-.. raw:: latex
-
-    \clearpage
-
-
 :term:`Echofilter` is an application for segmenting an echogram. It takes as
 its input an :term:`Echoview` .EV file, and produces as its output several
 lines and regions:
@@ -71,9 +66,5 @@ provided by Fundy Ocean Research Centre for Energy
     issues
     glossary
 
-
-.. raw:: latex
-
-    \clearpage
 
 .. highlight:: python

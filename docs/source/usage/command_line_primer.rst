@@ -96,3 +96,7 @@ finish the current line with ``^`` and begin the subsequent line at the
 start of the next line.
 
 .. highlight:: python
+
+.. raw:: latex
+
+    \clearpage

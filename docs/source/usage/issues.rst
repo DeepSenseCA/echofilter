@@ -73,3 +73,7 @@ Please include:
 -  All steps/details necessary to reproduce the issue.
 
 -  Any error messages which were produced.
+
+.. raw:: latex
+
+    \clearpage

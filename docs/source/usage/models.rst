@@ -129,3 +129,7 @@ Details for notable model checkpoints are provided below.
 :mobile_effunet6x2-1_lc32_v1.0:
 
    -  Trained on :term:`downfacing` :term:`mobile` data only.
+
+.. raw:: latex
+
+    \clearpage

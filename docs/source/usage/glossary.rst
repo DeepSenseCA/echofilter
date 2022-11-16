@@ -201,3 +201,7 @@ Glossary
 
     Water column
         The body of water between seafloor and ocean surface.
+
+.. raw:: latex
+
+    \clearpage

@@ -272,3 +272,7 @@ The :term:`nearfield distance` can be changed as appropriate for the
 The colour and thickness of the lines can be customised using the
 ``--color-surface``, ``--thickness-surface`` (etc) arguments.
 See ``echofilter --list-colors`` to see the list of supported colour names.
+
+.. raw:: latex
+
+    \clearpage

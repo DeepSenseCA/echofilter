@@ -224,3 +224,7 @@ https://xkcd.com/color/rgb/
     echofilter --list-colors full
 
 .. highlight:: python
+
+.. raw:: latex
+
+    \clearpage
