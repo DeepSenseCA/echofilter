@@ -97,7 +97,7 @@ For example:
 `echofilter-executable-1.1.0.zip <https://github.com/DeepSenseCA/echofilter/releases/download/1.1.0/echofilter-executable-1.1.0.zip>`__
 
 For more details, see the step-by-step instructions in the
-`Usage Guide <https://echofilter.readthedocs.io/en/latest/source/usage_guide.html#installing-as-an-executable-file>`__.
+`Usage Guide <https://echofilter.readthedocs.io/en/latest/source/guide/installation.html#installing-as-an-executable-file>`__.
 
 Note: The precompiled executable has only CPU support, and does not support
 running on GPU.
