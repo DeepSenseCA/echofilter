@@ -393,6 +393,14 @@ class test_cli(BaseTestCase):
         with pytest.raises(SystemExit):
             inference_cli.cli(["--list-colors"])
 
+    def test_show_colors_alpha(self):
+        with pytest.raises(SystemExit):
+            inference_cli.cli(["--list-colors=alphabetic"])
+
+    def test_show_colors_full(self):
+        with pytest.raises(SystemExit):
+            inference_cli.cli(["--list-colors=full"])
+
     def test_dryrun(self):
         inference_cli.cli([self.resource_directory, "--dry-run"])
 
