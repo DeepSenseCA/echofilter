@@ -144,8 +144,8 @@ a special default config file in your home directory named ``".echofilter"``.
 The path to your homedirectory, and hence to the default config file,
 depends on your operating system.
 On Windows it is typically ``"C:\Users\USERNAME\.echofilter"``, whilst on Linux
-it is typically ``"/home/USERNAME/.echofilter"``, where USERNAME is replaced
-with your username.
+it is typically ``"/home/USERNAME/.echofilter"``, where ``"USERNAME"`` is
+replaced with your username.
 If it exists, the the default config file is always loaded everytime you run
 echofilter.
 
