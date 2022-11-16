@@ -4,8 +4,30 @@ name: build release candidate
 
 on:
   push:
+    branches:
+      # Release branches.
+      # Examples: "v1", "v3.0", "v1.2.x", "1.5.0", "1.2rc0"
+      # Expected usage is (for example) a branch named "v1.2.x" which contains
+      # the latest release in the 1.2 series.
+      - 'v[0-9]+'
+      - 'v?[0-9]+.[0-9x]+'
+      - 'v?[0-9]+.[0-9]+.[0-9x]+'
+      - 'v?[0-9]+.[0-9]+.[0-9]+.[0-9x]+'
+      - 'v?[0-9]+.[0-9x]+rc[0-9]*'
+    tags:
+      # Run whenever any tag is created
+      - '**'
   pull_request:
+    branches:
+      # Release branches
+      - 'v[0-9]+'
+      - 'v?[0-9]+.[0-9x]+'
+      - 'v?[0-9]+.[0-9]+.[0-9x]+'
+      - 'v?[0-9]+.[0-9]+.[0-9]+.[0-9x]+'
+      - 'v?[0-9]+.[0-9x]+rc[0-9]*'
   release:
+    # Run on a new release
+    types: [created, edited, published]
 
 jobs:
   build-executable:
