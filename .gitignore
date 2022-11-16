@@ -27,6 +27,8 @@ test-resources/*.evl
 test-resources/*.evr
 test-output/
 test-resources-source/
+executable/
+executable2/
 
 
 ##---------------------------------------------------
