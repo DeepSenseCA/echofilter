@@ -154,6 +154,7 @@ class UploadCommand(Command):
 setup(
     # Essential details on the package and its dependencies
     name=meta["name"],
+    python_requires=">=3.6,<3.11",
     version=meta["version"],
     packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
     package_dir={meta["name"]: os.path.join(".", meta["path"])},
@@ -173,10 +174,22 @@ setup(
     classifiers=[
         # Trove classifiers
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Science/Research",
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Natural Language :: English",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
+        "Topic :: Scientific/Engineering :: Hydrology",
+        "Topic :: Scientific/Engineering :: Image Processing",
+        "Topic :: Scientific/Engineering :: Image Recognition",
     ],
     # Could also include keywords, download_url, project_urls, etc.
     entry_points={
@@ -186,6 +199,12 @@ setup(
             "echofilter-generate-shards=echofilter.generate_shards:main",
             "ev2csv=echofilter.ev2csv:main",
         ],
+    },
+    project_urls={
+        "Documentation": "https://echofilter.readthedocs.io",
+        "Source Code": "https://github.com/DeepSenseCA/echofilter",
+        "Bug Tracker": "https://github.com/DeepSenseCA/echofilter/issues",
+        "Citation": "https://www.doi.org/10.3389/fmars.2022.867857",
     },
     # Custom commands
     cmdclass={"test": PyTest, "upload": UploadCommand},

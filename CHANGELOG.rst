@@ -13,6 +13,31 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
+Version `1.0.3 <https://github.com/DeepSenseCA/echofilter/tree/1.0.3>`__
+------------------------------------------------------------------------
+
+Release date: 2022-11-15.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.2...1.0.3>`__.
+
+This minor patch fix addresses package metadata.
+
+.. _v1.0.3 Fixed:
+
+Fixed
+~~~~~
+
+.. _v1.0.3 Fixed Metadata:
+
+Metadata
+^^^^^^^^
+
+-   Declare ``python_requires>=3.6,<3.11`` requirement.
+    (`#264 <https://github.com/DeepSenseCA/echofilter/pull/264>`__,
+    `#302 <https://github.com/DeepSenseCA/echofilter/pull/302>`__)
+-   Declare ``torch<1.12.0`` requirement.
+    (`#302 <https://github.com/DeepSenseCA/echofilter/pull/302>`__)
+
+
 Version `1.0.2 <https://github.com/DeepSenseCA/echofilter/tree/1.0.2>`__
 ------------------------------------------------------------------------
 
