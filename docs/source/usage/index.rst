@@ -1,9 +1,6 @@
 Usage Guide
 ###########
 
-Authors
-    Scott C. Lowe, Louise McGarry
-
 .. highlight:: winbatch
 
 :term:`Echofilter` is an application for segmenting an echogram. It takes as
