@@ -122,6 +122,8 @@ then you can call echofilter with this configuration file as follows::
     echofilter "file_or_dir" --config "path/to/echofilter_params.cfg"
 
 and it will use the parameters specified in your config file.
+The format of the parameters is the same as they would be on the command prompt,
+except in the config file each parameter must be on its own line.
 
 The parameters in the config file also can be added to, or even overridden, at
 the command prompt.
