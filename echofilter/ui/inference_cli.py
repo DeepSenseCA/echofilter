@@ -45,9 +45,12 @@ class ListColors(argparse.Action):
 
         if values is None:
             include_xkcd = False
+            sort_colors = True
         else:
-            include_xkcd = values.lower() != "css4"
-        colors = get_color_palette(include_xkcd)
+            sort_colors = "alphabetic" not in values
+            include_xkcd = "full" in values or "xkcd" in values
+
+        colors = get_color_palette(include_xkcd, sort_colors=sort_colors)
         for key, value in colors.items():
             if isinstance(value, str):
                 hex = value
@@ -111,7 +114,7 @@ def get_parser():
         dest="list_colors",
         nargs="?",
         type=str,
-        choices=["css4", "full", "xkcd"],
+        choices=["alphabetic", "full", "full-alphabetic", "xkcd", "xkcd-alphabetic"],
         action=ListColors,
         help="""d|
             Show the available line color names and exit.
@@ -120,8 +123,10 @@ def get_parser():
             The XKCD color palette is also available, but is not
             shown in the output by default due to its size.
             To show the just main palette, run as ``--list-colors``
-            without argument, or ``--list-colors css4``. To show the
-            full palette, run as ``--list-colors full``.
+            without argument, or ``--list-colors alphabetic`` to view it in
+            alphabetic order. The default ordering is by hue.
+            To show the full palette, run as ``--list-colors full`` or
+            ``--list-colors full-alphabetic``.
         """,
     )
 
