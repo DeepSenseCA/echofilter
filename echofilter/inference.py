@@ -1521,7 +1521,7 @@ def import_lines_regions_to_ev(
         print(f"Importing {len(files)} lines/regions into EV file {ev_fname}")
 
     # Assemble the color palette
-    colors = get_color_palette()
+    colors = get_color_palette(sort_colors=False)
 
     dtstr = datetime.datetime.now().isoformat(timespec="seconds")
 
@@ -1904,7 +1904,7 @@ def import_lines_regions_to_ev(
         ev_file.Save()
 
 
-def get_color_palette(include_xkcd=True):
+def get_color_palette(include_xkcd=True, sort_colors=True):
     """
     Provide a mapping of named colors from matplotlib.
 
@@ -1917,6 +1917,9 @@ def get_color_palette(include_xkcd=True):
         See https://xkcd.com/color/rgb/ and
         https://blog.xkcd.com/2010/05/03/color-survey-results/
         for the XKCD colors.
+    sort_colors : bool, default=True
+        Whether to sort the colors by hue. Otherwise the colors are grouped
+        together by source, and maintain their default ordering (alphabetized).
 
     Returns
     -------
@@ -1927,6 +1930,18 @@ def get_color_palette(include_xkcd=True):
     colors = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
     if include_xkcd:
         colors.update(**mcolors.XKCD_COLORS)
+
+    if not sort_colors:
+        return colors
+
+    # Sort colors by hue, saturation, value and name
+    by_hsv = sorted(
+        (tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(color))), name)
+        for name, color in colors.items()
+    )
+    names = [name for hsv, name in by_hsv]
+    colors = {name: colors[name] for name in names}
+
     return colors
 
 
