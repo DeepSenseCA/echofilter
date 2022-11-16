@@ -439,10 +439,10 @@ Training
 -   Don't record fraction of image which is active during training.
     (`#206 <https://github.com/DeepSenseCA/echofilter/pull/206>`__)
 
-.. _v1.0.0b4 Changed General:
+.. _v1.0.0b4 Changed Miscellaneous:
 
-General
-^^^^^^^
+Miscellaneous
+^^^^^^^^^^^^^
 
 -   Rename top->turbulence, bot->bottom surf->surface, throughout all code.
     (`#190 <https://github.com/DeepSenseCA/echofilter/pull/190>`__)
@@ -762,10 +762,10 @@ Inference
     `#137 <https://github.com/DeepSenseCA/echofilter/pull/137>`__,
     `#145 <https://github.com/DeepSenseCA/echofilter/pull/145>`__)
 
-.. _v1.0.0b1 Changed General:
+.. _v1.0.0b1 Changed Miscellaneous:
 
-General
-^^^^^^^
+Miscellaneous
+^^^^^^^^^^^^^
 
 -   Set Sv values outside the range (-1e37, 1e37) to be NaN (previously values lower than -1e6 were set to NaN).
     (`#140 <https://github.com/DeepSenseCA/echofilter/pull/140>`__)
@@ -812,10 +812,10 @@ Inference
 -   Exporting raw data in ev2csv required more Echoview parameters to be disabled, such as the minimum value threshold.
     (`#100 <https://github.com/DeepSenseCA/echofilter/pull/100>`__)
 
-.. _v1.0.0b1 Fixed General:
+.. _v1.0.0b1 Fixed Miscellaneous:
 
-General
-^^^^^^^
+Miscellaneous
+^^^^^^^^^^^^^
 
 -   Fixed behaviour when loading data from CSVs with different number of depth samples and range of depths for different rows in the CSV file.
     (`#102 <https://github.com/DeepSenseCA/echofilter/pull/102>`__,
@@ -904,10 +904,10 @@ Inference
 -   Add ``--suffix-file`` argument, will allows a suffix common to all the output files to be set.
     (`#152 <https://github.com/DeepSenseCA/echofilter/pull/152>`__)
 
-.. _v1.0.0b1 Added General:
+.. _v1.0.0b1 Added Miscellaneous:
 
-General
-^^^^^^^
+Miscellaneous
+^^^^^^^^^^^^^
 
 -   Add ``-V`` alias for ``--version`` to all command line interfaces.
     (`#84 <https://github.com/DeepSenseCA/echofilter/pull/84>`__)
