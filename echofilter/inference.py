@@ -1948,6 +1948,11 @@ def hexcolor2rgb8(color):
     """
     if isinstance(color, str) and color[0] == "#":
         color = mcolors.to_rgba(color)[:3]
+    if (
+        isinstance(color, tuple)
+        and any(isinstance(c, float) for c in color)
+        or all(c <= 1 for c in color)
+    ):
         color = tuple(max(0, min(255, int(np.round(c * 255)))) for c in color)
     return color
 
