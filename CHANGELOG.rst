@@ -30,20 +30,9 @@ Changed
 Inference
 ^^^^^^^^^
 
--   Apply inference on the raw Sv data, disabling any thresholding present in the EV file.
-    (`#275 <https://github.com/DeepSenseCA/echofilter/pull/275>`__)
 -   Disable logit smoothing by default. The previous behaviour can be restored
     by setting ``--logit-smoothing-sigma=1`` at the CLI.
     (`#293 <https://github.com/DeepSenseCA/echofilter/pull/293>`__)
-
-.. _v1.1.0 Changed ev2csv:
-
-ev2csv
-^^^^^^
-
--   By default, export raw Sv data, disabling any thresholding present in the EV file.
-    Thresholded data can still be exported, by providing the ``--keep-thresholds`` argument to the CLI.
-    (`#275 <https://github.com/DeepSenseCA/echofilter/pull/275>`__)
 
 
 .. _v1.1.0 Fixed:
@@ -117,6 +106,10 @@ Inference
 ev2csv
 ^^^^^^
 
+-   Add ``--keep-thresholds`` option which allow for exporting Sv data with thresholds and exclusions enabled (set as they currently are in the EV file).
+    The default behaviour is still to export raw Sv data (disabling all thresholds).
+    The default file name for the CSV file depends on whether the export is of raw or thresholded data.
+    (`#275 <https://github.com/DeepSenseCA/echofilter/pull/275>`__)
 -   Add ``--keep-ext`` argument to ev2csv, which allows the existing
     extension on the input path to be kept preceding the new file extension.
     (`#242 <https://github.com/DeepSenseCA/echofilter/pull/242>`__)
