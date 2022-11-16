@@ -150,6 +150,12 @@ jobs:
     - name: Test show ev2csv version
       run: executable\echofilter\ev2csv.exe --version
 
+    - name: Store wheel artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: wheel-${{ matrix.os }}-py${{ matrix.python-version }}
+        path: dist/*
+
     - name: Store executable artifacts
       uses: actions/upload-artifact@v3
       with:
