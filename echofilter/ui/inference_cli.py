@@ -116,7 +116,7 @@ def get_parser():
         help="""d|
             Show the available line color names and exit.
             The available color palette can be viewed at
-            https://matplotlib.org/gallery/color/named_colors.html.
+            https://matplotlib.org/stable/gallery/color/named_colors.html#css-colors.
             The XKCD color palette is also available, but is not
             shown in the output by default due to its size.
             To show the just main palette, run as ``--list-colors``
