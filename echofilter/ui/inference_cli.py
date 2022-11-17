@@ -39,20 +39,27 @@ DEFAULT_VARNAME = "Fileset1: Sv pings T1"
 
 class ListColors(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
+        import matplotlib.colors as mcolors
+
         from ..inference import get_color_palette, hexcolor2rgb8
 
         if values is None:
             include_xkcd = False
+            sort_colors = True
         else:
-            include_xkcd = values.lower() != "css4"
-        colors = get_color_palette(include_xkcd)
+            sort_colors = "alphabetic" not in values
+            include_xkcd = "full" in values or "xkcd" in values
+
+        colors = get_color_palette(include_xkcd, sort_colors=sort_colors)
         for key, value in colors.items():
-            extra = hexcolor2rgb8(value)
-            if extra == value:
-                extra = ""
+            if isinstance(value, str):
+                hex = value
+                rgb8 = hexcolor2rgb8(hex)
             else:
-                extra = "  (" + ", ".join(["{:3d}".format(x) for x in extra]) + ")"
-            print("{:>31s}: {}{}".format(key, value, extra))
+                rgb8 = hexcolor2rgb8(value)
+                hex = mcolors.to_hex(value)
+            extra = "  (" + ", ".join(["{:3d}".format(x) for x in rgb8]) + ")"
+            print("{:>31s}: {}{}".format(key, hex, extra))
         parser.exit()  # exits the program with no more arg parsing and checking
 
 
@@ -113,17 +120,19 @@ def get_parser():
         dest="list_colors",
         nargs="?",
         type=str,
-        choices=["css4", "full", "xkcd"],
+        choices=["alphabetic", "full", "full-alphabetic", "xkcd", "xkcd-alphabetic"],
         action=ListColors,
         help="""d|
             Show the available line color names and exit.
             The available color palette can be viewed at
-            https://matplotlib.org/gallery/color/named_colors.html.
+            https://matplotlib.org/stable/gallery/color/named_colors.html#css-colors.
             The XKCD color palette is also available, but is not
             shown in the output by default due to its size.
             To show the just main palette, run as ``--list-colors``
-            without argument, or ``--list-colors css4``. To show the
-            full palette, run as ``--list-colors full``.
+            without argument, or ``--list-colors alphabetic`` to view it in
+            alphabetic order. The default ordering is by hue.
+            To show the full palette, run as ``--list-colors full`` or
+            ``--list-colors full-alphabetic``.
         """,
     )
 
