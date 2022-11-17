@@ -90,7 +90,7 @@ class test_hexcolor2rgb8(BaseTestCase):
     def test_hexcolor2rgb8_pass(self):
         input = (0.5, 0.5, 0.5)
         out = inference.hexcolor2rgb8(input)
-        self.assertEqual(out, input)
+        self.assertEqual(out, (128, 128, 128))
 
     def test_hexcolor2rgb8_white(self):
         input = "#ffffff"
