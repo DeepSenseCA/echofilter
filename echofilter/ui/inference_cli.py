@@ -96,6 +96,12 @@ def get_parser():
         help="Show program's version number and exit.",
     )
     group_action.add_argument(
+        "--show-cache-dir",
+        nargs=0,
+        action=checkpoints.ShowCacheDir,
+        help="Show the path to the cache directory and exit.",
+    )
+    group_action.add_argument(
         "--list-checkpoints",
         nargs=0,
         action=checkpoints.ListCheckpoints,
@@ -1091,6 +1097,7 @@ def cli(args=None):
     parser = get_parser()
     kwargs = vars(parser.parse_args(args))
 
+    kwargs.pop("show_cache_dir")
     kwargs.pop("list_checkpoints")
     kwargs.pop("list_colors")
     kwargs.pop("config")
