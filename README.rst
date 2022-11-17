@@ -51,7 +51,7 @@ If you encounter a specific problem please `open a new issue`_.
 
 .. _Echoview: https://www.echoview.com/
 .. _doi: https://www.doi.org/10.3389/fmars.2022.867857
-.. _readthedocs: https://echofilter.readthedocs.io
+.. _readthedocs: https://echofilter.readthedocs.io/en/latest/usage/
 .. _open a new issue: https://github.com/DeepSenseCA/echofilter/issues/new
 
 Usage
@@ -76,9 +76,9 @@ argument.
     echofilter --help
 
 For more details, see the
-`Usage Guide <https://echofilter.readthedocs.io/en/latest/source/usage_guide.html>`__,
+`Usage Guide <https://echofilter.readthedocs.io/en/latest/usage/>`__,
 and the
-`command line interface (CLI) reference <https://echofilter.readthedocs.io/en/latest/source/programs/inference.html>`__
+`command line interface (CLI) reference <https://echofilter.readthedocs.io/en/latest/programs/inference.html>`__
 documentation.
 
 
@@ -97,7 +97,7 @@ For example:
 `echofilter-executable-1.1.0.zip <https://github.com/DeepSenseCA/echofilter/releases/download/1.1.0/echofilter-executable-1.1.0.zip>`__
 
 For more details, see the step-by-step instructions in the
-`Usage Guide <https://echofilter.readthedocs.io/en/latest/source/usage_guide.html#installing-as-an-executable-file>`__.
+`Usage Guide <https://echofilter.readthedocs.io/en/latest/usage/installation.html#installing-as-an-executable-file>`__.
 
 Note: The precompiled executable has only CPU support, and does not support
 running on GPU.
@@ -133,11 +133,14 @@ Then install the rest of the requirements.
 Citing Echofilter
 -----------------
 
-If you use Echofilter for your research, we would be grateful if you could cite our
-paper on echofilter in any resulting publications:
+For technical details about how the Echofilter model was trained, and our
+findings about its empirical results, please consult our companion paper:
 
     SC Lowe, LP McGarry, J Douglas, J Newport, S Oore, C Whidden, DJ Hasselman (2022). Echofilter: A Deep Learning Segmention Model Improves the Automation, Standardization, and Timeliness for Post-Processing Echosounder Data in Tidal Energy Streams. *Front. Mar. Sci.*, **9**, 1–21.
     doi: |nbsp| `10.3389/fmars.2022.867857 <doi_>`_.
+
+If you use Echofilter for your research, we would be grateful if you could cite
+this paper in any resulting publications.
 
 For your convenience, we provide a copy of this citation in `bibtex`_ format.
 
@@ -175,10 +178,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
    :target: https://github.com/DeepSenseCA/echofilter/actions?query=workflow%3Atest
    :alt: GHA Status
 .. |readthedocs| image:: https://img.shields.io/badge/docs-readthedocs-blue
-   :target: https://echofilter.readthedocs.io/
+   :target: readthedocs_
    :alt: Documentation
 .. |Documentation| image:: https://readthedocs.org/projects/echofilter/badge/
-   :target: https://echofilter.readthedocs.io/
+   :target: readthedocs_
    :alt: Documentation Status
 .. |Codecov| image:: https://codecov.io/gh/DeepSenseCA/echofilter/branch/master/graph/badge.svg?token=BGX2EJ0SSI
    :target: https://codecov.io/gh/DeepSenseCA/echofilter
