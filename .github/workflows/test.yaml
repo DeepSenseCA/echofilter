@@ -103,6 +103,9 @@ jobs:
     - name: Test show version
       run: echofilter --version
 
+    - name: Test show-cache-dir
+      run: echofilter --show-cache-dir
+
     - name: Test list-checkpoints
       run: echofilter --list-checkpoints
 

@@ -385,6 +385,10 @@ class test_cli(BaseTestCase):
         with pytest.raises(SystemExit):
             inference_cli.cli(["-V"])
 
+    def test_show_cache_dir(self):
+        with pytest.raises(SystemExit):
+            inference_cli.cli(["--show-cache-dir"])
+
     def test_show_checkpoints(self):
         with pytest.raises(SystemExit):
             inference_cli.cli(["--list-checkpoints"])

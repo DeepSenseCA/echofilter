@@ -152,6 +152,9 @@ jobs:
       run: executable\echofilter\echofilter.exe --version
 
     - name: Test list-checkpoints
+      run: executable\echofilter\echofilter.exe --show-cache-dir
+
+    - name: Test list-checkpoints
       run: executable\echofilter\echofilter.exe --list-checkpoints
 
     - name: Test list-colors
