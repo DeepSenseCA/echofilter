@@ -13,6 +13,37 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
+Version `1.1.1 <https://github.com/DeepSenseCA/echofilter/tree/1.1.1>`__
+------------------------------------------------------------------------
+
+Release date: 2022-11-16.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.1.0...1.1.1>`__.
+
+
+.. _v1.1.1 Fixed:
+
+Fixed
+~~~~~~~
+
+.. _v1.1.1 Fixed Inference:
+
+Inference
+^^^^^^^^^
+
+-   EVL final value pad was for a timestamp in between the preceding two, not extending forward in time by half a timepoint.
+    (`#300 <https://github.com/DeepSenseCA/echofilter/pull/300>`__)
+
+.. _v1.1.1 Fixed Metadata:
+
+Metadata
+^^^^^^^^
+
+-   Declare ``python_requires<3.11`` requirement.
+    (`#302 <https://github.com/DeepSenseCA/echofilter/pull/302>`__)
+-   Declare ``torch<1.12.0`` requirement.
+    (`#302 <https://github.com/DeepSenseCA/echofilter/pull/302>`__)
+
+
 Version `1.1.0 <https://github.com/DeepSenseCA/echofilter/tree/1.1.0>`__
 ------------------------------------------------------------------------
 
