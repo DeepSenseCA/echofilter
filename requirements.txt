@@ -6,6 +6,7 @@ numpy
 pandas
 pywin32; platform_system=="Windows"
 pyyaml
+requests
 scikit-image
 scipy
 torch<1.12.0
