@@ -174,16 +174,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .. |PyPI badge| image:: https://img.shields.io/pypi/v/echofilter.svg
    :target: https://pypi.org/project/echofilter/
    :alt: Latest PyPI release
-.. |GHA tests| image:: https://github.com/DeepSenseCA/echofilter/workflows/tests/badge.svg?branch=1.1.1
+.. |GHA tests| image:: https://github.com/DeepSenseCA/echofilter/workflows/tests/badge.svg
    :target: https://github.com/DeepSenseCA/echofilter/actions?query=workflow%3Atest
    :alt: GHA Status
 .. |readthedocs| image:: https://img.shields.io/badge/docs-readthedocs-blue
    :target: readthedocs_
    :alt: Documentation
-.. |Documentation| image:: https://readthedocs.org/projects/echofilter/badge/?version=1.1.1
+.. |Documentation| image:: https://readthedocs.org/projects/echofilter/badge/
    :target: readthedocs_
    :alt: Documentation Status
-.. |Codecov| image:: https://codecov.io/gh/DeepSenseCA/echofilter/branch/v1.1.x/graph/badge.svg?token=BGX2EJ0SSI
+.. |Codecov| image:: https://codecov.io/gh/DeepSenseCA/echofilter/branch/master/graph/badge.svg?token=BGX2EJ0SSI
    :target: https://codecov.io/gh/DeepSenseCA/echofilter
    :alt: Coverage
 .. |DOI badge| image:: https://img.shields.io/badge/DOI-10.3389/fmars.2022.867857-blue.svg
