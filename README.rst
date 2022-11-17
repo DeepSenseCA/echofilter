@@ -51,7 +51,7 @@ If you encounter a specific problem please `open a new issue`_.
 
 .. _Echoview: https://www.echoview.com/
 .. _doi: https://www.doi.org/10.3389/fmars.2022.867857
-.. _readthedocs: https://echofilter.readthedocs.io/en/latest/usage/
+.. _readthedocs: https://echofilter.readthedocs.io/en/stable/usage/
 .. _open a new issue: https://github.com/DeepSenseCA/echofilter/issues/new
 
 Usage
@@ -76,9 +76,9 @@ argument.
     echofilter --help
 
 For more details, see the
-`Usage Guide <https://echofilter.readthedocs.io/en/latest/usage/>`__,
+`Usage Guide <https://echofilter.readthedocs.io/en/stable/usage/>`__,
 and the
-`command line interface (CLI) reference <https://echofilter.readthedocs.io/en/latest/programs/inference.html>`__
+`command line interface (CLI) reference <https://echofilter.readthedocs.io/en/stable/programs/inference.html>`__
 documentation.
 
 
@@ -97,7 +97,7 @@ For example:
 `echofilter-executable-1.1.1.zip <https://github.com/DeepSenseCA/echofilter/releases/download/1.1.1/echofilter-executable-1.1.1.zip>`__
 
 For more details, see the step-by-step instructions in the
-`Usage Guide <https://echofilter.readthedocs.io/en/latest/usage/installation.html#installing-as-an-executable-file>`__.
+`Usage Guide <https://echofilter.readthedocs.io/en/stable/usage/installation.html#installing-as-an-executable-file>`__.
 
 Note: The precompiled executable has only CPU support, and does not support
 running on GPU.
@@ -196,7 +196,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
    :target: https://github.com/pre-commit/pre-commit
    :alt: pre-commit enabled
 .. |pre-commit-status| image:: https://results.pre-commit.ci/badge/github/DeepSenseCA/echofilter/master.svg
-   :target: https://results.pre-commit.ci/latest/github/DeepSenseCA/echofilter/master
+   :target: https://results.pre-commit.ci/stable/github/DeepSenseCA/echofilter/master
    :alt: pre-commit.ci status
 .. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
