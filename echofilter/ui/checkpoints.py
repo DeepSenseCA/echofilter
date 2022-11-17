@@ -118,6 +118,13 @@ def get_default_cache_dir():
     return appdirs.user_cache_dir("echofilter", "DeepSense")
 
 
+class ShowCacheDir(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string):
+        print("Downloaded model checkpoints are cached in:")
+        print(get_default_cache_dir())
+        parser.exit()  # exits the program with no more arg parsing and checking
+
+
 def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     """
     Download a checkpoint if it isn't already cached.
