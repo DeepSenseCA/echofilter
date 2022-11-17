@@ -102,8 +102,8 @@ On Linux, the line continuation character is ``\`` (backslash).
 
 .. code-block:: bash
 
-    cp "path/to/source/file_with_a_very_very_long_name" \
-        "path/to/destination/location"
+    cp "path/to/source/file_with_a_very_very_long_filename" \
+        "path/to/destination/location/"
 
 On Windows, the line continuation character depends on the command prompt being used.
 
@@ -112,8 +112,8 @@ run Windows batch (.bat) files, the line continuation character is ``^`` (caret)
 
 .. code-block:: winbatch
 
-    copy "C:\path\to\source\file_with_a_very_very_long_name" ^
-        "path\to\destination\location"
+    copy "path\to\source\file_with_a_very_very_long_filename" ^
+        "path\to\destination\location\"
 
 In the Windows command prompt, when you are separating out arguments you must
 make sure you include at least one space at the start of the second line.
@@ -126,8 +126,8 @@ character is  ````` (backtick).
 
 .. code-block:: powershell
 
-    copy "C:\path\to\source\file_with_a_very_very_long_name" `
-        "path\to\destination\location"
+    copy "path\to\source\file_with_a_very_very_long_filename" `
+        "path\to\destination\location\"
 
 Please note that, in all cases, the line continuation character must be the very
 final character on the line. If there is whitespace after the continuation
