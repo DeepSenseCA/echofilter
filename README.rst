@@ -51,7 +51,7 @@ If you encounter a specific problem please `open a new issue`_.
 
 .. _Echoview: https://www.echoview.com/
 .. _doi: https://www.doi.org/10.3389/fmars.2022.867857
-.. _readthedocs: https://echofilter.readthedocs.io
+.. _readthedocs: https://echofilter.readthedocs.io/en/latest/usage/
 .. _open a new issue: https://github.com/DeepSenseCA/echofilter/issues/new
 
 Usage
@@ -178,10 +178,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
    :target: https://github.com/DeepSenseCA/echofilter/actions?query=workflow%3Atest
    :alt: GHA Status
 .. |readthedocs| image:: https://img.shields.io/badge/docs-readthedocs-blue
-   :target: https://echofilter.readthedocs.io/en/latest/usage/
+   :target: readthedocs_
    :alt: Documentation
 .. |Documentation| image:: https://readthedocs.org/projects/echofilter/badge/
-   :target: https://echofilter.readthedocs.io/
+   :target: readthedocs_
    :alt: Documentation Status
 .. |Codecov| image:: https://codecov.io/gh/DeepSenseCA/echofilter/branch/master/graph/badge.svg?token=BGX2EJ0SSI
    :target: https://codecov.io/gh/DeepSenseCA/echofilter
