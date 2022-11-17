@@ -2,12 +2,12 @@ Echofilter documentation
 ========================
 
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 2
     :caption: Contents:
 
-    source/usage_guide
-    source/programs/programs
-    source/packages/modules
-    source/changelog
+    usage/index
+    programs/programs
+    packages/modules
+    changelog
     py-modindex
     genindex

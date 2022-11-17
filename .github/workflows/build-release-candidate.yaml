@@ -1,0 +1,185 @@
+# Build wheels and executables for Windows
+
+name: build release candidate
+
+on:
+  push:
+    branches:
+      # Release branches.
+      # Examples: "v1", "v3.0", "v1.2.x", "1.5.0", "1.2rc0"
+      # Expected usage is (for example) a branch named "v1.2.x" which contains
+      # the latest release in the 1.2 series.
+      - 'v[0-9]+'
+      - 'v?[0-9]+.[0-9x]+'
+      - 'v?[0-9]+.[0-9]+.[0-9x]+'
+      - 'v?[0-9]+.[0-9]+.[0-9]+.[0-9x]+'
+      - 'v?[0-9]+.[0-9x]+rc[0-9]*'
+    tags:
+      # Run whenever any tag is created
+      - '**'
+  pull_request:
+    branches:
+      # Release branches
+      - 'v[0-9]+'
+      - 'v?[0-9]+.[0-9x]+'
+      - 'v?[0-9]+.[0-9]+.[0-9x]+'
+      - 'v?[0-9]+.[0-9]+.[0-9]+.[0-9x]+'
+      - 'v?[0-9]+.[0-9x]+rc[0-9]*'
+  release:
+    # Run on a new release
+    types: [created, edited, published]
+
+jobs:
+  build-executable:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        python-version: ["3.7"]
+        frozen: ["frozen"]
+    env:
+      OS: ${{ matrix.os }}
+      PYTHON: ${{ matrix.python-version }}
+
+    defaults:
+      run:
+        shell: cmd
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: "pip"
+
+    - name: System information
+      run: python .github/workflows/system_info.py
+
+    - name: Install common dependencies
+      run: |
+        python -m pip install --upgrade pip wheel
+        python -m pip install --upgrade setuptools twine
+        python -m pip install flake8
+
+    - name: Install frozen dependencies
+      if: ${{ matrix.frozen }}
+      run: |
+        python -m pip install torch==1.4.0+cpu torchvision==0.5.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
+        python -m pip install -r frozen_requirements.txt
+
+    - name: Install package
+      run: python -m pip install .[dev,test]
+
+    - name: Uninstall typing (for pyinstaller)
+      # Otherwise we get the following error on Python 3.7:
+      # The 'typing' package is an obsolete backport of a standard library package and
+      # is incompatible with PyInstaller. Please `pip uninstall typing` then try again.
+      run: pip uninstall -y typing
+
+    - name: Sanity check with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        python -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings
+        python -m flake8 . --count --exit-zero --statistics
+
+    - name: Debug environment
+      run: python -m pip freeze
+
+    - name: Test with pytest
+      run: |
+        python -m pytest --cov=echofilter --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        flags: unittests
+        env_vars: OS,PYTHON
+        name: Python ${{ matrix.python-version }} on ${{ runner.os }}
+
+    - name: Build wheels
+      run: |
+        python setup.py sdist bdist_wheel
+
+    - name: Compile echofilter inference exe
+      run: |
+        pyinstaller bin\inference.py ^
+            --name echofilter ^
+            --add-data echofilter\checkpoints.yaml;. ^
+            --icon images/deepsense.ico ^
+            --hidden-import pkg_resources.py2_warn ^
+            --hidden-import colorama ^
+            --hidden-import torch ^
+            --hidden-import torchvision ^
+            --hidden-import Pillow ^
+            --hidden-import numpy ^
+            --hidden-import matplotlib ^
+            --hidden-import scipy ^
+            --hidden-import scipy.spatial ^
+            --hidden-import pandas ^
+            --hidden-import scikit-image ^
+            --hidden-import tqdm ^
+            --hidden-import echofilter ^
+            --hidden-import echofilter.data ^
+            --hidden-import echofilter.nn ^
+            --hidden-import echofilter.optim ^
+            --hidden-import echofilter.raw ^
+            --hidden-import echofilter.path ^
+            --hidden-import echofilter.win ^
+            -y --clean ^
+            --distpath executable
+
+    - name: Compile ev2csv exe
+      run: |
+        pyinstaller echofilter\ev2csv.py ^
+            --icon images/deepsense.ico ^
+            --hidden-import pkg_resources.py2_warn ^
+            --hidden-import echofilter.path ^
+            --hidden-import echofilter.win ^
+            --hidden-import tqdm ^
+            -y --clean ^
+            --distpath executable
+        move executable\ev2csv\ev2csv.exe executable\echofilter\
+        rd /s /q executable\ev2csv
+
+    - name: Test show inference help
+      run: executable\echofilter\echofilter.exe --help
+
+    - name: Test show inference version
+      run: executable\echofilter\echofilter.exe --version
+
+    - name: Test list-checkpoints
+      run: executable\echofilter\echofilter.exe --list-checkpoints
+
+    - name: Test list-colors
+      run: executable\echofilter\echofilter.exe --list-colors
+
+    - name: Test dry-run
+      run: executable\echofilter\echofilter.exe test-resources -n
+
+    - name: Test run
+      run: executable\echofilter\echofilter.exe test-resources
+
+    - name: Test skip after already ran
+      run: executable\echofilter\echofilter.exe test-resources -s
+
+    - name: Test show ev2csv help
+      run: executable\echofilter\ev2csv.exe --help
+
+    - name: Test show ev2csv version
+      run: executable\echofilter\ev2csv.exe --version
+
+    - name: Store wheel artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: wheel-${{ matrix.os }}-py${{ matrix.python-version }}
+        path: dist/*
+
+    - name: Store executable artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: executable-windows-py${{ matrix.python-version }}
+        path: executable/*

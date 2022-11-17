@@ -13,6 +13,37 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
+Version `1.1.1 <https://github.com/DeepSenseCA/echofilter/tree/1.1.1>`__
+------------------------------------------------------------------------
+
+Release date: 2022-11-16.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.1.0...1.1.1>`__.
+
+
+.. _v1.1.1 Fixed:
+
+Fixed
+~~~~~~~
+
+.. _v1.1.1 Fixed Inference:
+
+Inference
+^^^^^^^^^
+
+-   EVL final value pad was for a timestamp in between the preceding two, not extending forward in time by half a timepoint.
+    (`#300 <https://github.com/DeepSenseCA/echofilter/pull/300>`__)
+
+.. _v1.1.1 Fixed Metadata:
+
+Metadata
+^^^^^^^^
+
+-   Declare ``python_requires<3.11`` requirement.
+    (`#302 <https://github.com/DeepSenseCA/echofilter/pull/302>`__)
+-   Declare ``torch<1.12.0`` requirement.
+    (`#302 <https://github.com/DeepSenseCA/echofilter/pull/302>`__)
+
+
 Version `1.1.0 <https://github.com/DeepSenseCA/echofilter/tree/1.1.0>`__
 ------------------------------------------------------------------------
 
@@ -130,32 +161,31 @@ Internal
 
 -   Add EVR reader ``echofilter.raw.loader.evr_reader``.
     (`#280 <https://github.com/DeepSenseCA/echofilter/pull/280>`__)
--   Refactor ``fixup_dataset_sample``, moved into its own function
-    (`#279 <https://github.com/DeepSenseCA/echofilter/pull/279>`__)
-
-.. _v1.1.0 Added Documentation:
-
-Documentation
-^^^^^^^^^^^^^
-
--   Change installation instructions in Usage Guide to point to GitHub releases as the source of exe files.
-    (`#265 <https://github.com/DeepSenseCA/echofilter/pull/265>`__)
--   Improve docstrings.
-    (`#287 <https://github.com/DeepSenseCA/echofilter/pull/287>`__)
--   Improve README.
-    (`#269 <https://github.com/DeepSenseCA/echofilter/pull/269>`__,
-    `#284 <https://github.com/DeepSenseCA/echofilter/pull/284>`__,
-    `#285 <https://github.com/DeepSenseCA/echofilter/pull/285>`__)
 
 
-.. _v1.1.0 Miscellaneous:
+Version `1.0.3 <https://github.com/DeepSenseCA/echofilter/tree/1.0.3>`__
+------------------------------------------------------------------------
 
-Miscellaneous
-~~~~~~~~~~~~~
+Release date: 2022-11-15.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.0.2...1.0.3>`__.
 
--   Update black version, blacken notebooks, fix flake8 errors.
-    (`#283 <https://github.com/DeepSenseCA/echofilter/pull/283>`__)
+This minor patch fix addresses package metadata.
 
+.. _v1.0.3 Fixed:
+
+Fixed
+~~~~~
+
+.. _v1.0.3 Fixed Metadata:
+
+Metadata
+^^^^^^^^
+
+-   Declare ``python_requires>=3.6,<3.11`` requirement.
+    (`#264 <https://github.com/DeepSenseCA/echofilter/pull/264>`__,
+    `#302 <https://github.com/DeepSenseCA/echofilter/pull/302>`__)
+-   Declare ``torch<1.12.0`` requirement.
+    (`#302 <https://github.com/DeepSenseCA/echofilter/pull/302>`__)
 
 
 Version `1.0.2 <https://github.com/DeepSenseCA/echofilter/tree/1.0.2>`__
@@ -187,6 +217,7 @@ Training
 ^^^^^^^^
 
 -   Default optimizer changed from ``"rangerva"`` to ``"adam"``.
+    If you have manually installed `ranger <https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer>`__ you can still use the ``"rangerva"`` optimizer if you specify it.
     (`#261 <https://github.com/DeepSenseCA/echofilter/pull/261>`__)
 
 
@@ -198,21 +229,6 @@ Release date: 2022-11-06.
 
 This patch fix addresses requirement inconsistencies and documentation building.
 This release is provided under the `AGPLv3 <https://www.gnu.org/licenses/agpl-3.0.en.html>`__ license.
-
-.. _v1.0.1 Added:
-
-Added
-~~~~~
-
-.. _v1.0.1 Added Documentation:
-
-Documentation
-^^^^^^^^^^^^^
-
--   Deploy documentation on github pages.
-    (`#251 <https://github.com/DeepSenseCA/echofilter/pull/251>`__)
--   Include link to built documentation in README.
-    (`#253 <https://github.com/DeepSenseCA/echofilter/pull/253>`__)
 
 .. _v1.0.1 Changed:
 
@@ -228,14 +244,6 @@ Requirements
     `torchutils <https://github.com/scottclowe/pytorch-utils>`__
     and remove it from the requirements.
     (`#249 <https://github.com/DeepSenseCA/echofilter/pull/249>`__)
-
-.. _v1.0.1 Changed Checkpoints:
-
-Checkpoints
-^^^^^^^^^^^
-
--   Look for checkpoints.yaml in repo/executable dir as well as package dir.
-    (`#256 <https://github.com/DeepSenseCA/echofilter/pull/256>`__)
 
 .. _v1.0.1 Fixed:
 
@@ -253,16 +261,6 @@ Release
     (`#240 <https://github.com/DeepSenseCA/echofilter/pull/240>`__)
 -   Support for pytorch>=1.11 by dropping import of ``torch._six.container_abcs``.
     (`#250 <https://github.com/DeepSenseCA/echofilter/pull/250>`__)
-
-.. _v1.0.1 Fixed Documentation:
-
-Documentation
-^^^^^^^^^^^^^
-
--   Fix some API docstrings and CLI help text
-    (`#241 <https://github.com/DeepSenseCA/echofilter/pull/241>`__,
-    `#243 <https://github.com/DeepSenseCA/echofilter/pull/243>`__,
-    `#251 <https://github.com/DeepSenseCA/echofilter/pull/251>`__)
 
 
 Version `1.0.0 <https://github.com/DeepSenseCA/echofilter/tree/1.0.0>`__
@@ -299,21 +297,6 @@ Documentation
     (`#232 <https://github.com/DeepSenseCA/echofilter/pull/232>`__,
     `#233 <https://github.com/DeepSenseCA/echofilter/pull/233>`__,
     `#234 <https://github.com/DeepSenseCA/echofilter/pull/234>`__,
-    `#235 <https://github.com/DeepSenseCA/echofilter/pull/235>`__)
-
-.. _v1.0.0 Fixed:
-
-Fixed
-~~~~~
-
-.. _v1.0.0 Fixed Documentation:
-
-Documentation
-^^^^^^^^^^^^^
-
--   Fix formatting of some CHANGELOG and docstrings
-    (`#230 <https://github.com/DeepSenseCA/echofilter/pull/230>`__,
-    `#231 <https://github.com/DeepSenseCA/echofilter/pull/231>`__,
     `#235 <https://github.com/DeepSenseCA/echofilter/pull/235>`__)
 
 
@@ -487,10 +470,10 @@ Training
 -   Don't record fraction of image which is active during training.
     (`#206 <https://github.com/DeepSenseCA/echofilter/pull/206>`__)
 
-.. _v1.0.0b4 Changed General:
+.. _v1.0.0b4 Changed Miscellaneous:
 
-General
-^^^^^^^
+Miscellaneous
+^^^^^^^^^^^^^
 
 -   Rename top->turbulence, bot->bottom surf->surface, throughout all code.
     (`#190 <https://github.com/DeepSenseCA/echofilter/pull/190>`__)
@@ -810,10 +793,10 @@ Inference
     `#137 <https://github.com/DeepSenseCA/echofilter/pull/137>`__,
     `#145 <https://github.com/DeepSenseCA/echofilter/pull/145>`__)
 
-.. _v1.0.0b1 Changed General:
+.. _v1.0.0b1 Changed Miscellaneous:
 
-General
-^^^^^^^
+Miscellaneous
+^^^^^^^^^^^^^
 
 -   Set Sv values outside the range (-1e37, 1e37) to be NaN (previously values lower than -1e6 were set to NaN).
     (`#140 <https://github.com/DeepSenseCA/echofilter/pull/140>`__)
@@ -860,10 +843,10 @@ Inference
 -   Exporting raw data in ev2csv required more Echoview parameters to be disabled, such as the minimum value threshold.
     (`#100 <https://github.com/DeepSenseCA/echofilter/pull/100>`__)
 
-.. _v1.0.0b1 Fixed General:
+.. _v1.0.0b1 Fixed Miscellaneous:
 
-General
-^^^^^^^
+Miscellaneous
+^^^^^^^^^^^^^
 
 -   Fixed behaviour when loading data from CSVs with different number of depth samples and range of depths for different rows in the CSV file.
     (`#102 <https://github.com/DeepSenseCA/echofilter/pull/102>`__,
@@ -952,10 +935,10 @@ Inference
 -   Add ``--suffix-file`` argument, will allows a suffix common to all the output files to be set.
     (`#152 <https://github.com/DeepSenseCA/echofilter/pull/152>`__)
 
-.. _v1.0.0b1 Added General:
+.. _v1.0.0b1 Added Miscellaneous:
 
-General
-^^^^^^^
+Miscellaneous
+^^^^^^^^^^^^^
 
 -   Add ``-V`` alias for ``--version`` to all command line interfaces.
     (`#84 <https://github.com/DeepSenseCA/echofilter/pull/84>`__)
