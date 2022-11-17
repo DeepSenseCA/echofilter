@@ -60,6 +60,7 @@ provided by Fundy Ocean Research Centre for Energy
     quick_start
     inference_steps
     models
+    citing
     issues
     glossary
 
