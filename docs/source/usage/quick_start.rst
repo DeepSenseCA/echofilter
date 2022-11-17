@@ -109,7 +109,11 @@ same way.
 If this is the case, you can save these arguments to a configuration file,
 and pass the configuration file to echofilter instead.
 
-For example, if you have a file named ``"echofilter_params.cfg"`` with the following contents::
+For example, if you have a file named ``"echofilter_params.cfg"`` with the following contents:
+
+.. code-block:: winbatch
+   :caption: echofilter_params.cfg
+   :name: echofilter_params.cfg
 
     --suffix "_echofilter-model"
     --color-surface "green"
