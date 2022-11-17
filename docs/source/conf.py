@@ -15,9 +15,13 @@
 import datetime
 import os
 import sys
+from inspect import getsourcefile
 
-sys.path.insert(0, os.path.abspath("."))
-sys.path.insert(0, os.path.abspath(".."))
+REPO_DIR = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(getsourcefile(lambda: 0))))
+)
+
+sys.path.insert(0, REPO_DIR)
 
 
 from echofilter import __meta__ as meta  # noqa: E402
@@ -31,6 +35,7 @@ project_path = meta.path
 author = meta.author
 copyright = "{}, {}".format(now.year, author)
 
+PACKAGE_DIR = os.path.join(REPO_DIR, project_path)
 
 # The full version, including alpha/beta/rc tags
 release = meta.version
@@ -43,7 +48,7 @@ version = ".".join(release.split(".")[0:2])
 
 def run_apidoc(_):
     ignore_paths = [
-        os.path.join("..", project_path, "tests"),
+        os.path.join(PACKAGE_DIR, "tests"),
     ]
 
     argv = [
@@ -53,7 +58,7 @@ def run_apidoc(_):
         "--module-first",  # Put module documentation before submodule
         "-o",
         "source/packages",  # Output path
-        os.path.join("..", project_path),
+        os.path.join(PACKAGE_DIR),
     ] + ignore_paths
 
     try:
