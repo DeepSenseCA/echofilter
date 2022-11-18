@@ -78,7 +78,6 @@ def maybe_open_echoview(
 
         with opencom(
             ECHOVIEW_COM_NAME,
-            title="Echoview",
             title_pattern="Echoview.*",
             minimize=minimize,
             hide=hide,
