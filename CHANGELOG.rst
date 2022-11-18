@@ -23,7 +23,7 @@ Release date: 2022-11-16.
 .. _v1.1.1 Fixed:
 
 Fixed
-~~~~~~~
+~~~~~
 
 .. _v1.1.1 Fixed Inference:
 
