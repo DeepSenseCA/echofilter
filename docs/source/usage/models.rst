@@ -9,58 +9,6 @@ command::
 All current checkpoints were trained on data acquired by
 `FORCE <http://fundyforce.ca>`__.
 
-Training Datasets
-~~~~~~~~~~~~~~~~~
-
-Stationary
-^^^^^^^^^^
-
-:data collection:
-    bottom-mounted :term:`stationary`, autonomous
-
-:orientation:
-    uplooking
-
-:echosounder:
-    120 kHz Simrad WBAT
-
-:locations:
-
-    - FORCE tidal power demonstration site, Minas Passage
-
-        - 45°21'47.34"N  64°25'38.94"W
-        - December 2017 through November 2018
-
-    - SMEC, Grand Passage
-
-        - 44°15'49.80"N  66°20'12.60"W
-        - December 2019 through January 2020
-
-:organization:
-    FORCE
-
-Mobile
-^^^^^^
-
-:data collection:
-    vessel-based 24-hour transect surveys
-
-:orientation:
-    downlooking
-
-:echosounder:
-    120 kHz Simrad EK80
-
-:locations:
-
-    -  FORCE tidal power demonstration site, Minas Passage
-
-        - 45°21'57.58"N  64°25'50.97"W
-        - May 2016 through October 2018
-
-:organization:
-    FORCE
-
 .. _Model checkpoints:
 
 Model checkpoints
@@ -151,6 +99,59 @@ echofilter-v0.5_downfacing_300ep
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 -   Trained on :term:`downfacing` :term:`mobile` data only.
+
+
+Training Datasets
+~~~~~~~~~~~~~~~~~
+
+Stationary
+^^^^^^^^^^
+
+:data collection:
+    bottom-mounted :term:`stationary`, autonomous
+
+:orientation:
+    uplooking
+
+:echosounder:
+    120 kHz Simrad WBAT
+
+:locations:
+
+    - FORCE tidal power demonstration site, Minas Passage
+
+        - 45°21'47.34"N  64°25'38.94"W
+        - December 2017 through November 2018
+
+    - SMEC, Grand Passage
+
+        - 44°15'49.80"N  66°20'12.60"W
+        - December 2019 through January 2020
+
+:organization:
+    FORCE
+
+Mobile
+^^^^^^
+
+:data collection:
+    vessel-based 24-hour transect surveys
+
+:orientation:
+    downlooking
+
+:echosounder:
+    120 kHz Simrad EK80
+
+:locations:
+
+    -  FORCE tidal power demonstration site, Minas Passage
+
+        - 45°21'57.58"N  64°25'50.97"W
+        - May 2016 through October 2018
+
+:organization:
+    FORCE
 
 .. raw:: latex
 
