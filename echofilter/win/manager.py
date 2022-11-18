@@ -55,6 +55,7 @@ class WindowManager:
 
     def __init__(self, title=None, class_name=None, title_pattern=None):
         self.handle = None
+        self.handles = []
         if title is not None:
             self.find_window(class_name=class_name, title=title)
         elif title_pattern is not None:
@@ -71,15 +72,18 @@ class WindowManager:
             )
         else:
             self.handle = handle
+            self.handles = [handle]
 
     def _window_enum_callback(self, hwnd, pattern):
         """Pass to win32gui.EnumWindows() to check all the opened windows."""
         if re.match(pattern, str(win32gui.GetWindowText(hwnd))) is not None:
             self.handle = hwnd
+            self.handles.append(hwnd)
 
     def find_window_regex(self, pattern):
         """Find a window whose title matches a regular expression."""
         self.handle = None
+        self.handles = []
         win32gui.EnumWindows(self._window_enum_callback, pattern)
         if self.handle is None:
             raise EnvironmentError(
@@ -94,9 +98,25 @@ class WindowManager:
         """Hide the window."""
         win32gui.ShowWindow(self.handle, win32con.SW_HIDE)
 
+    def hide_all(self):
+        """Hide all the windows."""
+        for hwnd in self.handles:
+            win32gui.ShowWindow(hwnd, win32con.SW_HIDE)
+
     def show(self):
         """Show the window."""
         win32gui.ShowWindow(self.handle, win32con.SW_SHOW)
+
+    def show_all(self):
+        """Show all the windows."""
+        had_error = False
+        for hwnd in self.handles:
+            try:
+                win32gui.ShowWindow(hwnd, win32con.SW_SHOW)
+            except Exception:
+                had_error = True
+        if had_error:
+            raise
 
 
 @contextmanager
@@ -194,7 +214,7 @@ def opencom(
                 winman.find_window_regex(title_pattern)
             except Exception:
                 pass
-        if winman.handle is None:
+        if len(winman.handles) == 0:
             print(
                 ui.style.warning_fmt(
                     "Could not hide {} window with title {}".format(
@@ -203,7 +223,7 @@ def opencom(
                 )
             )
         else:
-            winman.hide()
+            winman.hide_all()
             was_hidden = True
 
     try:
@@ -212,20 +232,32 @@ def opencom(
         # As we leave the context, fix the state of the app to how it was
         # before we started
         command = ""
+        if was_hidden:
+            # Try to show all windows that we hid before
+            command = "unhide"
+            for hwnd in winman.handles:
+                try:
+                    # Show the window again
+                    win32gui.ShowWindow(hwnd, win32con.SW_SHOW)
+                except Exception:
+                    # We'll get an error if the window was already closed
+                    print(
+                        ui.style.warning_fmt(
+                            "Could not {} the {} window with handle {}.".format(
+                                command, win32gui.GetWindowText(hwnd), hwnd
+                            )
+                        )
+                    )
+
         try:
             if not existing_session:
                 # If we opened it, tell the application to quit
                 command = "exit"
                 app.Quit()
-            else:
-                if was_minimized:
-                    # Restore the window from being minimised
-                    command = "restore"
-                    app.Restore()
-                if was_hidden:
-                    # Show the window again
-                    command = "unhide"
-                    winman.show()
+            elif was_minimized:
+                # Restore the window from being minimised
+                command = "restore"
+                app.Restore()
         except Exception:
             # We'll get an error if the application was already closed, etc
             print(
