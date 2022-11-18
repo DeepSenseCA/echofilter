@@ -123,6 +123,7 @@ preceding line does not work.
 
 In the Windows `PowerShell application <PowerShell>`_, the line continuation
 character is  ````` (backtick).
+This is also true of PowerShell scripts, which have the .ps1 extension.
 
 .. code-block:: powershell
 
