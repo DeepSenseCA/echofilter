@@ -109,14 +109,14 @@ or::
 Processing a file and sending the output to a log file instead of the
 terminal::
 
-    echofilter "path/to/file_or_directory" > path/to/log_file.txt 2>&1
+    echofilter "path/to/file_or_directory" > "path/to/log_file.txt" 2>&1
 
 Processing a file and sending the output to a log file as well as the
 terminal by using the ``tee`` command.
 Note that on Windows this works in PowerShell and in PowerShell scripts, but
 not in Windows Command Prompt (cmd) or batch scripts as ``tee`` is not available::
 
-    echofilter "path/to/file_or_directory" 2>&1 | tee path/to/log_file.txt
+    echofilter "path/to/file_or_directory" 2>&1 | tee "path/to/log_file.txt"
 
 
 Config file
