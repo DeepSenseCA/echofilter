@@ -65,7 +65,7 @@ class WindowManager:
         self.handle = None
         self.handles = []
         self.handle_was_visible = {}
-    
+
     def check_handles_visible(self):
         """Check and remember which of self.handles are currently visible."""
         for hwnd in self.handles:
@@ -266,9 +266,7 @@ def opencom(
             try:
                 winman.show_all(only_hidden=True)
             except Exception:
-                print(
-                    ui.style.warning_fmt("Error unhiding window(s).")
-                )
+                print(ui.style.warning_fmt("Error unhiding window(s)."))
         try:
             command = ""
             if not existing_session:
