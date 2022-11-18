@@ -94,6 +94,18 @@ Processing a file with more output messages displayed in the terminal::
 
     echofilter "path/to/file_or_directory" --verbose
 
+or::
+
+    echofilter "path/to/file_or_directory" -v
+
+This can be specified multiple times to elevate the verbosity further::
+
+    echofilter "path/to/file_or_directory" --verbose --verbose --verbose
+
+or::
+
+    echofilter "path/to/file_or_directory" -vvv
+
 Processing a file and sending the output to a log file instead of the
 terminal::
 
