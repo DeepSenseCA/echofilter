@@ -74,7 +74,18 @@ throughout the network. The depth dimension of the input is halved
 (doubled) after each block, whilst the time dimension is halved
 (doubled) every other block.
 
-Details for notable model checkpoints are provided below.
+For details about how the Echofilter models were trained, and our findings about
+their empirical performance, please consult our companion paper:
+
+    SC Lowe, LP McGarry, J Douglas, J Newport, S Oore, C Whidden, DJ Hasselman (2022). Echofilter: A Deep Learning Segmention Model Improves the Automation, Standardization, and Timeliness for Post-Processing Echosounder Data in Tidal Energy Streams. *Front. Mar. Sci.*, **9**, 1–21.
+    doi: |nbsp| `10.3389/fmars.2022.867857 <doi_>`_.
+
+.. |nbsp| unicode:: 0xA0
+   :trim:
+.. _doi: https://www.doi.org/10.3389/fmars.2022.867857
+
+An overview for of notable model checkpoints available in echofilter are
+provided below.
 
 echofilter-v1_bifacing_700ep
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
