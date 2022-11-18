@@ -104,6 +104,12 @@ echofilter-v0.5_downfacing_300ep
 Training Datasets
 ~~~~~~~~~~~~~~~~~
 
+The machine learning model was trained on upfacing stationary and downfacing
+mobile data provided by Fundy Ocean Research Centre for Energy (FORCE).
+The training and evaluation data is
+`available for download <https://data.fundyforce.ca/forceCloud/index.php/s/BzC87LpbGtnFsjT>`__.
+Queries regarding dataset access should be directed to FORCE, info@fundyforce.ca.
+
 Stationary
 ^^^^^^^^^^
 
