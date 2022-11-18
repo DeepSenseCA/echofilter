@@ -1651,23 +1651,47 @@ def import_lines_regions_to_ev(
                             f" {key} line output"
                         )
                     )
-                old_line_edit = old_line.AsLineEditable()
-                if old_line_edit:
-                    # Overwrite the old line with the new line
-                    old_line_edit.OverwriteWith(line)
-                    # Delete the line we imported
-                    lines.Delete(line)
-                    # Update our reference to the line
-                    line = old_line
-                    successful_overwrite = True
-                elif verbose >= 0:
-                    # Line is not editable
-                    s = (
-                        f"Existing line '{target_name}' is not editable and"
-                        " cannot be overwritten."
-                    )
-                    s = echofilter.ui.style.warning_fmt(s)
-                    print(s)
+                try:
+                    old_line_edit = old_line.AsLineEditable()
+                    if old_line_edit:
+                        # Overwrite the old line with the new line
+                        old_line_edit.OverwriteWith(line)
+                        # Delete the line we imported
+                        lines.Delete(line)
+                        # Update our reference to the line
+                        line = old_line
+                        successful_overwrite = True
+                except Exception as err:
+                    if verbose >= 3:
+                        # Line is not editable
+                        s = (
+                            f"An error occurred while trying to overwrite existing line '{target_name}':"
+                            f"\n{old_line_edit}"
+                            f"\n{err}"
+                        )
+                        s = echofilter.ui.style.warning_fmt(s)
+                        print(s)
+                if not successful_overwrite:
+                    try:
+                        # Just delete the old line (seems like a simpler solution)
+                        lines.Delete(old_line)
+                        successful_overwrite = True
+                    except Exception as err:
+                        if verbose >= 3:
+                            # Line could not be deleted
+                            s = (
+                                f"An error occurred while trying to delete existing line '{target_name}':"
+                                f"\n{old_line}"
+                                f"\n{err}"
+                            )
+                            s = echofilter.ui.style.warning_fmt(s)
+                            print(s)
+                if not successful_overwrite and verbose >= 0:
+                    if verbose >= 0:
+                        # Line is not editable
+                        s = f"Existing line '{target_name}' cannot be overwritten."
+                        s = echofilter.ui.style.warning_fmt(s)
+                        print(s)
 
             if old_line and not successful_overwrite:
                 # Change the name so there is no collision
@@ -1788,23 +1812,47 @@ def import_lines_regions_to_ev(
                             f" {key} line output"
                         )
                     )
-                old_line_edit = old_line.AsLineEditable()
-                if old_line_edit:
-                    # Overwrite the old line with the new line
-                    old_line_edit.OverwriteWith(line)
-                    # Delete the line we imported
-                    lines.Delete(line)
-                    # Update our reference to the line
-                    line = old_line
-                    successful_overwrite = True
-                elif verbose >= 0:
-                    # Line is not editable
-                    s = (
-                        f"Existing line '{target_name}' is not editable and"
-                        " cannot be overwritten."
-                    )
-                    s = echofilter.ui.style.warning_fmt(s)
-                    print(s)
+                try:
+                    old_line_edit = old_line.AsLineEditable()
+                    if old_line_edit:
+                        # Overwrite the old line with the new line
+                        old_line_edit.OverwriteWith(line)
+                        # Delete the line we imported
+                        lines.Delete(line)
+                        # Update our reference to the line
+                        line = old_line
+                        successful_overwrite = True
+                except Exception as err:
+                    if verbose >= 3:
+                        # Line is not editable
+                        s = (
+                            f"An error occurred while trying to overwrite existing line '{target_name}':"
+                            f"\n{old_line_edit}"
+                            f"\n{err}"
+                        )
+                        s = echofilter.ui.style.warning_fmt(s)
+                        print(s)
+                if not successful_overwrite:
+                    try:
+                        # Just delete the old line (seems like a simpler solution)
+                        lines.Delete(old_line)
+                        successful_overwrite = True
+                    except Exception as err:
+                        if verbose >= 3:
+                            # Line could not be deleted
+                            s = (
+                                f"An error occurred while trying to delete existing line '{target_name}':"
+                                f"\n{old_line}"
+                                f"\n{err}"
+                            )
+                            s = echofilter.ui.style.warning_fmt(s)
+                            print(s)
+                if not successful_overwrite and verbose >= 0:
+                    if verbose >= 0:
+                        # Line is not editable
+                        s = f"Existing line '{target_name}' cannot be overwritten."
+                        s = echofilter.ui.style.warning_fmt(s)
+                        print(s)
 
             if old_line and not successful_overwrite:
                 # Change the name so there is no collision
