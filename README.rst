@@ -51,7 +51,7 @@ If you encounter a specific problem please `open a new issue`_.
 
 .. _Echoview: https://www.echoview.com/
 .. _doi: https://www.doi.org/10.3389/fmars.2022.867857
-.. _readthedocs: https://echofilter.readthedocs.io/en/stable/usage/
+.. _readthedocs: https://echofilter.readthedocs.io/en/1.2.0/usage/
 .. _open a new issue: https://github.com/DeepSenseCA/echofilter/issues/new
 
 Usage
@@ -76,9 +76,9 @@ argument.
     echofilter --help
 
 For more details, see the
-`Usage Guide <https://echofilter.readthedocs.io/en/stable/usage/>`__,
+`Usage Guide <https://echofilter.readthedocs.io/en/1.2.0/usage/>`__,
 and the
-`command line interface (CLI) reference <https://echofilter.readthedocs.io/en/stable/programs/inference.html>`__
+`command line interface (CLI) reference <https://echofilter.readthedocs.io/en/1.2.0/programs/inference.html>`__
 documentation.
 
 
@@ -97,7 +97,7 @@ For example:
 `echofilter-executable-1.2.0.zip <https://github.com/DeepSenseCA/echofilter/releases/download/1.2.0/echofilter-executable-1.2.0.zip>`__
 
 For more details, see the step-by-step instructions in the
-`Usage Guide <https://echofilter.readthedocs.io/en/stable/usage/installation.html#installing-as-an-executable-file>`__.
+`Usage Guide <https://echofilter.readthedocs.io/en/1.2.0/usage/installation.html#installing-as-an-executable-file>`__.
 
 Note: The precompiled executable has only CPU support, and does not support
 running on GPU.
@@ -174,16 +174,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .. |PyPI badge| image:: https://img.shields.io/pypi/v/echofilter.svg
    :target: https://pypi.org/project/echofilter/
    :alt: Latest PyPI release
-.. |GHA tests| image:: https://github.com/DeepSenseCA/echofilter/workflows/tests/badge.svg
+.. |GHA tests| image:: https://github.com/DeepSenseCA/echofilter/workflows/tests/badge.svg?branch=1.2.0
    :target: https://github.com/DeepSenseCA/echofilter/actions?query=workflow%3Atest
    :alt: GHA Status
 .. |readthedocs| image:: https://img.shields.io/badge/docs-readthedocs-blue
    :target: readthedocs_
    :alt: Documentation
-.. |Documentation| image:: https://readthedocs.org/projects/echofilter/badge/
+.. |Documentation| image:: https://readthedocs.org/projects/echofilter/badge/?version=1.2.0
    :target: readthedocs_
    :alt: Documentation Status
-.. |Codecov| image:: https://codecov.io/gh/DeepSenseCA/echofilter/branch/master/graph/badge.svg?token=BGX2EJ0SSI
+.. |Codecov| image:: https://codecov.io/gh/DeepSenseCA/echofilter/branch/v1.2.x/graph/badge.svg?token=BGX2EJ0SSI
    :target: https://codecov.io/gh/DeepSenseCA/echofilter
    :alt: Coverage
 .. |DOI badge| image:: https://img.shields.io/badge/DOI-10.3389/fmars.2022.867857-blue.svg
