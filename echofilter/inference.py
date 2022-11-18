@@ -1651,7 +1651,7 @@ def import_lines_regions_to_ev(
                             f" {key} line output"
                         )
                     )
-                old_line_edit = old_line.AsLineEditable
+                old_line_edit = old_line.AsLineEditable()
                 if old_line_edit:
                     # Overwrite the old line with the new line
                     old_line_edit.OverwriteWith(line)
@@ -1788,7 +1788,7 @@ def import_lines_regions_to_ev(
                             f" {key} line output"
                         )
                     )
-                old_line_edit = old_line.AsLineEditable
+                old_line_edit = old_line.AsLineEditable()
                 if old_line_edit:
                     # Overwrite the old line with the new line
                     old_line_edit.OverwriteWith(line)
