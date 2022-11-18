@@ -66,16 +66,16 @@ overwriting files already processed::
     echofilter "C:\Users\Bob\Documents\MobileSurveyData\Survey11" --no-surface --force
 
 Ignoring all :term:`bad data regions` (default),
-using ``^`` to break up the long command into multiple lines for Windows cmd::
+using ````` to break up the long command into multiple lines in PowerShell::
 
-    echofilter "path/to/file_or_directory" ^
-        --minimum-removed-length -1 ^
+    echofilter "path/to/file_or_directory" `
+        --minimum-removed-length -1 `
         --minimum-patch-area -1
 
 Including :term:`bad data regions` in the :term:`EVR` output::
 
-    echofilter "path/to/file_or_directory" ^
-        --minimum-removed-length 10 ^
+    echofilter "path/to/file_or_directory" `
+        --minimum-removed-length 10 `
         --minimum-patch-area 25
 
 Keep line predictions during :term:`passive<passive data>` periods (default
@@ -85,9 +85,9 @@ is to linearly interpolate lines during passive data collection)::
 
 Specifying file and variable suffix, and line colours and thickness::
 
-    echofilter "path/to/file_or_directory" ^
-        --suffix "_echofilter-model" ^
-        --color-surface "green" --thickness-surface 4 ^
+    echofilter "path/to/file_or_directory" `
+        --suffix "_echofilter-model" `
+        --color-surface "green" --thickness-surface 4 `
         --color-nearfield "red" --thickness-nearfield 3
 
 Processing a file with more output messages displayed in the terminal::
