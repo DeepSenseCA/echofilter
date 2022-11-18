@@ -33,7 +33,7 @@ Trailing backslash
 
 The backslash (``\``) character is an
 `escape character <https://en.wikipedia.org/wiki/Escape_character>`__,
-used to give alternative meanings to symbols with special meanings.
+in Python used to give alternative meanings to symbols with special meanings.
 For example, the quote characters ``"`` and ``'`` indicate the start or end
 of a string but can be escaped to obtain a literal quote character.
 
