@@ -105,8 +105,10 @@ def cannonise_checkpoint_name(name):
 class ListCheckpoints(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
         print("Currently available model checkpoints:")
-        for checkpoint in get_checkpoint_list():
-            if checkpoint == get_default_checkpoint():
+        default_checkpoint = get_default_checkpoint()
+        checkpoints = get_checkpoint_list()
+        for checkpoint in checkpoints:
+            if checkpoint == default_checkpoint:
                 print("  * " + style.progress_fmt(checkpoint))
             else:
                 print("    " + checkpoint)
@@ -116,6 +118,13 @@ class ListCheckpoints(argparse.Action):
 def get_default_cache_dir():
     """Determine the default cache directory."""
     return appdirs.user_cache_dir("echofilter", "DeepSense")
+
+
+class ShowCacheDir(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string):
+        print("Downloaded model checkpoints are cached in:")
+        print(get_default_cache_dir())
+        parser.exit()  # exits the program with no more arg parsing and checking
 
 
 def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
@@ -147,6 +156,28 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
     if os.path.exists(destination):
         return destination
 
+    checkpoint_resources = get_checkpoint_list()
+    if checkpoint_name in checkpoint_resources:
+        sources = checkpoint_resources[checkpoint_name]
+    else:
+        for key, sources in checkpoint_resources.items():
+            if checkpoint_name in sources.get("aliases", []):
+                checkpoint_name = key
+                break
+        else:
+            msg = style.error_fmt(
+                "The checkpoint parameter should either be a path to a file or one of:"
+            )
+            msg += "\n  ".join([""] + list(checkpoint_resources.keys()))
+            msg += style.error_fmt("\nbut '{}' was provided.".format(checkpoint_name))
+            with style.error_message():
+                raise ValueError(msg)
+
+    destination = os.path.join(cache_dir, checkpoint_name + CHECKPOINT_EXT)
+
+    if os.path.exists(destination):
+        return destination
+
     # Import packages needed for downloading files
     import urllib
 
@@ -155,7 +186,9 @@ def download_checkpoint(checkpoint_name, cache_dir=None, verbose=1):
 
     os.makedirs(cache_dir, exist_ok=True)
 
-    sources = get_checkpoint_list()[checkpoint_name]
+    if "aliases" in sources:
+        sources.pop("aliases")
+
     success = False
     for key, url_or_id in sources.items():
         if key == "gdrive":
@@ -266,7 +299,7 @@ def load_checkpoint(
         cache_dir = get_default_cache_dir()
 
     ckpt_name_cannon = cannonise_checkpoint_name(ckpt_name)
-    checkpoint_resources = get_checkpoint_list()
+
     builtin_ckpt_path_a = os.path.join(
         PACKAGE_DIR,
         "checkpoints",
@@ -291,20 +324,12 @@ def load_checkpoint(
     elif os.path.isfile(builtin_ckpt_path_b):
         ckpt_path = builtin_ckpt_path_b
         ckpt_dscr = "builtin"
-    elif ckpt_name_cannon in checkpoint_resources:
+    else:
         using_cache = True
         ckpt_path = download_checkpoint(
             ckpt_name_cannon, cache_dir=cache_dir, verbose=verbose
         )
         ckpt_dscr = "cached"
-    else:
-        msg = style.error_fmt(
-            "The checkpoint parameter should either be a path to a file or one of"
-        )
-        msg += "\n  ".join([""] + list(checkpoint_resources.keys()))
-        msg += style.error_fmt("\nbut {} was provided.".format(ckpt_name))
-        with style.error_message():
-            raise ValueError(msg)
 
     if not os.path.isfile(ckpt_path):
         msg = "No checkpoint found at '{}'".format(ckpt_path)

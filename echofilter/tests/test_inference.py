@@ -90,7 +90,7 @@ class test_hexcolor2rgb8(BaseTestCase):
     def test_hexcolor2rgb8_pass(self):
         input = (0.5, 0.5, 0.5)
         out = inference.hexcolor2rgb8(input)
-        self.assertEqual(out, input)
+        self.assertEqual(out, (128, 128, 128))
 
     def test_hexcolor2rgb8_white(self):
         input = "#ffffff"
@@ -385,6 +385,10 @@ class test_cli(BaseTestCase):
         with pytest.raises(SystemExit):
             inference_cli.cli(["-V"])
 
+    def test_show_cache_dir(self):
+        with pytest.raises(SystemExit):
+            inference_cli.cli(["--show-cache-dir"])
+
     def test_show_checkpoints(self):
         with pytest.raises(SystemExit):
             inference_cli.cli(["--list-checkpoints"])
@@ -392,6 +396,14 @@ class test_cli(BaseTestCase):
     def test_show_colors(self):
         with pytest.raises(SystemExit):
             inference_cli.cli(["--list-colors"])
+
+    def test_show_colors_alpha(self):
+        with pytest.raises(SystemExit):
+            inference_cli.cli(["--list-colors=alphabetic"])
+
+    def test_show_colors_full(self):
+        with pytest.raises(SystemExit):
+            inference_cli.cli(["--list-colors=full"])
 
     def test_dryrun(self):
         inference_cli.cli([self.resource_directory, "--dry-run"])

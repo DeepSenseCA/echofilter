@@ -66,16 +66,16 @@ overwriting files already processed::
     echofilter "C:\Users\Bob\Documents\MobileSurveyData\Survey11" --no-surface --force
 
 Ignoring all :term:`bad data regions` (default),
-using ``^`` to break up the long command into multiple lines for Windows cmd::
+using ````` to break up the long command into multiple lines in PowerShell::
 
-    echofilter "path/to/file_or_directory" ^
-        --minimum-removed-length -1 ^
+    echofilter "path/to/file_or_directory" `
+        --minimum-removed-length -1 `
         --minimum-patch-area -1
 
 Including :term:`bad data regions` in the :term:`EVR` output::
 
-    echofilter "path/to/file_or_directory" ^
-        --minimum-removed-length 10 ^
+    echofilter "path/to/file_or_directory" `
+        --minimum-removed-length 10 `
         --minimum-patch-area 25
 
 Keep line predictions during :term:`passive<passive data>` periods (default
@@ -85,19 +85,38 @@ is to linearly interpolate lines during passive data collection)::
 
 Specifying file and variable suffix, and line colours and thickness::
 
-    echofilter "path/to/file_or_directory" ^
-        --suffix "_echofilter-model" ^
-        --color-surface "green" --thickness-surface 4 ^
+    echofilter "path/to/file_or_directory" `
+        --suffix "_echofilter-model" `
+        --color-surface "green" --thickness-surface 4 `
         --color-nearfield "red" --thickness-nearfield 3
 
 Processing a file with more output messages displayed in the terminal::
 
     echofilter "path/to/file_or_directory" --verbose
 
+or::
+
+    echofilter "path/to/file_or_directory" -v
+
+This can be specified multiple times to elevate the verbosity further::
+
+    echofilter "path/to/file_or_directory" --verbose --verbose --verbose
+
+or::
+
+    echofilter "path/to/file_or_directory" -vvv
+
 Processing a file and sending the output to a log file instead of the
 terminal::
 
-    echofilter "path/to/file_or_directory" -v > path/to/log_file.txt 2>&1
+    echofilter "path/to/file_or_directory" > "path/to/log_file.txt" 2>&1
+
+Processing a file and sending the output to a log file as well as the
+terminal by using the ``tee`` command.
+Note that on Windows this works in PowerShell and in PowerShell scripts, but
+not in Windows Command Prompt (cmd) or batch scripts as ``tee`` is not available::
+
+    echofilter "path/to/file_or_directory" 2>&1 | tee "path/to/log_file.txt"
 
 
 Config file

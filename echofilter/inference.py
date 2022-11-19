@@ -1521,7 +1521,7 @@ def import_lines_regions_to_ev(
         print(f"Importing {len(files)} lines/regions into EV file {ev_fname}")
 
     # Assemble the color palette
-    colors = get_color_palette()
+    colors = get_color_palette(sort_colors=False)
 
     dtstr = datetime.datetime.now().isoformat(timespec="seconds")
 
@@ -1651,23 +1651,47 @@ def import_lines_regions_to_ev(
                             f" {key} line output"
                         )
                     )
-                old_line_edit = old_line.AsLineEditable
-                if old_line_edit:
-                    # Overwrite the old line with the new line
-                    old_line_edit.OverwriteWith(line)
-                    # Delete the line we imported
-                    lines.Delete(line)
-                    # Update our reference to the line
-                    line = old_line
-                    successful_overwrite = True
-                elif verbose >= 0:
-                    # Line is not editable
-                    s = (
-                        f"Existing line '{target_name}' is not editable and"
-                        " cannot be overwritten."
-                    )
-                    s = echofilter.ui.style.warning_fmt(s)
-                    print(s)
+                try:
+                    old_line_edit = old_line.AsLineEditable()
+                    if old_line_edit:
+                        # Overwrite the old line with the new line
+                        old_line_edit.OverwriteWith(line)
+                        # Delete the line we imported
+                        lines.Delete(line)
+                        # Update our reference to the line
+                        line = old_line
+                        successful_overwrite = True
+                except Exception as err:
+                    if verbose >= 3:
+                        # Line is not editable
+                        s = (
+                            f"An error occurred while trying to overwrite existing line '{target_name}':"
+                            f"\n{old_line_edit}"
+                            f"\n{err}"
+                        )
+                        s = echofilter.ui.style.warning_fmt(s)
+                        print(s)
+                if not successful_overwrite:
+                    try:
+                        # Just delete the old line (seems like a simpler solution)
+                        lines.Delete(old_line)
+                        successful_overwrite = True
+                    except Exception as err:
+                        if verbose >= 3:
+                            # Line could not be deleted
+                            s = (
+                                f"An error occurred while trying to delete existing line '{target_name}':"
+                                f"\n{old_line}"
+                                f"\n{err}"
+                            )
+                            s = echofilter.ui.style.warning_fmt(s)
+                            print(s)
+                if not successful_overwrite and verbose >= 0:
+                    if verbose >= 0:
+                        # Line is not editable
+                        s = f"Existing line '{target_name}' cannot be overwritten."
+                        s = echofilter.ui.style.warning_fmt(s)
+                        print(s)
 
             if old_line and not successful_overwrite:
                 # Change the name so there is no collision
@@ -1788,23 +1812,47 @@ def import_lines_regions_to_ev(
                             f" {key} line output"
                         )
                     )
-                old_line_edit = old_line.AsLineEditable
-                if old_line_edit:
-                    # Overwrite the old line with the new line
-                    old_line_edit.OverwriteWith(line)
-                    # Delete the line we imported
-                    lines.Delete(line)
-                    # Update our reference to the line
-                    line = old_line
-                    successful_overwrite = True
-                elif verbose >= 0:
-                    # Line is not editable
-                    s = (
-                        f"Existing line '{target_name}' is not editable and"
-                        " cannot be overwritten."
-                    )
-                    s = echofilter.ui.style.warning_fmt(s)
-                    print(s)
+                try:
+                    old_line_edit = old_line.AsLineEditable()
+                    if old_line_edit:
+                        # Overwrite the old line with the new line
+                        old_line_edit.OverwriteWith(line)
+                        # Delete the line we imported
+                        lines.Delete(line)
+                        # Update our reference to the line
+                        line = old_line
+                        successful_overwrite = True
+                except Exception as err:
+                    if verbose >= 3:
+                        # Line is not editable
+                        s = (
+                            f"An error occurred while trying to overwrite existing line '{target_name}':"
+                            f"\n{old_line_edit}"
+                            f"\n{err}"
+                        )
+                        s = echofilter.ui.style.warning_fmt(s)
+                        print(s)
+                if not successful_overwrite:
+                    try:
+                        # Just delete the old line (seems like a simpler solution)
+                        lines.Delete(old_line)
+                        successful_overwrite = True
+                    except Exception as err:
+                        if verbose >= 3:
+                            # Line could not be deleted
+                            s = (
+                                f"An error occurred while trying to delete existing line '{target_name}':"
+                                f"\n{old_line}"
+                                f"\n{err}"
+                            )
+                            s = echofilter.ui.style.warning_fmt(s)
+                            print(s)
+                if not successful_overwrite and verbose >= 0:
+                    if verbose >= 0:
+                        # Line is not editable
+                        s = f"Existing line '{target_name}' cannot be overwritten."
+                        s = echofilter.ui.style.warning_fmt(s)
+                        print(s)
 
             if old_line and not successful_overwrite:
                 # Change the name so there is no collision
@@ -1904,7 +1952,7 @@ def import_lines_regions_to_ev(
         ev_file.Save()
 
 
-def get_color_palette(include_xkcd=True):
+def get_color_palette(include_xkcd=True, sort_colors=True):
     """
     Provide a mapping of named colors from matplotlib.
 
@@ -1917,6 +1965,9 @@ def get_color_palette(include_xkcd=True):
         See https://xkcd.com/color/rgb/ and
         https://blog.xkcd.com/2010/05/03/color-survey-results/
         for the XKCD colors.
+    sort_colors : bool, default=True
+        Whether to sort the colors by hue. Otherwise the colors are grouped
+        together by source, and maintain their default ordering (alphabetized).
 
     Returns
     -------
@@ -1927,6 +1978,18 @@ def get_color_palette(include_xkcd=True):
     colors = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
     if include_xkcd:
         colors.update(**mcolors.XKCD_COLORS)
+
+    if not sort_colors:
+        return colors
+
+    # Sort colors by hue, saturation, value and name
+    by_hsv = sorted(
+        (tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(color))), name)
+        for name, color in colors.items()
+    )
+    names = [name for hsv, name in by_hsv]
+    colors = {name: colors[name] for name in names}
+
     return colors
 
 
@@ -1948,6 +2011,11 @@ def hexcolor2rgb8(color):
     """
     if isinstance(color, str) and color[0] == "#":
         color = mcolors.to_rgba(color)[:3]
+    if (
+        isinstance(color, tuple)
+        and any(isinstance(c, float) for c in color)
+        or all(c <= 1 for c in color)
+    ):
         color = tuple(max(0, min(255, int(np.round(c * 255)))) for c in color)
     return color
 
