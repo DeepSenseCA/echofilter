@@ -13,6 +13,75 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
+Version `1.2.0 <https://github.com/DeepSenseCA/echofilter/tree/1.2.0>`__
+------------------------------------------------------------------------
+
+Release date: 2022-11-18.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.1.1...1.2.0>`__.
+
+
+.. _v1.2.0 Changed:
+
+Changed
+~~~~~~~
+
+.. _v1.2.0 Changed Inference:
+
+Inference
+^^^^^^^^^
+
+-   The checkpoints have been renamed to a simpler structure: ``echofilter-v{MAJOR}_{ORIENTATION}_ep{EPOCHS}``.
+    For example, the current default checkpoint is now named as ``"echofilter-v1_bifacing_700ep"``.
+    This is in keeping with the format used in the manuscript.
+    The previous names for the checkpoints will still work (as an alias to the new names).
+    (`#330 <https://github.com/DeepSenseCA/echofilter/pull/330>`__)
+-   The ordering of the colour palette listing produced by ``--show-colors`` has changed.
+    By default, the colours are now ordered by hue (subsorted by value) instead of sorted alphabetically.
+    The previous default behaviour can be obtained by using the new "alphabetic" argument: ``--show-colors "alphabetic"``.
+    (`#322 <https://github.com/DeepSenseCA/echofilter/pull/322>`__)
+
+
+.. _v1.2.0 Fixed:
+
+Fixed
+~~~~~
+
+.. _v1.2.0 Fixed Inference:
+
+Inference
+^^^^^^^^^
+
+-   Fix a bug with Echoview interaction which was causing the code to fail when overwriting an existing line in the EV file.
+    (`#332 <https://github.com/DeepSenseCA/echofilter/pull/332>`__)
+-   Fix hiding the Echoview window while echofilter is running and interacting with Echoview.
+    This bug was first seen when using Echoview 13, and was not affecting interactions with Echoview 10 or 11.
+    (`#328 <https://github.com/DeepSenseCA/echofilter/pull/328>`__)
+
+.. _v1.2.0 Fixed Metadata:
+
+Metadata
+^^^^^^^^
+
+-   Add missing ``requests`` package to requirements.
+    (`#320 <https://github.com/DeepSenseCA/echofilter/pull/320>`__)
+
+
+.. _v1.2.0 Added:
+
+Added
+~~~~~
+
+.. _v1.2.0 Added Inference:
+
+Inference
+^^^^^^^^^
+
+-   Add API option ``--show-cache-dir``, which shows the path to the directory in which downloaded checkpoints will be cached.
+    (`#321 <https://github.com/DeepSenseCA/echofilter/pull/321>`__)
+-   Add ``"alphabetic"`` and ``"full-alphabetic"`` options to ``--show-colors`` which let the colours be sorted by alphabetically, instead of by hue.
+    (`#322 <https://github.com/DeepSenseCA/echofilter/pull/322>`__)
+
+
 Version `1.1.1 <https://github.com/DeepSenseCA/echofilter/tree/1.1.1>`__
 ------------------------------------------------------------------------
 
@@ -23,7 +92,7 @@ Release date: 2022-11-16.
 .. _v1.1.1 Fixed:
 
 Fixed
-~~~~~~~
+~~~~~
 
 .. _v1.1.1 Fixed Inference:
 
