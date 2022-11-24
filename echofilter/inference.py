@@ -1708,7 +1708,7 @@ def import_lines_regions_to_ev(
                 line.Name = target_name
 
             if verbose >= 2:
-                print(f"  Added offset {key} line '{line.Name}'")
+                print(f"  Added {key} line '{line.Name}'")
 
             # Change the color and thickness of the line
             change_line_color_thickness(
