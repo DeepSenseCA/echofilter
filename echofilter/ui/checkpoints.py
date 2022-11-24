@@ -300,31 +300,29 @@ def load_checkpoint(
 
     ckpt_name_cannon = cannonise_checkpoint_name(ckpt_name)
 
-    builtin_ckpt_path_a = os.path.join(
-        PACKAGE_DIR,
-        "checkpoints",
-        os.path.split(ckpt_name)[1],
-    )
-    builtin_ckpt_path_b = os.path.join(
-        PACKAGE_DIR,
-        "checkpoints",
-        ckpt_name_cannon + CHECKPOINT_EXT,
-    )
+    builtin_ckpt_paths = [
+        os.path.join(PACKAGE_DIR, "checkpoints", os.path.split(ckpt_name)[1]),
+        os.path.join(REPO_DIR, "checkpoints", os.path.split(ckpt_name)[1]),
+        os.path.join(PACKAGE_DIR, "checkpoints", ckpt_name_cannon + CHECKPOINT_EXT),
+        os.path.join(REPO_DIR, "checkpoints", ckpt_name_cannon + CHECKPOINT_EXT),
+    ]
 
     using_cache = False
+    ckpt_path = None
     if os.path.isfile(ckpt_name):
         ckpt_path = ckpt_name
         ckpt_dscr = "local"
     elif os.path.isfile(ckpt_name + CHECKPOINT_EXT):
         ckpt_path = ckpt_name + CHECKPOINT_EXT
         ckpt_dscr = "local"
-    elif os.path.isfile(builtin_ckpt_path_a):
-        ckpt_path = builtin_ckpt_path_a
-        ckpt_dscr = "builtin"
-    elif os.path.isfile(builtin_ckpt_path_b):
-        ckpt_path = builtin_ckpt_path_b
-        ckpt_dscr = "builtin"
     else:
+        for pth in builtin_ckpt_paths:
+            if os.path.isfile(pth):
+                ckpt_path = pth
+                ckpt_dscr = "builtin"
+                break
+
+    if ckpt_path is None:
         using_cache = True
         ckpt_path = download_checkpoint(
             ckpt_name_cannon, cache_dir=cache_dir, verbose=verbose
