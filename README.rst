@@ -94,7 +94,7 @@ To install this, download and unzip the echofilter-executable-M.N.P.zip file
 from the latest release in the
 `releases tab <https://github.com/DeepSenseCA/echofilter/releases>`__.
 For example:
-`echofilter-executable-1.2.0.zip <https://github.com/DeepSenseCA/echofilter/releases/download/1.2.0/echofilter-executable-1.2.0.zip>`__
+`echofilter-executable-1.2.1.zip <https://github.com/DeepSenseCA/echofilter/releases/download/1.2.1/echofilter-executable-1.2.1.zip>`__
 
 For more details, see the step-by-step instructions in the
 `Usage Guide <https://echofilter.readthedocs.io/en/stable/usage/installation.html#installing-as-an-executable-file>`__.
