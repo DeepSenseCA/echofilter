@@ -1114,6 +1114,15 @@ def cli(args=None):
     kwargs["verbose"] -= kwargs.pop("quiet", 0)
 
     if kwargs["verbose"] >= 2:
+        import echofilter.ui.style
+
+        print(
+            echofilter.ui.style.aside_fmt(
+                f"Running Echofilter inference routine, version {__meta__.version}"
+            )
+        )
+
+    if kwargs["verbose"] >= 2:
         parser.print_values()
 
     if kwargs.pop("force"):

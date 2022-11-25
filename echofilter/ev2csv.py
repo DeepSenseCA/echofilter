@@ -25,6 +25,7 @@ import warnings
 
 from tqdm.auto import tqdm
 
+import echofilter
 import echofilter.path
 import echofilter.ui
 import echofilter.utils
@@ -602,6 +603,15 @@ def main(args=None):
     parser = get_parser()
     kwargs = vars(parser.parse_args(args))
     kwargs["verbose"] -= kwargs.pop("quiet", 0)
+
+    if kwargs["verbose"] >= 2:
+        import echofilter.ui.style
+
+        print(
+            echofilter.ui.style.aside_fmt(
+                f"Running ev2csv routine, version {echofilter.__version__}"
+            )
+        )
 
     if kwargs["hide_echoview"] is None:
         kwargs["hide_echoview"] = "never" if kwargs["minimize_echoview"] else "new"
