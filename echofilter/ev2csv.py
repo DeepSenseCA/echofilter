@@ -79,6 +79,9 @@ def run_ev2csv(
         are temporarily disabled before exporting the CSV, in order to ensure
         all raw data is exported. If ``False``, thresholds and exclusions are
         used as per the EV file.
+
+        .. versionadded:: 1.1.0
+
     source_dir : str, optional
         Path to directory where files are found. Default is ``"."``.
     recursive_dir_search : bool, optional
