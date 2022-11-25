@@ -27,6 +27,7 @@ import sys
 import tempfile
 import textwrap
 import time
+import warnings
 
 import numpy as np
 import torch
@@ -119,8 +120,8 @@ def run_inference(
     force_unconditioned=False,
     logit_smoothing_sigma=0,
     device=None,
-    hide_echoview="new",
-    minimize_echoview=False,
+    hide_echoview="never",
+    minimize_echoview=True,
     verbose=2,
 ):
     """
@@ -159,6 +160,9 @@ def run_inference(
         If ``True``, perform a trial run with no changes made.
     continue_on_error : bool, default=False
         Continue running on remaining files if one file hits an error.
+
+        .. versionadded:: 1.1.0
+
     overwrite_existing : bool, default=False
         Overwrite existing outputs without producing a warning message. If
         ``False``, an error is generated if files would be overwritten.
@@ -361,6 +365,9 @@ def run_inference(
         are temporarily disabled before exporting the CSV, in order to ensure
         all raw data is exported. If ``False``, thresholds and exclusions are
         used as per the EV file.
+
+        .. versionadded:: 1.1.0
+
     row_len_selector : str, default="mode"
         Method used to handle input csv files with different number of Sv
         values across time (i.e. a non-rectangular input).
@@ -380,10 +387,16 @@ def run_inference(
         the data normalisation (Gaussian standardisation) step.
         By default, NaNs are left as they are until after standardising the
         data.
+
+        .. versionadded:: 1.1.0
+
     postnorm_nan_value : float, optional
         Placeholder value to replace NaNs with. Does nothing if
         ``prenorm_nan_value`` is set. By default this is set to the
         value used to train the model.
+
+        .. versionadded:: 1.1.0
+
     crop_min_depth : float, optional
         Minimum depth to include in input. By default, there is no
         minimum depth.
@@ -409,20 +422,35 @@ def run_inference(
     logit_smoothing_sigma : float, optional
         Standard deviation over which logits will be smoothed before being
         converted into output. Disabled by default.
+
+        .. versionchanged:: 1.1.0
+            The default logit smoothing value changed from ``1`` (enabled) to
+            ``0`` (disabled).
+
     device : str or torch.device, optional
         Name of device on which the model will be run. By default, the first
         available CUDA GPU is used if any are found, and otherwise the CPU is
         used. Set to ``"cpu"`` to use the CPU even if a CUDA GPU is available.
-    hide_echoview : {"never", "new", "always"}, default="new"
+    hide_echoview : {"never", "new", "always"}, default="never"
         Whether to hide the Echoview window entirely while the code runs.
         If ``hide_echoview="new"``, the application is only hidden if it
         was created by this function, and not if it was already running.
         If ``hide_echoview="always"``, the application is hidden even if it was
         already running. In the latter case, the window will be revealed again
         when this function is completed.
-    minimize_echoview : bool, default=False
-        If ``True``, the Echoview window being used will be minimized while this
-        function is running.
+
+        .. warning::
+            Hiding Echoview has been found to cause problems when using
+            Echoview 13 and above.
+            For more details, see `#337 <https://github.com/DeepSenseCA/echofilter/pull/337>`__.
+
+        .. deprecated:: 1.2.1
+           Support for hiding echoview during inference will be dropped in a
+           future release.
+
+    minimize_echoview : bool, default=True
+        If ``True`` (default), the Echoview window being used will be minimized
+        while this function is running.
     verbose : int, default=2
         Verbosity level.
         Set to ``0`` to disable print statements, or elevate to a higher number
@@ -442,6 +470,19 @@ def run_inference(
         " interface, use the --force flag) to overwrite existing"
         " outputs."
     )
+
+    if hide_echoview != "never":
+        warnings.warn(
+            "Hiding Echoview during inference is deprecated.", DeprecationWarning
+        )
+        if verbose >= 0:
+            s = (
+                "Warning: Hiding Echoview may result in unwanted side-effects."
+                "\nFor details, see https://github.com/DeepSenseCA/echofilter/issues/337"
+                "\nWarning: Hiding Echoview during inference is deprecated."
+            )
+            s = echofilter.ui.style.warning_fmt(s)
+            print(s)
 
     if verbose >= 1:
         print(
@@ -1708,7 +1749,7 @@ def import_lines_regions_to_ev(
                 line.Name = target_name
 
             if verbose >= 2:
-                print(f"  Added offset {key} line '{line.Name}'")
+                print(f"  Added {key} line '{line.Name}'")
 
             # Change the color and thickness of the line
             change_line_color_thickness(
@@ -1869,7 +1910,7 @@ def import_lines_regions_to_ev(
                 line.Name = target_name
 
             if verbose >= 2:
-                print(f"  Added offset {key} line '{line.Name}'")
+                print(f"  Added {offset}m offset {key} line '{line.Name}'")
 
             # Change the color and thickness of the line
             change_line_color_thickness(

@@ -25,6 +25,7 @@ import warnings
 
 from tqdm.auto import tqdm
 
+import echofilter
 import echofilter.path
 import echofilter.ui
 import echofilter.utils
@@ -55,8 +56,8 @@ def run_ev2csv(
     keep_ext=False,
     skip_existing=False,
     overwrite_existing=False,
-    minimize_echoview=False,
-    hide_echoview="new",
+    minimize_echoview=True,
+    hide_echoview="never",
     verbose=1,
     dry_run=False,
 ):
@@ -78,6 +79,9 @@ def run_ev2csv(
         are temporarily disabled before exporting the CSV, in order to ensure
         all raw data is exported. If ``False``, thresholds and exclusions are
         used as per the EV file.
+
+        .. versionadded:: 1.1.0
+
     source_dir : str, optional
         Path to directory where files are found. Default is ``"."``.
     recursive_dir_search : bool, optional
@@ -106,16 +110,16 @@ def run_ev2csv(
     overwrite_existing : bool, optional
         Whether to overwrite existing output files. If ``False`` (default), an
         error is raised if the destination file already exists.
-    minimize_echoview : bool, optional
-        If ``True``, the Echoview window being used will be minimized while this
-        function is running. Default is ``False``.
-    hide_echoview : {"never", "new", "always"}, optional
+    minimize_echoview : bool, default=True
+        If ``True`` (default), the Echoview window being used will be minimized
+        while this function is running.
+    hide_echoview : {"never", "new", "always"}, default="never"
         Whether to hide the Echoview window entirely while the code runs.
         If ``hide_echoview="new"``, the application is only hidden if it
         was created by this function, and not if it was already running.
         If ``hide_echoview="always"``, the application is hidden even if it was
         already running. In the latter case, the window will be revealed again
-        when this function is completed. Default is ``"new"``.
+        when this function is completed.
     verbose : int, optional
         Level of verbosity. Default is ``1``.
     dry_run : bool, optional
@@ -519,7 +523,7 @@ def get_parser():
         help="""
             Hide any Echoview window spawned by this program. If it must use
             an Echoview instance which was already running, that window is not
-            hidden. This is the default behaviour.
+            hidden.
         """,
     )
     group_evwin_hiding.add_argument(
@@ -529,8 +533,7 @@ def get_parser():
         const="never",
         default=None,
         help="""
-            Don't hide an Echoview window created to run this code. (Disables
-            the default behaviour which is equivalent to ``--hide-echoview``.)
+            Don't hide or minimize an Echoview window created to run this code.
         """,
     )
     group_evwin_hiding.add_argument(
@@ -551,8 +554,7 @@ def get_parser():
         help="""
             Minimize any Echoview window used to runs this code while it runs.
             The window will be restored once the program is finished.
-            If this argument is supplied, ``--show-echoview`` is implied unless
-            ``--hide-echoview`` is also given.
+            This is the default behaviour.
         """,
     )
 
@@ -603,8 +605,27 @@ def main(args=None):
     kwargs = vars(parser.parse_args(args))
     kwargs["verbose"] -= kwargs.pop("quiet", 0)
 
+    if kwargs["verbose"] >= 2:
+        import echofilter.ui.style
+
+        print(
+            echofilter.ui.style.aside_fmt(
+                f"Running ev2csv routine, version {echofilter.__version__}"
+            )
+        )
+
     if kwargs["hide_echoview"] is None:
-        kwargs["hide_echoview"] = "never" if kwargs["minimize_echoview"] else "new"
+        kwargs["hide_echoview"] = "never"
+        kwargs["minimize_echoview"] = True
+    elif kwargs["minimize_echoview"] is None:
+        kwargs["minimize_echoview"] = False
+
+    if kwargs["verbose"] >= 3:
+        import pprint
+
+        print("\nFull list of keyword arguments:")
+        pprint.pprint(kwargs)
+        print("")
 
     run_ev2csv(**kwargs)
 

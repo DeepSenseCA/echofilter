@@ -20,7 +20,7 @@ dependencies are packaged as part of the distribution.
    c. Click on the file named echofilter-executable-M.N.P.zip, where M.N.P is
       replaced with the version number, to download it.
       For example:
-      `echofilter-executable-1.2.0.zip <https://github.com/DeepSenseCA/echofilter/releases/download/1.2.0/echofilter-executable-1.2.0.zip>`__
+      `echofilter-executable-1.2.1.zip <https://github.com/DeepSenseCA/echofilter/releases/download/1.2.1/echofilter-executable-1.2.1.zip>`__
 
       Alternatively, the zipped executables can be downloaded from a mirror on
       `GDrive <https://drive.google.com/open?id=1Vq_fVNGzFGwyqHxigX-5maW9UmXfwdOk>`__.

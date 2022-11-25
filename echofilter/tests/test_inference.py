@@ -410,3 +410,9 @@ class test_cli(BaseTestCase):
 
     def test_dryrun_short(self):
         inference_cli.cli([self.resource_directory, "-n"])
+
+    def test_dryrun_quiet(self):
+        inference_cli.cli([self.resource_directory, "-nqq"])
+
+    def test_dryrun_verbose(self):
+        inference_cli.cli([self.resource_directory, "-nvvvv"])
