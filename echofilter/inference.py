@@ -443,6 +443,16 @@ def run_inference(
         " outputs."
     )
 
+    if hide_echoview != "never":
+        if verbose >= 0:
+            s = (
+                "Warning: Hiding Echoview may result in unwanted side-effects."
+                "\nFor details, see https://github.com/DeepSenseCA/echofilter/issues/337"
+                "\nWarning: Hiding Echoview during inference is deprecated."
+            )
+            s = echofilter.ui.style.warning_fmt(s)
+            print(s)
+
     if verbose >= 1:
         print(
             progress_fmt(
