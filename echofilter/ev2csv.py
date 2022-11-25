@@ -616,6 +616,13 @@ def main(args=None):
     if kwargs["hide_echoview"] is None:
         kwargs["hide_echoview"] = "never" if kwargs["minimize_echoview"] else "new"
 
+    if kwargs["verbose"] >= 3:
+        import pprint
+
+        print("\nFull list of keyword arguments:")
+        pprint.pprint(kwargs)
+        print("")
+
     run_ev2csv(**kwargs)
 
 

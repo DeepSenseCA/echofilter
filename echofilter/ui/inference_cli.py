@@ -1140,6 +1140,13 @@ def cli(args=None):
     if kwargs["hide_echoview"] is None:
         kwargs["hide_echoview"] = "never" if kwargs["minimize_echoview"] else "new"
 
+    if kwargs["verbose"] >= 5:
+        import pprint
+
+        print("\nFull list of keyword arguments:")
+        pprint.pprint(kwargs)
+        print("")
+
     from ..inference import run_inference
 
     run_inference(**kwargs)
