@@ -520,7 +520,7 @@ def get_parser():
         help="""
             Hide any Echoview window spawned by this program. If it must use
             an Echoview instance which was already running, that window is not
-            hidden. This is the default behaviour.
+            hidden.
         """,
     )
     group_evwin_hiding.add_argument(
@@ -530,8 +530,7 @@ def get_parser():
         const="never",
         default=None,
         help="""
-            Don't hide an Echoview window created to run this code. (Disables
-            the default behaviour which is equivalent to ``--hide-echoview``.)
+            Don't hide or minimize an Echoview window created to run this code.
         """,
     )
     group_evwin_hiding.add_argument(
@@ -552,8 +551,7 @@ def get_parser():
         help="""
             Minimize any Echoview window used to runs this code while it runs.
             The window will be restored once the program is finished.
-            If this argument is supplied, ``--show-echoview`` is implied unless
-            ``--hide-echoview`` is also given.
+            This is the default behaviour.
         """,
     )
 
@@ -614,7 +612,10 @@ def main(args=None):
         )
 
     if kwargs["hide_echoview"] is None:
-        kwargs["hide_echoview"] = "never" if kwargs["minimize_echoview"] else "new"
+        kwargs["hide_echoview"] = "never"
+        kwargs["minimize_echoview"] = True
+    elif kwargs["minimize_echoview"] is None:
+        kwargs["minimize_echoview"] = False
 
     if kwargs["verbose"] >= 3:
         import pprint
