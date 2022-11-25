@@ -13,6 +13,53 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
+Version `1.2.1 <https://github.com/DeepSenseCA/echofilter/tree/1.2.1>`__
+------------------------------------------------------------------------
+
+Release date: 2022-11-25.
+`Full commit changelog <https://github.com/DeepSenseCA/echofilter/compare/1.2.0...1.2.1>`__.
+
+
+.. _v1.2.1 Changed:
+
+Changed
+~~~~~~~
+
+.. _v1.2.1 Changed Inference:
+
+Inference
+^^^^^^^^^
+
+-   Default behaviour changed from ``--hide-echoview`` to ``--minimize-echoview``.
+    (`#338 <https://github.com/DeepSenseCA/echofilter/pull/338>`__)
+    This alleviates an issue with line-variable icons not appearing in the Echoview Dataflow.
+    (`#337 <https://github.com/DeepSenseCA/echofilter/pull/337>`__)
+
+.. _v1.2.1 Changed ev2csv:
+
+ev2csv
+^^^^^^
+
+-   Default behaviour changed from ``--hide-echoview`` to ``--minimize-echoview``, to maintain alignment with default inference behaviour.
+    (`#338 <https://github.com/DeepSenseCA/echofilter/pull/338>`__,
+    `#340 <https://github.com/DeepSenseCA/echofilter/pull/340>`__)
+
+
+.. _v1.2.1 Deprecated:
+
+Deprecated
+~~~~~~~~~~
+
+.. _v1.2.1 Deprecated Inference:
+
+Inference
+^^^^^^^^^
+
+-   Options to hide Echoview (``--hide-echoview`` and ``--always-hide-echoview``) have been deprecated.
+    (`#338 <https://github.com/DeepSenseCA/echofilter/pull/338>`__,
+    `#340 <https://github.com/DeepSenseCA/echofilter/pull/340>`__)
+
+
 Version `1.2.0 <https://github.com/DeepSenseCA/echofilter/tree/1.2.0>`__
 ------------------------------------------------------------------------
 
