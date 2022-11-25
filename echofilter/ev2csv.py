@@ -56,8 +56,8 @@ def run_ev2csv(
     keep_ext=False,
     skip_existing=False,
     overwrite_existing=False,
-    minimize_echoview=False,
-    hide_echoview="new",
+    minimize_echoview=True,
+    hide_echoview="never",
     verbose=1,
     dry_run=False,
 ):
@@ -107,16 +107,16 @@ def run_ev2csv(
     overwrite_existing : bool, optional
         Whether to overwrite existing output files. If ``False`` (default), an
         error is raised if the destination file already exists.
-    minimize_echoview : bool, optional
-        If ``True``, the Echoview window being used will be minimized while this
-        function is running. Default is ``False``.
-    hide_echoview : {"never", "new", "always"}, optional
+    minimize_echoview : bool, default=True
+        If ``True`` (default), the Echoview window being used will be minimized
+        while this function is running.
+    hide_echoview : {"never", "new", "always"}, default="never"
         Whether to hide the Echoview window entirely while the code runs.
         If ``hide_echoview="new"``, the application is only hidden if it
         was created by this function, and not if it was already running.
         If ``hide_echoview="always"``, the application is hidden even if it was
         already running. In the latter case, the window will be revealed again
-        when this function is completed. Default is ``"new"``.
+        when this function is completed.
     verbose : int, optional
         Level of verbosity. Default is ``1``.
     dry_run : bool, optional

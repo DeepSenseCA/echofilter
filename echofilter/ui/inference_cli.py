@@ -1024,7 +1024,7 @@ def get_parser():
             Hide any Echoview window spawned by this program. If it must use
             an Echoview instance which was already running, that window is not
             hidden.
-            Caution: Hiding Echoview has been found to problems when using
+            Caution: Hiding Echoview has been found to cause problems when using
             Echoview 13 and above.
             For more details, see https://github.com/DeepSenseCA/echofilter/issues/337
         """,
@@ -1048,7 +1048,7 @@ def get_parser():
         help="""
             Hide the Echoview window while this code runs, even if this
             process is utilising an Echoview window which was already open.
-            Caution: Hiding Echoview has been found to problems when using
+            Caution: Hiding Echoview has been found to cause problems when using
             Echoview 13 and above.
             For more details, see https://github.com/DeepSenseCA/echofilter/issues/337
         """,

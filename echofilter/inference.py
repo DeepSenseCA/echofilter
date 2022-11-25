@@ -422,6 +422,11 @@ def run_inference(
         already running. In the latter case, the window will be revealed again
         when this function is completed.
 
+        .. warning::
+            Hiding Echoview has been found to cause problems when using
+            Echoview 13 and above.
+            For more details, see `#337 <https://github.com/DeepSenseCA/echofilter/pull/337>`__.
+
         .. deprecated:: 1.2.1
            Support for hiding echoview during inference will be dropped in a
            future release.
