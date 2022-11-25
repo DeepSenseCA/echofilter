@@ -27,6 +27,7 @@ import sys
 import tempfile
 import textwrap
 import time
+import warnings
 
 import numpy as np
 import torch
@@ -420,6 +421,11 @@ def run_inference(
         If ``hide_echoview="always"``, the application is hidden even if it was
         already running. In the latter case, the window will be revealed again
         when this function is completed.
+
+        .. deprecated:: 1.2.1
+           Support for hiding echoview during inference will be dropped in a
+           future release.
+
     minimize_echoview : bool, default=True
         If ``True`` (default), the Echoview window being used will be minimized
         while this function is running.
@@ -444,6 +450,9 @@ def run_inference(
     )
 
     if hide_echoview != "never":
+        warnings.warn(
+            "Hiding Echoview during inference is deprecated.", DeprecationWarning
+        )
         if verbose >= 0:
             s = (
                 "Warning: Hiding Echoview may result in unwanted side-effects."
