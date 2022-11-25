@@ -160,6 +160,9 @@ def run_inference(
         If ``True``, perform a trial run with no changes made.
     continue_on_error : bool, default=False
         Continue running on remaining files if one file hits an error.
+
+        .. versionadded:: 1.1.0
+
     overwrite_existing : bool, default=False
         Overwrite existing outputs without producing a warning message. If
         ``False``, an error is generated if files would be overwritten.
@@ -362,6 +365,9 @@ def run_inference(
         are temporarily disabled before exporting the CSV, in order to ensure
         all raw data is exported. If ``False``, thresholds and exclusions are
         used as per the EV file.
+
+        .. versionadded:: 1.1.0
+
     row_len_selector : str, default="mode"
         Method used to handle input csv files with different number of Sv
         values across time (i.e. a non-rectangular input).
@@ -381,10 +387,16 @@ def run_inference(
         the data normalisation (Gaussian standardisation) step.
         By default, NaNs are left as they are until after standardising the
         data.
+
+        .. versionadded:: 1.1.0
+
     postnorm_nan_value : float, optional
         Placeholder value to replace NaNs with. Does nothing if
         ``prenorm_nan_value`` is set. By default this is set to the
         value used to train the model.
+
+        .. versionadded:: 1.1.0
+
     crop_min_depth : float, optional
         Minimum depth to include in input. By default, there is no
         minimum depth.
@@ -410,6 +422,11 @@ def run_inference(
     logit_smoothing_sigma : float, optional
         Standard deviation over which logits will be smoothed before being
         converted into output. Disabled by default.
+
+        .. versionchanged:: 1.1.0
+            The default logit smoothing value changed from ``1`` (enabled) to
+            ``0`` (disabled).
+
     device : str or torch.device, optional
         Name of device on which the model will be run. By default, the first
         available CUDA GPU is used if any are found, and otherwise the CPU is
