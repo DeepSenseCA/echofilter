@@ -1114,6 +1114,15 @@ def cli(args=None):
     kwargs["verbose"] -= kwargs.pop("quiet", 0)
 
     if kwargs["verbose"] >= 2:
+        import echofilter.ui.style
+
+        print(
+            echofilter.ui.style.aside_fmt(
+                f"Running Echofilter inference routine, version {__meta__.version}"
+            )
+        )
+
+    if kwargs["verbose"] >= 2:
         parser.print_values()
 
     if kwargs.pop("force"):
@@ -1130,6 +1139,13 @@ def cli(args=None):
 
     if kwargs["hide_echoview"] is None:
         kwargs["hide_echoview"] = "never" if kwargs["minimize_echoview"] else "new"
+
+    if kwargs["verbose"] >= 5:
+        import pprint
+
+        print("\nFull list of keyword arguments:")
+        pprint.pprint(kwargs)
+        print("")
 
     from ..inference import run_inference
 
