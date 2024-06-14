@@ -129,7 +129,6 @@ class Rescale(object):
         self.order = order
 
     def __call__(self, sample):
-
         order = self.order
         if order is None:
             order = np.random.randint(1)
@@ -148,7 +147,7 @@ class Rescale(object):
                     "ignore", "Bi-quadratic interpolation behavior has changed"
                 )
                 sample[key] = skimage.transform.resize(
-                    np.asarray(sample[key]).astype(np.float),
+                    np.asarray(sample[key]).astype(float),
                     self.output_size,
                     order=order,
                     clip=False,
@@ -224,7 +223,6 @@ class RandomGridSampling(Rescale):
         self.p = p
 
     def __call__(self, sample):
-
         if random.random() > self.p:
             # Nothing to do
             return sample
@@ -341,7 +339,6 @@ class RandomElasticGrid(Rescale):
         self.alpha = _pair(alpha)
 
     def __call__(self, sample):
-
         if random.random() > self.p:
             # Nothing to do
             return sample
@@ -464,7 +461,6 @@ class Normalize(object):
         self.robust2stdev = robust2stdev
 
     def __call__(self, sample):
-
         if not isinstance(self.center, str):
             center = self.center
         elif self.center.lower() == "mean":
@@ -521,7 +517,6 @@ class ReplaceNan(object):
         self.nan_val = nan_val
 
     def __call__(self, sample):
-
         # Can't use np.nan_to_num to assign nan to a specific value if
         # numpy version <= 1.17.
         sample["signals"][np.isnan(sample["signals"])] = self.nan_val
@@ -546,7 +541,6 @@ class RandomReflection(object):
         self.p = p
 
     def __call__(self, sample):
-
         if random.random() > self.p:
             # Nothing to do
             return sample
@@ -575,7 +569,6 @@ class RandomCropWidth(object):
         self.max_crop_fraction = max_crop_fraction
 
     def __call__(self, sample):
-
         width = sample["signals"].shape[0]
 
         crop_fraction = random.uniform(0.0, self.max_crop_fraction)
@@ -716,7 +709,6 @@ class RandomCropDepth(object):
         self.fraction_close = fraction_close
 
     def __call__(self, sample):
-
         p = random.random()
 
         # Possibility of doing no crop at all

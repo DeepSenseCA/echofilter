@@ -193,7 +193,7 @@ def transect_loader(
     timestamps = np.empty((n_lines - skip_lines))
     timestamps[:] = np.nan
 
-    row_lengths = np.empty((n_lines - skip_lines), dtype=np.int)
+    row_lengths = np.empty((n_lines - skip_lines), dtype=int)
     row_depth_starts = np.empty((n_lines - skip_lines))
     row_depth_ends = np.empty((n_lines - skip_lines))
 
