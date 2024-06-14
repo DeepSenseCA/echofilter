@@ -67,7 +67,12 @@ class FlexibleConcat2d(nn.Module):
         if diffX != 0 or diffY != 0:
             x1 = F.pad(
                 x1,
-                [diffX // 2, diffX - diffX // 2, diffY // 2, diffY - diffY // 2],
+                [
+                    torch.div(diffX, 2, rounding_mode="trunc"),
+                    diffX - torch.div(diffX, 2, rounding_mode="trunc"),
+                    torch.div(diffY, 2, rounding_mode="trunc"),
+                    diffY - torch.div(diffY, 2, rounding_mode="trunc"),
+                ],
                 mode="replicate",
             )
         # if you have padding issues, see
